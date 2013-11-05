@@ -42,3 +42,9 @@ ${BOOTGEN_BIN} -image ${BIF_FILE} -o i ${BOOT_BIN}
 DEVTREE=zynq-${BOARD_NAME}.dtb
 cd ${IMAGE_DIR}
 cp ${DEVTREE} devicetree.dtb
+
+#####################################
+# Copy Over the init.sh
+#####################################
+INIT_SCR=${BOARD_DIR}/init.sh
+cp ${INIT_SCR} ${IMAGE_DIR}/
