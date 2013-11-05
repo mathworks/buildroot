@@ -39,7 +39,7 @@ ${BOOTGEN_BIN} -image ${BIF_FILE} -o i ${BOOT_BIN}
 #####################################
 # Move the devicetree
 #####################################
-DEVTREE=zynq-${BOARD_NAME}.dtb
+DEVTREE=zynq-mw-${BOARD_NAME}.dtb
 cd ${IMAGE_DIR}
 cp ${DEVTREE} devicetree.dtb
 
