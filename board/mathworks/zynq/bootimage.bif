@@ -1,0 +1,6 @@
+the_ROM_image:
+{
+	[bootloader]/Work/Pilot_Projects/Zynq/ZynqVideo/Working/MW_Video_TRD/sw/zynq_fsbl/Debug/zynq_fsbl.elf
+	/Work/Pilot_Projects/Zynq/ZynqVideo/Working/MW_Video_TRD/boot_image/system_stub.bit
+	/Work/Pilot_Projects/Zynq/ZynqVideo/Working/MW_Video_TRD/boot_image/u-boot.elf
+}
