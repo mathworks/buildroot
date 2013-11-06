@@ -5,7 +5,7 @@ echo "Starting MW Xenomai TRD..."
 cd /mnt
 
 # load the MW axi kernel module
-# insmod /mnt/mwipcore.ko
+modprobe mwipcore
 
 # run dhcp script to obtain IP Address
 #udhcpc -s /mnt/dhcp.script
