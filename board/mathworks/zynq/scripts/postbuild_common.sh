@@ -2,9 +2,15 @@
 IMAGE_DIR=$1
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+SD_DIR=${IMAGE_DIR}/sdcard
+
+mkdir -p ${SD_DIR}
+
+#####################################
 # Create the u-boot ramdisk image
+#####################################
 CPIO_IMG=${IMAGE_DIR}/rootfs.cpio.gz
-UIMAGE=${IMAGE_DIR}/uramdisk.image.gz
+UIMAGE=${SD_DIR}/uramdisk.image.gz
 mkimage -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 
 #####################################
@@ -35,16 +41,25 @@ EOF
 # create BOOT.BIN
 rm ${BOOT_BIN} &>/dev/null
 ${BOOTGEN_BIN} -image ${BIF_FILE} -o i ${BOOT_BIN}
+mv ${BOOT_BIN} ${SD_DIR}/
 
 #####################################
 # Move the devicetree
 #####################################
 DEVTREE=zynq-mw-${BOARD_NAME}.dtb
 cd ${IMAGE_DIR}
-cp ${DEVTREE} devicetree.dtb
+cp ${DEVTREE} ${SD_DIR}/devicetree.dtb
+
+#####################################
+# Move the kernel
+#####################################
+KERNEL=uImage
+cd ${IMAGE_DIR}
+cp ${KERNEL} ${SD_DIR}/
+
 
 #####################################
 # Copy Over the init.sh
 #####################################
 INIT_SCR=${BOARD_DIR}/init.sh
-cp ${INIT_SCR} ${IMAGE_DIR}/
+cp ${INIT_SCR} ${SD_DIR}/
