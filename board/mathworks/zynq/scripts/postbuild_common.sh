@@ -21,6 +21,8 @@ UBOOT_ELF=u-boot.elf
 BIF_FILE=bootimage.bif
 FSBL_SRC=${BOARD_DIR}/${BOARD_NAME}_fsbl.elf
 FSBL_DST=zynq_fsbl.elf
+BITSTREAM_SRC=${BOARD_DIR}/${BOARD_NAME}.bit
+BITSTREAM_DST=zynq.bit
 BOOTGEN_BIN=/opt/Xilinx/14.4/SDK/SDK/bin/lin/bootgen
 BOOT_BIN=BOOT.BIN
 
@@ -28,12 +30,14 @@ BOOT_BIN=BOOT.BIN
 cd ${IMAGE_DIR}
 mv ${UBOOT_BIN} ${UBOOT_ELF}
 cp ${FSBL_SRC} ${FSBL_DST}
+cp ${BITSTREAM_SRC} ${BITSTREAM_DST}
 
 # create bootimage.bif
 cat << EOF > ${BIF_FILE}
 	the_ROM_image:
 	{
 		[bootloader]${FSBL_DST}
+		${BITSTREAM_DST}
 		u-boot.elf
 	}
 EOF
