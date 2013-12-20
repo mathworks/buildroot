@@ -36,10 +36,10 @@ BR2_TARGET_UBOOT_FORMAT_ELF=y
 BR2_PACKAGE_HOST_E2FSPROGS=y
 BR2_PACKAGE_HOST_GENEXT2FS=y
 ###########################################
-# ZC702 Options
+# ZedBoard Options
 ###########################################
-BR2_ROOTFS_POST_IMAGE_SCRIPT="board/mathworks/zynq/scripts/postbuild_zc702.sh"
-BR2_TARGET_UBOOT_BOARDNAME="zynq_zc70x"
+BR2_ROOTFS_POST_IMAGE_SCRIPT="board/mathworks/zynq/scripts/postbuild_uzed.sh"
+BR2_TARGET_UBOOT_BOARDNAME="zynq_uzed"
 ###########################################
 # Linaro Toolchain Options
 ###########################################

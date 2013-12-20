@@ -2,7 +2,7 @@
 IMAGE_DIR=$1
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
-SD_DIR=${IMAGE_DIR}/sdcard
+SD_DIR=${IMAGE_DIR}/sdcard_${BOARD_NAME}
 
 mkdir -p ${SD_DIR}
 
