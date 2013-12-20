@@ -1,0 +1,5 @@
+###########################################
+# Linux Options
+###########################################
+BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION="master"
+BR2_LINUX_KERNEL_DEFCONFIG="xenomai_zynq"

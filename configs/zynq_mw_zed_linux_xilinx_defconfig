@@ -35,3 +35,23 @@ BR2_TARGET_UBOOT_CUSTOM_GIT_VERSION="xilinx-v14.4"
 BR2_TARGET_UBOOT_FORMAT_ELF=y
 BR2_PACKAGE_HOST_E2FSPROGS=y
 BR2_PACKAGE_HOST_GENEXT2FS=y
+###########################################
+# ZedBoard Options
+###########################################
+BR2_ROOTFS_POST_IMAGE_SCRIPT="board/mathworks/zynq/scripts/postbuild_zed.sh"
+BR2_TARGET_UBOOT_BOARDNAME="zynq_zed"
+###########################################
+# Xilinx Toolchain Options
+###########################################
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM=y
+BR2_TOOLCHAIN_EXTERNAL_PATH="/opt/Xilinx/14.4/SDK/SDK/gnu/arm/lin"
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-xilinx-linux-gnueabi"
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
+BR2_TOOLCHAIN_EXTERNAL_CXX=y
+
+
+###########################################
+# Linux Options
+###########################################
+BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION="master"
+BR2_LINUX_KERNEL_DEFCONFIG="xenomai_zynq"
