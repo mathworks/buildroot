@@ -1,17 +1,20 @@
 #!/bin/bash
 IMAGE_DIR=$1
+OUTPUT_DIR=$( cd "$( dirname "${IMAGE_DIR}" )" && pwd )
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 SD_DIR=${IMAGE_DIR}/sdcard_${BOARD_NAME}
 
+rm -rf ${SD_DIR}
 mkdir -p ${SD_DIR}
 
 #####################################
 # Create the u-boot ramdisk image
 #####################################
+MKIMAGE_BIN=${OUTPUT_DIR}/host/usr/bin/mkimage
 CPIO_IMG=${IMAGE_DIR}/rootfs.cpio.gz
 UIMAGE=${SD_DIR}/uramdisk.image.gz
-mkimage -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
+${MKIMAGE_BIN} -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 
 #####################################
 # Create the xilinx boot.bin
@@ -28,7 +31,7 @@ BOOT_BIN=BOOT.BIN
 
 # rename to .elf for bootgen
 cd ${IMAGE_DIR}
-mv ${UBOOT_BIN} ${UBOOT_ELF}
+cp ${UBOOT_BIN} ${UBOOT_ELF}
 cp ${FSBL_SRC} ${FSBL_DST}
 cp ${BITSTREAM_SRC} ${BITSTREAM_DST}
 
@@ -46,6 +49,9 @@ EOF
 rm ${BOOT_BIN} &>/dev/null
 ${BOOTGEN_BIN} -image ${BIF_FILE} -o i ${BOOT_BIN}
 mv ${BOOT_BIN} ${SD_DIR}/
+
+# cleanup
+rm ${UBOOT_ELF} ${FSBL_DST} ${BITSTREAM_DST} ${BIF_FILE}
 
 #####################################
 # Move the devicetree
