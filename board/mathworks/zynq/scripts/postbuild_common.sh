@@ -4,6 +4,7 @@ OUTPUT_DIR=$( cd "$( dirname "${IMAGE_DIR}" )" && pwd )
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 SD_DIR=${IMAGE_DIR}/sdcard_${BOARD_NAME}
+BOOT_DIR=${BOARD_DIR}/boot
 
 rm -rf ${SD_DIR}
 mkdir -p ${SD_DIR}
@@ -22,9 +23,9 @@ ${MKIMAGE_BIN} -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 UBOOT_BIN=u-boot
 UBOOT_ELF=u-boot.elf
 BIF_FILE=bootimage.bif
-FSBL_SRC=${BOARD_DIR}/${BOARD_NAME}_fsbl.elf
+FSBL_SRC=${BOOT_DIR}/${BOARD_NAME}_fsbl.elf
 FSBL_DST=zynq_fsbl.elf
-BITSTREAM_SRC=${BOARD_DIR}/${BOARD_NAME}.bit
+BITSTREAM_SRC=${BOOT_DIR}/${BOARD_NAME}.bit
 BITSTREAM_DST=zynq.bit
 BOOTGEN_BIN=/opt/Xilinx/14.4/SDK/SDK/bin/lin/bootgen
 BOOT_BIN=BOOT.BIN
