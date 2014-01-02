@@ -74,3 +74,10 @@ cp ${KERNEL} ${SD_DIR}/
 #####################################
 INIT_SCR=${BOARD_DIR}/init.sh
 cp ${INIT_SCR} ${SD_DIR}/
+
+#####################################
+# Copy Over the docs
+#####################################
+DOCS_DIR=${BOARD_DIR}/docs/*
+cp ${DOCS_DIR} ${SD_DIR}/
+

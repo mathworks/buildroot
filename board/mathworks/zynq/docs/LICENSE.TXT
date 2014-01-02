@@ -1,0 +1,14 @@
+Some of the binary files included in this distribution are based on software
+covered under the GPL. Please see GPL.TXT for the full text of this license.
+
+Source code for the software covered under the GPL can be found at the following
+location:
+
+Linux Kernel:
+https://bitbucket.org/mfornero/linux
+
+U-Boot Bootloader:
+https://bitbucket.org/mfornero/u-boot
+
+Buildroot-based root filesystem:
+https://bitbucket.org/mfornero/buildroot
