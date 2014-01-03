@@ -77,16 +77,9 @@ KERNEL=uImage
 cd ${IMAGE_DIR}
 cp ${KERNEL} ${SD_DIR}/
 
-
 #####################################
-# Copy Over the init.sh
+# Copy Over the sdcard files
 #####################################
-INIT_SCR=${BOARD_DIR}/init.sh
-cp ${INIT_SCR} ${SD_DIR}/
-
-#####################################
-# Copy Over the docs
-#####################################
-DOCS_DIR=${BOARD_DIR}/docs/*
-cp ${DOCS_DIR} ${SD_DIR}/
+SD_SRC=${BOARD_DIR}/sdcard/*
+cp ${SD_SRC} ${SD_DIR}/
 

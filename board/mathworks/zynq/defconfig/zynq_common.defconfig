@@ -11,6 +11,7 @@ BR2_ENABLE_LOCALE_PURGE=y
 BR2_ENABLE_LOCALE_WHITELIST="C en_US"
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV=y
 BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt board/mathworks/zynq/device_table.txt"
+BR2_ROOTFS_POST_BUILD_SCRIPT="board/mathworks/zynq/scripts/postbuild_common.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/mathworks/zynq/scripts/postimage_common.sh"
 BR2_TARGET_GENERIC_GETTY_PORT="ttyPS0"
 # BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW is not set
