@@ -8,7 +8,7 @@
 #	BASE_DIR: base output directory
 TARGET_DIR=$1
 BOARD_NAME=$2
-BR_ROOT=$pwd
+BR_ROOT=$PWD
 OUTPUT_DIR=$BASE_DIR
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
@@ -19,5 +19,8 @@ BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 tempfile=$(mktemp)
 sed 's|\(.*\)::respawn.*# GENERIC_SERIAL$|\1::respawn:-/bin/sh # GENERIC_SERIAL|' ${TARGET_DIR}/etc/inittab > $tempfile && \
 	cat $tempfile > ${TARGET_DIR}/etc/inittab
-
-
+	
+#####################################
+# Add the version info to the rootfs	
+#####################################
+${SCRIPT_DIR}/git_verinfo.sh $BUILDROOT_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${TARGET_DIR}/etc/buildinfo
