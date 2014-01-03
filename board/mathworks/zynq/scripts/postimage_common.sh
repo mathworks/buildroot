@@ -1,10 +1,18 @@
 #!/bin/bash
+# format: <post-image-script.sh> <image dir> <board name>
+# executed out of main buildroot source directory
+# available environment variables
+#	BUILDROOT_CONFIG: path to .config file
+#	HOST_DIR, STAGING_DIR, TARGET_DIR
+#	BINARIES_DIR: images dir
+#	BASE_DIR: base output directory
 IMAGE_DIR=$1
-OUTPUT_DIR=$( cd "$( dirname "${IMAGE_DIR}" )" && pwd )
+BOARD_NAME=$2
+BR_ROOT=$pwd
+OUTPUT_DIR=$BASE_DIR
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 SD_DIR=${IMAGE_DIR}/sdcard_${BOARD_NAME}
-BOOT_DIR=${BOARD_DIR}/boot
 
 rm -rf ${SD_DIR}
 mkdir -p ${SD_DIR}
@@ -20,6 +28,7 @@ ${MKIMAGE_BIN} -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 #####################################
 # Create the xilinx boot.bin
 #####################################
+BOOT_DIR=${BOARD_DIR}/boot
 UBOOT_BIN=u-boot
 UBOOT_ELF=u-boot.elf
 BIF_FILE=bootimage.bif
