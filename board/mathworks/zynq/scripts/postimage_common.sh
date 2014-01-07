@@ -88,3 +88,8 @@ cp ${SD_SRC} ${SD_DIR}/
 #####################################
 ${SCRIPT_DIR}/git_verinfo.sh $BUILDROOT_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/BUILDINFO
 
+####################################
+# Add the application specific DTBs
+####################################
+# Video DTB
+${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} vid
