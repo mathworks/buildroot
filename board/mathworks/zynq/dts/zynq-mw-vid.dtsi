@@ -53,5 +53,56 @@
 			mwgen,ipinst = "mwtc_0";
 			mwgen,ipver = "1.00.a";
 		};
+		vita@42020000 {
+			compatible = "mathworks,mwgeneric-v1.00";
+			reg = <0x42020000 0xffff>;
+			mwgen,ipname = "avnet,fmc_imageon_vita_receiver";
+			mwgen,devname = "vitarx";
+			mwgen,ipinst = "vita_rx";
+			mwgen,ipver = "1.12.a";
+		};
+		gpio@43020000 {
+			compatible = "mathworks,mwgeneric-v1.00";
+			reg = <0x43020000 0xffff>;
+			mwgen,ipname = "xlnx,axi_gpio";
+			mwgen,devname = "axigpio";
+			mwgen,ipinst = "axi_gpio_0";
+			mwgen,ipver = "1.12.a";
+		};
+		
+		i2c0: i2c@e0004000 {
+			i2cswitch@74 {
+				i2c@5 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <5>;
+					eeprom@50 {
+						compatible = "at,24c02";
+						reg = <0x50>;
+					};
+				};
+				i2c@6 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <6>;
+					eeprom@50 {
+						compatible = "at,24c02";
+						reg = <0x50>;
+					};
+				};
+			};
+		};
+		i2c1: i2c@e0005000 {
+			compatible = "xlnx,ps7-i2c-1.00.a";
+			reg = <0xE0005000 0x1000>;
+			interrupts = <0 48 4>;
+			interrupt-parent = <&gic>;
+			bus-id = <1>;
+			input-clk = <111111111>;
+			i2c-clk = <100000>;
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
 	};
 };
