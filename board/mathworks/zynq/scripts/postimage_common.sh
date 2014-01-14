@@ -14,6 +14,22 @@ SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 SD_DIR=${IMAGE_DIR}/sdcard_${BOARD_NAME}
 
+
+function create_bif() {
+local BIF=$1
+local FSBL=$2
+local BITSTREAM=$3
+# create bootimage.bif
+cat << EOF > ${BIF}
+	the_ROM_image:
+	{
+		[bootloader]${FSBL}
+		${BITSTREAM}
+		u-boot.elf
+	}
+EOF
+}
+
 rm -rf ${SD_DIR}
 mkdir -p ${SD_DIR}
 
@@ -38,6 +54,7 @@ BITSTREAM_SRC=${BOOT_DIR}/${BOARD_NAME}.bit
 BITSTREAM_DST=zynq.bit
 BOOTGEN_BIN=/opt/Xilinx/14.4/SDK/SDK/bin/lin/bootgen
 BOOT_BIN=BOOT.BIN
+FPGA_BIN=system.bit.bin
 
 # rename to .elf for bootgen
 cd ${IMAGE_DIR}
@@ -45,23 +62,14 @@ cp ${UBOOT_BIN} ${UBOOT_ELF}
 cp ${FSBL_SRC} ${FSBL_DST}
 cp ${BITSTREAM_SRC} ${BITSTREAM_DST}
 
-# create bootimage.bif
-cat << EOF > ${BIF_FILE}
-	the_ROM_image:
-	{
-		[bootloader]${FSBL_DST}
-		${BITSTREAM_DST}
-		u-boot.elf
-	}
-EOF
-
 # create BOOT.BIN
 rm ${BOOT_BIN} &>/dev/null
+create_bif ${BIF_FILE} ${FSBL_DST} ${BITSTREAM_DST}
 ${BOOTGEN_BIN} -image ${BIF_FILE} -o i ${BOOT_BIN}
 mv ${BOOT_BIN} ${SD_DIR}/
 
 # cleanup
-rm ${UBOOT_ELF} ${FSBL_DST} ${BITSTREAM_DST} ${BIF_FILE}
+rm ${UBOOT_ELF} ${UBOOT_ELF}.bin ${FSBL_DST} ${FSBL_DST}.bin ${BITSTREAM_DST} ${BIF_FILE} ${BOOT_BIN} &>/dev/null
 
 #####################################
 # Move the devicetree
