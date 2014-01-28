@@ -2,16 +2,16 @@ Some of the binary files included in this image are based on software
 covered under the GPL. Please see GPL.TXT for the full text of this license.
 
 The GPL and the rights described therein, do NOT apply to the whole of the
-Pilot Support Package, or any other part of MathWorks software.
+Support Package, or any other part of MathWorks software.
 
-Source code for the software covered under the GPL can be found at the 
-following location:
+Source code for the software covered under the GPL can be found at the
+following locations:
 
 Linux Kernel:
-https://bitbucket.org/mfornero/linux
+https://github.com/mfornero/linux
 
 U-Boot Bootloader:
-https://bitbucket.org/mfornero/u-boot
+https://github.com/mfornero/u-boot
 
 Buildroot-based root filesystem:
-https://bitbucket.org/mfornero/buildroot
+https://github.com/mfornero/buildroot
