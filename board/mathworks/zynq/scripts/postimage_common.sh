@@ -52,7 +52,7 @@ FSBL_SRC=${BOOT_DIR}/${BOARD_NAME}_fsbl.elf
 FSBL_DST=zynq_fsbl.elf
 BITSTREAM_SRC=${BOOT_DIR}/${BOARD_NAME}.bit
 BITSTREAM_DST=zynq.bit
-BOOTGEN_BIN=/opt/Xilinx/14.4/SDK/SDK/bin/lin/bootgen
+BOOTGEN_BIN=/opt/Xilinx/SDK/2013.4/bin/bootgen
 BOOT_BIN=BOOT.BIN
 FPGA_BIN=system.bit.bin
 
