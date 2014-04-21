@@ -8,12 +8,18 @@
 #	BASE_DIR: base output directory
 IMAGE_DIR=$1
 BOARD_NAME=$2
+CHIP_NAME=$3
 BR_ROOT=$PWD
 OUTPUT_DIR=$BASE_DIR
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 SD_DIR=${IMAGE_DIR}/sdcard_${BOARD_NAME}
 
+if [ -z "${CHIP_NAME}" ]; then
+	CHIP_STR=""
+else
+	CHIP_STR="-${CHIP_NAME}"
+fi
 
 function create_bif() {
 local BIF=$1
@@ -48,9 +54,9 @@ BOOT_DIR=${BOARD_DIR}/boot
 UBOOT_BIN=u-boot
 UBOOT_ELF=u-boot.elf
 BIF_FILE=bootimage.bif
-FSBL_SRC=${BOOT_DIR}/${BOARD_NAME}_fsbl.elf
+FSBL_SRC=${BOOT_DIR}/${BOARD_NAME}${CHIP_STR}_fsbl.elf
 FSBL_DST=zynq_fsbl.elf
-BITSTREAM_SRC=${BOOT_DIR}/${BOARD_NAME}.bit
+BITSTREAM_SRC=${BOOT_DIR}/${BOARD_NAME}${CHIP_STR}.bit
 BITSTREAM_DST=zynq.bit
 BOOTGEN_BIN=/opt/Xilinx/SDK/2013.4/bin/bootgen
 BOOT_BIN=BOOT.BIN

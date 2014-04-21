@@ -8,6 +8,7 @@
 #	BASE_DIR: base output directory
 TARGET_DIR=$1
 BOARD_NAME=$2
+CHIP_NAME=$3
 BR_ROOT=$PWD
 OUTPUT_DIR=$BASE_DIR
 SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
