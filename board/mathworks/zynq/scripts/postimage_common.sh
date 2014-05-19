@@ -1,25 +1,18 @@
 #!/bin/bash
-# format: <post-image-script.sh> <image dir> <board name>
+# format: <post-image-script.sh> <image dir> -b <board name> [-c <chip name>] [-a <application> [-a <application>]]
 # executed out of main buildroot source directory
 # available environment variables
 #	BUILDROOT_CONFIG: path to .config file
 #	HOST_DIR, STAGING_DIR, TARGET_DIR
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
-IMAGE_DIR=$1
-BOARD_NAME=$2
-CHIP_NAME=$3
-BR_ROOT=$PWD
-OUTPUT_DIR=$BASE_DIR
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
-SD_DIR=${IMAGE_DIR}/sdcard_${BOARD_NAME}
 
-if [ -z "${CHIP_NAME}" ]; then
-	CHIP_STR=""
-else
-	CHIP_STR="-${CHIP_NAME}"
-fi
+SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
+source ${SCRIPT_DIR}/parse_opts.sh
+
+IMAGE_DIR=${INDIR}
+TGTNAME=${BOARD_NAME}${CHIP_NAME}
+SD_DIR=${IMAGE_DIR}/sdcard
 
 function create_bif() {
 local BIF=$1
@@ -54,9 +47,9 @@ BOOT_DIR=${BOARD_DIR}/boot
 UBOOT_BIN=u-boot
 UBOOT_ELF=u-boot.elf
 BIF_FILE=bootimage.bif
-FSBL_SRC=${BOOT_DIR}/${BOARD_NAME}${CHIP_STR}_fsbl.elf
+FSBL_SRC=${BOOT_DIR}/${TGTNAME}_fsbl.elf
 FSBL_DST=zynq_fsbl.elf
-BITSTREAM_SRC=${BOOT_DIR}/${BOARD_NAME}${CHIP_STR}.bit
+BITSTREAM_SRC=${BOOT_DIR}/${TGTNAME}.bit
 BITSTREAM_DST=zynq.bit
 BOOTGEN_BIN=/opt/Xilinx/SDK/2013.4/bin/bootgen
 BOOT_BIN=BOOT.BIN
@@ -105,5 +98,14 @@ ${SCRIPT_DIR}/git_verinfo.sh $BUILDROOT_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD
 ####################################
 # Add the application specific DTBs
 ####################################
-# Video DTB
-${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} vid
+${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} ${APP_LIST}
+
+####################################
+# Zip the SD Card Directory
+####################################
+IMAGE_DIR=${INDIR}
+SD_DIR=${IMAGE_DIR}/sdcard
+pushd ${IMAGE_DIR}
+    zip -r ${TGTNAME}_sdcard.zip sdcard/
+popd
+

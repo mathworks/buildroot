@@ -1,9 +1,5 @@
+/include/ "zynq-mw-vid-common.dtsi"
 /{
-	chosen {
-		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk cma=128M";
-		linux,stdout-path = "/amba@0/uart@E0001000";
-	};
-	
     i2c_misc {
         compatible = "simple-bus";
 		#address-cells = <0x1>;
@@ -28,15 +24,6 @@
     };
 
 	amba@0{   
-        hdmitx@41010000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x41010000 0xffff>;
-			mwgen,ipname = "adi,axi_hdmi_tx_16b";
-			mwgen,devname = "hdmitx";
-			mwgen,ipinst = "axi_hdmi_tx_16b_0";
-			mwgen,ipver = "1.00.a";
-            i2c-controller = <&hdmitx_i2c>;
-		};
 		hdmirx@41000000 {
 			compatible = "mathworks,mwgeneric-v1.00";
 			reg = <0x41000000 0xffff>;
@@ -46,38 +33,7 @@
 			mwgen,ipver = "1.00.a";
             i2c-controller = <&hdmirx_i2c>;
 		};
-		vdma_hdmi@42000000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x42000000 0xffff>;
-			mwgen,ipname = "xlnx,axi_vdma";
-			mwgen,devname = "vdma";
-			mwgen,ipinst = "vdma_hdmi";
-			mwgen,ipver = "5.04.a";
-		};
-		vdma_filter@42010000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x42010000 0xffff>;
-			mwgen,ipname = "xlnx,axi_vdma";
-			mwgen,devname = "vdma";
-			mwgen,ipinst = "vdma_filter";
-			mwgen,ipver = "5.04.a";
-		};
-		clkgen@43000000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x43000000 0xffff>;
-			mwgen,ipname = "axi_clkgen";
-			mwgen,devname = "clkgen";
-			mwgen,ipinst = "axi_clkgen_0";
-			mwgen,ipver = "1.00.a";
-		};
-		mwtc@43010000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x43010000 0xffff>;
-			mwgen,ipname = "mathworks,mwtc";
-			mwgen,devname = "mwtc";
-			mwgen,ipinst = "mwtc_0";
-			mwgen,ipver = "1.00.a";
-		};
+		
 		vita@42020000 {
 			compatible = "mathworks,mwgeneric-v1.00";
 			reg = <0x42020000 0xffff>;
@@ -86,14 +42,7 @@
 			mwgen,ipinst = "vita_rx";
 			mwgen,ipver = "1.12.a";
 		};
-		cl2axis@42030000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x42030000 0xffff>;
-			mwgen,ipname = "mathworks,cl2axis";
-			mwgen,devname = "cl2axis";
-			mwgen,ipinst = "cl2axis";
-			mwgen,ipver = "1.00.a";
-		};
+		
 		gpio@43020000 {
 			compatible = "mathworks,mwgeneric-v1.00";
 			reg = <0x43020000 0xffff>;

@@ -1,5 +1,6 @@
 ###########################################
 # ZedBoard Options
 ###########################################
-BR2_ROOTFS_POST_SCRIPT_ARGS="zed"
+BR2_ROOTFS_POST_SCRIPT_ARGS="-b zed"
 BR2_TARGET_UBOOT_BOARDNAME="zynq_zed"
+BR2_LINUX_KERNEL_INTREE_DTS_NAME="zynq-mw-zed"
