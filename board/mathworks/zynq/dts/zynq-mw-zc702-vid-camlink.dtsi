@@ -1,0 +1,2 @@
+/include/ "zynq-mw-vid-camlink.dtsi"
+/include/ "zynq-mw-zc702-vid-common.dtsi"

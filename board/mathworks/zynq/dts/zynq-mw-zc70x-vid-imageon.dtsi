@@ -1,4 +1,3 @@
-/include/ "zynq-mw-vid-common.dtsi"
 /{
     i2c_misc {
         compatible = "simple-bus";

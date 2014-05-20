@@ -36,7 +36,7 @@ for APP_NAME in ${APP_LIST}; do
 # Generate a temporary DTS file
 cat << EOF > ${DTS_FILE}
     /include/ "zynq-mw-${BOARD_NAME}.dts"
-    /include/ "zynq-mw-${APP_NAME}.dtsi"
+    /include/ "zynq-mw-${BOARD_NAME}-${APP_NAME}.dtsi"
 EOF
 
     ${DTC} -i ${LINUX_DTS} -i ${BOARD_DIR}/dts -I dts -O dtb -o ${DTB_FILE} ${DTS_FILE}
