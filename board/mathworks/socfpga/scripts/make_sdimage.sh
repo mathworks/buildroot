@@ -530,7 +530,8 @@ function init_rfs() {
     fi 
     
     [ ${DEBUG} -eq 1 ] && echo "${SELF}: ${FUNCNAME}: info: copying RFS files from ${rfs_dir}..."
-    cp -rpa ${rfs_dir}/* ${CONST_MNT_POINT}
+    #cp -rpa ${rfs_dir}/* ${CONST_MNT_POINT}
+    tar -C ${CONST_MNT_POINT} -xf ${rfs_dir}
     if [ $? -ne 0 ] ; then
         echo "${SELF}: ${FUNCNAME}: error: failed to copy files."
         return 1
