@@ -1,0 +1,36 @@
+#!/bin/sh
+
+FPGAFILE=$1
+FPGASTATUS="cat /sys/class/fpga/fpga0/status"
+
+echo "Current FPGA Status: $($FPGASTATUS)"
+
+echo "Disabling bridges"
+echo 0 > /sys/class/fpga-bridge/fpga2hps/enable
+echo 0 > /sys/class/fpga-bridge/hps2fpga/enable
+echo 0 > /sys/class/fpga-bridge/lwhps2fpga/enable
+
+echo "Downloading FPGA Image..."
+dd if=${FPGAFILE} of=/dev/fpga0 bs=1M
+sync
+
+cntr=0
+while [ "$($FPGASTATUS)" != "user mode" ]; do
+	usleep 1000
+	cntr=$(($cntr+1))
+	if [ $cntr == 100 ]; then
+	    echo "Programming failed"
+		exit 1
+	fi
+done
+
+echo "Programming completed successfully"
+
+echo "Enabling bridges"
+echo 1 > /sys/class/fpga-bridge/fpga2hps/enable
+echo 1 > /sys/class/fpga-bridge/hps2fpga/enable
+echo 1 > /sys/class/fpga-bridge/lwhps2fpga/enable
+
+
+
+exit 0
