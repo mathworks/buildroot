@@ -84,8 +84,11 @@ function get_distro() {
         Ubun*)
             echo 'u'
             ;;
+        Debian)
+            echo 'd'
+            ;;
         *)
-            echo 'blah'
+            echo "unknown(${distro})"
             ;;
     esac 
 
@@ -183,12 +186,12 @@ function make_partition_table() {
             command=u
             option=""
             ;;
-        u)
+        [ud])
             command=""
             option="-u=sectors"
             ;;
         *)
-            echo "${SELF}: ${FUNCNAME}: error: distro unknown..."
+            echo "${SELF}: ${FUNCNAME}: error: distro unknown... (${distro})"
             return 1
             ;;
     esac
