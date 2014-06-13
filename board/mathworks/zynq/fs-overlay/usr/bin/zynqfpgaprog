@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DEVNODE=/dev/xdefcfg
+DEVNODE=/dev/xdevcfg
 DEVMAJ=259
 DEVMIN=0
 
