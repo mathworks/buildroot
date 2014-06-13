@@ -104,9 +104,11 @@ ${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} ${APP_LIST}
 # Zip the SD Card Directory
 ####################################
 IMAGE_DIR=${INDIR}
+BUILDDATE=`date +%F`
+ZIPNAME=${TGTNAME}_sdcard_${BUILDDATE}.zip
 SD_DIR=${IMAGE_DIR}/sdcard
 pushd ${IMAGE_DIR}
-    rm -f ${TGTNAME}_sdcard.zip
-    zip -r ${TGTNAME}_sdcard.zip sdcard/
+    rm -f ${ZIPNAME}
+    zip -r ${ZIPNAME} sdcard/
 popd
 
