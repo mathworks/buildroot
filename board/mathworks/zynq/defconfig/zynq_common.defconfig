@@ -14,6 +14,7 @@ BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt board/mathworks/zynq/device_tab
 BR2_ROOTFS_POST_BUILD_SCRIPT="board/mathworks/zynq/scripts/postbuild_common.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/mathworks/zynq/scripts/postimage_common.sh"
 BR2_TARGET_GENERIC_GETTY_PORT="ttyPS0"
+BR2_TARGET_GENERIC_ROOT_PASSWD="root"
 # BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW is not set
 BR2_ROOTFS_OVERLAY="./board/mathworks/zynq/fs-overlay"
 BR2_LINUX_KERNEL=y
