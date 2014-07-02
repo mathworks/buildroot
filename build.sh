@@ -9,6 +9,7 @@ DYNCONFIG=dynconfig
 OUTPUTDIR=${BR_DIR}/output
 MYSHELL=`echo $SHELL | sed -e 's/.*\///'`
 LOCALCONFIG=${BR_DIR}/.localconfig
+CLEANDL=0
 echoerr() { echo "Error: $@" 1>&2; }
 
 usage() {
@@ -20,36 +21,58 @@ parameters:
 	<board_dir> 			path to the board directory containing a build.sh script
 	<configname>			arguement to pass to the build.sh script
 options:
-	--target|-t target		target to pass to make command, useful for downloading
+	--target| -t target		target to pass to make command, useful for downloading
 					sources before launching multiple builds
+	--cleandl| -c	        clean the download directory before building
 EOL
 	exit 1
 }
 
+OPTPARSE=`getopt -o hct: -l help,cleandl,target: -n 'build.sh' -- "$@"`
+
+strip_quote() {
+    echo $1 | sed -e "s/^'\|'$//g"
+}
+
 parse_cmds() {
-	CMD=$1
-	ARGC=$#
-	case "${CMD}" in
-	--help|-h)
-		usage
-		;;
-	--target|-t)
-		shift		
-		MKTGT=$1
-		shift
-		((ARGC=ARGC-2))
-		;;
-	*)
-		;;
-	esac
+
+    while true; do
+	    CMD=$1
+	    ARGC=$#
+	    case "${CMD}" in
+	    --help|-h)
+		    usage
+		    ;;
+        --cleandl|-c)
+		    shift		
+		    CLEANDL=1
+		    ((ARGC=ARGC-1))
+		    ;;
+	    --target|-t)
+		    shift		
+		    MKTGT=$(strip_quote $1)
+		    shift
+		    ((ARGC=ARGC-2))
+		    ;;
+        -- ) 
+            shift
+		    ((ARGC=ARGC-1))
+            break;
+            ;;
+	    *)
+            break
+		    ;;
+	    esac
+    done
 	
 	if [ "$ARGC" -ne 2 ]; then
 		echoerr "Incorrect syntext"	
 		usage
 	fi
 
-	BOARD_DIR=$1
-	CONFIG=$2
+    
+	BOARD_DIR=$(strip_quote $1)
+	CONFIG=$(strip_quote $2)
 }
 
 set_title() {
@@ -68,7 +91,7 @@ local_override() {
 	fi
 }
 
-parse_cmds $@
+parse_cmds $OPTPARSE
 BUILD_SH=${BOARD_DIR}/build.sh
 
 if [ ! -d ${BOARD_DIR} ]; then
@@ -86,6 +109,10 @@ ${BUILD_SH} ${BR_DIR} ${DYNCONFIG} ${CONFIG}
 if [ $? -eq 0 ]; then
 	# Apply any local overrides
 	local_override
+	# Clean the dl directory
+	if [ $CLEANDL -eq 1 ]; then
+		rm -rf ${BR_DIR}/dl
+	fi
 	# Navigate to the target directory
 	TGTDIR=${OUTPUTDIR}/${CONFIG}
 	mkdir -p ${TGTDIR}
