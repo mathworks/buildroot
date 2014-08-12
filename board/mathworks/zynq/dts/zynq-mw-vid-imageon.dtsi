@@ -1,0 +1,45 @@
+/{
+    i2c_misc {
+        compatible = "simple-bus";
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+
+        fmcgpio {
+            compatible = "mathworks,mwgeneric-v1.00";       
+            reg = <0x0>;    
+            mwgen,type = "nomem";            
+            mwgen,devname = "fmcgpio";            
+            i2c-controller = <&fmcgpio_i2c>;
+        };
+    };
+
+	amba@0{   
+		hdmirx@41000000 {
+			compatible = "mathworks,mwgeneric-v1.00";
+			reg = <0x41000000 0xffff>;
+			mwgen,ipname = "adi,axi_hdmi_16b_es";
+			mwgen,devname = "hdmirx";
+			mwgen,ipinst = "axi_hdmi_16b_es_0";
+			mwgen,ipver = "1.00.a";
+            i2c-controller = <&hdmirx_i2c>;
+		};
+		
+		vita@42020000 {
+			compatible = "mathworks,mwgeneric-v1.00";
+			reg = <0x42020000 0xffff>;
+			mwgen,ipname = "avnet,fmc_imageon_vita_receiver";
+			mwgen,devname = "vitarx";
+			mwgen,ipinst = "vita_rx";
+			mwgen,ipver = "1.12.a";
+		};
+		
+		gpio@43020000 {
+			compatible = "mathworks,mwgeneric-v1.00";
+			reg = <0x43020000 0xffff>;
+			mwgen,ipname = "xlnx,axi_gpio";
+			mwgen,devname = "axigpio";
+			mwgen,ipinst = "axi_gpio_0";
+			mwgen,ipver = "1.12.a";
+		};
+	};
+};

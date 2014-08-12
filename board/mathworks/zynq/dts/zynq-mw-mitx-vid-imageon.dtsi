@@ -1,17 +1,19 @@
+/include/ "zynq-mw-mitx-vid-common.dtsi"
 /include/ "zynq-mw-vid-imageon.dtsi"
 /{
     i2c_misc {
+
         fmceeprom {
             compatible = "mathworks,mwgeneric-v1.00";
             reg = <0x1>;    
             mwgen,type = "nomem";            
 	        mwgen,devname = "fmceeprom";        
-            i2c-controller = <&fmc2_eeprom>;
+            i2c-controller = <&fmc_eeprom>;
             
         }; 
     };
 
-	amba@0{   		
+	amba@0{   
 		i2c1: i2c@e0005000 {
 			compatible = "xlnx,ps7-i2c-1.00.a";
 			reg = <0xE0005000 0x1000>;
@@ -66,3 +68,4 @@
 		};
 	};
 };
+
