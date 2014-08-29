@@ -13,6 +13,8 @@ TARGET_DIR=${OUTPUT_DIR}/target
 SD_DIR=${IMAGE_DIR}/sdcard
 res=''
 
+source ${SCRIPT_DIR}/helper_func.sh
+
 verinfo() {
 	local pkg=$1
 	local ver=$2
@@ -31,7 +33,7 @@ DTS_FILE=devicetree.dts
 
 pushd ${SD_DIR}
 for APP_NAME in ${APP_LIST}; do
-    echo "Generating ${APP_NAME} dtb"
+    print_msg "Generating ${APP_NAME} dtb"
     DTB_FILE=devicetree_${APP_NAME}.dtb
 # Generate a temporary DTS file
 cat << EOF > ${DTS_FILE}
