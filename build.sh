@@ -90,8 +90,10 @@ local_override() {
 		cat ${LOCALCONFIG} >> configs/${DYNCONFIG}_defconfig
 	fi
 }
-
+# Parse the input options / commands
 parse_cmds $OPTPARSE
+
+# Get the specified board dir's build.sh to generate the dynamic defconfig
 BUILD_SH=${BOARD_DIR}/build.sh
 
 if [ ! -d ${BOARD_DIR} ]; then
