@@ -86,6 +86,8 @@ SD_DIR=${IMAGE_DIR}/sdcard
 print_msg "Generating ${ZIPNAME}"
 pushd ${IMAGE_DIR}
     rm -f ${ZIPNAME}
-    zip -r ${ZIPNAME} sdcard/
+    pushd sdcard
+    zip -r ../${ZIPNAME} *
+    popd
 popd
 
