@@ -21,7 +21,7 @@
 			mwgen,devname = "hdmirx";
 			mwgen,ipinst = "axi_hdmi_16b_es_0";
 			mwgen,ipver = "1.00.a";
-            i2c-controller = <&hdmirx_i2c>;
+            i2c-controller = <&adv7611>;
 		};
 		
 		vita@42020000 {
@@ -42,4 +42,45 @@
 			mwgen,ipver = "1.12.a";
 		};
 	};
+};
+&imageon_i2c {
+	i2cswitch@70 {
+			compatible = "nxp,pca9546";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x70>;            
+		
+			fmci2c@1 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <1>;
+				
+				fmcadv7511@39 {
+					compatible = "mwadi,mwadv7511";
+					reg = <0x39>;
+				};
+				
+			};
+			fmci2c@2 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <2>;
+
+				adv7611: fmcadv7611@4C {
+					compatible = "mwadi,mwadv7611";
+					reg = <0x4C>;
+				};
+
+			};
+			fmci2c@3 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <3>;
+				
+				fmcgpio_i2c: fmcgpio@20 {
+					compatible = "mwnxp,mwpca9534";
+					reg = <0x20>;
+				};
+			};
+		};
 };

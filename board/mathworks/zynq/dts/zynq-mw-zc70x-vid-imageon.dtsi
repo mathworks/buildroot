@@ -1,4 +1,3 @@
-/include/ "zynq-mw-vid-imageon.dtsi"
 /{
     i2c_misc {
         fmceeprom {
@@ -12,57 +11,17 @@
     };
 
 	amba@0{   		
-		i2c1: i2c@e0005000 {
-			compatible = "xlnx,ps7-i2c-1.00.a";
-			reg = <0xE0005000 0x1000>;
-			interrupts = <0 48 4>;
+		imageon_i2c: i2c@e0005000 {
+			clock-frequency = <400000>;
+			clocks = <&clkc 39>;
+			compatible = "cdns,i2c-r1p10";
 			interrupt-parent = <&gic>;
-			bus-id = <1>;
-			input-clk = <111111111>;
-			i2c-clk = <100000>;
-
+			interrupts = <0 48 4>;
+			reg = <0xe0005000 0x1000>;
+			xlnx,has-interrupt = <0x0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
-            
-            i2cswitch@70 {
-				compatible = "nxp,pca9546";
-				#address-cells = <1>;
-				#size-cells = <0>;
-				reg = <0x70>;            
-            
-                fmci2c@1 {
-					#address-cells = <1>;
-					#size-cells = <0>;
-					reg = <1>;
-                    
-                    fmcadv7511@39 {
-						compatible = "adi,adv7511";
-						reg = <0x39>;
-					};
-					
-				};
-				fmci2c@2 {
-					#address-cells = <1>;
-					#size-cells = <0>;
-					reg = <2>;
-
-					hdmirx_i2c: fmcadv7611@4C {
-						compatible = "adi,adv7611";
-						reg = <0x4C>;
-					};
-
-				};
-                fmci2c@3 {
-					#address-cells = <1>;
-					#size-cells = <0>;
-					reg = <3>;
-					
-                    fmcgpio_i2c: fmcgpio@20 {
-						compatible = "nxp,xxxpca9534";
-						reg = <0x20>;
-					};
-				};
-            };
 		};
 	};
 };
+/include/ "zynq-mw-vid-imageon.dtsi"
