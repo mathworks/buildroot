@@ -34,13 +34,5 @@ then
 fi
 
 # load the MW axi kernel module
-modprobe mwadma 
+modprobe mwadma
 modprobe mwgeneric
-
-# restore boot-environment: required for automated test env.
-# test will overwrite this to use axi4stream
-cp -f _default_uboot_env_ uboot.env
-rm -f system.bit.bin
-sync
-sync
-

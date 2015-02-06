@@ -44,7 +44,7 @@ function create_boot() {
     local BIF_FILE=bootimage.bif
     local FSBL_DST=zynq_fsbl.elf
     local BITSTREAM_DST=zynq.bit
-    local BOOTGEN_BIN=/opt/Xilinx/SDK/2013.4/bin/bootgen
+    local BOOTGEN_BIN=/opt/Xilinx/SDK/2014.2/bin/bootgen
 
     print_msg "Generating ${TGTBOOT}.BIN"
 
