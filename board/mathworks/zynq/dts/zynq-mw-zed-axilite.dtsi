@@ -1,1 +1,10 @@
-/include/ "zynq-mw-axilite-common.dtsi"
+/{
+ 	amba@0 {
+		mwipcore@400D0000 {
+			compatible = "mathworks,mwipcore-v2.00";
+			reg = <0x400D0000 0xffff>;
+		};
+	};
+
+};
+
