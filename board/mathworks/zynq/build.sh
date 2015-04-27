@@ -7,7 +7,7 @@ BOARD="zc702"
 BUILDALL="false"
 
 # List of valid boards
-BOARD_LIST="zc702 zc706 zed uzed-7z010 uzed-7z020 mitx-7z045 mitx-7z100"
+BOARD_LIST="zc702 zc706 zed uzed-7z010 uzed-7z020 mitx-7z045 mitx-7z100 zybo"
 # List of valid os
 OS_LIST="linux xenomai"
 # List of valid toolchains
