@@ -1,15 +1,2 @@
-/{
-    dma_misc {
-        compatible = "simple-bus";
-		#address-cells = <0x1>;
-		#size-cells = <0x0>;
-
-        mwmiscdma {
-            compatible = "mathworks,mwgeneric-v1.00";       
-            reg = <0x0>;    
-            mwgen,type = "nomem";            
-            mwgen,devname = "mwmiscdma";            
-        };
-    };
-};
+/include/ "zynq-mw-dma.dtsi"
 

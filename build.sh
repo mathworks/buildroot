@@ -72,7 +72,8 @@ parse_cmds() {
 
     
 	BOARD_DIR=$(strip_quote $1)
-	CONFIG=$(strip_quote $2)
+    COMMON_DIR=$( cd "$( dirname "$BOARD_DIR" )" && pwd )/common	
+    CONFIG=$(strip_quote $2)
 }
 
 set_title() {
@@ -90,9 +91,13 @@ local_override() {
 		cat ${LOCALCONFIG} >> configs/${DYNCONFIG}_defconfig
 	fi
 }
-
+# Parse the input options / commands
 parse_cmds $OPTPARSE
-BUILD_SH=${BOARD_DIR}/build.sh
+
+
+
+# Get the specified board dir's build.sh to generate the dynamic defconfig
+BUILD_SH=${COMMON_DIR}/build.sh
 
 if [ ! -d ${BOARD_DIR} ]; then
 	echoerr "${BOARD_DIR} is not a directory"
@@ -105,7 +110,8 @@ if [ ! -x ${BUILD_SH} ]; then
 fi
 
 # Execute the script
-${BUILD_SH} ${BR_DIR} ${DYNCONFIG} ${CONFIG}
+${BUILD_SH} ${BR_DIR} ${DYNCONFIG} ${BOARD_DIR} ${CONFIG}
+
 if [ $? -eq 0 ]; then
 	# Apply any local overrides
 	local_override

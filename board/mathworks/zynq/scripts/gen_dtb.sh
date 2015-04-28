@@ -13,6 +13,8 @@ TARGET_DIR=${OUTPUT_DIR}/target
 SD_DIR=${IMAGE_DIR}/sdcard
 res=''
 
+source ${SCRIPT_DIR}/helper_func.sh
+
 verinfo() {
 	local pkg=$1
 	local ver=$2
@@ -31,15 +33,17 @@ DTS_FILE=devicetree.dts
 
 pushd ${SD_DIR}
 for APP_NAME in ${APP_LIST}; do
-    echo "Generating ${APP_NAME} dtb"
-    DTB_FILE=devicetree_${APP_NAME}.dtb
+    APP_DTSI=zynq-mw-${BOARD_NAME}-${APP_NAME}.dtsi
+    if [ -f ${BOARD_DIR}/dts/${APP_DTSI} ]; then
+        print_msg "Generating ${APP_NAME} dtb"
+        DTB_FILE=devicetree_${APP_NAME}.dtb
 # Generate a temporary DTS file
 cat << EOF > ${DTS_FILE}
     /include/ "zynq-mw-${BOARD_NAME}.dts"
-    /include/ "zynq-mw-${BOARD_NAME}-${APP_NAME}.dtsi"
+    /include/ "${APP_DTSI}"
 EOF
-
-    ${DTC} -i ${LINUX_DTS} -i ${BOARD_DIR}/dts -I dts -O dtb -o ${DTB_FILE} ${DTS_FILE}
-    rm -f ${DTS_FILE}
+        ${DTC} -i ${LINUX_DTS} -i ${BOARD_DIR}/dts -I dts -O dtb -o ${DTB_FILE} ${DTS_FILE}
+        rm -f ${DTS_FILE}
+    fi
 done
 popd

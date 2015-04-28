@@ -38,37 +38,13 @@ mkdir -p ${SD_DIR}
 MKIMAGE_BIN=${OUTPUT_DIR}/host/usr/bin/mkimage
 CPIO_IMG=${IMAGE_DIR}/rootfs.cpio.gz
 UIMAGE=${SD_DIR}/uramdisk.image.gz
+print_msg "Creating uramdisk $UIMAGE"
 ${MKIMAGE_BIN} -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 
 #####################################
-# Create the xilinx boot.bin
+# Create the boot.bin files
 #####################################
-BOOT_DIR=${BOARD_DIR}/boot
-UBOOT_BIN=u-boot
-UBOOT_ELF=u-boot.elf
-BIF_FILE=bootimage.bif
-FSBL_SRC=${BOOT_DIR}/${TGTNAME}_fsbl.elf
-FSBL_DST=zynq_fsbl.elf
-BITSTREAM_SRC=${BOOT_DIR}/${TGTNAME}.bit
-BITSTREAM_DST=zynq.bit
-BOOTGEN_BIN=/opt/Xilinx/SDK/2013.4/bin/bootgen
-BOOT_BIN=BOOT.BIN
-FPGA_BIN=system.bit.bin
-
-# rename to .elf for bootgen
-cd ${IMAGE_DIR}
-cp ${UBOOT_BIN} ${UBOOT_ELF}
-cp ${FSBL_SRC} ${FSBL_DST}
-cp ${BITSTREAM_SRC} ${BITSTREAM_DST}
-
-# create BOOT.BIN
-rm ${BOOT_BIN} &>/dev/null
-create_bif ${BIF_FILE} ${FSBL_DST} ${BITSTREAM_DST}
-${BOOTGEN_BIN} -image ${BIF_FILE} -o i ${BOOT_BIN}
-mv ${BOOT_BIN} ${SD_DIR}/
-
-# cleanup
-rm ${UBOOT_ELF} ${UBOOT_ELF}.bin ${FSBL_DST} ${FSBL_DST}.bin ${BITSTREAM_DST} ${BIF_FILE} ${BOOT_BIN} &>/dev/null
+${SCRIPT_DIR}/gen_boot.sh $OUTPUT_DIR $TGTNAME ${APP_LIST}
 
 #####################################
 # Move the devicetree
@@ -107,8 +83,11 @@ IMAGE_DIR=${INDIR}
 BUILDDATE=`date +%F`
 ZIPNAME=${TGTNAME}_sdcard_${BUILDDATE}.zip
 SD_DIR=${IMAGE_DIR}/sdcard
+print_msg "Generating ${ZIPNAME}"
 pushd ${IMAGE_DIR}
     rm -f ${ZIPNAME}
-    zip -r ${ZIPNAME} sdcard/
+    pushd sdcard
+    zip -r ../${ZIPNAME} *
+    popd
 popd
 

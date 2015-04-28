@@ -17,6 +17,8 @@ The format of configname is defined by the underlying board dir, but is generall
 
 <board>_<os>_<toolchain>
 
+The specifics of the syntax can be found in each <board_dir>'s build.sh script
+
 Some examples:
 ==============
 

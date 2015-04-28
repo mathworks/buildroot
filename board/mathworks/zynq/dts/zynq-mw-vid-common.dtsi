@@ -12,7 +12,7 @@
 			mwgen,devname = "hdmitx";
 			mwgen,ipinst = "axi_hdmi_tx_16b_0";
 			mwgen,ipver = "1.00.a";
-            i2c-controller = <&hdmitx_i2c>;
+            i2c-controller = <&adv7511>;
 		};
 		
 		vdma_hdmi@42000000 {
