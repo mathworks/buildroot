@@ -11,3 +11,7 @@ modprobe mwgeneric
 # run dhcp script to obtain IP Address
 #udhcpc -s /mnt/dhcp.script
 ifconfig eth0 192.168.1.101 netmask 255.255.255.0
+if [ -d "/dev/snd" ]; then
+	echo "Loading alsa settings"
+	alsactl restore -f /mnt/asound.state 0
+fi
