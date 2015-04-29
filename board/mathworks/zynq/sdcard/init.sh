@@ -37,7 +37,7 @@ fi
 modprobe mwadma
 modprobe mwgeneric
 
-if [ -d "/dev/snd" ]; then
+if [ -d /sys/class/sound/card0 ]; then
 	echo "Loading alsa settings"
 	alsactl restore -f /mnt/asound.state 0
 fi
