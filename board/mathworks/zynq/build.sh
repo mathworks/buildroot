@@ -11,7 +11,7 @@ BOARD_LIST="zc702 zc706 zed uzed-7z010 uzed-7z020 mitx-7z045 mitx-7z100 zybo"
 # List of valid os
 OS_LIST="linux xenomai"
 # List of valid toolchains
-TC_LIST="linaro xilinx"
+TC_LIST="xilinx linaro"
 
 checkconfig() {
 
