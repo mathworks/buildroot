@@ -34,7 +34,21 @@
 				reg = <0>;
 				spi-max-frequency = <10000000>;
 			};
-		};		
+		};
+
+        ps7_i2c0: i2c@e0004000 {
+			clock-frequency = <400000>;
+			clocks = <&clkc 38>;
+			compatible = "cdns,i2c-r1p10";
+			interrupt-parent = <&gic>;
+			interrupts = <0 25 4>;
+			reg = <0xe0004000 0x1000>;
+			xlnx,has-interrupt = <0x0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			
+		};
+		
     };
 };
 
