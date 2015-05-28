@@ -12,6 +12,7 @@ HOST_DIR=${OUTPUT_DIR}/host
 BUILD_DIR=${OUTPUT_DIR}/build
 TARGET_DIR=${OUTPUT_DIR}/target
 SD_DIR=${IMAGE_DIR}/sdcard
+res=''
 
 source ${SCRIPT_DIR}/helper_func.sh
 
@@ -30,6 +31,8 @@ cat << EOF > ${BIF}
 EOF
 }
 
+
+
 function create_boot() {
     local TGTBOOT=$1
     local TGTFSBL=$2
@@ -44,7 +47,10 @@ function create_boot() {
     local BIF_FILE=bootimage.bif
     local FSBL_DST=zynq_fsbl.elf
     local BITSTREAM_DST=zynq.bit
-    local BOOTGEN_BIN=/opt/Xilinx/SDK/2014.2/bin/bootgen
+
+    get_cfg_var "BR2_TOOLCHAIN_EXTERNAL_PATH"
+    local SDK_ROOT=$(dirname $(dirname $(dirname ${res})))
+    local BOOTGEN_BIN=${SDK_ROOT}/bin/bootgen
 
     print_msg "Generating ${TGTBOOT}.BIN"
 

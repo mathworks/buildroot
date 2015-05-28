@@ -1,5 +1,7 @@
 #!/bin/bash
 
+res=''
+
 function print_msg() {
     CC_STARTMSG=$(tput setab 0)$(tput setaf 7)
     CC_NONE=$(tput sgr0)
@@ -14,4 +16,9 @@ function print_err() {
     MSG=$1
 
     echo -e "${CC_STARTMSG}ERROR:   ${MSG}${CC_NONE}"
+}
+
+function get_cfg_var() {
+	local var=$1
+	res=`cat $BUILDROOT_CONFIG | grep ^$var | sed -e 's/BR2_.*=//' | tr -d '"'`
 }
