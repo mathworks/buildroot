@@ -7,17 +7,6 @@ config BR2_PACKAGE_UBOOT_TOOLS
 
 if BR2_PACKAGE_UBOOT_TOOLS
 
-config BR2_PACKAGE_UBOOT_TOOLS_USECUSTOMGIT
-    bool "Use Custom Git"
-    depends on BR2_TARGET_UBOOT_CUSTOM_GIT
-    help
-	  Use the custom git repository defined for the bootloader
-
-config BR2_PACKAGE_UBOOT_TOOLS_USEBOARDCONFIG
-    bool "Use Board Config"
-    help
-      Use the board-specific config for building u-boot tools        
-
 config BR2_PACKAGE_UBOOT_TOOLS_MKIMAGE
 	bool "mkimage"
 	help
