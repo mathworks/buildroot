@@ -2,6 +2,7 @@ config BR2_PACKAGE_LIBSOUP
 	bool "libsoup"
 	depends on BR2_USE_WCHAR # glib2 and gnutls
 	depends on BR2_TOOLCHAIN_HAS_THREADS # glib2
+	depends on BR2_USE_MMU # glib2
 	select BR2_PACKAGE_LIBXML2
 	select BR2_PACKAGE_LIBGLIB2
 	select BR2_PACKAGE_SQLITE
@@ -14,6 +15,11 @@ config BR2_PACKAGE_LIBSOUP
 
 if BR2_PACKAGE_LIBSOUP
 
+config BR2_PACKAGE_LIBSOUP_GNOME
+	bool "libsoup-gnome"
+	help
+	  Build libsoup-gnome library.
+
 config BR2_PACKAGE_LIBSOUP_SSL
 	bool "https support"
 	select BR2_PACKAGE_GLIB_NETWORKING
@@ -23,5 +29,6 @@ config BR2_PACKAGE_LIBSOUP_SSL
 
 endif
 
-comment "libsoup requires a toolchain with WCHAR and threading support"
+comment "libsoup needs a toolchain w/ wchar, threads"
+	depends on BR2_USE_MMU
 	depends on !BR2_USE_WCHAR || !BR2_TOOLCHAIN_HAS_THREADS

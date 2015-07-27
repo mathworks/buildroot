@@ -1,18 +1,23 @@
 config BR2_PACKAGE_SAMBA
 	bool "samba"
+	depends on BR2_DEPRECATED_SINCE_2015_05
 	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_USE_MMU # fork()
+	depends on !BR2_nios2 # binary too large, relocations don't fit
 	select BR2_PACKAGE_POPT
 	help
-	  Provides print services to all manner of SMB/CIFS clients,
-	  including the numerous versions of Microsoft Windows
-	  operating systems.
+	  Provides secure, stable and fast file and print services
+	  for all clients using the SMB/CIFS protocol, such as all
+	  versions of DOS, Windows, OS/2, Linux and many others.
 
 	  http://www.samba.org/
 
 	  NOTE: A complete Samba install takes over 50MB of space,
 		so choose only the components you need.
 
-comment "samba needs a toolchain with thread support"
+comment "samba needs a toolchain w/ threads"
+	depends on BR2_DEPRECATED_SINCE_2015_05
+	depends on BR2_USE_MMU
 	depends on !BR2_TOOLCHAIN_HAS_THREADS
 
 if BR2_PACKAGE_SAMBA
@@ -235,6 +240,25 @@ config BR2_PACKAGE_SAMBA_LIBSMBCLIENT
 	  standards POSIX functions available for manipulating local
 	  files.
 
+config BR2_PACKAGE_SAMBA_LIBNSS_WINS
+	bool "libnss_wins"
+	default y
+	depends on BR2_TOOLCHAIN_USES_GLIBC
+	depends on BR2_PACKAGE_SAMBA_WINBINDD
+	help
+	  libnss_wins is a library that permits the Name Service Switch
+	  to resolve NetBIOS names.
+
+config BR2_PACKAGE_SAMBA_LIBNSS_WINBIND
+	bool "libnss_winbind"
+	default y
+	depends on BR2_TOOLCHAIN_USES_GLIBC
+	depends on BR2_PACKAGE_SAMBA_WINBINDD
+	help
+	  libnss_winbind is a library that permits the Name Service
+	  Switch to resolve user and group information from a Windows
+	  NT server.
+
 endmenu
 
 
@@ -250,6 +274,7 @@ config BR2_PACKAGE_SAMBA_AVAHI
 	  Include support for avahi
 
 comment "support avahi - disabled (requires avahi-daemon)"
+	depends on BR2_USE_MMU
 	depends on !BR2_PACKAGE_AVAHI_DAEMON
 
 config BR2_PACKAGE_SAMBA_GAMIN

@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-LIBCEC_VERSION = libcec-2.1.1
-LIBCEC_SITE = http://github.com/Pulse-Eight/libcec/tarball/$(LIBCEC_VERSION)
+LIBCEC_VERSION = libcec-2.2.0-repack
+LIBCEC_SITE = $(call github,Pulse-Eight,libcec,$(LIBCEC_VERSION))
 LIBCEC_LICENSE = GPLv2+
 LIBCEC_LICENSE_FILES = COPYING
 
@@ -18,16 +18,17 @@ ifeq ($(BR2_PACKAGE_LOCKDEV),y)
 LIBCEC_DEPENDENCIES += lockdev
 endif
 
-ifeq ($(BR2_PACKAGE_UDEV),y)
+ifeq ($(BR2_PACKAGE_HAS_UDEV),y)
 LIBCEC_DEPENDENCIES += udev
 endif
 
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
-LIBCEC_CONF_OPT = --enable-rpi \
-   --with-rpi-include-path=$(STAGING_DIR)/usr/include
+LIBCEC_CONF_OPTS = --enable-rpi \
+	--with-rpi-include-path=$(STAGING_DIR)/usr/include
 LIBCEC_DEPENDENCIES += rpi-userland
+LIBCEC_CONF_ENV += LIBS="-lvcos -lvchostif"
 else
-LIBCEC_CONF_OPT = --disable-rpi
+LIBCEC_CONF_OPTS = --disable-rpi
 endif
 
 $(eval $(autotools-package))

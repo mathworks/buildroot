@@ -4,8 +4,7 @@
 #
 ################################################################################
 
-FBGRAB_VERSION = 1.1
-FBGRAB_SOURCE = fbgrab-$(FBGRAB_VERSION).tar.gz
+FBGRAB_VERSION = 1.2
 FBGRAB_SITE = http://fbgrab.monells.se
 FBGRAB_DEPENDENCIES = libpng
 FBGRAB_LICENSE = GPLv2
@@ -17,10 +16,6 @@ endef
 
 define FBGRAB_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0755 -D $(@D)/fbgrab $(TARGET_DIR)/usr/bin/fbgrab
-endef
-
-define FBGRAB_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/bin/fbgrab
 endef
 
 $(eval $(generic-package))

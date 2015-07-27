@@ -1,8 +1,9 @@
 config BR2_PACKAGE_TI_GFX
 	bool "ti-gfx"
-	select BR2_PACKAGE_HAS_OPENGL_EGL
-	select BR2_PACKAGE_HAS_OPENGL_ES
+	select BR2_PACKAGE_HAS_LIBEGL
+	select BR2_PACKAGE_HAS_LIBGLES
 	select BR2_PACKAGE_HAS_POWERVR
+	select BR2_PACKAGE_FBSET if !BR2_PACKAGE_BUSYBOX # Runtime dependency only
 	depends on BR2_LINUX_KERNEL && BR2_TOOLCHAIN_USES_GLIBC && BR2_arm
 	help
 	  Graphics libraries for TI boards.
@@ -10,6 +11,15 @@ config BR2_PACKAGE_TI_GFX
 	  http://downloads.ti.com/dsps/dsps_public_sw/gfxsdk/
 
 if BR2_PACKAGE_TI_GFX
+
+config BR2_PACKAGE_PROVIDES_LIBEGL
+	default "ti-gfx"
+
+config BR2_PACKAGE_PROVIDES_LIBGLES
+	default "ti-gfx"
+
+config BR2_PACKAGE_PROVIDES_POWERVR
+	default "ti-gfx"
 
 config BR2_PACKAGE_TI_GFX_DEBUG
 	bool "enable debug support"
@@ -39,7 +49,7 @@ choice
 config BR2_PACKAGE_TI_GFX_ES3
 	bool "es3.x (OMAP35xx, AM35xx Rev 3.1+)"
 	help
-	 OMAP35xx, AM35xx Rev 3.1+
+	  OMAP35xx, AM35xx Rev 3.1+
 
 config BR2_PACKAGE_TI_GFX_ES5
 	bool "es5.x (AM37xx, DM37xx)"
@@ -60,5 +70,6 @@ endchoice
 
 endif
 
-comment "ti-gfx requires an eglibc/glibc based toolchain and the linux kernel"
-	depends on !(BR2_LINUX_KERNEL && BR2_TOOLCHAIN_USES_GLIBC) && BR2_arm
+comment "ti-gfx needs an (e)glibc toolchain and a Linux kernel to be built"
+	depends on BR2_arm
+	depends on !(BR2_LINUX_KERNEL && BR2_TOOLCHAIN_USES_GLIBC)

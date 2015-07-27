@@ -4,11 +4,12 @@
 #
 ################################################################################
 
-LIBERATION_VERSION = 1.06.0.20100721
+LIBERATION_VERSION = 2.00.1
 LIBERATION_SITE = http://www.fedorahosted.org/releases/l/i/liberation-fonts
 LIBERATION_SOURCE = liberation-fonts-ttf-$(LIBERATION_VERSION).tar.gz
-
 LIBERATION_TARGET_DIR = $(TARGET_DIR)/usr/share/fonts/liberation
+LIBERATION_LICENSE = OFLv1.1
+LIBERATION_LICENSE_FILES = LICENSE
 
 ifeq ($(BR2_PACKAGE_LIBERATION_MONO),y)
 define LIBERATION_INSTALL_MONO
@@ -33,10 +34,6 @@ define LIBERATION_INSTALL_TARGET_CMDS
 	$(LIBERATION_INSTALL_MONO)
 	$(LIBERATION_INSTALL_SANS)
 	$(LIBERATION_INSTALL_SERIF)
-endef
-
-define LIBERATION_CLEAN_CMDS
-	rm -rf $(LIBERATION_TARGET_DIR)
 endef
 
 $(eval $(generic-package))

@@ -1,11 +1,7 @@
-comment "openvpn requires a toolchain with IPV6 support"
-	depends on !BR2_INET_IPV6
-
 config BR2_PACKAGE_OPENVPN
 	bool "openvpn"
-	depends on BR2_INET_IPV6
 	depends on BR2_USE_MMU # fork()
- 	help
+	help
 	  OpenVPN is a full-featured SSL VPN solution which can
 	  accomodate a wide range of configurations, including road
 	  warrior access, home/office/campus telecommuting, WiFi

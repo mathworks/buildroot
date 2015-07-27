@@ -1,7 +1,6 @@
 config BR2_PACKAGE_PERF
 	bool "perf"
 	depends on BR2_LINUX_KERNEL
-	depends on BR2_LARGEFILE
 	help
 	  perf (sometimes "Perf Events" or perf tools, originally
 	  "Performance Counters for Linux") - is a performance
@@ -13,10 +12,10 @@ config BR2_PACKAGE_PERF
 
 	  This package builds and install the userspace 'perf'
 	  command. It is up to the user to ensure that the kernel
-	  configuration has all suitable options enable to allow a
+	  configuration has all the suitable options enabled to allow a
 	  proper operation of 'perf'.
 
 	  https://perf.wiki.kernel.org/
 
-comment "perf only available if Linux kernel is enabled, and requires largefile support"
-	depends on !BR2_LINUX_KERNEL || !BR2_LARGEFILE
+comment "perf needs a Linux kernel to be built"
+	depends on !BR2_LINUX_KERNEL

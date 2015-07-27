@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CPPCMS_VERSION = 1.0.3
+CPPCMS_VERSION = 1.0.4
 CPPCMS_SOURCE = cppcms-$(CPPCMS_VERSION).tar.bz2
 CPPCMS_LICENSE = LGPLv3
 CPPCMS_LICENSE_FILES = COPYING.TXT
@@ -14,8 +14,13 @@ CPPCMS_INSTALL_STAGING = YES
 CPPCMS_DEPENDENCIES = zlib pcre libgcrypt
 
 ifeq ($(BR2_PACKAGE_CPPCMS_ICU),y)
-CPPCMS_CONF_OPT += -DDISABLE_ICONV=ON
+CPPCMS_CONF_OPTS += -DDISABLE_ICONV=ON
 CPPCMS_DEPENDENCIES += icu
+endif
+
+ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
+# posix backend needs monetary.h which isn't available on uClibc
+CPPCMS_CONF_OPTS += -DDISABLE_POSIX_LOCALE=on
 endif
 
 # We copy cppcms_tmpl_cc from staging to host because this file can be

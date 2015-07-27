@@ -1,5 +1,6 @@
 config BR2_PACKAGE_WAYLAND
 	bool "wayland"
+	depends on !BR2_STATIC_LIBS # dlfcn.h
 	depends on BR2_TOOLCHAIN_HAS_THREADS
 	select BR2_PACKAGE_LIBFFI
 	select BR2_PACKAGE_EXPAT
@@ -10,5 +11,5 @@ config BR2_PACKAGE_WAYLAND
 
 	  http://wayland.freedesktop.org/
 
-comment "wayland requires a toolchain with thread support"
-	depends on !BR2_TOOLCHAIN_HAS_THREADS
+comment "wayland needs a toolchain w/ threads, dynamic library"
+	depends on !BR2_TOOLCHAIN_HAS_THREADS || BR2_STATIC_LIBS

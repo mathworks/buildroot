@@ -4,8 +4,7 @@
 #
 ################################################################################
 
-GSL_VERSION = 1.15
-GSL_SOURCE = gsl-$(GSL_VERSION).tar.gz
+GSL_VERSION = 1.16
 GSL_SITE = $(BR2_GNU_MIRROR)/gsl
 GSL_INSTALL_STAGING = YES
 GSL_LICENSE = GPLv3
@@ -20,8 +19,8 @@ GSL_CONFIG_SCRIPTS = gsl-config
 ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
 ifneq ($(BR2_i386),y)
 GSL_CONF_ENV = \
-       ac_cv_have_decl_feenableexcept=no \
-       ac_cv_have_decl_fesettrapenable=no
+	ac_cv_have_decl_feenableexcept=no \
+	ac_cv_have_decl_fesettrapenable=no
 endif
 endif
 

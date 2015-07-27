@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-LUACRYPTO_VERSION = 0.3.2
-LUACRYPTO_SITE = http://github.com/mkottman/luacrypto/tarball/$(LUACRYPTO_VERSION)
+LUACRYPTO_VERSION_UPSTREAM = 0.3.2
+LUACRYPTO_VERSION = $(LUACRYPTO_VERSION_UPSTREAM)-1
+LUACRYPTO_SUBDIR = luacrypto-$(LUACRYPTO_VERSION_UPSTREAM)
 LUACRYPTO_LICENSE = MIT
-LUACRYPTO_LICENSE_FILES = COPYING
-LUACRYPTO_DEPENDENCIES = lua openssl
-LUACRYPTO_CONF_OPT = "-DLUA_LIBRARIES=\"$(STAGING_DIR)/usr/lib/liblua.so\""
+LUACRYPTO_LICENSE_FILES = $(LUACRYPTO_SUBDIR)/COPYING
+LUACRYPTO_DEPENDENCIES = openssl
 
-$(eval $(cmake-package))
+$(eval $(luarocks-package))

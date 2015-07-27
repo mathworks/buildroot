@@ -1,6 +1,6 @@
 config BR2_PACKAGE_TSTOOLS
 	bool "tstools"
-	depends on BR2_LARGEFILE
+	depends on BR2_USE_MMU # fork()
 	help
 	  This is a set of cross-platform command line tools for
 	  working with MPEG data
@@ -14,7 +14,4 @@ config BR2_PACKAGE_TSTOOLS
 	  cable and satellite data. Program Stream (PS) is typically
 	  used to store data on DVDs.
 
-	  http://tstools.berlios.de/
-
-comment "tstools needs largefile support in toolchain"
-	depends on !BR2_LARGEFILE
+	  https://code.google.com/p/tstools/

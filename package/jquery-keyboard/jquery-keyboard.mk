@@ -4,9 +4,8 @@
 #
 ################################################################################
 
-JQUERY_KEYBOARD_VERSION = 1.17.7
-JQUERY_KEYBOARD_SITE = \
-	http://github.com/Mottie/Keyboard/tarball/v$(JQUERY_KEYBOARD_VERSION)
+JQUERY_KEYBOARD_VERSION = v1.18.12
+JQUERY_KEYBOARD_SITE = $(call github,Mottie,Keyboard,$(JQUERY_KEYBOARD_VERSION))
 JQUERY_KEYBOARD_LICENSE = MIT WTFPL
 JQUERY_KEYBOARD_LICENSE_FILES = README.markdown
 
@@ -22,4 +21,4 @@ define JQUERY_KEYBOARD_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/var/www/layouts
 endef
 
-$(eval $(call generic-package))
+$(eval $(generic-package))

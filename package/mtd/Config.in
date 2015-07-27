@@ -1,7 +1,9 @@
 config BR2_PACKAGE_MTD
-	bool "mtd/jffs2 utilities"
+	bool "mtd, jffs2 and ubi/ubifs tools"
 	help
-	  Build mtd/jffs utilities
+	  Build mtd, jffs2 and ubi/ubifs tools
+
+	  http://www.linux-mtd.infradead.org/
 
 if BR2_PACKAGE_MTD
 comment "MTD tools selection"
@@ -60,11 +62,10 @@ config BR2_PACKAGE_MTD_MKFSUBIFS
 	select BR2_PACKAGE_LZO
 	select BR2_PACKAGE_UTIL_LINUX
 	select BR2_PACKAGE_UTIL_LINUX_LIBUUID
-	depends on BR2_LARGEFILE # util-linux
 	depends on BR2_USE_WCHAR # util-linux
 
-comment "mkfs.ubifs requires largefile and wchar support in toolchain"
-	depends on !BR2_LARGEFILE || !BR2_USE_WCHAR
+comment "mkfs.ubifs needs a toolchain w/ wchar"
+	depends on !BR2_USE_WCHAR
 
 config BR2_PACKAGE_MTD_MTD_DEBUG
 	bool "mtd_debug"
@@ -89,11 +90,7 @@ config BR2_PACKAGE_MTD_NFTL_FORMAT
 	bool "nftl_format"
 
 config BR2_PACKAGE_MTD_RECV_IMAGE
-	depends on BR2_INET_IPV6
 	bool "recv_image"
-
-comment "recv_image requires a toolchain with IPv6 support"
-	depends on !BR2_INET_IPV6
 
 config BR2_PACKAGE_MTD_RFDDUMP
 	bool "rfddump"
@@ -155,5 +152,8 @@ config BR2_PACKAGE_MTD_UBIUPDATEVOL
 	bool "ubiupdatevol"
 	default y
 
-endif
+config BR2_PACKAGE_MTD_UBIBLOCK
+	bool "ubiblock"
+	default y
 
+endif

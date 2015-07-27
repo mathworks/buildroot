@@ -2,11 +2,18 @@ config BR2_PACKAGE_ECRYPTFS_UTILS
 	bool "ecryptfs-utils"
 	select BR2_PACKAGE_KEYUTILS
 	select BR2_PACKAGE_LIBNSS
+	# runtime dependency only, some scripts are using the
+	# 'gettext' program to get translations
+	select BR2_PACKAGE_GETTEXT
+	# runtime dependency only
+	select BR2_PACKAGE_GETENT
+	depends on BR2_USE_WCHAR # gettext
 	depends on BR2_USE_MMU # keyutils
-	depends on !BR2_avr32 && !BR2_microblaze # keyutils
-	depends on BR2_LARGEFILE # libnss
+	depends on !BR2_microblaze # keyutils
 	depends on BR2_TOOLCHAIN_HAS_THREADS # libnss -> libnspr
-	depends on !BR2_arc # libnss -> libnspr
+	depends on BR2_PACKAGE_LIBNSPR_ARCH_SUPPORT # libnss -> libnspr
+	depends on !BR2_MIPS_NABI32 # libnss
+	depends on !BR2_STATIC_LIBS # libnss, keyutils
 	help
 	  eCryptfs is a POSIX-compliant enterprise cryptographic
 	  filesystem for Linux. It is stacked on top of any other
@@ -21,3 +28,10 @@ config BR2_PACKAGE_ECRYPTFS_UTILS
 	  for another method.
 
 	  http://ecryptfs.org
+
+comment "ecryptfs-utils needs a toolchain w/ threads, wchar, dynamic library"
+	depends on !BR2_microblaze
+	depends on BR2_PACKAGE_LIBNSPR_ARCH_SUPPORT
+	depends on BR2_USE_MMU
+	depends on !BR2_TOOLCHAIN_HAS_THREADS || !BR2_USE_WCHAR || \
+		BR2_STATIC_LIBS

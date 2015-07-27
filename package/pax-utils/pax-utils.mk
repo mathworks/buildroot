@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PAX_UTILS_VERSION = 0.7
+PAX_UTILS_VERSION = 0.8.1
 PAX_UTILS_SITE = http://distfiles.gentoo.org/distfiles
 PAX_UTILS_SOURCE = pax-utils-$(PAX_UTILS_VERSION).tar.xz
 PAX_UTILS_LICENSE = GPLv2
@@ -32,14 +32,6 @@ endef
 
 define PAX_UTILS_BUILD_CMDS
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) $(PAX_UTILS_USE_CAP) -C $(@D)
-endef
-
-define HOST_PAX_UTILS_CLEAN_CMDS
-	$(MAKE) $(HOST_CONFIGURE_OPTS) -C $(@D) clean
-endef
-
-define PAX_UTILS_CLEAN_CMDS
-	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D) clean
 endef
 
 define HOST_PAX_UTILS_INSTALL_CMDS
