@@ -48,5 +48,6 @@ fi
 
 GIT_DIR="${basename}" \
 ${GIT} archive --prefix="${basename}/" -o "${output}.tmp" --format=tar "${cset}"
-
+${GIT} log -n 1 --pretty="%H" > ${basename}/.br2_version
+tar -rf ${output}.tmp ${basename}/.br2_version
 gzip <"${output}.tmp" >"${output}"
