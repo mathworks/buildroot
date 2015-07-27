@@ -88,12 +88,9 @@ define DOWNLOAD_GIT
 	  (echo "Doing full clone" && \
 	   $(GIT) clone --bare $($(PKG)_SITE) $($(PKG)_BASE_NAME))) && \
 	pushd $($(PKG)_BASE_NAME) > /dev/null && \
-	$(GIT) archive --format=tar --prefix=$($(PKG)_BASE_NAME)/ $($(PKG)_DL_VERSION) -o $(DL_DIR)/$($(PKG)_BASE_NAME).tar && \
-	$(GIT) log -n 1 --pretty="%H" > .br2_version && \
+	$(GIT) archive --format=tar --prefix=$($(PKG)_BASE_NAME)/ $($(PKG)_DL_VERSION) | \
+		gzip -c > $(DL_DIR)/$($(PKG)_SOURCE) && \
 	popd > /dev/null && \
-	tar -rf $($(PKG)_BASE_NAME).tar $($(PKG)_BASE_NAME)/.br2_version && \
-	gzip -c $($(PKG)_BASE_NAME).tar > $($(PKG)_SOURCE) && \
-	rm -f $($(PKG)_BASE_NAME).tar && \
 	rm -rf $($(PKG)_DL_DIR) && \
 	popd > /dev/null)
 endef
