@@ -19,7 +19,7 @@ verinfo() {
 }
 
 # Get the linux version from the BR .config file
-LINUX_INFO='BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION'
+LINUX_INFO='BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION'
 verinfo $LINUX_INFO
 LINUX_VER=$res
 

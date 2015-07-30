@@ -2,7 +2,7 @@
 # format: <post-*-script.sh> <image dir/target dir> -b <board name> [-c <chip name>] [-a <application> [-a <application>]]
 # executed out of main buildroot source directory
 # available environment variables
-#	BUILDROOT_CONFIG: path to .config file
+#	BR2_CONFIG: path to .config file
 #	HOST_DIR, STAGING_DIR, TARGET_DIR
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory

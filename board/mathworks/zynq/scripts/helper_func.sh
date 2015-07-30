@@ -20,5 +20,5 @@ function print_err() {
 
 function get_cfg_var() {
 	local var=$1
-	res=`cat $BUILDROOT_CONFIG | grep ^$var | sed -e 's/BR2_.*=//' | tr -d '"'`
+	res=`cat $BR2_CONFIG | grep ^$var | sed -e 's/BR2_.*=//' | tr -d '"'`
 }

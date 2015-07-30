@@ -2,7 +2,7 @@
 # format: <post-image-script.sh> <image dir> -b <board name> [-c <chip name>] [-a <application> [-a <application>]]
 # executed out of main buildroot source directory
 # available environment variables
-#	BUILDROOT_CONFIG: path to .config file
+#	BR2_CONFIG: path to .config file
 #	HOST_DIR, STAGING_DIR, TARGET_DIR
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
@@ -47,7 +47,7 @@ cp ${SD_SRC} ${SD_DIR}/
 #####################################
 # Add the version info to the sdcard	
 #####################################
-${SCRIPT_DIR}/git_verinfo.sh $BUILDROOT_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/BUILDINFO
+${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/BUILDINFO
 
 ####################################
 # Add the application specific DTBs
