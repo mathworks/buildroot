@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Restores SSH keys from the SD card
+#
+
+SD_KEYDIR=/mnt/sshkeys
+ETC_KEYDIR=/etc/ssh
+
+if [ -d $SD_KEYDIR ]; then
+    echo -n "Restoring SSH keys from the SD card: "    
+    cp -f $SD_KEYDIR/ssh_host_*key* $ETC_KEYDIR/
+    chmod 600 $ETC_KEYDIR/ssh_host_*key*
+    echo "OK"
+fi
+
+exit 0
+
