@@ -1,0 +1,43 @@
+config BR2_PACKAGE_UBOOT_TGT_TOOLS
+	bool "u-boot target-specific tools"
+    depends on !BR2_PACKAGE_UBOOT_TOOLS 
+	help
+	  Companion tools for Das U-Boot bootloader.
+	  Makes use of the target config file
+
+	  http://www.denx.de/wiki/U-Boot/WebHome
+
+if BR2_PACKAGE_UBOOT_TGT_TOOLS
+
+config BR2_PACKAGE_UBOOT_TGT_TOOLS_USECUSTOMGIT
+    bool "Use Custom Git"
+    depends on BR2_TARGET_UBOOT_CUSTOM_GIT
+    help
+	  Use the custom git repository defined for the bootloader
+
+config BR2_PACKAGE_UBOOT_TGT_TOOLS_MKIMAGE
+	bool "mkimage"
+	help
+	  The mkimage tool from Das U-Boot bootloader, which allows
+	  generation of U-Boot images in various formats.
+
+if BR2_PACKAGE_UBOOT_TGT_TOOLS_MKIMAGE
+
+config BR2_PACKAGE_UBOOT_TGT_TOOLS_MKENVIMAGE
+	bool "mkenvimage"
+	help
+	  The mkenvimage tool from Das U-Boot bootloader, which allows
+	  generation of a valid binary environment image from a text file
+	  describing the key=value pairs of the environment.
+
+config BR2_PACKAGE_UBOOT_TGT_TOOLS_FWPRINTENV
+	bool "fw_printenv"
+	default y
+	help
+	  The fw_printenv / fw_setenv tools from Das U-Boot
+	  bootloader, which allows access to the U-Boot environment
+	  from Linux.
+
+endif
+
+endif
