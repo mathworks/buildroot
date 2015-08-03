@@ -1,7 +1,7 @@
 ###########################################
 # Platform Options
 ###########################################
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="zynq-next"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="zynq-ag-next"
 BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x8000"
 BR2_PACKAGE_UBOOT_TGT_TOOLS=y
 BR2_PACKAGE_UBOOT_TGT_TOOLS_USECUSTOMGIT=y

@@ -4,8 +4,8 @@ DEVNODE=/dev/xdevcfg
 DEVMAJ=259
 DEVMIN=0
 
-SYSNODE=/sys/devices/*/*.*dev*cfg
-PROGDONE="cat $SYSNODE/prog_done"
+SYSNODE=`find /sys/devices -type f -name prog_done`
+PROGDONE="cat $SYSNODE"
 
 # create the device node if it doesn't already exist
 if [ ! -e $DEVNODE ]; then

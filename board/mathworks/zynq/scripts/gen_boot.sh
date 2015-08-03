@@ -50,7 +50,7 @@ function create_boot() {
 
     get_cfg_var "BR2_TOOLCHAIN_EXTERNAL_PATH"
     local SDK_ROOT=$(dirname $(dirname $(dirname ${res})))
-    local BOOTGEN_BIN=${SDK_ROOT}/bin/bootgen
+    local BOOTGEN_BIN=/opt/Xilinx/SDK/2014.4/bin/bootgen
 
     print_msg "Generating ${TGTBOOT}.BIN"
 
