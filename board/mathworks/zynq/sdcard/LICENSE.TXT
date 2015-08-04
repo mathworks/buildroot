@@ -8,10 +8,10 @@ Source code for the software covered under the GPL can be found at the
 following locations:
 
 Linux Kernel:
-https://github.com/mfornero/linux
+https://github.com/mathworks/xilinx-linux
 
 U-Boot Bootloader:
-https://github.com/mfornero/u-boot
+https://github.com/mathworks/xilinx-uboot
 
 Buildroot-based root filesystem:
-https://github.com/mfornero/buildroot
+https://github.com/mathworks/buildroot

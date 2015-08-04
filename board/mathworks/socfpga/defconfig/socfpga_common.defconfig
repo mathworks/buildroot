@@ -1,7 +1,8 @@
 ###########################################
 # Platform Options
 ###########################################
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="socfpga-next"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/altera-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="master"
 # BR2_LINUX_KERNEL_UIMAGE is not set
 BR2_LINUX_KERNEL_ZIMAGE=y
 BR2_PACKAGE_HOST_DOSFSTOOLS=y
@@ -14,5 +15,6 @@ BR2_TARGET_GENERIC_GETTY_PORT="ttyS0"
 BR2_TARGET_GENERIC_ROOT_PASSWD="cyclonevsoc"
 BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_TARGET_ROOTFS_TAR=y
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="altera-socfpga"
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/altera-uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="master"
 BR2_TARGET_UBOOT_FORMAT_IMG=y
