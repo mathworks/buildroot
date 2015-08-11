@@ -1,0 +1,2 @@
+/include/ "zynq-mw-axilite-common.dtsi"
+/include/ "zynq-mw-can0.dtsi"
