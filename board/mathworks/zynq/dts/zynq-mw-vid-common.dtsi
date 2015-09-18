@@ -8,10 +8,10 @@
         hdmitx@41010000 {
 			compatible = "mathworks,mwgeneric-v1.00";
 			reg = <0x41010000 0xffff>;
-			mwgen,ipname = "adi,axi_hdmi_tx_16b";
+			mwgen,ipname = "adi,axi_hdmi_tx";
 			mwgen,devname = "hdmitx";
-			mwgen,ipinst = "axi_hdmi_tx_16b_0";
-			mwgen,ipver = "1.00.a";
+			mwgen,ipinst = "axi_hdmi_tx";
+			mwgen,ipver = "4.00.c";
             i2c-controller = <&adv7511>;
 		};
 		
@@ -21,7 +21,7 @@
 			mwgen,ipname = "xlnx,axi_vdma";
 			mwgen,devname = "vdma";
 			mwgen,ipinst = "vdma_hdmi";
-			mwgen,ipver = "5.04.a";
+			mwgen,ipver = "6.2";
 		};
 		vdma_filter@42010000 {
 			compatible = "mathworks,mwgeneric-v1.00";
@@ -29,7 +29,7 @@
 			mwgen,ipname = "xlnx,axi_vdma";
 			mwgen,devname = "vdma";
 			mwgen,ipinst = "vdma_filter";
-			mwgen,ipver = "5.04.a";
+			mwgen,ipver = "6.2";
 		};
 		clkgen@43000000 {
 			compatible = "mathworks,mwgeneric-v1.00";
@@ -45,7 +45,7 @@
 			mwgen,ipname = "mathworks,mwtc";
 			mwgen,devname = "mwtc";
 			mwgen,ipinst = "mwtc_0";
-			mwgen,ipver = "1.00.a";
+			mwgen,ipver = "1.00";
 		};
 	};
 };
