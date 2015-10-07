@@ -1,3 +1,6 @@
+menu "MathWorks Addons"
+	source "package/mathworks/Config.in"
+endmenu
 menu "Target packages"
 
 	source "package/busybox/Config.in"
@@ -418,7 +421,6 @@ endif
 	source "package/ti-utils/Config.in"
 	source "package/triggerhappy/Config.in"
 	source "package/uboot-tools/Config.in"
-	source "package/uboot-tgt-tools/Config.in"
 	source "package/udev/Config.in"
 	source "package/udisks/Config.in"
 	source "package/usb_modeswitch/Config.in"

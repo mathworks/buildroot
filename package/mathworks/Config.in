@@ -1,0 +1,5 @@
+menu "Target packages"
+	source "package/mathworks/uboot-tgt-tools/Config.in"
+endmenu
+source "package/mathworks/Config.in.host"
+
