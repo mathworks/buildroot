@@ -1,4 +1,4 @@
 ###########################################
 # Linux Options
 ###########################################
-BR2_LINUX_KERNEL_DEFCONFIG="mw_socfpga"
+BR2_LINUX_KERNEL_DEFCONFIG="socfpga"
