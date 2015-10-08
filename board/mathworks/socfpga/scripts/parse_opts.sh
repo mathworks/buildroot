@@ -32,3 +32,5 @@ shift $((OPTIND-1))
 BR_ROOT=$PWD
 OUTPUT_DIR=$BASE_DIR
 BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${BOARD_DIR}" )" && pwd )/common
+COMMON_SCRIPTS=${COMMON_DIR}/scripts
