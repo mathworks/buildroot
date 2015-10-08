@@ -54,10 +54,10 @@ ${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/
 ####################################
 # always generate the base app
 APP_LIST="base ${APP_LIST}"
-${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} ${APP_LIST}
+${COMMON_SCRIPTS}/gen_dtb.sh $OUTPUT_DIR socfpga ${BOARD_NAME} ${APP_LIST}
 
 # Boot from the base DTB by default
-mv ${SD_DIR}/socfpga_base.dtb ${SD_DIR}/socfpga.dtb
+mv ${SD_DIR}/devicetree_base.dtb ${SD_DIR}/socfpga.dtb
 
 ####################################
 # Copy over the rbf and the u-boot script
