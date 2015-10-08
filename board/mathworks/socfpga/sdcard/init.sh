@@ -6,7 +6,7 @@ cd /mnt
 
 # load the MW axi kernel module
 modprobe mwipcore
-#modprobe mwgeneric
+modprobe mwgeneric
 
 # run dhcp script to obtain IP Address
 #udhcpc -s /mnt/dhcp.script
