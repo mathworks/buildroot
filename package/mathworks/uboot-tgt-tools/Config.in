@@ -11,7 +11,7 @@ if BR2_PACKAGE_UBOOT_TGT_TOOLS
 
 config BR2_PACKAGE_UBOOT_TGT_TOOLS_USECUSTOMGIT
     bool "Use Custom Git"
-    depends on BR2_TARGET_UBOOT_CUSTOM_GIT
+    depends on (BR2_TARGET_UBOOT_CUSTOM_GIT || BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_GIT)
     help
 	  Use the custom git repository defined for the bootloader
 
