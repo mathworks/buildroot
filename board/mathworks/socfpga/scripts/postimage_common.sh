@@ -13,7 +13,7 @@ source ${SCRIPT_DIR}/parse_opts.sh
 IMAGE_DIR=${INDIR}
 TGTNAME=${BOARD_NAME}${CHIP_NAME}
 SD_DIR=${IMAGE_DIR}/sdcard
-BOOT_DIR=${BOARD_DIR}/boot
+BOOT_DIR=${PLATFORM_DIR}/boot
 
 res=''
 
@@ -41,7 +41,7 @@ cp ${KERNEL} ${SD_DIR}/
 #####################################
 # Copy Over the sdcard files
 #####################################
-SD_SRC=${BOARD_DIR}/sdcard/*
+SD_SRC=${PLATFORM_DIR}/sdcard/*
 cp ${SD_SRC} ${SD_DIR}/
 
 #####################################
@@ -60,14 +60,22 @@ ${COMMON_SCRIPTS}/gen_dtb.sh $OUTPUT_DIR socfpga ${BOARD_NAME} ${APP_LIST}
 mv ${SD_DIR}/devicetree_base.dtb ${SD_DIR}/socfpga.dtb
 
 ####################################
-# Copy over the rbf and the u-boot script
+# Add the application specific rbfs
+####################################
+#Todo: do this
+
+# boot from the base rbf by default
+cp ${BOARD_DIR}/boot/base.rbf ${SD_DIR}/socfpga.rbf
+
+####################################
+# Copy over the u-boot script
 ####################################
 cp ${BOOT_DIR}/u-boot-scr.txt ${IMAGE_DIR}/u-boot-scr.txt 
 pushd ${IMAGE_DIR}
 ${HOST_DIR}/usr/bin/mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "U-Boot Script" -d u-boot-scr.txt u-boot.scr
 popd
 mv ${IMAGE_DIR}/u-boot.scr ${SD_DIR}/u-boot.scr 
-cp ${BOOT_DIR}/${TGTNAME}.rbf ${SD_DIR}/socfpga.rbf
+
 
 ####################################
 # Copy over u-boot (SPL will load u-boot.img)
