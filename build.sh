@@ -10,6 +10,7 @@ OUTPUTDIR=${BR_DIR}/output
 MYSHELL=`echo $SHELL | sed -e 's/.*\///'`
 LOCALCONFIG=${BR_DIR}/.localconfig
 CLEANDL=0
+UPDATE=0
 echoerr() { echo "Error: $@" 1>&2; }
 
 usage() {
@@ -28,7 +29,7 @@ EOL
 	exit 1
 }
 
-OPTPARSE=`getopt -o hct: -l help,cleandl,target: -n 'build.sh' -- "$@"`
+OPTPARSE=`getopt -o hcut: -l help,cleandl,update,target: -n 'build.sh' -- "$@"`
 
 strip_quote() {
     echo $1 | sed -e "s/^'\|'$//g"
@@ -46,6 +47,11 @@ parse_cmds() {
         --cleandl|-c)
 		    shift		
 		    CLEANDL=1
+		    ((ARGC=ARGC-1))
+		    ;;
+        --update|-u)
+            shift
+		    UPDATE=1
 		    ((ARGC=ARGC-1))
 		    ;;
 	    --target|-t)
@@ -126,7 +132,10 @@ if [ $? -eq 0 ]; then
 	make O=${TGTDIR} -C ${BR_DIR} ${DYNCONFIG}_defconfig
 	rm ${BR_DIR}/configs/${DYNCONFIG}_defconfig
 	set_title ${CONFIG}
-	make clean && make ${MKTGT}
+    if [ $UPDATE -eq 0 ]; then
+        make clean
+    fi
+	make ${MKTGT}
 	set_title ${MYSHELL}
 fi
 
