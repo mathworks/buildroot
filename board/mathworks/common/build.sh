@@ -52,13 +52,6 @@ listCheck () {
 }
 
 mkconfig() {
-
-	# Test for incompatibilities
-	if [ ${OPSYS} == "xenomai"  -a ${TOOLCHAIN} == "xilinx" ]; then
-		echoerr "Cannot use Xilinx toolchain with Xenomai OS"
-		exit 1
-	fi
-	
 	BOARD_CONFIG=${CONFIG_DIR}/${PLATFORM}_${BOARD}.defconfig
 	OS_CONFIG=${CONFIG_DIR}/${PLATFORM}_${OPSYS}.defconfig
 	TOOLCHAIN_CONFIG=${CONFIG_DIR}/${PLATFORM}_${TOOLCHAIN}.defconfig		
