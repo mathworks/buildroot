@@ -1,2 +1,2 @@
-/include/ "socfpga-mw-sockit-base.dtsi"
-/include/ "mw-generic.dtsi"
+#include "socfpga-mw-sockit-base.dtsi"
+#include "socfpga-mw-dma.dtsi"
