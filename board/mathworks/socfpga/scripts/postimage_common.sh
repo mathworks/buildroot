@@ -70,12 +70,18 @@ mv ${IMAGE_DIR}/u-boot.scr ${SD_DIR}/u-boot.scr
 cp ${BOOT_DIR}/${TGTNAME}.rbf ${SD_DIR}/socfpga.rbf
 
 ####################################
+# Copy over u-boot (SPL will load u-boot.img)
+####################################
+cp ${IMAGE_DIR}/u-boot.img ${SD_DIR}/
+
+####################################
 # Call the Altera script
 ####################################
 
 SUDOENV="env PATH=$PATH:${HOST_DIR}/usr/bin:${HOST_DIR}/usr/sbin"
 BUILDDATE=`date +%F`
-SPL=${BOOT_DIR}/${TGTNAME}-preloader-mkpimage.bin
+SPL=${IMAGE_DIR}/preloader-mkpimage.bin
+#SPL=${BOOT_DIR}/${TGTNAME}-preloader-mkpimage.bin
 BOOTLOADER=${IMAGE_DIR}/u-boot.img
 build_file_list ${SD_DIR}
 FATFILES=$res
