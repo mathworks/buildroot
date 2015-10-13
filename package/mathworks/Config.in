@@ -1,6 +1,7 @@
 menu "Target packages"
 	source "package/mathworks/uboot-tgt-tools/Config.in"
 	source "package/mathworks/uboot-altera/Config.in"
+	source "package/mathworks/altera-preloader/Config.in"
 endmenu
 source "package/mathworks/Config.in.host"
 
