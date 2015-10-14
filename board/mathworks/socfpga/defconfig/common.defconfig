@@ -1,8 +1,8 @@
 ###########################################
 # Platform Options
 ###########################################
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/mfornero/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="altera-next"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/EmbeddedLinux/altera-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="next"
 # BR2_LINUX_KERNEL_UIMAGE is not set
 BR2_LINUX_KERNEL_ZIMAGE=y
 BR2_PACKAGE_HOST_DOSFSTOOLS=y
@@ -17,8 +17,8 @@ BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_TARGET_ROOTFS_TAR=y
 BR2_PACKAGE_UBOOT_ALTERA=y
 BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_GIT=y
-BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/mfornero/uboot.git"
-BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION="altera-next"
+BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/EmbeddedLinux/altera-uboot.git"
+BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION="next"
 BR2_PACKAGE_UBOOT_ALTERA_FORMAT_IMG=y
 BR2_PACKAGE_UBOOT_ALTERA_UPDATE_FILES=y
 BR2_PACKAGE_ALTERA_PRELOADER=y
