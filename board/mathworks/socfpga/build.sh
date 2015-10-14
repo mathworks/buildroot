@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 PLATFORM="socfpga"
 OPERATING_SYS="linux"
@@ -7,7 +8,8 @@ BOARD="alteracycv"
 BUILDALL="false"
 
 # List of valid boards
-BOARD_LIST="alteracycv sockit"
+BOARD_LIST=$(cd ${SCRIPT_DIR}/boards; ls -d * | tr -d /)
+
 # List of valid os
 OS_LIST="linux"
 # List of valid toolchains
