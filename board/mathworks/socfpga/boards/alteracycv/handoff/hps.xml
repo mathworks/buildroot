@@ -3,14 +3,14 @@
     <config name='DEVICE_FAMILY' value='Cyclone V' />
     <config name='DMA_Enable' value='No No No No No No No No' />
     <config name='dbctrl_stayosc1' value='true' />
-    <config name='main_pll_m' value='73' />
+    <config name='main_pll_m' value='47' />
     <config name='main_pll_n' value='0' />
     <config name='main_pll_c0_internal' value='1' />
-    <config name='main_pll_c1_internal' value='4' />
-    <config name='main_pll_c2_internal' value='4' />
-    <config name='main_pll_c3' value='4' />
+    <config name='main_pll_c1_internal' value='3' />
+    <config name='main_pll_c2_internal' value='3' />
+    <config name='main_pll_c3' value='2' />
     <config name='main_pll_c4' value='511' />
-    <config name='main_pll_c5' value='18' />
+    <config name='main_pll_c5' value='11' />
     <config name='l4_mp_clk_div' value='1' />
     <config name='l4_sp_clk_div' value='1' />
     <config name='periph_pll_m' value='39' />
@@ -26,7 +26,7 @@
     <config name='can0_clk_div' value='1' />
     <config name='can1_clk_div' value='4' />
     <config name='gpio_db_clk_div' value='6249' />
-    <config name='main_pll_vco_hz' value='1850000000' />
+    <config name='main_pll_vco_hz' value='1200000000' />
     <config name='periph_pll_vco_hz' value='1000000000' />
     <config name='eosc1_clk_hz' value='25000000' />
     <config name='eosc2_clk_hz' value='25000000' />
@@ -48,7 +48,7 @@
     <config name='usb_mp_clk_hz' value='200000000' />
     <config name='nand_clk_hz' value='50000000' />
     <config name='sdmmc_clk_hz' value='200000000' />
-    <config name='qspi_clk_hz' value='370000000' />
+    <config name='qspi_clk_hz' value='400000000' />
     <config name='spi_m_clk_hz' value='200000000' />
     <config name='can0_clk_hz' value='100000000' />
     <config name='can1_clk_hz' value='12500000' />
