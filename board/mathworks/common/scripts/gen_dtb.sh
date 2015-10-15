@@ -36,17 +36,9 @@ DTS_FILE=devicetree.dts
 
 
 # Determine the toolchain name for CPP
-get_cfg_var 'BR2_ARM_EABI'
-EABI=$res
-get_cfg_var 'BR2_ARM_EABIHF'
-EABIHF=$res
-if [ "$EABI" == "y" ]; then
-    TC_PREFIX="arm-linux-gnueabi"
-elif [ "$EABIHF" == "y" ]; then
-    TC_PREFIX="arm-linux-gnueabihf"
-else
-    print_err "Could not find arachitecture"
-fi
+get_cfg_var BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX
+# drop the $(ARCH) string
+TC_PREFIX=$(echo $res | sed -e "s|\$(ARCH)|arm|")
 
 DTC_CPP_FLAGS="-Wp,-MD,dependency.pre.tmp -nostdinc \
             -I${COMMON_DIR}/dts \
