@@ -35,5 +35,7 @@ PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
 COMMON_SCRIPTS=${COMMON_DIR}/scripts
 BOARD_DIR=${PLATFORM_DIR}/boards/${BOARD_NAME}
+APP_ARRAY=($APP_LIST)
+DEFAULT_APP=${APP_ARRAY[0]}
 
 source ${COMMON_SCRIPTS}/helper_func.sh

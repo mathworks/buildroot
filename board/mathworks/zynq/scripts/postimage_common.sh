@@ -49,13 +49,6 @@ ${MKIMAGE_BIN} -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 ${SCRIPT_DIR}/gen_boot.sh $OUTPUT_DIR $TGTNAME ${APP_LIST}
 
 #####################################
-# Move the devicetree
-#####################################
-DEVTREE=zynq-mw-${BOARD_NAME}.dtb
-cd ${IMAGE_DIR}
-cp ${DEVTREE} ${SD_DIR}/devicetree.dtb
-
-#####################################
 # Move the kernel
 #####################################
 KERNEL=uImage
@@ -77,6 +70,10 @@ ${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/
 # Add the application specific DTBs
 ####################################
 ${COMMON_SCRIPTS}/gen_dtb.sh $OUTPUT_DIR zynq ${BOARD_NAME} ${APP_LIST}
+
+# Boot from the default DTB
+print_msg "Setting ${DEFAULT_APP} as default dtb"
+cp ${SD_DIR}/devicetree_${DEFAULT_APP}.dtb ${SD_DIR}/devicetree.dtb
 
 ####################################
 # Zip the SD Card Directory
