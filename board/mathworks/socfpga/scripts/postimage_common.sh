@@ -7,8 +7,10 @@
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
 
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-source ${SCRIPT_DIR}/parse_opts.sh
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
+source ${COMMON_DIR}/scripts/parse_opts.sh
 
 IMAGE_DIR=${INDIR}
 TGTNAME=${BOARD_NAME}${CHIP_NAME}
@@ -47,7 +49,7 @@ cp ${SD_SRC} ${SD_DIR}/
 #####################################
 # Add the version info to the sdcard	
 #####################################
-${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/BUILDINFO
+gen_verinfo_file ${SD_DIR}/BUILDINFO BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION uboot-altera
 
 ####################################
 # Add the application specific DTBs

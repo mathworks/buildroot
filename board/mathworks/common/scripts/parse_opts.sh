@@ -35,3 +35,5 @@ PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
 COMMON_SCRIPTS=${COMMON_DIR}/scripts
 BOARD_DIR=${PLATFORM_DIR}/boards/${BOARD_NAME}
+
+source ${COMMON_SCRIPTS}/helper_func.sh
