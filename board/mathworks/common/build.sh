@@ -52,18 +52,25 @@ listCheck () {
 }
 
 mkconfig() {
+    if [ -f ${BOARD_DIR}/boards/${BOARD}/defconfig ]; then
+    	BOARD_CONFIG=${BOARD_DIR}/boards/${BOARD}/defconfig    
+    else
+    	BOARD_CONFIG=${CONFIG_DIR}/${PLATFORM}_${BOARD}.defconfig
+    fi
 
-	# Test for incompatibilities
-	if [ ${OPSYS} == "xenomai"  -a ${TOOLCHAIN} == "xilinx" ]; then
-		echoerr "Cannot use Xilinx toolchain with Xenomai OS"
-		exit 1
-	fi
-	
-	BOARD_CONFIG=${CONFIG_DIR}/${PLATFORM}_${BOARD}.defconfig
-	OS_CONFIG=${CONFIG_DIR}/${PLATFORM}_${OPSYS}.defconfig
-	TOOLCHAIN_CONFIG=${CONFIG_DIR}/${PLATFORM}_${TOOLCHAIN}.defconfig		
+    if [ -f ${CONFIG_DIR}/${OPSYS}.defconfig ]; then
+        OS_CONFIG=${CONFIG_DIR}/${OPSYS}.defconfig		
+    else
+    	OS_CONFIG=${CONFIG_DIR}/${PLATFORM}_${OPSYS}.defconfig
+    fi
+
+    if [ -f ${CONFIG_DIR}/${TOOLCHAIN}.defconfig ]; then
+        TOOLCHAIN_CONFIG=${CONFIG_DIR}/${TOOLCHAIN}.defconfig		
+    else
+	    TOOLCHAIN_CONFIG=${CONFIG_DIR}/${PLATFORM}_${TOOLCHAIN}.defconfig		
+    fi
+
 	# Generate the defconfig
-	
 	echo "### Generating Board:[${BOARD}] OS:[${OPSYS}] Toolchain: [${TOOLCHAIN}]"
 	cat ${COMPANY_CONFIG} > ${TGT_CONFIG_FILE}
 	cat ${COMMON_CONFIG} >> ${TGT_CONFIG_FILE}
@@ -75,7 +82,12 @@ mkconfig() {
 echo "Sourcing ${BOARD_DIR}/build.sh"
 source ${BOARD_DIR}/build.sh
 
-COMMON_CONFIG=${CONFIG_DIR}/${PLATFORM}_common.defconfig
+if [ -f ${CONFIG_DIR}/common.defconfig ]; then
+    COMMON_CONFIG=${CONFIG_DIR}/common.defconfig
+else
+    COMMON_CONFIG=${CONFIG_DIR}/${PLATFORM}_common.defconfig
+fi
+
 
 # Split the argument into its components
 CMD=${INARG}

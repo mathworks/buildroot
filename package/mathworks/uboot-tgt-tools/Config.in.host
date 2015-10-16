@@ -1,0 +1,9 @@
+config BR2_PACKAGE_HOST_UBOOT_TGT_TOOLS
+	bool "host u-boot tools"
+    depends on !BR2_PACKAGE_HOST_UBOOT_TOOLS
+	help
+	  Companion tools for Das U-Boot bootloader.
+
+	  http://www.denx.de/wiki/U-Boot/WebHome
+
+

@@ -1,0 +1,50 @@
+config BR2_PACKAGE_ALTERA_PRELOADER
+	bool "Altera Preloader"
+	depends on !BR2_PACKAGE_UBOOT_ALTERA_SPL
+	help
+	  Build Altera Preloader Based on Quartus handoff files
+
+if BR2_PACKAGE_ALTERA_PRELOADER
+menu "Altera Preloader Options"
+
+config BR2_PACKAGE_ALTERA_PRELOADER_EDS_VERSION
+	string "Altera SoC EDS Version"
+    default 14.0.2
+	help
+	  The version of Altera SoC EDS being used
+
+config BR2_PACKAGE_ALTERA_PRELOADER_BOARDNAME
+	string "Altera Preloader board name"
+	default BR2_PACKAGE_UBOOT_ALTERA_BOARDNAME if BR2_PACKAGE_UBOOT_ALTERA
+	default BR2_TARGET_UBOOT_BOARDNAME if BR2_TARGET_UBOOT
+	default "socfpga_cyclone5" \
+		if !BR2_TARGET_UBOOT && !BR2_PACKAGE_UBOOT_ALTERA
+	help
+	  The target board configuration to be built
+
+config BR2_PACKAGE_ALTERA_PRELOADER_QUARTUS_HANDOFF_DIR
+	string "Quartus Handoff Files Location"
+	help
+	  The location of the Quartus handoff files generated during
+	  fpga image compilation
+
+	  This can be an absolute path, or relative to the buildroot
+	  root directory.
+
+config BR2_PACKAGE_ALTERA_PRELOADER_EDS_INSTALLATION
+	string "Path Altera SoC EDS"
+	default "/opt/altera/14.0/embedded"
+	help
+	  This is the path to the Altera SoC EDS installation.
+	  
+	  For example /opt/altera/14.0/embedded
+
+config BR2_PACKAGE_ALTERA_PRELOADER_UBOOT_CUSTOM_TARBALL
+	string "Custom U-Boot tarball"
+	default ""
+	help
+	  Custom U-boot tarball to use for generating the preloader
+
+endmenu #"Altera Preloader Options"
+endif #BR2_PACKAGE_ALTERA_PRELOADER
+

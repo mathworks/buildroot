@@ -7,13 +7,15 @@
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
 
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-source ${SCRIPT_DIR}/parse_opts.sh
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
+source ${COMMON_DIR}/scripts/parse_opts.sh
 
 IMAGE_DIR=${INDIR}
 TGTNAME=${BOARD_NAME}${CHIP_NAME}
 SD_DIR=${IMAGE_DIR}/sdcard
-BOOT_DIR=${BOARD_DIR}/boot
+BOOT_DIR=${PLATFORM_DIR}/boot
 
 res=''
 
@@ -41,33 +43,46 @@ cp ${KERNEL} ${SD_DIR}/
 #####################################
 # Copy Over the sdcard files
 #####################################
-SD_SRC=${BOARD_DIR}/sdcard/*
+SD_SRC=${PLATFORM_DIR}/sdcard/*
 cp ${SD_SRC} ${SD_DIR}/
 
 #####################################
 # Add the version info to the sdcard	
 #####################################
-${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/BUILDINFO
+gen_verinfo_file ${SD_DIR}/BUILDINFO BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION uboot-altera
 
 ####################################
 # Add the application specific DTBs
 ####################################
 # always generate the base app
 APP_LIST="base ${APP_LIST}"
-${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} ${APP_LIST}
+${COMMON_SCRIPTS}/gen_dtb.sh $OUTPUT_DIR socfpga ${BOARD_NAME} ${APP_LIST}
 
 # Boot from the base DTB by default
-mv ${SD_DIR}/socfpga_base.dtb ${SD_DIR}/socfpga.dtb
+mv ${SD_DIR}/devicetree_base.dtb ${SD_DIR}/socfpga.dtb
 
 ####################################
-# Copy over the rbf and the u-boot script
+# Add the application specific rbfs
+####################################
+#Todo: do this
+
+# boot from the base rbf by default
+cp ${BOARD_DIR}/boot/base.rbf ${SD_DIR}/socfpga.rbf
+
+####################################
+# Copy over the u-boot script
 ####################################
 cp ${BOOT_DIR}/u-boot-scr.txt ${IMAGE_DIR}/u-boot-scr.txt 
 pushd ${IMAGE_DIR}
 ${HOST_DIR}/usr/bin/mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "U-Boot Script" -d u-boot-scr.txt u-boot.scr
 popd
 mv ${IMAGE_DIR}/u-boot.scr ${SD_DIR}/u-boot.scr 
-cp ${BOOT_DIR}/${TGTNAME}.rbf ${SD_DIR}/socfpga.rbf
+
+
+####################################
+# Copy over u-boot (SPL will load u-boot.img)
+####################################
+cp ${IMAGE_DIR}/u-boot.img ${SD_DIR}/
 
 ####################################
 # Call the Altera script
@@ -75,7 +90,8 @@ cp ${BOOT_DIR}/${TGTNAME}.rbf ${SD_DIR}/socfpga.rbf
 
 SUDOENV="env PATH=$PATH:${HOST_DIR}/usr/bin:${HOST_DIR}/usr/sbin"
 BUILDDATE=`date +%F`
-SPL=${BOOT_DIR}/${TGTNAME}-preloader-mkpimage.bin
+SPL=${IMAGE_DIR}/preloader-mkpimage.bin
+#SPL=${BOOT_DIR}/${TGTNAME}-preloader-mkpimage.bin
 BOOTLOADER=${IMAGE_DIR}/u-boot.img
 build_file_list ${SD_DIR}
 FATFILES=$res

@@ -2,13 +2,16 @@
 
 FPGAFILE=$1
 FPGASTATUS="cat /sys/class/fpga/fpga0/status"
+FPGABRIDGES=/sys/class/fpga-bridge
 
 echo "Current FPGA Status: $($FPGASTATUS)"
 
 echo "Disabling bridges"
-echo 0 > /sys/class/fpga-bridge/fpga2hps/enable
-echo 0 > /sys/class/fpga-bridge/hps2fpga/enable
-echo 0 > /sys/class/fpga-bridge/lwhps2fpga/enable
+BRIDGES=$(cd $FPGABRIDGES; ls -d * )
+for bridge in $BRIDGES; do
+    echo "    $bridge..."
+    echo 0 > ${FPGABRIDGES}/$bridge/enable
+done
 
 echo "Downloading FPGA Image..."
 dd if=${FPGAFILE} of=/dev/fpga0 bs=1M
@@ -27,10 +30,12 @@ done
 echo "Programming completed successfully"
 
 echo "Enabling bridges"
-echo 1 > /sys/class/fpga-bridge/fpga2hps/enable
-echo 1 > /sys/class/fpga-bridge/hps2fpga/enable
-echo 1 > /sys/class/fpga-bridge/lwhps2fpga/enable
+for bridge in $BRIDGES; do
+    echo "    $bridge..."
+    echo 1 > ${FPGABRIDGES}/$bridge/enable
+done
 
 
 
 exit 0
+
