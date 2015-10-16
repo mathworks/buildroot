@@ -1,0 +1,7 @@
+#include "base.dtsi"
+#include "zynq-mw-can.dtsi"
+
+&can0 {
+    status = "okay";
+};
+
