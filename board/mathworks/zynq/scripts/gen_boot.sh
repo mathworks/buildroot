@@ -4,17 +4,19 @@ OUTPUT_DIR=$( cd $1 && pwd )
 TGTNAME=$2
 shift 2
 APP_LIST="$@"
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
-BOOT_DIR=${BOARD_DIR}/boot
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
+COMMON_SCRIPTS=${COMMON_DIR}/scripts
+
+BOOT_DIR=${PLATFORM_DIR}/boot
 IMAGE_DIR=${OUTPUT_DIR}/images
 HOST_DIR=${OUTPUT_DIR}/host
 BUILD_DIR=${OUTPUT_DIR}/build
 TARGET_DIR=${OUTPUT_DIR}/target
 SD_DIR=${IMAGE_DIR}/sdcard
-res=''
 
-source ${SCRIPT_DIR}/helper_func.sh
+source ${COMMON_SCRIPTS}/helper_func.sh
 
 function create_bif() {
 local BIF=$1
@@ -50,7 +52,7 @@ function create_boot() {
 
     get_cfg_var "BR2_TOOLCHAIN_EXTERNAL_PATH"
     local SDK_ROOT=$(dirname $(dirname $(dirname ${res})))
-    local BOOTGEN_BIN=/opt/Xilinx/SDK/2014.4/bin/bootgen
+    local BOOTGEN_BIN=${SDK_ROOT}/bin/bootgen
 
     print_msg "Generating ${TGTBOOT}.BIN"
 
