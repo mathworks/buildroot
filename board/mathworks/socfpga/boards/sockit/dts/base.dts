@@ -1,3 +1,5 @@
+/* Include the default DT from the kernel */
+#include "socfpga_cyclone5_sockit.dts"
 #include "socfpga-mw-mwipcore.dtsi"
 / {
     chosen {
