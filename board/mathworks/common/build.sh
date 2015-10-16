@@ -74,9 +74,9 @@ mkconfig() {
 	echo "### Generating Board:[${BOARD}] OS:[${OPSYS}] Toolchain: [${TOOLCHAIN}]"
 	cat ${COMPANY_CONFIG} > ${TGT_CONFIG_FILE}
 	cat ${COMMON_CONFIG} >> ${TGT_CONFIG_FILE}
-	cat ${BOARD_CONFIG} >> ${TGT_CONFIG_FILE}
 	cat ${TOOLCHAIN_CONFIG} >> ${TGT_CONFIG_FILE}
 	cat ${OS_CONFIG} >> ${TGT_CONFIG_FILE}
+	cat ${BOARD_CONFIG} >> ${TGT_CONFIG_FILE}
 }
 
 echo "Sourcing ${BOARD_DIR}/build.sh"
