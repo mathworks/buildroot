@@ -3,4 +3,3 @@
 ###########################################
 BR2_ROOTFS_POST_SCRIPT_ARGS="-b zc702 -a axilite -a vid-camlink -a vid-imageon -a vid-hdmi -a vid-vita -a axistream -a can"
 BR2_TARGET_UBOOT_BOARDNAME="zynq_zc70x"
-BR2_LINUX_KERNEL_INTREE_DTS_NAME="zynq-mw-zc702"
