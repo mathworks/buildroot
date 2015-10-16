@@ -12,46 +12,46 @@
             i2c-controller = <&fmcgpio_i2c>;
         };
     };
+};
+&axi{   
+	hdmirx@41000000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x41000000 0xffff>;
+		mwgen,ipname = "adi,axi_hdmi_rx";
+		mwgen,devname = "hdmirx";
+		mwgen,ipinst = "axi_hdmi_rx";
+		mwgen,ipver = "4.00.c";
+        i2c-controller = <&adv7611>;
+	};
 
-	amba@0{   
-		hdmirx@41000000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x41000000 0xffff>;
-			mwgen,ipname = "adi,axi_hdmi_rx";
-			mwgen,devname = "hdmirx";
-			mwgen,ipinst = "axi_hdmi_rx";
-			mwgen,ipver = "4.00.c";
-            i2c-controller = <&adv7611>;
-		};
-
-        dmac2vdma@41020000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x41020000 0xffff>;
-			mwgen,ipname = "mw,dmac_to_vdma";
-			mwgen,devname = "dmac2vdma";
-			mwgen,ipinst = "dmac_to_vdma";
-			mwgen,ipver = "1.00";
-		};
-		
-		vita@42020000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x42020000 0xffff>;
-			mwgen,ipname = "avnet,fmc_imageon_vita_receiver";
-			mwgen,devname = "vitarx";
-			mwgen,ipinst = "vita_rx";
-			mwgen,ipver = "1.12.a";
-		};
-		
-		gpio@43020000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x43020000 0xffff>;
-			mwgen,ipname = "xlnx,axi_gpio";
-			mwgen,devname = "axigpio";
-			mwgen,ipinst = "axi_gpio_0";
-			mwgen,ipver = "1.12.a";
-		};
+    dmac2vdma@41020000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x41020000 0xffff>;
+		mwgen,ipname = "mw,dmac_to_vdma";
+		mwgen,devname = "dmac2vdma";
+		mwgen,ipinst = "dmac_to_vdma";
+		mwgen,ipver = "1.00";
+	};
+	
+	vita@42020000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x42020000 0xffff>;
+		mwgen,ipname = "avnet,fmc_imageon_vita_receiver";
+		mwgen,devname = "vitarx";
+		mwgen,ipinst = "vita_rx";
+		mwgen,ipver = "1.12.a";
+	};
+	
+	gpio@43020000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x43020000 0xffff>;
+		mwgen,ipname = "xlnx,axi_gpio";
+		mwgen,devname = "axigpio";
+		mwgen,ipinst = "axi_gpio_0";
+		mwgen,ipver = "1.12.a";
 	};
 };
+
 &imageon_i2c {
 	i2cswitch@70 {
 			compatible = "nxp,pca9546";
