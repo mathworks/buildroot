@@ -1,4 +1,3 @@
-/include/ "zynq-mw-axilite-common.dtsi"
 /{
 	chosen {
 		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk cma=128M";
