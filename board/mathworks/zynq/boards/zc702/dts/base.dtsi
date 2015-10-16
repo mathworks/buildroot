@@ -1,0 +1,14 @@
+/dts-v1/;
+
+#include "zynq-zc702.dtsi"
+
+/ {
+	chosen {
+        bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+		linux,stdout-path = "/amba@0/uart@E0001000";
+	};
+};
+
+#include "zynq-mw-axilite-common.dtsi"
+#include "board-i2c.dtsi"
+

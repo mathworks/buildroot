@@ -1,9 +1,0 @@
-/include/ "zynq-mw-vid-common.dtsi"
-/{
-
-	amba@0{   
-        hdmitx@41010000 {
-	        mwgen,vidinjust = "right";
-		};
-    };
-};
