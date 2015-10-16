@@ -1,0 +1,38 @@
+
+&axi {
+	i2c@41600000 {
+		compatible = "xlnx,axi-iic-1.01.b", "xlnx,xps-iic-2.00.a";
+		interrupt-parent = <&gic>;
+		interrupts = <0 58 0x4>;
+		reg = <0x41600000 0x10000>;
+
+		#size-cells = <0>;
+		#address-cells = <1>;
+
+		adau1761: adau1761@3b {
+			compatible = "adi,adau1761";
+			reg = <0x3b>;
+		};
+	};
+	
+	audio_clock: audio_clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <12288000>;
+	};
+	
+	axi_i2s_0: axi-i2s@0x77600000 {
+		compatible = "adi,axi-i2s-1.00.a";
+		reg = <0x77600000 0x1000>;
+		dmas = <&ps7_dma 1 &ps7_dma 2>;
+		dma-names = "tx", "rx";
+		clocks = <&clkc 15>, <&audio_clock>, <&audio_clock>;
+		clock-names = "axi", "ref", "i2s";
+	};
+
+	zed_sound {
+		compatible = "digilent,zed-sound";
+		audio-codec = <&adau1761>;
+		cpu-dai = <&axi_i2s_0>;
+	};
+};

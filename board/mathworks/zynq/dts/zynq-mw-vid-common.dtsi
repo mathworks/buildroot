@@ -3,49 +3,49 @@
 		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk cma=128M";
 		linux,stdout-path = "/amba@0/uart@E0001000";
 	};
+};
 
-	amba@0{   
-        hdmitx@41010000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x41010000 0xffff>;
-			mwgen,ipname = "adi,axi_hdmi_tx_16b";
-			mwgen,devname = "hdmitx";
-			mwgen,ipinst = "axi_hdmi_tx_16b_0";
-			mwgen,ipver = "1.00.a";
-            i2c-controller = <&adv7511>;
-		};
-		
-		vdma_hdmi@42000000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x42000000 0xffff>;
-			mwgen,ipname = "xlnx,axi_vdma";
-			mwgen,devname = "vdma";
-			mwgen,ipinst = "vdma_hdmi";
-			mwgen,ipver = "5.04.a";
-		};
-		vdma_filter@42010000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x42010000 0xffff>;
-			mwgen,ipname = "xlnx,axi_vdma";
-			mwgen,devname = "vdma";
-			mwgen,ipinst = "vdma_filter";
-			mwgen,ipver = "5.04.a";
-		};
-		clkgen@43000000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x43000000 0xffff>;
-			mwgen,ipname = "axi_clkgen";
-			mwgen,devname = "clkgen";
-			mwgen,ipinst = "axi_clkgen_0";
-			mwgen,ipver = "1.00.a";
-		};
-		mwtc@43010000 {
-			compatible = "mathworks,mwgeneric-v1.00";
-			reg = <0x43010000 0xffff>;
-			mwgen,ipname = "mathworks,mwtc";
-			mwgen,devname = "mwtc";
-			mwgen,ipinst = "mwtc_0";
-			mwgen,ipver = "1.00.a";
-		};
+&axi{   
+    hdmitx@41010000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x41010000 0xffff>;
+		mwgen,ipname = "adi,axi_hdmi_tx";
+		mwgen,devname = "hdmitx";
+		mwgen,ipinst = "axi_hdmi_tx";
+		mwgen,ipver = "4.00.c";
+        i2c-controller = <&adv7511>;
+	};
+	
+	vdma_hdmi@42000000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x42000000 0xffff>;
+		mwgen,ipname = "xlnx,axi_vdma";
+		mwgen,devname = "vdma";
+		mwgen,ipinst = "vdma_hdmi";
+		mwgen,ipver = "6.2";
+	};
+	vdma_filter@42010000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x42010000 0xffff>;
+		mwgen,ipname = "xlnx,axi_vdma";
+		mwgen,devname = "vdma";
+		mwgen,ipinst = "vdma_filter";
+		mwgen,ipver = "6.2";
+	};
+	clkgen@43000000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x43000000 0xffff>;
+		mwgen,ipname = "axi_clkgen";
+		mwgen,devname = "clkgen";
+		mwgen,ipinst = "axi_clkgen_0";
+		mwgen,ipver = "1.00.a";
+	};
+	mwtc@43010000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x43010000 0xffff>;
+		mwgen,ipname = "mathworks,mwtc";
+		mwgen,devname = "mwtc";
+		mwgen,ipinst = "mwtc_0";
+		mwgen,ipver = "1.00";
 	};
 };

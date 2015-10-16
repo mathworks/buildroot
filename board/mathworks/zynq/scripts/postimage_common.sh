@@ -7,8 +7,10 @@
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
 
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-source ${SCRIPT_DIR}/parse_opts.sh
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
+source ${COMMON_DIR}/scripts/parse_opts.sh
 
 IMAGE_DIR=${INDIR}
 TGTNAME=${BOARD_NAME}${CHIP_NAME}
@@ -63,7 +65,7 @@ cp ${KERNEL} ${SD_DIR}/
 #####################################
 # Copy Over the sdcard files
 #####################################
-SD_SRC=${BOARD_DIR}/sdcard/*
+SD_SRC=${PLATFORM_DIR}/sdcard/*
 cp ${SD_SRC} ${SD_DIR}/
 
 #####################################
@@ -74,7 +76,7 @@ ${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/
 ####################################
 # Add the application specific DTBs
 ####################################
-${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} ${APP_LIST}
+${COMMON_SCRIPTS}/gen_dtb.sh $OUTPUT_DIR zynq ${BOARD_NAME} ${APP_LIST}
 
 ####################################
 # Zip the SD Card Directory

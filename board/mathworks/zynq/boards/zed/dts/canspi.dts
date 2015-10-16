@@ -1,0 +1,20 @@
+#include "base.dtsi"
+#include "zynq-mw-can.dtsi"
+
+&spi1 {
+    status = "okay";
+    spi@0 {
+		compatible = "spidev";
+		reg = <0>;
+		spi-max-frequency = <10000000>;
+	};
+};
+
+&i2c0 {
+    status = "okay";
+};
+
+&can0 {
+    status = "okay";
+};
+
