@@ -46,7 +46,9 @@ ${MKIMAGE_BIN} -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 #####################################
 # Create the boot.bin files
 #####################################
-${SCRIPT_DIR}/gen_boot.sh $OUTPUT_DIR $TGTNAME ${APP_LIST}
+${SCRIPT_DIR}/gen_boot.sh $OUTPUT_DIR $TGTNAME ${DEFAULT_APP} ${APP_LIST}
+print_msg "Setting ${DEFAULT_APP} as default BOOT.BIN"
+cp ${SD_DIR}/BOOT_${DEFAULT_APP}.BIN ${SD_DIR}/BOOT.BIN
 
 #####################################
 # Move the kernel
