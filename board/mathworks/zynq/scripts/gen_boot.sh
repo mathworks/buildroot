@@ -8,8 +8,9 @@ SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
 COMMON_SCRIPTS=${COMMON_DIR}/scripts
+BOARD_DIR=${PLATFORM_DIR}/boards/${TGTNAME}
 
-BOOT_DIR=${PLATFORM_DIR}/boot
+BOOT_DIR=${BOARD_DIR}/boot
 IMAGE_DIR=${OUTPUT_DIR}/images
 HOST_DIR=${OUTPUT_DIR}/host
 BUILD_DIR=${OUTPUT_DIR}/build
