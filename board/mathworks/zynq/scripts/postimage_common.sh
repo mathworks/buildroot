@@ -64,7 +64,7 @@ cp ${SD_SRC} ${SD_DIR}/
 #####################################
 # Add the version info to the sdcard	
 #####################################
-${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/BUILDINFO
+gen_verinfo_file ${SD_DIR}/BUILDINFO BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION uboot
 
 ####################################
 # Add the application specific DTBs
