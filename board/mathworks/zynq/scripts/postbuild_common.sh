@@ -7,19 +7,19 @@
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
 
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-source ${SCRIPT_DIR}/parse_opts.sh
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
+source ${COMMON_DIR}/scripts/parse_opts.sh
 
-TARGET_DIR=${INDIR}
 
 ###################################
-# Update inittab to not use getty
+# Setup some params
 ###################################
-tempfile=$(mktemp)
-sed 's|\(.*\)::respawn.*# GENERIC_SERIAL$|\1::respawn:-/bin/sh # GENERIC_SERIAL|' ${TARGET_DIR}/etc/inittab > $tempfile && \
-	cat $tempfile > ${TARGET_DIR}/etc/inittab
-	
-#####################################
-# Add the version info to the rootfs	
-#####################################
-${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${TARGET_DIR}/etc/buildinfo
+UBOOT_VAR='BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION'
+UBOOT_PKG="uboot"
+
+###################################
+# Source the common script
+###################################
+source ${COMMON_SCRIPTS}/postbuild_common.sh
