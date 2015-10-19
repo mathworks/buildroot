@@ -1,8 +1,9 @@
 #!/bin/bash
-# syntax: <gen_boot.sh> <output_dir> <tgt_name> <app_name> 
+# syntax: <gen_boot.sh> <output_dir> <tgt_name> <default_app> <app_list> 
 OUTPUT_DIR=$( cd $1 && pwd )
 TGTNAME=$2
-shift 2
+DEFAULT_APP=$3
+shift 3
 APP_LIST="$@"
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
@@ -76,25 +77,22 @@ function create_boot() {
     
 }
 
-#Create the default BOOT.BIN
-create_boot BOOT ${TGTNAME} ${TGTNAME}
-
 for APP_NAME in ${APP_LIST}; do
-    APP_FSBL=${TGTNAME}-${APP_NAME}
-    APP_BIT=${TGTNAME}-${APP_NAME}
+    APP_FSBL=${APP_NAME}
+    APP_BIT=${APP_NAME}
     APP_BOOT=BOOT_${APP_NAME}
     USE=false
 
     if [ -f ${BOOT_DIR}/${APP_FSBL}_fsbl.elf ]; then
         USE=true
     else
-        APP_FSBL=${TGTNAME}
+        APP_FSBL=${DEFAULT_APP}
     fi
 
     if [ -f ${BOOT_DIR}/${APP_BIT}.bit ]; then
         USE=true
     else
-        APP_BIT=${TGTNAME}
+        APP_BIT=${DEFAULT_APP}
     fi
 
     if [ $USE == true ]; then
