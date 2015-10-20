@@ -1,0 +1,2 @@
+#include "base.dtsi"
+#include "mw-generic.dtsi"

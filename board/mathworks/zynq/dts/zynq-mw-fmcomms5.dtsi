@@ -1,0 +1,24 @@
+#include "zynq-mw-fmcomms2.dtsi"
+
+&axi{
+    
+    ad9361_1: ad9361@79040000 {
+        compatible = "generic-uio";
+        reg = < 0x79040000 0x10000>;
+    };
+};
+
+&fmc_spi {
+	spi@1 {
+		compatible = "spidev";
+		reg = <0>;
+		spi-max-frequency = <10000000>;
+	};
+	spi@2 {
+		compatible = "spidev";
+		reg = <1>;
+		spi-max-frequency = <10000000>;
+	};
+};		
+
+
