@@ -1,4 +1,0 @@
-#include "base.dtsi"
-#include "zynq-mw-zc70x-vid-imageon.dtsi"
-#include "vid-common.dtsi"
-
