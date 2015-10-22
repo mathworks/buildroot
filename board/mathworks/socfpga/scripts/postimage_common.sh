@@ -94,15 +94,34 @@ SPL=${IMAGE_DIR}/preloader-mkpimage.bin
 BOOTLOADER=${IMAGE_DIR}/u-boot.img
 build_file_list ${SD_DIR}
 FATFILES=$res
-IMAGE_SIZE=1000M
+IMAGE_SIZE=1000
+FAT_SIZE=250
+A2_SIZE=10
+EXT2_SIZE=$((${IMAGE_SIZE} - ${FAT_SIZE} - ${A2_SIZE} - 10))
 IMGFILE=${IMAGE_DIR}/${TGTNAME}_${BUILDDATE}_sdcard.img
 ROOTFS=${IMAGE_DIR}/rootfs.tar.gz
+TEMPROOTFS=${IMAGE_DIR}/trootfs
 
 rm -f ${IMGFILE} ${IMGFILE}.gz
-#make_sdimage.sh [-h] [-k f1,f2] [[-p preloader |-rp preloader] -b bootloader] [-r rfs_dir [-m merge_dir]] [-o image] [-g size] [-t tool]
-pushd ${IMAGE_DIR}
 
-sudo ${SUDOENV} ${SCRIPT_DIR}/make_sdimage.sh -p ${SPL} -b ${BOOTLOADER} -r ${ROOTFS} -k ${FATFILES} -o ${IMGFILE} -g ${IMAGE_SIZE}
+# untar the rootfs into a temp dir
+rm -rf ${TEMPROOTFS}
+mkdir ${TEMPROOTFS}
+pushd ${TEMPROOTFS}
+    sudo tar xzf ${ROOTFS}
+popd
+
+pushd ${IMAGE_DIR}
+sudo ${SUDOENV} ${SCRIPT_DIR}/make_sdimage.py \
+        -f \
+        -P ${SPL},${BOOTLOADER},num=3,format=raw,size=${A2_SIZE}M,type=A2  \
+        -P ${TEMPROOTFS},num=2,format=ext3,size=${EXT2_SIZE}M  \
+        -P ${FATFILES},num=1,format=vfat,size=${FAT_SIZE}M  \
+        -s ${IMAGE_SIZE}M  \
+        -n ${IMGFILE}
+
+sudo rm -rf ${TEMPROOTFS}
+
 THISUSER=`id -un`
 THISGROUP=`id -gn`
 sudo chown ${THISUSER}:${THISGROUP} ${IMGFILE}
