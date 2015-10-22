@@ -1,0 +1,15 @@
+<board name="sockit" platform="socfpga">
+    <default>
+        <app name="default">
+            <dts file="base.dts"/>
+            <handoff dir="handoff"/>
+            <bit file="base.rbf"/>
+        </app>
+    </default>
+    <image name="alterasocec">
+        <app name="axilite">
+            <dts file="base.dts"/>
+            <bit file="base.rbf"/>
+        </app>
+    </image>
+</board>
