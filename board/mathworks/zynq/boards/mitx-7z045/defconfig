@@ -1,0 +1,5 @@
+###########################################
+# mITX 7z045 Options
+###########################################
+BR2_ROOTFS_POST_SCRIPT_ARGS="-b mitx -c 7z045 -a vid-camlink -a vid-imageon -a vid-hdmi"
+BR2_TARGET_UBOOT_BOARDNAME="zynq_zc70x"

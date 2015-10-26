@@ -1,0 +1,5 @@
+#include "base.dtsi"
+
+#define fmc_spi spi0
+
+#include "zynq-mw-fmcomms5.dtsi"

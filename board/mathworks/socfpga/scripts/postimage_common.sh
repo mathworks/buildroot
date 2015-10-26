@@ -54,12 +54,11 @@ gen_verinfo_file ${SD_DIR}/BUILDINFO BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSIO
 ####################################
 # Add the application specific DTBs
 ####################################
-# always generate the base app
-APP_LIST="base ${APP_LIST}"
 ${COMMON_SCRIPTS}/gen_dtb.sh $OUTPUT_DIR socfpga ${BOARD_NAME} ${APP_LIST}
 
 # Boot from the base DTB by default
-mv ${SD_DIR}/devicetree_base.dtb ${SD_DIR}/socfpga.dtb
+print_msg "Setting ${DEFAULT_APP} as default dtb"
+mv ${SD_DIR}/devicetree_${DEFAULT_APP}.dtb ${SD_DIR}/socfpga.dtb
 
 ####################################
 # Add the application specific rbfs

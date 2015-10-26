@@ -1,20 +1,24 @@
 #!/bin/bash
-# syntax: <gen_boot.sh> <output_dir> <tgt_name> <app_name> 
+# syntax: <gen_boot.sh> <output_dir> <tgt_name> <default_app> <app_list> 
 OUTPUT_DIR=$( cd $1 && pwd )
 TGTNAME=$2
-shift 2
+DEFAULT_APP=$3
+shift 3
 APP_LIST="$@"
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-BOARD_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
+COMMON_SCRIPTS=${COMMON_DIR}/scripts
+BOARD_DIR=${PLATFORM_DIR}/boards/${TGTNAME}
+
 BOOT_DIR=${BOARD_DIR}/boot
 IMAGE_DIR=${OUTPUT_DIR}/images
 HOST_DIR=${OUTPUT_DIR}/host
 BUILD_DIR=${OUTPUT_DIR}/build
 TARGET_DIR=${OUTPUT_DIR}/target
 SD_DIR=${IMAGE_DIR}/sdcard
-res=''
 
-source ${SCRIPT_DIR}/helper_func.sh
+source ${COMMON_SCRIPTS}/helper_func.sh
 
 function create_bif() {
 local BIF=$1
@@ -50,7 +54,7 @@ function create_boot() {
 
     get_cfg_var "BR2_TOOLCHAIN_EXTERNAL_PATH"
     local SDK_ROOT=$(dirname $(dirname $(dirname ${res})))
-    local BOOTGEN_BIN=/opt/Xilinx/SDK/2014.4/bin/bootgen
+    local BOOTGEN_BIN=${SDK_ROOT}/bin/bootgen
 
     print_msg "Generating ${TGTBOOT}.BIN"
 
@@ -73,25 +77,22 @@ function create_boot() {
     
 }
 
-#Create the default BOOT.BIN
-create_boot BOOT ${TGTNAME} ${TGTNAME}
-
 for APP_NAME in ${APP_LIST}; do
-    APP_FSBL=${TGTNAME}-${APP_NAME}
-    APP_BIT=${TGTNAME}-${APP_NAME}
+    APP_FSBL=${APP_NAME}
+    APP_BIT=${APP_NAME}
     APP_BOOT=BOOT_${APP_NAME}
     USE=false
 
     if [ -f ${BOOT_DIR}/${APP_FSBL}_fsbl.elf ]; then
         USE=true
     else
-        APP_FSBL=${TGTNAME}
+        APP_FSBL=${DEFAULT_APP}
     fi
 
     if [ -f ${BOOT_DIR}/${APP_BIT}.bit ]; then
         USE=true
     else
-        APP_BIT=${TGTNAME}
+        APP_BIT=${DEFAULT_APP}
     fi
 
     if [ $USE == true ]; then

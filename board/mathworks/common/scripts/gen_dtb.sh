@@ -24,11 +24,6 @@ LINUX_INFO='BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION'
 get_src_dir linux
 LINUX_DIR=$res
 
-# Get the base devicetree name
-DTS_INFO='BR2_LINUX_KERNEL_INTREE_DTS_NAME'
-get_cfg_var $DTS_INFO
-DTS_BASE=${res}.dts
-
 # Tool paths
 DTC=${HOST_DIR}/usr/bin/dtc
 LINUX_DTS=${LINUX_DIR}/arch/arm/boot/dts
@@ -61,19 +56,14 @@ for APP_NAME in ${APP_LIST}; do
     if [ -f ${APP_DTS_PATH} ]; then
         print_msg "Generating ${APP_NAME} dtb"
         DTB_FILE=devicetree_${APP_NAME}.dtb
-        # Generate a temporary DTS file
-cat << EOF > ${DTS_FILE}
-    #include "${DTS_BASE}"
-    #include "${APP_DTS}"
-EOF
+
         # Run the DTS through CPP     
-        ${HOST_DIR}/usr/bin/${TC_PREFIX}-cpp $DTC_CPP_FLAGS -o ${APP_NAME}.tmp.dts ${DTS_FILE}
+        ${HOST_DIR}/usr/bin/${TC_PREFIX}-cpp $DTC_CPP_FLAGS -o ${APP_NAME}.tmp.dts ${APP_DTS_PATH}
         # Call DTC
         ${DTC} -i ${BOARD_DIR}/dts -i ${LINUX_DTS} -i ${PLATFORM_DIR}/dts -i ${COMMON_DIR}/dts -I dts -O dtb -o ${DTB_FILE} ${APP_NAME}.tmp.dts
         # Cleanup
         rm -f dependency.pre.tmp
         rm -f ${APP_NAME}.tmp.dts
-        rm -f ${DTS_FILE}
     fi
 done
 popd

@@ -1,0 +1,5 @@
+###########################################
+# mITX 7z100 Options
+###########################################
+BR2_ROOTFS_POST_SCRIPT_ARGS="-b mitx -c 7z100 -a vid-camlink -a vid-imageon -a vid-hdmi"
+BR2_TARGET_UBOOT_BOARDNAME="zynq_zc70x"

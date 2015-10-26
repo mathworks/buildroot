@@ -1,6 +1,0 @@
-###########################################
-# ZedBoard Options
-###########################################
-BR2_ROOTFS_POST_SCRIPT_ARGS="-b zybo"
-BR2_TARGET_UBOOT_BOARDNAME="zynq_zybo"
-BR2_LINUX_KERNEL_INTREE_DTS_NAME="zynq-mw-zybo"

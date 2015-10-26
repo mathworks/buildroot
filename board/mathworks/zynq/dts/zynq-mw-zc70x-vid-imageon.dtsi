@@ -9,19 +9,8 @@
             
         }; 
     };
-
-	amba@0{   		
-		imageon_i2c: i2c@e0005000 {
-			clock-frequency = <400000>;
-			clocks = <&clkc 39>;
-			compatible = "cdns,i2c-r1p10";
-			interrupt-parent = <&gic>;
-			interrupts = <0 48 4>;
-			reg = <0xe0005000 0x1000>;
-			xlnx,has-interrupt = <0x0>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-		};
-	};
 };
-/include/ "zynq-mw-vid-imageon.dtsi"
+
+#define imageon_i2c i2c1
+
+#include "zynq-mw-vid-imageon.dtsi"

@@ -7,8 +7,10 @@
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
 
-SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )
-source ${SCRIPT_DIR}/parse_opts.sh
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
+COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
+source ${COMMON_DIR}/scripts/parse_opts.sh
 
 IMAGE_DIR=${INDIR}
 TGTNAME=${BOARD_NAME}${CHIP_NAME}
@@ -44,14 +46,9 @@ ${MKIMAGE_BIN} -A arm -T ramdisk -C gzip -d $CPIO_IMG $UIMAGE
 #####################################
 # Create the boot.bin files
 #####################################
-${SCRIPT_DIR}/gen_boot.sh $OUTPUT_DIR $TGTNAME ${APP_LIST}
-
-#####################################
-# Move the devicetree
-#####################################
-DEVTREE=zynq-mw-${BOARD_NAME}.dtb
-cd ${IMAGE_DIR}
-cp ${DEVTREE} ${SD_DIR}/devicetree.dtb
+${SCRIPT_DIR}/gen_boot.sh $OUTPUT_DIR $TGTNAME ${DEFAULT_APP} ${APP_LIST}
+print_msg "Setting ${DEFAULT_APP} as default BOOT.BIN"
+cp ${SD_DIR}/BOOT_${DEFAULT_APP}.BIN ${SD_DIR}/BOOT.BIN
 
 #####################################
 # Move the kernel
@@ -63,18 +60,22 @@ cp ${KERNEL} ${SD_DIR}/
 #####################################
 # Copy Over the sdcard files
 #####################################
-SD_SRC=${BOARD_DIR}/sdcard/*
+SD_SRC=${PLATFORM_DIR}/sdcard/*
 cp ${SD_SRC} ${SD_DIR}/
 
 #####################################
 # Add the version info to the sdcard	
 #####################################
-${SCRIPT_DIR}/git_verinfo.sh $BR2_CONFIG ${OUTPUT_DIR}/build $BR_ROOT ${SD_DIR}/BUILDINFO
+gen_verinfo_file ${SD_DIR}/BUILDINFO BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION uboot
 
 ####################################
 # Add the application specific DTBs
 ####################################
-${SCRIPT_DIR}/gen_dtb.sh $OUTPUT_DIR ${BOARD_NAME} ${APP_LIST}
+${COMMON_SCRIPTS}/gen_dtb.sh $OUTPUT_DIR zynq ${BOARD_NAME} ${APP_LIST}
+
+# Boot from the default DTB
+print_msg "Setting ${DEFAULT_APP} as default dtb"
+cp ${SD_DIR}/devicetree_${DEFAULT_APP}.dtb ${SD_DIR}/devicetree.dtb
 
 ####################################
 # Zip the SD Card Directory
