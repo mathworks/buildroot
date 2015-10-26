@@ -1,0 +1,19 @@
+<board name="zc702" platform="zynq">
+    <default>
+        <app name="default">
+            <dts file="axilite.dts"/>
+            <fsbl file="axilite_fsbl.elf"/>
+            <bit file="axilite.bit"/>
+        </app>
+    </default>
+    <image name="zynq7000ec">
+        <app name="axilite">
+            <dts file="axilite.dts"/>
+            <fsbl file="axilite_fsbl.elf"/>
+            <bit file="axilite.bit"/>
+        </app>
+        <app name="axistream">
+            <dts file="axistream.dts"/>
+        </app>
+    </image>
+</board>
