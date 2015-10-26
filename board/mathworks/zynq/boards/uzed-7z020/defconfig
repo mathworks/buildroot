@@ -1,5 +1,0 @@
-###########################################
-# ZedBoard Options
-###########################################
-BR2_ROOTFS_POST_SCRIPT_ARGS="-p zynq -b uzed-7z020"
-BR2_TARGET_UBOOT_BOARDNAME="zynq_microzed"
