@@ -1,0 +1,19 @@
+<board name="uzed" platform="zynq">
+    <default>
+        <app name="default">
+            <dts file="axilite.dts"/>
+        </app>
+    </default>
+    <image name="7z010-zynq7000ec">
+        <app name="axilite">
+            <fsbl file="axilite_7z010_fsbl.elf"/>
+            <bit file="axilite_7z010.bit"/>
+        </app>
+    </image>
+    <image name="7z020-zynq7000ec">
+        <app name="axilite">
+            <fsbl file="axilite_7z020_fsbl.elf"/>
+            <bit file="axilite_7z020.bit"/>
+        </app>
+    </image>
+</board>

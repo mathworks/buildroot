@@ -1,5 +1,0 @@
-#include "base.dtsi"
-
-#include "zynq-mw-vid-camlink.dtsi"
-#include "vid-common.dtsi"
-
