@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 PLATFORM="zynq"
 OPERATING_SYS="linux"
@@ -7,7 +8,7 @@ BOARD="zc702"
 BUILDALL="false"
 
 # List of valid boards
-BOARD_LIST="zc702 zc706 zed uzed-7z010 uzed-7z020 mitx-7z045 mitx-7z100 zybo"
+BOARD_LIST=$(cd ${SCRIPT_DIR}/boards; ls -d * | tr -d /)
 # List of valid os
 OS_LIST="linux xenomai"
 # List of valid toolchains
