@@ -94,14 +94,23 @@ def get_cfg_var(var):
 # Get version info
 ########################
 
+def _git_verinfo(git_dir):
+    git_hash = subprocess.check_output(['git','log', '-n', '1', '--pretty="%H"'], cwd=git_dir)
+    git_hash = re.sub("\n", "", git_hash)
+    git_hash = re.sub('"',"", git_hash)
+    return git_hash
+
 def verinfo(pkg):
     
     srcDir = get_src_dir(pkg)
     verFile = "%s/.br2_version" % (srcDir)
-    f = open(verFile, 'r')
-    dat = f.read()
-    dat = re.sub("\n","",dat)
-    f.close()
+    if os.path.exists(verFile):
+        f = open(verFile, 'r')
+        dat = f.read()
+        dat = re.sub("\n","",dat)
+        f.close()
+    else:
+        dat = _git_verinfo(srcDir)
     return dat
 
 
@@ -111,10 +120,7 @@ def verinfo(pkg):
 
 def gen_verinfo_file(tgt_file):
     
-    br_hash = subprocess.check_output(['git','log', '-n', '1', '--pretty="%H"'], cwd=BR_ROOT)
-    br_hash = re.sub("\n", "", br_hash)
-    br_hash = re.sub('"',"", br_hash)
-
+    br_hash = _git_verinfo(BR_ROOT)
     linux_hash = verinfo('linux')
     uboot_hash = verinfo('uboot')
     f = open(tgt_file, 'w')
@@ -145,7 +151,9 @@ def get_src_dir(pkg):
         dat = f.read()
         f.close()
         dat = grep(dat, "%s_OVERRIDE_SRCDIR" % (pkg.upper()))
-        return re.sub(".*= *","", dat)
+        if dat:
+            # use the local.mk directory if it's specified
+            return re.sub(".*= *","", dat)
         
     else:
         # Otherwise check the version and point to the build dir
