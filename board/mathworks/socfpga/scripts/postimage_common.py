@@ -34,7 +34,7 @@ def sudocmd(cmd, cwd=None, env=None):
 ##############
 # Build the SD disk iamge
 ##############
-def _make_sdimage(image, catalog):
+def _make_sdimage(outputDir, image, catalog):
     # Build up a path for the sudo command
     binDirs = ["bin", "sbin", "usr/sbin", "usr/bin"]
     for idx, d in enumerate(binDirs):
@@ -50,7 +50,7 @@ def _make_sdimage(image, catalog):
     a2Size = 10
     extSize = (imageSize - fatSize - a2Size - 10)
     rootFSFile = "%s/rootfs.tar.gz" % (ENV['IMAGE_DIR'])
-    imageFile = "%s/%s_sdcard_%s_%s.img" % (ENV['IMAGE_DIR'], catalog['boardName'], image['imageName'], buildDate)
+    imageFile = "%s/%s_sdcard_%s_%s.img" % (outputDir, catalog['boardName'], image['imageName'], buildDate)
     # Cleanup any previous images
     files = [imageFile, imageFile + ".gz"]
     for f in files:
@@ -85,7 +85,7 @@ def _make_sdimage(image, catalog):
     sudocmd("chown %s:%s %s" % (thisUser,thisGroup, imageFile))    
 
     #compress the SD card image
-    sudocmd("gzip %s" % (imageFile), cwd=ENV['IMAGE_DIR'])
+    sudocmd("gzip %s" % (imageFile), cwd=outputDir)
 
 ####################################
 # Public Functions
@@ -139,7 +139,7 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     # Call the Altera Script
     ##############
-    _make_sdimage(image, catalog)
+    _make_sdimage(outputDir, image, catalog)
 
 ####################################
 # Module Globals

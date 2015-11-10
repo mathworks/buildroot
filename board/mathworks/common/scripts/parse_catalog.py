@@ -27,7 +27,7 @@ def _find_file(baseDir,filePath, tag=""):
         # First search relative to the board xml file
         if tag == "dts":
             baseDir = baseDir + "/dts"
-        elif tag == "fsbl" or tag == "bit" or tag == "handoff":
+        elif tag == "fsbl" or tag == "bit":
             baseDir = baseDir + "/boot"                
         else:
             baseDir = baseDir
@@ -64,7 +64,7 @@ def _load_app(xmlApp, loadDefaults=True):
                 filePath = _find_file(boardDir,fileSrc, tag=tag)
         
         if filePath is None:                
-            raise IOError("[App: %s]Cannot find %s file: %s" %(appInfo['name'], tag, filePath))
+            raise IOError("[App: %s]Cannot find %s file: %s" %(appInfo['name'], tag, fileSrc))
 
         appInfo[tag] = filePath
         if tag == "bit" or tag == "fsbl" or tag == "handoff":
