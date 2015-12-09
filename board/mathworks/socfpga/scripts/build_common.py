@@ -13,6 +13,10 @@ def platform_checkconfig(args):
     return
 
 def platform_gen_target(args, catalog, cfgDataList):
+    handoffStr = 'BR2_PACKAGE_ALTERA_PRELOADER_QUARTUS_HANDOFF_DIR='
+    handoffStr += '"%s"\n' % catalog['defaultInfo']['app']['handoff']
+    cfgDataList.append(handoffStr)
+
     return
 
 

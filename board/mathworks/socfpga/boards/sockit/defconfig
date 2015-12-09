@@ -2,4 +2,3 @@
 # Terasic SoCkit Options
 ###########################################
 BR2_PACKAGE_UBOOT_ALTERA_BOARDNAME="socfpga_cyclone5"
-BR2_PACKAGE_ALTERA_PRELOADER_QUARTUS_HANDOFF_DIR="board/mathworks/socfpga/boards/sockit/handoff"
