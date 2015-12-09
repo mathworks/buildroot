@@ -5619,6 +5619,7 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 	alt_u32 grp_calibrated;
 	alt_u32 write_group, write_test_bgn;
 	alt_u32 failed_substage;
+	alt_u32 dqs_in_dtaps, orig_start_dqs;
 
 	TRACE_FUNC("%lu %lu", read_group, test_bgn);
 	
@@ -5703,100 +5704,150 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 #endif
 #endif
 
-// case:56390
-#if 0 && ARRIAV && QDRII
-			// Note, much of this counts on the fact that we don't need to keep track
-			// of what vfifo offset we are at because incr_vfifo doesn't use it
-			// We also assume only a single group, and that the vfifo incrementers start at offset zero
-
-#define BIT(w,b) (((w) >> (b)) & 1)
-			{
-				alt_u32 prev;
-				alt_u32 vbase;
-				alt_u32 i;
-
-				grp_calibrated = 0;
-
-				// check every combination of vfifo relative settings
-				for (prev = vbase = 0; vbase < (1 << VFIFO_CONTROL_WIDTH_PER_DQS); prev=vbase, vbase++ ) {
-					// check each bit to see if we need to increment, decrement, or leave the corresponding vfifo alone
-					for (i = 0; i < VFIFO_CONTROL_WIDTH_PER_DQS; i++) {
-						if (BIT(vbase,i) > BIT(prev,i)) {
-							rw_mgr_incr_vfifo(read_group*VFIFO_CONTROL_WIDTH_PER_DQS + i,0);
-						} else if (BIT(vbase,i) < BIT(prev,i)) {
-							rw_mgr_decr_vfifo(read_group*VFIFO_CONTROL_WIDTH_PER_DQS + i,0);
-						}
-					}
-					if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay (write_group, read_group, test_bgn)) {
-						if (! rw_mgr_mem_calibrate_vfifo_center (0, write_group, read_group, test_bgn, 1)) {
-							// remember last failed stage
-							failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
-						} else {
-							grp_calibrated = 1;
-						}
-					} else {
-						failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
-					}
-					if (grp_calibrated) {
-						break;
-					}
-
-					break; // comment out for fix
-
-				}
-			}
-#else
-			grp_calibrated = 1;
-			if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay (write_group, read_group, test_bgn)) {
-				// USER Read per-bit deskew can be done on a per shadow register basis
+#if ARRIAV || CYCLONEV
+			///////
+			// To make DQS bypass able to calibrate more often
+			///////
+			// Loop over different DQS in delay chains for the purpose of DQS Enable calibration finding one bit working
+			orig_start_dqs = READ_SCC_DQS_IN_DELAY(read_group);	
+			for (dqs_in_dtaps = orig_start_dqs; dqs_in_dtaps <= IO_DQS_IN_DELAY_MAX && grp_calibrated == 0; dqs_in_dtaps++) {
+			
 				for (rank_bgn = 0, sr = 0; rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS; rank_bgn += NUM_RANKS_PER_SHADOW_REG, ++sr) {
-#if RUNTIME_CAL_REPORT		
-					//Report print can cause a delay at each instance of rw_mgr_mem_calibrate_vfifo_center, need to re-issue guaranteed write to ensure no refresh violation
-					rw_mgr_mem_calibrate_read_load_patterns_all_ranks ();
-#endif				
-					//USER Determine if this set of ranks should be skipped entirely
+
 					if (! param->skip_shadow_regs[sr]) {
-					
+						
 						//USER Select shadow register set
 						select_shadow_regs_for_update(rank_bgn, read_group, 1);
-				
-                        // If doing read after write calibration, do not update FOM now - do it then
-#if READ_AFTER_WRITE_CALIBRATION
-						if (! rw_mgr_mem_calibrate_vfifo_center (rank_bgn, write_group, read_group, test_bgn, 1, 0)) {
-#else
-						if (! rw_mgr_mem_calibrate_vfifo_center (rank_bgn, write_group, read_group, test_bgn, 1, 1)) {
-#endif
-							grp_calibrated = 0;
-							failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
-						}
+
+						WRITE_SCC_DQS_IN_DELAY(read_group, dqs_in_dtaps);
+						scc_mgr_load_dqs (read_group);
+						IOWR_32DIRECT (SCC_MGR_UPD, 0, 0);
 					}
 				}
-			} else {
-				grp_calibrated = 0;
-				failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
-			}
+#endif				
+				
+// case:56390
+#if 0 && ARRIAV && QDRII
+				// Note, much of this counts on the fact that we don't need to keep track
+				// of what vfifo offset we are at because incr_vfifo doesn't use it
+				// We also assume only a single group, and that the vfifo incrementers start at offset zero
+
+#define BIT(w,b) (((w) >> (b)) & 1)
+				{
+					alt_u32 prev;
+					alt_u32 vbase;
+					alt_u32 i;
+
+					grp_calibrated = 0;
+
+					// check every combination of vfifo relative settings
+					for (prev = vbase = 0; vbase < (1 << VFIFO_CONTROL_WIDTH_PER_DQS); prev=vbase, vbase++ ) {
+						// check each bit to see if we need to increment, decrement, or leave the corresponding vfifo alone
+						for (i = 0; i < VFIFO_CONTROL_WIDTH_PER_DQS; i++) {
+							if (BIT(vbase,i) > BIT(prev,i)) {
+								rw_mgr_incr_vfifo(read_group*VFIFO_CONTROL_WIDTH_PER_DQS + i,0);
+							} else if (BIT(vbase,i) < BIT(prev,i)) {
+								rw_mgr_decr_vfifo(read_group*VFIFO_CONTROL_WIDTH_PER_DQS + i,0);
+							}
+						}
+						if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay (write_group, read_group, test_bgn)) {
+						
+#if ARRIAV || CYCLONEV						
+							///////
+							// To make DQS bypass able to calibrate more often
+							///////
+							// Before doing read deskew, set DQS in back to the reserve value
+							WRITE_SCC_DQS_IN_DELAY(read_group, orig_start_dqs);
+							scc_mgr_load_dqs (read_group);
+							IOWR_32DIRECT (SCC_MGR_UPD, 0, 0);						
+#endif
+						
+							if (! rw_mgr_mem_calibrate_vfifo_center (0, write_group, read_group, test_bgn, 1)) {
+								// remember last failed stage
+								failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
+							} else {
+								grp_calibrated = 1;
+							}
+						} else {
+							failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
+						}
+						if (grp_calibrated) {
+							break;
+						}
+
+						break; // comment out for fix
+
+					}
+				}
+#else				
+				grp_calibrated = 1;
+				if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay (write_group, read_group, test_bgn)) {
+					// USER Read per-bit deskew can be done on a per shadow register basis
+					for (rank_bgn = 0, sr = 0; rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS; rank_bgn += NUM_RANKS_PER_SHADOW_REG, ++sr) {
+#if RUNTIME_CAL_REPORT		
+						//Report print can cause a delay at each instance of rw_mgr_mem_calibrate_vfifo_center, need to re-issue guaranteed write to ensure no refresh violation
+						rw_mgr_mem_calibrate_read_load_patterns_all_ranks ();
+#endif				
+						//USER Determine if this set of ranks should be skipped entirely
+						if (! param->skip_shadow_regs[sr]) {
+						
+							//USER Select shadow register set
+							select_shadow_regs_for_update(rank_bgn, read_group, 1);
+							
+#if ARRIAV || CYCLONEV
+							///////
+							// To make DQS bypass able to calibrate more often
+							///////
+							// Before doing read deskew, set DQS in back to the reserve value
+							WRITE_SCC_DQS_IN_DELAY(read_group, orig_start_dqs);
+							scc_mgr_load_dqs (read_group);
+							IOWR_32DIRECT (SCC_MGR_UPD, 0, 0);
+#endif
+					
+							// If doing read after write calibration, do not update FOM now - do it then
+#if READ_AFTER_WRITE_CALIBRATION
+							if (! rw_mgr_mem_calibrate_vfifo_center (rank_bgn, write_group, read_group, test_bgn, 1, 0)) {
+#else
+							if (! rw_mgr_mem_calibrate_vfifo_center (rank_bgn, write_group, read_group, test_bgn, 1, 1)) {
+#endif
+								grp_calibrated = 0;
+								failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
+							}
+						}
+					}
+				} else {
+					grp_calibrated = 0;
+					failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
+				}
 #endif
 #if BFM_MODE
-			if (bfm_gbl.bfm_skip_guaranteed_write > 0 && !grp_calibrated) {
-				// This should never happen with pre-initialized guaranteed write load pattern
-				// unless calibration was always going to fail
-				DPRINT(0, "calibrate_vfifo: skip guaranteed write calibration failed");
-				break;
-			} else if (bfm_gbl.bfm_skip_guaranteed_write == -1) {
-				// if skip value is -1, then we expect to fail, but we want to use
-				// the regular guaranteed write next time
-				if (grp_calibrated) {
-					// We shouldn't be succeeding for this test, so this is an error
-					DPRINT(0, "calibrate_vfifo: ERROR: skip guaranteed write == -1, but calibration passed");
-					grp_calibrated = 0;
+				if (bfm_gbl.bfm_skip_guaranteed_write > 0 && !grp_calibrated) {
+					// This should never happen with pre-initialized guaranteed write load pattern
+					// unless calibration was always going to fail
+					DPRINT(0, "calibrate_vfifo: skip guaranteed write calibration failed");
 					break;
-				} else {
-					DPRINT(0, "calibrate_vfifo: skip guaranteed write == -1, expected failure, trying again with no skip");
-					bfm_gbl.bfm_skip_guaranteed_write = 0;
+				} else if (bfm_gbl.bfm_skip_guaranteed_write == -1) {
+					// if skip value is -1, then we expect to fail, but we want to use
+					// the regular guaranteed write next time
+					if (grp_calibrated) {
+						// We shouldn't be succeeding for this test, so this is an error
+						DPRINT(0, "calibrate_vfifo: ERROR: skip guaranteed write == -1, but calibration passed");
+						grp_calibrated = 0;
+						break;
+					} else {
+						DPRINT(0, "calibrate_vfifo: skip guaranteed write == -1, expected failure, trying again with no skip");
+						bfm_gbl.bfm_skip_guaranteed_write = 0;
+					}
 				}
-			}
 
 #endif
+#if ARRIAV || CYCLONEV
+			///////
+			// To make DQS bypass able to calibrate more often
+			///////
+			}
+#endif			
+		
 		}
 #if BFM_MODE
 		if (bfm_gbl.bfm_skip_guaranteed_write && !grp_calibrated) break;

@@ -34,7 +34,7 @@ def sudocmd(cmd, cwd=None, env=None):
 ##############
 # Build the SD disk iamge
 ##############
-def _make_sdimage(image, catalog):
+def _make_sdimage(outputDir, image, catalog):
     # Build up a path for the sudo command
     binDirs = ["bin", "sbin", "usr/sbin", "usr/bin"]
     for idx, d in enumerate(binDirs):
@@ -50,7 +50,7 @@ def _make_sdimage(image, catalog):
     a2Size = 10
     extSize = (imageSize - fatSize - a2Size - 10)
     rootFSFile = "%s/rootfs.tar.gz" % (ENV['IMAGE_DIR'])
-    imageFile = "%s/%s_sdcard_%s_%s.img" % (ENV['IMAGE_DIR'], catalog['boardName'], image['imageName'], buildDate)
+    imageFile = "%s/%s_sdcard_%s_%s.img" % (outputDir, catalog['boardName'], image['imageName'], buildDate)
     # Cleanup any previous images
     files = [imageFile, imageFile + ".gz"]
     for f in files:
@@ -85,7 +85,7 @@ def _make_sdimage(image, catalog):
     sudocmd("chown %s:%s %s" % (thisUser,thisGroup, imageFile))    
 
     #compress the SD card image
-    sudocmd("gzip %s" % (imageFile), cwd=ENV['IMAGE_DIR'])
+    sudocmd("gzip %s" % (imageFile), cwd=outputDir)
 
 ####################################
 # Public Functions
@@ -124,7 +124,7 @@ def build_sdimage(outputDir, image, catalog):
     # Copy over the u-boot script
     ##############
     # Copy to image dir
-    shutil.copy("%s/boot/u-boot-scr.txt" % (_PLATFORM_DIR), "%s/u-boot-src.txt" % (ENV['IMAGE_DIR']) )    
+    shutil.copy("%s/boot/u-boot-scr.txt" % (_PLATFORM_DIR), "%s/u-boot-scr.txt" % (ENV['IMAGE_DIR']) )    
     # Convert to uimage
     argStr = """%s/usr/bin/mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "U-Boot Script" -d u-boot-scr.txt u-boot.scr""" % (ENV['HOST_DIR'])
     subprocess.call(shlex.split(argStr), cwd=ENV['IMAGE_DIR'])
@@ -139,7 +139,7 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     # Call the Altera Script
     ##############
-    _make_sdimage(image, catalog)
+    _make_sdimage(outputDir, image, catalog)
 
 ####################################
 # Module Globals
