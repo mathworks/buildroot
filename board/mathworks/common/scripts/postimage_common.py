@@ -29,9 +29,9 @@ def _gen_sdcard(image, catalog, outputDir):
     ##############
     # Copy Over the sdcard files
     ##############
-    sdSrc = catalog['sdcardDir']
-    print_msg("Sourcing SD card contents from %s" %(catalog['sdcardDir']))
-    for fil in glob.iglob(catalog['sdcardDir'] + "/*"):
+    sdSrc = catalog['defaultInfo']['sdcardDir']
+    print_msg("Sourcing SD card contents from %s" %(catalog['defaultInfo']['sdcardDir']))
+    for fil in glob.iglob(catalog['defaultInfo']['sdcardDir'] + "/*"):
         shutil.copy2(fil, ENV['SD_DIR'])
     if image['sdcardDir'] != sdSrc:
         print_msg("Adding SD card contents from %s" % (image['sdcardDir']))

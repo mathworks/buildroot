@@ -59,9 +59,8 @@ def _load_app(xmlApp, loadDefaults=True):
             # Next search relative to the board xml file
             filePath = _find_file(_CATALOG_DIR,fileSrc)
             if filePath is None:
-                # Last search in the buildroot board directory
-                boardDir = "%s/%s/boards/%s" % (MW_DIR, _PLATFORM_NAME, _BOARD_NAME)
-                filePath = _find_file(boardDir,fileSrc, tag=tag)
+                # Last search in the board directory
+                filePath = _find_file(_defaults['boardInfo']['dir'],fileSrc, tag=tag)
         
         if filePath is None:                
             raise IOError("[App: %s]Cannot find %s file: %s" %(appInfo['name'], tag, fileSrc))
@@ -137,10 +136,49 @@ def _load_image(imageNode):
     return imageInfo
 
 ###############
+# Load Board Info
+###############
+def _load_board_info(boardNode):
+    boardInfo = dict()
+    # load the node
+    if boardNode is None:
+        boardDir = None
+    else:
+        boardDir = boardNode.get('dir')
+
+    # Parse the node
+    if boardDir is None:
+        boardInfo['dir'] = "%s/%s/boards/%s" % (MW_DIR, _PLATFORM_NAME, _BOARD_NAME)
+    else:
+        boardInfo['dir'] = _find_file(_CATALOG_DIR,boardDir)
+        if boardInfo['dir'] is None:
+            raise IOError("Cannot find specified board directory: %s" % (boardDir))
+
+    return boardInfo
+
+###############
+# Load Board Info
+###############
+def _load_cfg_info(cfgNode):
+    boardInfo = dict()
+    # load the node
+    if cfgNode is None:
+        cfgFile = None
+    else:
+        cfgFile = _find_file(_CATALOG_DIR,cfgNode.get('file'))
+        if cfgFile is None:
+            raise IOError("Cannot find specified config file: %s" % (cfgNode.get('file')))
+
+    return cfgFile
+
+###############
 # Load Defaults
 ###############
 def _load_defaults(defNode):
     global _defaults
+    # Load the board node, if present
+    boardNode = defNode.find('board')
+    _defaults['boardInfo'] = _load_board_info(boardNode)
     # Load the default files for apps
     _defaults['app'] = _load_app(defNode.find('app'), loadDefaults=False)
     # Load the default SD card directory
@@ -149,7 +187,8 @@ def _load_defaults(defNode):
     # Load the global include directories
     for dtsi in defNode.findall('dtsi'):
         _add_include_dir(dtsi.get('dir'),_defaults['dtsIncDirs'])
-    print _defaults['dtsIncDirs']
+    # Load the extra br2 config files
+    _defaults['br2_config'] = _load_cfg_info(defNode.find('br2_config'))
 
 ########################################
 # Public Functions
@@ -212,7 +251,7 @@ def read_catalog(catalogFile, imageNames=["all"], joinImages=False):
     catalog['boardName'] = _BOARD_NAME
     catalog['platformName'] = _PLATFORM_NAME
     catalog['catalogDir'] = _CATALOG_DIR
-    catalog['sdcardDir'] = _defaults['sdcardDir']
+    catalog['defaultInfo'] = _defaults
     catalog['imageList'] = imageList
 
     return catalog
