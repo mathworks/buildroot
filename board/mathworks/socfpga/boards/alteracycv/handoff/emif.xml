@@ -12,8 +12,11 @@
         <define name="AC_ROM_MR1" value="0000001000100"/>
         <define name="AC_ROM_MR2" value="0000000001000"/>
         <define name="AC_ROM_MR3" value="0000000000000"/>
+        <define name="AC_ROM_USER_ADD_0" value="0_0000_0000_0000"/>
+        <define name="AC_ROM_USER_ADD_1" value="0_0000_0000_1000"/>
         <define name="AFI_CLK_FREQ" value="401"/>
         <define name="AFI_RATE_RATIO" value="1"/>
+        <define name="AP_MODE" value="0"/>
         <define name="ARRIAVGZ" value="0"/>
         <define name="ARRIAV" value="0"/>
         <define name="AVL_CLK_FREQ" value="67"/>
@@ -36,6 +39,8 @@
         <define name="ENABLE_INST_ROM_WRITE" value="1"/>
         <define name="ENABLE_MARGIN_REPORT_GEN" value="0"/>
         <define name="ENABLE_NON_DESTRUCTIVE_CALIB" value="0"/>
+        <define name="ENABLE_NON_DES_CAL_TEST" value="0"/>
+        <define name="ENABLE_NON_DES_CAL" value="0"/>
         <define name="ENABLE_SUPER_QUICK_CALIBRATION" value="0"/>
         <define name="ENABLE_TCL_DEBUG" value="0"/>
         <define name="FAKE_CAL_FAIL" value="0"/>
@@ -70,21 +75,19 @@
         <define name="LPDDR1" value="0"/>
         <define name="LPDDR2" value="0"/>
         <define name="LRDIMM" value="0"/>
-        <define name="M10_DQ_WIDTH_8" value="0"/>
-        <define name="M10_DQ_WIDTH_16" value="0"/>
-        <define name="M10_DQ_WIDTH_24" value="0"/>
         <define name="MARGIN_VARIATION_TEST" value="0"/>
         <define name="MAX_LATENCY_COUNT_WIDTH" value="5"/>
         <define name="MEM_ADDR_WIDTH" value="13"/>
         <define name="MRS_MIRROR_PING_PONG_ATSO" value="0"/>
         <define name="MULTIPLE_AFI_WLAT" value="0"/>
+        <define name="NON_DES_CAL" value="0"/>
         <define name="NUM_SHADOW_REGS" value="1"/>
         <define name="QDRII" value="0"/>
         <define name="QUARTER_RATE" value="0"/>
         <define name="RDIMM" value="0"/>
         <define name="READ_AFTER_WRITE_CALIBRATION" value="1"/>
         <define name="READ_VALID_FIFO_SIZE" value="16"/>
-        <define name="REG_FILE_INIT_SEQ_SIGNATURE" value="0x5555048c"/>
+        <define name="REG_FILE_INIT_SEQ_SIGNATURE" value="0x55550496"/>
         <define name="RLDRAM3" value="0"/>
         <define name="RLDRAMII" value="0"/>
         <define name="RLDRAMX" value="0"/>
@@ -123,7 +126,6 @@
         <define name="TRESET_CNTR1_VAL" value="99"/>
         <define name="TRESET_CNTR2_VAL" value="10"/>
         <define name="TRESET_CNTR0_VAL" value="99"/>
-        <define name="TW0_CAPTURE_CLOCKS" value="0"/>
         <define name="USE_DQS_TRACKING" value="1"/>
         <define name="USE_SHADOW_REGS" value="0"/>
         <define name="USE_USER_RDIMM_VALUE" value="0"/>

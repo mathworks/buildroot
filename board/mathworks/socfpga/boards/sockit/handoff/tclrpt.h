@@ -183,6 +183,10 @@
 
 // Update RDIMM Control Word
 #define TCLDBG_SET_UPDATE_PARAMETERS 41
+
+// Run memory calibration
+#define TCLDBG_RUN_NON_DES_MEM_CALIBRATE 42
+
 //*****************************************************************************
 // TCL RX Status Codes
 //*****************************************************************************
