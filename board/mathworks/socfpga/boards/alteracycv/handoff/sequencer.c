@@ -60,7 +60,7 @@
  ******************************************************************************
  ******************************************************************************/
 
-
+#ifndef ARMCOMPILER
 #if ARRIAV
 // Temporary workaround to place the initial stack pointer at a safe offset from end
 #define STRINGIFY(s)		STRINGIFY_STR(s)
@@ -75,6 +75,7 @@ asm("__alt_stack_pointer = " STRINGIFY(STACK_POINTER));
 #define STRINGIFY_STR(s)	#s
 asm(".global __alt_stack_pointer");
 asm("__alt_stack_pointer = " STRINGIFY(STACK_POINTER));
+#endif
 #endif
 
 #if ENABLE_PRINTF_LOG
@@ -891,6 +892,15 @@ void set_rank_and_odt_mask(alt_u32 rank, alt_u32 odt_mode)
 		odt_mask_0 = 0x0;
 		odt_mask_1 = 0x0;
 	}
+
+#if ADVANCED_ODT_CONTROL
+	// odt_mask_0 = read
+	// odt_mask_1 = write
+	odt_mask_0  = (CFG_READ_ODT_CHIP  >> (RW_MGR_MEM_ODT_WIDTH * rank));
+	odt_mask_1  = (CFG_WRITE_ODT_CHIP >> (RW_MGR_MEM_ODT_WIDTH * rank));
+	odt_mask_0 &= ((1 << RW_MGR_MEM_ODT_WIDTH) - 1);
+	odt_mask_1 &= ((1 << RW_MGR_MEM_ODT_WIDTH) - 1);
+#endif
 
 #if MRS_MIRROR_PING_PONG_ATSO
 	// See set_cs_and_odt_mask_for_ping_pong_atso
@@ -2269,7 +2279,7 @@ void rw_mgr_rdimm_initialize(void) { }
 
 #if DDR3
 
-#if LRDIMM
+#if (ADVANCED_ODT_CONTROL || LRDIMM)
 alt_u32 ddr3_mirror_mrs_cmd(alt_u32 bit_vector) {
 	// This function performs address mirroring of an AC ROM command, which
 	// requires swapping the following DDR3 bits:
@@ -2325,7 +2335,7 @@ void rtt_change_MRS1_MRS2_NOM_WR (alt_u32 prev_ac_mr , alt_u32 odt_ac_mr, alt_u3
 	}
 	IOWR_32DIRECT(BASE_RW_MGR, ac_rom_entry, new_ac_mr);
 }
-#endif //LRDIMM
+#endif //(ADVANCED_ODT_CONTROL || LRDIMM)
 
 void rw_mgr_mem_initialize (void)
 {
@@ -2431,6 +2441,39 @@ void rw_mgr_mem_initialize (void)
 
 			continue;
 		}
+
+#if ADVANCED_ODT_CONTROL
+		alt_u32 rtt_nom = 0;
+		alt_u32 rtt_wr  = 0;
+		alt_u32 rtt_drv = 0;
+
+		switch (r) {
+			case 0: {
+				rtt_nom = MR1_RTT_RANK0;
+				rtt_wr  = MR2_RTT_WR_RANK0;
+				rtt_drv = MR1_RTT_DRV_RANK0;
+			} break;
+			case 1: {
+				rtt_nom = MR1_RTT_RANK1;
+				rtt_wr  = MR2_RTT_WR_RANK1;
+				rtt_drv = MR1_RTT_DRV_RANK1;
+			} break;
+			case 2: {
+				rtt_nom = MR1_RTT_RANK2;
+				rtt_wr  = MR2_RTT_WR_RANK2;
+				rtt_drv = MR1_RTT_DRV_RANK2;
+			} break;
+			case 3: {
+				rtt_nom = MR1_RTT_RANK3;
+				rtt_wr  = MR2_RTT_WR_RANK3;
+				rtt_drv = MR1_RTT_DRV_RANK3;
+			} break;
+		}
+		rtt_change_MRS1_MRS2_NOM_WR (__RW_MGR_CONTENT_ac_mrs1, (rtt_nom|rtt_drv),
+		                             ((RW_MGR_MEM_ADDRESS_MIRRORING>>r)&0x1), 1);
+		rtt_change_MRS1_MRS2_NOM_WR (__RW_MGR_CONTENT_ac_mrs2, rtt_wr,
+		                             ((RW_MGR_MEM_ADDRESS_MIRRORING>>r)&0x1), 2);
+#endif //ADVANCED_ODT_CONTROL
 
 		//USER set rank 
 #if MRS_MIRROR_PING_PONG_ATSO
@@ -2566,7 +2609,9 @@ void rw_mgr_mem_initialize (void)
 	rw_mgr_lrdimm_rc_program(0, 12, 0x0);
 #endif // LRDIMM
 }
-#if ENABLE_NON_DESTRUCTIVE_CALIB
+
+
+#if (ENABLE_NON_DESTRUCTIVE_CALIB || ENABLE_NON_DES_CAL)
 void rw_mgr_mem_initialize_no_init (void)
 {
 	alt_u32 r;
@@ -2589,11 +2634,27 @@ void rw_mgr_mem_initialize_no_init (void)
 		} else {
 			IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, 0, __RW_MGR_MRS0_DLL_RESET);
 		}
+
+// Reprogramming these is not really required but....
+			set_jump_as_return();
+			IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, 0, __RW_MGR_MRS2);
+			delay_for_n_mem_clocks(4);
+			set_jump_as_return();
+			IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, 0, __RW_MGR_MRS3);
+			delay_for_n_mem_clocks(4);
+			set_jump_as_return();
+			IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, 0, __RW_MGR_MRS1);
+
+
+
 		delay_for_n_mem_clocks(4);
 		set_jump_as_return();
 		IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, 0, __RW_MGR_ZQCL);
 		delay_for_n_mem_clocks(512);
 	}
+
+	IOWR_32DIRECT (RW_MGR_ENABLE_REFRESH, 0, 1);  // Enable refresh engine  
+
 }
 #endif
 #endif // DDR3
@@ -5695,6 +5756,7 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 			rw_mgr_mem_calibrate_read_load_patterns_all_ranks ();
 			
 #if DDRX
+#if !AP_MODE
 			if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_DISABLE_GUARANTEED_READ)) {
 				if (!rw_mgr_mem_calibrate_read_test_patterns_all_ranks (read_group, 1, &bit_chk)) {
 					DPRINT(1, "Guaranteed read test failed: g=%lu p=%lu d=%lu", read_group, p, d);
@@ -5703,11 +5765,8 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 			}
 #endif
 #endif
+#endif
 
-#if ARRIAV || CYCLONEV
-			///////
-			// To make DQS bypass able to calibrate more often
-			///////
 			// Loop over different DQS in delay chains for the purpose of DQS Enable calibration finding one bit working
 			orig_start_dqs = READ_SCC_DQS_IN_DELAY(read_group);	
 			for (dqs_in_dtaps = orig_start_dqs; dqs_in_dtaps <= IO_DQS_IN_DELAY_MAX && grp_calibrated == 0; dqs_in_dtaps++) {
@@ -5724,7 +5783,6 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 						IOWR_32DIRECT (SCC_MGR_UPD, 0, 0);
 					}
 				}
-#endif				
 				
 // case:56390
 #if 0 && ARRIAV && QDRII
@@ -5752,15 +5810,10 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 						}
 						if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay (write_group, read_group, test_bgn)) {
 						
-#if ARRIAV || CYCLONEV						
-							///////
-							// To make DQS bypass able to calibrate more often
-							///////
 							// Before doing read deskew, set DQS in back to the reserve value
 							WRITE_SCC_DQS_IN_DELAY(read_group, orig_start_dqs);
 							scc_mgr_load_dqs (read_group);
 							IOWR_32DIRECT (SCC_MGR_UPD, 0, 0);						
-#endif
 						
 							if (! rw_mgr_mem_calibrate_vfifo_center (0, write_group, read_group, test_bgn, 1)) {
 								// remember last failed stage
@@ -5794,15 +5847,10 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 							//USER Select shadow register set
 							select_shadow_regs_for_update(rank_bgn, read_group, 1);
 							
-#if ARRIAV || CYCLONEV
-							///////
-							// To make DQS bypass able to calibrate more often
-							///////
 							// Before doing read deskew, set DQS in back to the reserve value
 							WRITE_SCC_DQS_IN_DELAY(read_group, orig_start_dqs);
 							scc_mgr_load_dqs (read_group);
 							IOWR_32DIRECT (SCC_MGR_UPD, 0, 0);
-#endif
 					
 							// If doing read after write calibration, do not update FOM now - do it then
 #if READ_AFTER_WRITE_CALIBRATION
@@ -5841,12 +5889,7 @@ alt_u32 rw_mgr_mem_calibrate_vfifo (alt_u32 read_group, alt_u32 test_bgn)
 				}
 
 #endif
-#if ARRIAV || CYCLONEV
-			///////
-			// To make DQS bypass able to calibrate more often
-			///////
 			}
-#endif			
 		
 		}
 #if BFM_MODE
@@ -6231,7 +6274,11 @@ void rw_mgr_mem_calibrate_write_test_issue (alt_u32 group, alt_u32 test_dm)
 	if(quick_write_mode) {
 		IOWR_32DIRECT (RW_MGR_LOAD_CNTR_0, 0, 0x08);
 	} else {
+#if ENABLE_NON_DES_CAL
+		IOWR_32DIRECT (RW_MGR_LOAD_CNTR_0, 0, 0x08); // Break this up for refresh purposes
+#else
 		IOWR_32DIRECT (RW_MGR_LOAD_CNTR_0, 0, 0x40);
+#endif
 	}
 	IOWR_32DIRECT (RW_MGR_LOAD_JUMP_ADD_0, 0, mcc_instruction);
 
@@ -6246,6 +6293,19 @@ void rw_mgr_mem_calibrate_write_test_issue (alt_u32 group, alt_u32 test_dm)
 	}
 
 	IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, (group << 2), mcc_instruction);
+
+#if ENABLE_NON_DES_CAL	
+	alt_u32 i = 0;
+	for (i=0; i < 8; i++)
+		IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, (group << 2), mcc_instruction);
+#endif	
+
+	
+
+
+
+
+
 }
 #endif
 
@@ -8384,7 +8444,7 @@ void mem_precharge_and_activate (void) {}
 #endif
 
 //USER perform all refreshes necessary over all ranks
-#if ENABLE_NON_DESTRUCTIVE_CALIB
+#if (ENABLE_NON_DESTRUCTIVE_CALIB || ENABLE_NON_DES_CAL)
 // Only have DDR3 version for now
 #if DDR3
 alt_u32 mem_refresh_all_ranks (alt_u32 no_validate)
@@ -8393,12 +8453,15 @@ alt_u32 mem_refresh_all_ranks (alt_u32 no_validate)
 //	const alt_u32 T_RFC_NS = 350;                        // Worst case REFRESH-REFRESH or REFRESH-ACTIVATE wait time in ns
 	                                                     // Alternatively, we could extract T_RFC from uniphy_gen.tcl
 	const alt_u32 T_RFC_AFI = 350 * AFI_CLK_FREQ / 1000; // T_RFC expressed in mem clk cycles (will be less than 256)
+#if (ENABLE_NON_DESTRUCTIVE_CALIB)	
 	const alt_u32 NUM_REFRESH_POSTING = 8192;            // Number of consecutive refresh commands supported by Micron DDR3 devices
-
+#else
+	const alt_u32 NUM_REFRESH_POSTING = 8;  
+#endif
 	alt_u32 i;
 	alt_u32 elapsed_time;  // In AVL clock cycles
 	
-	
+#if (ENABLE_NON_DESTRUCTIVE_CALIB)	
 	//USER Reset the refresh interval timer
 	elapsed_time = IORD_32DIRECT (BASE_TIMER, 0);
 	IOWR_32DIRECT (BASE_TIMER, 0, 0x00);
@@ -8411,6 +8474,7 @@ alt_u32 mem_refresh_all_ranks (alt_u32 no_validate)
 		}
 	}		
 	
+#endif
 	//USER set CS and ODT mask
 	if ( RDIMM || LRDIMM ) {
 		if (RW_MGR_MEM_NUMBER_OF_RANKS == 1) {
@@ -8436,7 +8500,12 @@ alt_u32 mem_refresh_all_ranks (alt_u32 no_validate)
 	IOWR_32DIRECT (RW_MGR_LOAD_JUMP_ADD_1, 0, __RW_MGR_REFRESH_DELAY);
 	for (i = 0; i < NUM_REFRESH_POSTING; i += 256) {
 		// Issue 256 REFRESH commands, waiting t_RFC between consecutive refreshes
+
+#if (ENABLE_NON_DESTRUCTIVE_CALIB)			
 		IOWR_32DIRECT (RW_MGR_LOAD_CNTR_0, 0, 0xFF);
+#else
+		IOWR_32DIRECT (RW_MGR_LOAD_CNTR_0, 0, 0x07);
+#endif
 		IOWR_32DIRECT (RW_MGR_LOAD_CNTR_1, 0, T_RFC_AFI);
 		IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, 0, __RW_MGR_REFRESH_ALL);
 	}
@@ -9263,8 +9332,13 @@ alt_u32 mem_calibrate (void)
 	IOWR_32DIRECT (SCC_MGR_UPD, 0, 0);
 	return 1;
 }
+#if ENABLE_NON_DES_CAL
+alt_u32 run_mem_calibrate(alt_u32 non_des_mode) {
 
+#else
 alt_u32 run_mem_calibrate(void) {
+#endif
+
 	alt_u32 pass;
 	alt_u32 debug_info;
 
@@ -9312,14 +9386,22 @@ alt_u32 run_mem_calibrate(void) {
 		rw_mgr_mem_initialize ();
 	}
 #else
+#if ENABLE_NON_DES_CAL
+	if (non_des_mode)
+		rw_mgr_mem_initialize_no_init();	
+	else
+		rw_mgr_mem_initialize ();
+
+#else
 	rw_mgr_mem_initialize ();
+#endif	
 #endif
 
 
 #if ENABLE_BRINGUP_DEBUGGING
 	do_bringup_test();
 #endif
-	
+
 	pass = mem_calibrate ();
 
 #if ENABLE_NON_DESTRUCTIVE_CALIB
@@ -9360,6 +9442,22 @@ alt_u32 run_mem_calibrate(void) {
 #endif
 
 	//USER Handoff 
+#if ENABLE_NON_DES_CAL
+
+	if (non_des_mode)
+	{
+		alt_u32 took_too_long = 0;
+		IOWR_32DIRECT (RW_MGR_ENABLE_REFRESH, 0, 0);  // Disable refresh engine  	
+		took_too_long = IORD_32DIRECT (RW_MGR_ENABLE_REFRESH, 0);  
+
+		if (took_too_long != 0)
+		{
+			pass = 0;  // force a failure  	 
+			set_failing_group_stage(RW_MGR_MEM_IF_WRITE_DQS_WIDTH, CAL_STAGE_REFRESH, CAL_SUBSTAGE_REFRESH);
+		}
+	}
+#endif	
+
 
 	//USER Don't return control of the PHY back to AFI when in debug mode
 	if ((gbl->phy_debug_mode_flags & PHY_DEBUG_IN_DEBUG_MODE) == 0) {
@@ -9962,7 +10060,11 @@ void initialize_hps_controller(void)
 	reg |= SDR_CTRLGRP_CTRLCFG_REORDEREN_SET(1);
 	reg |= SDR_CTRLGRP_CTRLCFG_STARVELIMIT_SET(0x8);
 	reg |= SDR_CTRLGRP_CTRLCFG_DQSTRKEN_SET(USE_DQS_TRACKING); // Do we want this?
-	reg |= SDR_CTRLGRP_CTRLCFG_NODMPINS_SET(DM_PINS_ENABLED ? 0 : 1);
+#if DM_PINS_ENABLED
+    reg |= SDR_CTRLGRP_CTRLCFG_NODMPINS_SET(0);
+#else
+    reg |= SDR_CTRLGRP_CTRLCFG_NODMPINS_SET(1);
+#endif
 	reg |= SDR_CTRLGRP_CTRLCFG_BURSTINTREN_SET(0);
 	reg |= SDR_CTRLGRP_CTRLCFG_BURSTTERMEN_SET(0);
 	reg |= SDR_CTRLGRP_CTRLCFG_OUTPUTREG_SET(0);
@@ -10139,15 +10241,36 @@ void user_init_cal_req(void)
 	    
 	scc_afi_reg = IORD_32DIRECT (SCC_MGR_AFI_CAL_INIT, 0);
 	
-	if (scc_afi_reg == 1) {// 1 is initialization request
+	if (scc_afi_reg == 1 || scc_afi_reg == 16) {// 1 is initialization request
 	    initialize();
 	    rw_mgr_mem_initialize ();
 	    rw_mgr_mem_handoff ();
 	    IOWR_32DIRECT (PHY_MGR_MUX_SEL, 0, 0);
 	    IOWR_32DIRECT (PHY_MGR_CAL_STATUS, 0, PHY_MGR_CAL_SUCCESS);
-	} else if (scc_afi_reg == 2) {
-	    run_mem_calibrate ();
+	} else if (scc_afi_reg == 2 || scc_afi_reg == 32) {
+#if ENABLE_NON_DES_CAL		
+	    run_mem_calibrate (0);
+#else
+	    run_mem_calibrate();
+#endif
+	} 
+#if ENABLE_NON_DES_CAL
+	else if (scc_afi_reg == 4) {
+		//non destructive mem init
+		IOWR_32DIRECT (SCC_MGR_AFI_CAL_INIT, 0, scc_afi_reg & ~(1 << 2));
+
+	    	rw_mgr_mem_initialize_no_init();
+
+		
+	} else if (scc_afi_reg == 8) {
+		//non destructive mem calibrate
+		IOWR_32DIRECT (SCC_MGR_AFI_CAL_INIT, 0, scc_afi_reg & ~(1 << 3));
+
+	    	run_mem_calibrate (1);
+		IOWR_32DIRECT (RW_MGR_ENABLE_REFRESH, 0, 0);  // Disable refresh engine  
 	}
+#endif
+
 }
 
 #if TRACKING_WATCH_TEST || TRACKING_ERROR_TEST
@@ -10450,7 +10573,28 @@ int main(void)
 	tclrpt_loop();
 #endif
 
+
+#if ENABLE_NON_DES_CAL_TEST
+	rw_mgr_mem_initialize ();
+
+//	IOWR_32DIRECT (RW_MGR_LOAD_JUMP_ADD_0, 0, __RW_MGR_IDLE);
+//	IOWR_32DIRECT (RW_MGR_RUN_SINGLE_GROUP, 0, __RW_MGR_SELF_REFRESH);
+
+	pass = run_mem_calibrate (1);
+
+#else
+
+#if ENABLE_NON_DES_CAL
+#if ENABLE_TCL_DEBUG
+	tclrpt_loop();
+#else
+	pass = run_mem_calibrate (1); 
+#endif
+#else
 	pass = run_mem_calibrate ();
+#endif
+
+#endif
 
 #if TRACKING_WATCH_TEST
 	if (IORD_32DIRECT(REG_FILE_TRK_SAMPLE_CHECK, 0) == 0xEE) {
@@ -10463,6 +10607,9 @@ int main(void)
 	// Send the end of transmission character
 	IPRINT("%c", 0x4);
 #endif
+
+
+
 
 #if BFM_MODE
 #if ENABLE_TCL_DEBUG
@@ -10482,14 +10629,16 @@ int main(void)
 #else
   #if HPS_HW
 	// EMPTY
-#else
+  #else
 	while (1) {
 	    user_init_cal_req();
 	}
-#endif
+
+  #endif
 #endif
 
-	return pass;
+
+return pass;
 }
 
 

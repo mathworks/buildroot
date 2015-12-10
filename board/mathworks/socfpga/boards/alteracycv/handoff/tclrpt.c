@@ -686,9 +686,23 @@ void tclrpt_loop(void)
 					break;
 				case TCLDBG_RUN_MEM_CALIBRATE :
 					// Run the full memory calibration
+#if ENABLE_NON_DES_CAL					
+					run_mem_calibrate(0);
+#else
 					run_mem_calibrate();
+#endif
 					tclrpt_mark_interface_as_response_ready();
 					break;
+				case TCLDBG_RUN_NON_DES_MEM_CALIBRATE :
+					// Run the full memory calibration
+#if ENABLE_NON_DES_CAL					
+					run_mem_calibrate(1);
+#else
+					run_mem_calibrate();
+#endif
+					tclrpt_mark_interface_as_response_ready();
+					break;
+
 				case TCLDBG_RUN_EYE_DIAGRAM_PATTERN :
 					// Generate the pattern to view eye diagrams
 					// This function never returns

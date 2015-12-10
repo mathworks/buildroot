@@ -175,7 +175,7 @@ imagesGrp.add_argument('-i', '--images', dest='imageList', metavar='IMAGE', type
                         nargs="*", default=["all"],help='The Images to build (default: all)')
 imagesGrp.add_argument('-j', '--join', dest='joinImages', action="store_true",
                         help='Combine specified images')
-imagesGrp.add_argument('-d' '--dest', dest='imageDest', metavar='IMAGE_DEST', type=str,
+imagesGrp.add_argument('-d', '--dest', dest='imageDest', metavar='IMAGE_DEST', type=str,
                         help='The destination directory for the images (default: OUTPUT_DIR/images)')
 
 buildTypeGrp=parser.add_argument_group('Build Control')

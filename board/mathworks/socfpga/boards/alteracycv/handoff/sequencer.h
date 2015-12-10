@@ -112,6 +112,8 @@ extern void err_report_internal_error (const char* description, const char* modu
 
 #define RW_MGR_LOOPBACK_MODE BASE_RW_MGR + 0x0200
 
+#define RW_MGR_ENABLE_REFRESH BASE_RW_MGR + 0x3000
+
 #define RW_MGR_RANK_NONE 0xFF
 #define RW_MGR_RANK_ALL 0x00
 
@@ -614,7 +616,11 @@ extern param_t *param;
 
 // External functions
 alt_u32 rw_mgr_mem_calibrate_full_test (alt_u32 min_correct, t_btfld *bit_chk, alt_u32 test_dm);
+#if ENABLE_NON_DES_CAL
+extern alt_u32 run_mem_calibrate (alt_u32 enable_non_des_c);
+#else
 extern alt_u32 run_mem_calibrate (void);
+#endif
 extern void rw_mgr_mem_calibrate_eye_diag_aid (void);
 extern void rw_mgr_load_mrs_calib (void);
 extern void rw_mgr_load_mrs_exec (void);
