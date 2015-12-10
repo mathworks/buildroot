@@ -14,7 +14,7 @@ def generate_dtbs(platform, boardName, image):
     DTS_FILE = "devicetree.dts"
 
     # Determine the toolchain name for CPP
-    TC_PREFIX = get_cfg_var("BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX")
+    TC_PREFIX = get_cfg_var("BR2_TOOLCHAIN_EXTERNAL_PREFIX")
     # drop the $(ARCH) string
     TC_PREFIX = re.sub("\$\(ARCH\)", "arm", TC_PREFIX)
     
