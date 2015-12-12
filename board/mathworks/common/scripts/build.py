@@ -54,10 +54,18 @@ def get_build_config(args):
     else:
         args['imageDest'] = os.path.realpath(args['imageDest'])
 
+    if args['dlDir'] is None:
+        args['dlDir'] = os.path.realpath("%s/dl/%s" % (BR_ROOT,args['platformName']))
+    elif not os.path.isabs(args['dlDir']):
+        args['dlDir'] = os.path.realpath("%s/%s" % (os.getcwd(), args['dlDir']))
+        
+        
+
 ##################
-# Setup args for the postimage script
+# Setup config values based on command line
 ###################
-def get_postimage_args(args, catalog,cfgDataList):
+def get_config_vals(args, catalog,cfgDataList):
+    ## Setup the post script args
     argStr = 'BR2_ROOTFS_POST_SCRIPT_ARGS="'
     
     # point to the catalog file
@@ -70,6 +78,10 @@ def get_postimage_args(args, catalog,cfgDataList):
     
     argStr += ' -o %s"\n' % args['imageDest']
 
+    cfgDataList.append(argStr)
+
+    ## Setup the DL directory
+    argStr = 'BR2_DL_DIR="%s"\n' % args['dlDir']
     cfgDataList.append(argStr)
 
 ##################
@@ -108,7 +120,7 @@ def gen_target(args, catalog):
     br_platform.platform_gen_target(args, catalog, cfgDataList)
 
     # Populate the postimage args    
-    get_postimage_args(args, catalog,cfgDataList)
+    get_config_vals(args, catalog,cfgDataList)
 
     cfgData = ''.join(cfgDataList)
     
@@ -122,7 +134,7 @@ def gen_target(args, catalog):
     if args['cleanBuild']:
         rm(args['outputDir'])
     if args['cleanDL']:
-        rm("%s/dl" % BR_ROOT)
+        rm(args['dlDir'])
 
     # Build the target directory
     if not os.path.isdir(args['outputDir']):
@@ -186,6 +198,8 @@ buildTypeGrp.add_argument('--cleandl', dest='cleanDL', action='store_true',
                         help='Clean the download directory before building (default: false)')
 buildTypeGrp.add_argument('--target', dest='makeTarget', metavar='MAKE_TARGET', type=str,
                         default="all", help='Make target (default: all)')
+buildTypeGrp.add_argument('--dl', dest='dlDir', metavar='ML_DIR', type=str,
+                        help='Buildroot download directory (default: dl/<platform>)')
 
 buildType=buildTypeGrp.add_mutually_exclusive_group(required=False)
 buildType.add_argument('-u', '--update', dest='updateBuild', action='store_true',

@@ -17,5 +17,4 @@ BR2_TARGET_UBOOT_CUSTOM_GIT=y
 BR2_TARGET_UBOOT_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/EmbeddedLinux/xilinx-uboot.git"
 BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="master"
 BR2_TARGET_UBOOT_FORMAT_ELF=y
-BR2_DL_DIR="dl/zynq"
 
