@@ -250,6 +250,7 @@ def read_catalog(catalogFile, imageNames=["all"], joinImages=False):
     catalog = dict()
     catalog['boardName'] = _BOARD_NAME
     catalog['platformName'] = _PLATFORM_NAME
+    catalog['platformDir'] = os.path.dirname(COMMON_DIR) + "/" + catalog['platformName']
     catalog['catalogDir'] = _CATALOG_DIR
     catalog['defaultInfo'] = _defaults
     catalog['imageList'] = imageList

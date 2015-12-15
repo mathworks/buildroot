@@ -4,6 +4,8 @@ import sys, os, shutil, glob, imp, argparse, subprocess
 import parse_catalog
 import helper_func
 from helper_func import *
+import br_config
+
 ########################################
 # Constants
 ########################################
@@ -59,96 +61,6 @@ def get_build_config(args):
     elif not os.path.isabs(args['dlDir']):
         args['dlDir'] = os.path.realpath("%s/%s" % (os.getcwd(), args['dlDir']))
         
-        
-
-##################
-# Setup config values based on command line
-###################
-def get_config_vals(args, catalog,cfgDataList):
-    ## Setup the post script args
-    argStr = 'BR2_ROOTFS_POST_SCRIPT_ARGS="'
-    
-    # point to the catalog file
-    argStr += "-c %s" % args['catalogFile']
-
-    # configure the image generation
-    argStr += " -i %s" % ' '.join(args['imageList'])
-    if args['joinImages']:
-        argStr += " -j"
-    
-    argStr += ' -o %s"\n' % args['imageDest']
-
-    cfgDataList.append(argStr)
-
-    ## Setup the DL directory
-    argStr = 'BR2_DL_DIR="%s"\n' % args['dlDir']
-    cfgDataList.append(argStr)
-
-##################
-# Create the buildroot defconfig
-###################
-def gen_target(args, catalog):
-    CONFIG_DIR = "%s/defconfig" % PLATFORM_DIR
-    configList = []
-    # add configs to the list from lowest to highest priority
-    configList.append("%s/defconfig/common.defconfig" % COMMON_DIR) # Company config
-    configList.append("%s/common.defconfig" % CONFIG_DIR) # Platform config
-    configList.append("%s/%s.defconfig" % (CONFIG_DIR, args['toolchain'])) # Toolchain config
-    configList.append("%s/%s.defconfig" % (CONFIG_DIR, args['rtos'])) # OS config
-    configList.append("%s/defconfig" % catalog['defaultInfo']['boardInfo']['dir']) # Board config
-
-    # Use the specified config if it exists
-    if not catalog['defaultInfo']['br2_config'] is None:
-        configList.append(catalog['defaultInfo']['br2_config'])
-
-    # Use the .localconfig if it exists
-    lConfig = "%s/.localconfig" % os.getcwd()
-    if os.path.isfile(lConfig):
-        configList.append(lConfig)
-
-    # Concatentate the config files    
-    cfgDataList = []
-    for cfg in configList:
-        if not os.path.isfile(cfg):
-            raise RuntimeError("Defconfig file '%s' does not exist" % cfg)
-        with open(cfg) as f:
-            cfgData = f.read()
-        cfgDataList.append(cfgData)
-        cfgDataList.append("\n")
-    
-    # Populate any board-specific catalog content
-    br_platform.platform_gen_target(args, catalog, cfgDataList)
-
-    # Populate the postimage args    
-    get_config_vals(args, catalog,cfgDataList)
-
-    cfgData = ''.join(cfgDataList)
-    
-
-    # Generate the BR defconfig
-    with open(DYNCONFIG_FILE, 'w') as f:
-        f.write(cfgData)
-
-    # Cleanup as required
-    
-    if args['cleanBuild']:
-        rm(args['outputDir'])
-    if args['cleanDL']:
-        rm(args['dlDir'])
-
-    # Build the target directory
-    if not os.path.isdir(args['outputDir']):
-        os.makedirs(args['outputDir'])
-    # Call the makefile with the defconfig
-    argStr = "make O=%s -C %s %s_defconfig" % (args['outputDir'], BR_ROOT, DYNCONFIG)
-    subprocess.call( argStr.split(), cwd=args['outputDir'])
-
-##################
-# Remove the buildroot defconfig
-###################
-def clean_defconfig():
-    rm(DYNCONFIG_FILE)
-
 ##################
 # Run the build
 ###################
@@ -229,11 +141,9 @@ catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'], arg
 # catalog may have provided some info
 args['platformName'] = catalog['platformName'].lower()
 args['boardName'] = catalog['boardName'].lower()
-PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + args['platformName']
-
 
 # load the platform functions
-PLATFORM_MODULE = PLATFORM_DIR + "/scripts/build_common.py"
+PLATFORM_MODULE = catalog['platformDir'] + "/scripts/build_common.py"
 m = imp.load_source('br_platform', PLATFORM_MODULE)
 import br_platform
 
@@ -241,9 +151,9 @@ get_build_config(args)
 
 checkconfig(args)
 
-gen_target(args, catalog)
+br_config.gen_target(args, catalog)
 
-clean_defconfig()
+br_config.clean_defconfig()
 
 build_target(args, catalog)
 
