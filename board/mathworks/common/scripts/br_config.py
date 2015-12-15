@@ -8,33 +8,63 @@ from helper_func import *
 ########################################
 _DYNCONFIG = "dynconfig"
 _DYNCONFIG_FILE = "%s/configs/%s_defconfig" % (BR_ROOT, _DYNCONFIG)
-
+_cfgDataList = []
 ########################################
 # Helper Functions
 ########################################
+def _br_set_var(var, value, quoted=True):
+    global _cfgDataList
 
+    if value is None:
+        argStr = "# %s is not set\n" % var
+    else:
+        if value.lower() == 'y':
+            quoted = False
+
+        if quoted:
+            argStr = '%s="%s"\n' % (var, value)
+        else:
+            argStr = '%s=%s\n' % (var, value)
+
+    _cfgDataList.append(argStr)
+    
 ##################
 # Setup config values based on command line
 ###################
-def _get_config_vals(args, catalog,cfgDataList):
-    ## Setup the post script args
-    argStr = 'BR2_ROOTFS_POST_SCRIPT_ARGS="'
-    
+def _get_cmdline_config(args, catalog):
+    ## Setup the post script args   
+
     # point to the catalog file
-    argStr += "-c %s" % args['catalogFile']
+    argStr = "-c %s" % args['catalogFile']
 
     # configure the image generation
     argStr += " -i %s" % ' '.join(args['imageList'])
     if args['joinImages']:
         argStr += " -j"
-    
-    argStr += ' -o %s"\n' % args['imageDest']
+    # configure the output directory    
+    argStr += ' -o %s' % args['imageDest']
 
-    cfgDataList.append(argStr)
+    _br_set_var('BR2_ROOTFS_POST_SCRIPT_ARGS', argStr)
 
     ## Setup the DL directory
-    argStr = 'BR2_DL_DIR="%s"\n' % args['dlDir']
-    cfgDataList.append(argStr)
+    _br_set_var('BR2_DL_DIR', args['dlDir'])
+
+##################
+# Setup config values based on the catalog
+###################
+def _get_catalog_config(args, catalog):
+    global _cfgDataList
+    import br_platform
+
+    # Load the kernel config, if specified
+    if not catalog['defaultInfo']['kernel_config'] is None:
+        _br_set_var('BR2_LINUX_KERNEL_USE_DEFCONFIG', None)
+        _br_set_var('BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG', 'y')
+        _br_set_var('BR2_LINUX_KERNEL_DEFCONFIG', None)
+        _br_set_var('BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE', catalog['defaultInfo']['kernel_config'])
+
+    # Populate any board-specific catalog content
+    br_platform.platform_gen_target(args, catalog, _cfgDataList)
 
 ########################################
 # Public Functions
@@ -44,8 +74,7 @@ def _get_config_vals(args, catalog,cfgDataList):
 # Create the buildroot defconfig
 ###################
 def gen_target(args, catalog):
-    import br_platform
-        
+    global _cfgDataList
     CONFIG_DIR = "%s/defconfig" % catalog['platformDir']
     configList = []
     # add configs to the list from lowest to highest priority
@@ -65,30 +94,27 @@ def gen_target(args, catalog):
         configList.append(lConfig)
 
     # Concatentate the config files    
-    cfgDataList = []
+    _cfgDataList = []
     for cfg in configList:
         if not os.path.isfile(cfg):
             raise RuntimeError("Defconfig file '%s' does not exist" % cfg)
         with open(cfg) as f:
             cfgData = f.read()
-        cfgDataList.append(cfgData)
-        cfgDataList.append("\n")
+        _cfgDataList.append(cfgData)
+        _cfgDataList.append("\n")
     
-    # Populate any board-specific catalog content
-    br_platform.platform_gen_target(args, catalog, cfgDataList)
+    # Load any config data from the catalog
+    _get_catalog_config(args, catalog)
 
-    # Populate the postimage args    
-    _get_config_vals(args, catalog,cfgDataList)
-
-    cfgData = ''.join(cfgDataList)
+    # Load any config data from the cmdline    
+    _get_cmdline_config(args, catalog)
     
-
     # Generate the BR defconfig
     with open(_DYNCONFIG_FILE, 'w') as f:
+        cfgData = ''.join(_cfgDataList)
         f.write(cfgData)
 
     # Cleanup as required
-    
     if args['cleanBuild']:
         rm(args['outputDir'])
     if args['cleanDL']:
@@ -104,6 +130,6 @@ def gen_target(args, catalog):
 ##################
 # Remove the buildroot defconfig
 ###################
-def clean_defconfig():
+def clean_defconfig():   
     rm(_DYNCONFIG_FILE)
 

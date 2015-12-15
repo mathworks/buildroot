@@ -157,18 +157,18 @@ def _load_board_info(boardNode):
     return boardInfo
 
 ###############
-# Load Board Info
+# Load Local Config Info
 ###############
-def _load_cfg_info(cfgNode):
-    boardInfo = dict()
+def _find_local_file(fileNode):
+
     # load the node
-    if cfgNode is None:
+    if fileNode is None:
         cfgFile = None
     else:
-        cfgFile = _find_file(_CATALOG_DIR,cfgNode.get('file'))
+        cfgFile = _find_file(_CATALOG_DIR,fileNode.get('file'))
         if cfgFile is None:
-            raise IOError("Cannot find specified config file: %s" % (cfgNode.get('file')))
-
+            raise IOError("Cannot find specified %s file: %s" % (fileNode.tag, fileNode.get('file')))
+    
     return cfgFile
 
 ###############
@@ -188,7 +188,9 @@ def _load_defaults(defNode):
     for dtsi in defNode.findall('dtsi'):
         _add_include_dir(dtsi.get('dir'),_defaults['dtsIncDirs'])
     # Load the extra br2 config files
-    _defaults['br2_config'] = _load_cfg_info(defNode.find('br2_config'))
+    _defaults['br2_config'] = _find_local_file(defNode.find('br2_config'))
+    # Load the kernel config file
+    _defaults['kernel_config'] = _find_local_file(defNode.find('kernel_config'))
 
 ########################################
 # Public Functions
