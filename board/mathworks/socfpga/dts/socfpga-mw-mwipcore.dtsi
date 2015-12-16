@@ -1,7 +1,7 @@
 &fpga_axi {
     mwipcore0: mwipcore@0,0x00000000 {
         compatible = "mathworks,mwipcore-axi4lite-v1.00";
-        reg = <0x0 0x0 0xffff>;
+        reg = <0x0 0x0 0x10000>;
     };
 };
 
