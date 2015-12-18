@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, shutil, glob, imp, argparse, subprocess
+import sys, os, shutil, glob, imp, argparse, subprocess, datetime
 
 import parse_catalog
 import helper_func
@@ -51,6 +51,14 @@ def get_build_config(args):
     else:
         args['outputDir'] = os.path.realpath(args['outputDir'])
 
+    if args['logFile'] is None:
+        logFile = 'build_%s.log' % datetime.datetime.now().strftime("%b_%d_%Y_%H%M%S")
+        args['logFile'] = os.path.join(args['outputDir'], logFile)
+    else:
+        args['logFile'] = os.path.realpath(args['logFile'])
+        if not os.path.isdir(os.path.dirname(args['logFile'])):
+            os.makedirs(os.path.dirname(args['logFile']))
+
     if args['imageDest'] is None:
         args['imageDest'] = "%s/images" % args['outputDir']
     else:
@@ -72,7 +80,7 @@ def build_target(args, catalog):
 
     # Call the makefile
     argStr = "make %s" % args['makeTarget']
-    subprocess.call( argStr.split(), cwd=args['outputDir'])
+    subproc_log(argStr, logfile=args['logFile'], cwd=args['outputDir'], verbose=(not args['quietBuild']))
 
 ########################################
 # Main
@@ -112,6 +120,10 @@ buildTypeGrp.add_argument('--target', dest='makeTarget', metavar='MAKE_TARGET', 
                         default="all", help='Make target (default: all)')
 buildTypeGrp.add_argument('--dl', dest='dlDir', metavar='ML_DIR', type=str,
                         help='Buildroot download directory (default: dl/<platform>)')
+buildTypeGrp.add_argument('-l', '--logfile', dest='logFile', metavar='LOG_FILE', type=str,
+                        help='File to log the build output(default: build_DD_MM_YYYY.log)')
+buildTypeGrp.add_argument('-q', '--quiet', dest='quietBuild', action='store_true',
+                        help='Do not print build output to stdout')
 
 buildType=buildTypeGrp.add_mutually_exclusive_group(required=False)
 buildType.add_argument('-u', '--update', dest='updateBuild', action='store_true',
