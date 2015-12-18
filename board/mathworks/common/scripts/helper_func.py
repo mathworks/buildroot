@@ -5,6 +5,7 @@
 #    BINARIES_DIR: images dir
 #    BASE_DIR: base output directory
 
+import sys
 import subprocess
 import os
 import re
@@ -181,6 +182,25 @@ def load_env(var, default=""):
     if var is None:
         var = default
     return var
+
+#######################
+# Subprocess logger
+#######################
+def subproc_log(cmdStr, logfile=None, cwd=None, verbose=True):
+    if cwd is None:
+        cwd = os.getcwd()
+    if (logfile is None) and (verbose == False):
+        logfile = "/dev/null"
+
+    if (logfile is None):
+        subprocess.call( cmdStr.split(), cwd=cwd)
+    else:
+        if verbose == False:
+            with open(logfile, 'w') as f:
+                subprocess.call( cmdStr.split(), cwd=cwd, stdout=f, stderr=subprocess.STDOUT)    
+        else:            
+            cmdStr += " | tee %s" % logfile
+            subprocess.call( cmdStr.split(), cwd=cwd)
 
 ########################
 # Load buildroot env

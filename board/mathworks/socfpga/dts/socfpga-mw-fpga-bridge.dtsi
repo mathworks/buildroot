@@ -1,0 +1,14 @@
+/{
+    soc{
+        fpga_axi: bridge@0xc0000000 {
+            ranges =    <0x0 0x0 0xc0000000 0x20000000>,
+                        <0x1 0x0 0xff200000 0x00200000>;
+            #size-cells = <0x1>;
+            #address-cells = <0x2>;
+            reg-names = "axi_h2f", "axi_h2f_lw";
+            reg = <0xc0000000 0x20000000 0xff200000 0x200000>;
+            compatible = "altr,bridge-1.0", "simple-bus";
+
+        };
+    };
+};

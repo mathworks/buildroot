@@ -39,7 +39,7 @@ fi
 
 # load the MW axi kernel module
 modprobe mwadma
-modprobe mwgeneric
+modprobe mwgeneric_of
 
 # Run the default ARM application if file is present
 if [ -f /mnt/system.elf ]; then

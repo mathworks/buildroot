@@ -53,6 +53,12 @@ def _gen_sdcard(image, catalog, outputDir):
     br_platform.set_default_dtb(defaultApp)
 
     ##############
+    # Create the output dir if needed
+    ##############
+    if not os.path.isdir(outputDir):
+        os.makedirs(outputDir)
+
+    ##############
     # Call the platform-specific function
     ##############
     br_platform.build_sdimage(outputDir, image, catalog)

@@ -29,7 +29,7 @@ fi
 
 # load the MW axi kernel module
 modprobe mwipcore
-modprobe mwgeneric
+modprobe mwgeneric_of
 
 
 echo "Starting MathWorks Linux image..."
