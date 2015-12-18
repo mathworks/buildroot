@@ -45,6 +45,14 @@ config BR2_PACKAGE_ALTERA_PRELOADER_UBOOT_CUSTOM_TARBALL
 	help
 	  Custom U-boot tarball to use for generating the preloader
 
+config BR2_PACKAGE_ALTERA_PRELOADER_BSP_OPTIONS
+	string "Options for EDS BSP Generator"
+	default ""
+	help
+	  Extra options to pass to the bsp-create-settings tool
+	  Should be in the format:
+	      --set <OPTION1> <VALUE1> ... --set <OPTIONN> <VALUEN>
+
 endmenu #"Altera Preloader Options"
 endif #BR2_PACKAGE_ALTERA_PRELOADER
 

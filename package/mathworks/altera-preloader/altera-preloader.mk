@@ -39,6 +39,7 @@ ALTERA_PRELOADER_PRELOADER_BIN = $(ALTERA_PRELOADER_SRC_DIR)/preloader-mkpimage.
 ALTERA_PRELOADER_MKPIMAGE = $(ALTERA_PRELOADER_EDS_DIR)/host_tools/altera/mkpimage/mkpimage
 ALTERA_PRELOADER_BSP_TOOLS = $(ALTERA_PRELOADER_EDS_DIR)/host_tools/altera/preloadergen
 ALTERA_PRELOADER_QUARTUS_HANDOFF_DIR = $(call qstrip,$(BR2_PACKAGE_ALTERA_PRELOADER_QUARTUS_HANDOFF_DIR))
+ALTERA_PRELOADER_BSP_OPTIONS = $(call qstrip,$(BR2_PACKAGE_ALTERA_PRELOADER_BSP_OPTIONS))
 
 define ALTERA_PRELOADER_EXTRACT_CMDS
     rm -rf $(@D)/$(ALTERA_PRELOADER_SRC_DIR)
@@ -52,7 +53,7 @@ define ALTERA_PRELOADER_GENERATE_BSP
         --type spl --bsp-dir $(@D)/bsp \
         --settings $(@D)/bsp/settings.bsp \
         --preloader-settings-dir $(ALTERA_PRELOADER_QUARTUS_HANDOFF_DIR) \
-        --set spl.boot.FAT_SUPPORT True
+        $(ALTERA_PRELOADER_BSP_OPTIONS)
 endef
 
 define ALTERA_PRELOADER_UPDATE_FILES
