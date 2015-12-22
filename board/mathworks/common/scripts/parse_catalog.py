@@ -41,7 +41,7 @@ def _find_file(baseDir,filePath, tag=""):
 ###############
 def _load_app(xmlApp, loadDefaults=True):
 
-    if loadDefaults:
+    if loadDefaults and (not _defaults['app'] is None):
         appInfo = dict(_defaults['app'])
     else:
         appInfo = dict()
@@ -180,7 +180,12 @@ def _load_defaults(defNode):
     boardNode = defNode.find('board')
     _defaults['boardInfo'] = _load_board_info(boardNode)
     # Load the default files for apps
-    _defaults['app'] = _load_app(defNode.find('app'), loadDefaults=False)
+    appNode = defNode.find('app')
+    if not appNode is None:
+        _defaults['app'] = _load_app(appNode, loadDefaults=False)
+    else:
+        _defaults['app'] = None
+
     # Load the default SD card directory
     _defaults['sdcardDir'] = _find_sd_dir(defNode, loadDefaults=False)
     _defaults['dtsIncDirs'] = list()
