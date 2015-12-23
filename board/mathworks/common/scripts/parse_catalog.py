@@ -203,7 +203,7 @@ def _load_defaults(defNode):
 ###############
 # Read the catalog file
 ###############
-def read_catalog(catalogFile, imageNames=["all"], joinImages=False):
+def read_catalog(catalogFile, imageNames=["all"]):
     global _CATALOG_DIR
     global _PLATFORM_NAME
     global _BOARD_NAME
@@ -230,24 +230,14 @@ def read_catalog(catalogFile, imageNames=["all"], joinImages=False):
     imageList = list()
     for image in root.findall('image'):
         imageName = image.get('name')
-        if allImages:
+        if allImages or (imageName in imageNames):
             imageInfo = _load_image(image)            
         else:
-            if imageName in imageNames:
-                imageInfo = _load_image(image)            
-            else:
-                continue
+            continue
         if len(imageInfo['appList']) == 0:
             raise ValueError("No applications found for image: %s" % (imageName))     
 
-        if joinImages:
-            if len(imageList) == 0:
-                imageList.append(imageInfo)
-                imageList[0]['imageName'] = 'all'
-            else:
-                imageList[0]['appList'].extend(imageInfo['appList'])
-        else:
-            imageList.append(imageInfo)
+        imageList.append(imageInfo)
 
     # Turn on the boot build for the first (main) app
     for image in imageList:    
