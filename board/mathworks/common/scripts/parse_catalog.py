@@ -177,7 +177,7 @@ def _find_local_file(fileNode):
 def _load_defaults(defNode):
     global _defaults
     # Load the board node, if present
-    boardNode = defNode.find('board_info')
+    boardNode = defNode.find('board_dir')
     _defaults['boardInfo'] = _load_board_info(boardNode)
     # Load the default files for apps
     appNode = defNode.find('app')

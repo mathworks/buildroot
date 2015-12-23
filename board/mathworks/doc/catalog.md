@@ -62,7 +62,7 @@ The board node has the following sub-nodes:
 | __Node__      | __Attributes__ | __Description__ |
 | ---           | ---   | --- |
 | app           | name  | The default settings for all apps within the catalog; will be used unless overriden | 
-| board_info    | dir   | The board directory to use. Will use the in-tree directory if not specified. __Must__ be specified for boards not supported in-tree|
+| board_dir     | dir   | The board directory to use. Will use the in-tree directory if not specified. __Must__ be specified for boards not supported in-tree|
 | sdcard        | dir   | The source directory to copy over contents at the root of the SD card. Will use the in-tree directory if not specified |
 | dtsi          | dir   | A DTS include directory-- will be added to the path for compiling the DTB file. Multiple nodes can be specified |
 | br2_config    | file  | A buildroot config file to append to generated buildroot config. Can be used to specify new values or override existing ones |
