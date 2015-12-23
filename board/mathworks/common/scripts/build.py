@@ -105,8 +105,6 @@ tgtGrp.add_argument('-r', '--rtos', dest='rtos', metavar='RTOS', type=str,
 imagesGrp=parser.add_argument_group('Image Control')
 imagesGrp.add_argument('-i', '--images', dest='imageList', metavar='IMAGE', type=str,
                         nargs="*", default=["all"],help='The Images to build (default: all)')
-imagesGrp.add_argument('-j', '--join', dest='joinImages', action="store_true",
-                        help='Combine specified images')
 imagesGrp.add_argument('-d', '--dest', dest='imageDest', metavar='IMAGE_DEST', type=str,
                         help='The destination directory for the images (default: OUTPUT_DIR/images)')
 
@@ -149,7 +147,7 @@ if args['catalogFile'] is None:
     args['catalogFile'] = "%s/%s/boards/%s/catalog.xml" % (MW_DIR, args['platformName'],args['boardName'])
 
 # read in the tree
-catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'], args['joinImages'])
+catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'])
 # catalog may have provided some info
 args['platformName'] = catalog['platformName'].lower()
 args['boardName'] = catalog['boardName'].lower()

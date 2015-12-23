@@ -41,7 +41,7 @@ def _find_file(baseDir,filePath, tag=""):
 ###############
 def _load_app(xmlApp, loadDefaults=True):
 
-    if loadDefaults:
+    if loadDefaults and (not _defaults['app'] is None):
         appInfo = dict(_defaults['app'])
     else:
         appInfo = dict()
@@ -177,10 +177,15 @@ def _find_local_file(fileNode):
 def _load_defaults(defNode):
     global _defaults
     # Load the board node, if present
-    boardNode = defNode.find('board')
+    boardNode = defNode.find('board_info')
     _defaults['boardInfo'] = _load_board_info(boardNode)
     # Load the default files for apps
-    _defaults['app'] = _load_app(defNode.find('app'), loadDefaults=False)
+    appNode = defNode.find('app')
+    if not appNode is None:
+        _defaults['app'] = _load_app(appNode, loadDefaults=False)
+    else:
+        _defaults['app'] = None
+
     # Load the default SD card directory
     _defaults['sdcardDir'] = _find_sd_dir(defNode, loadDefaults=False)
     _defaults['dtsIncDirs'] = list()
@@ -198,7 +203,7 @@ def _load_defaults(defNode):
 ###############
 # Read the catalog file
 ###############
-def read_catalog(catalogFile, imageNames=["all"], joinImages=False):
+def read_catalog(catalogFile, imageNames=["all"]):
     global _CATALOG_DIR
     global _PLATFORM_NAME
     global _BOARD_NAME
@@ -225,24 +230,14 @@ def read_catalog(catalogFile, imageNames=["all"], joinImages=False):
     imageList = list()
     for image in root.findall('image'):
         imageName = image.get('name')
-        if allImages:
+        if allImages or (imageName in imageNames):
             imageInfo = _load_image(image)            
         else:
-            if imageName in imageNames:
-                imageInfo = _load_image(image)            
-            else:
-                continue
+            continue
         if len(imageInfo['appList']) == 0:
             raise ValueError("No applications found for image: %s" % (imageName))     
 
-        if joinImages:
-            if len(imageList) == 0:
-                imageList.append(imageInfo)
-                imageList[0]['imageName'] = 'all'
-            else:
-                imageList[0]['appList'].extend(imageInfo['appList'])
-        else:
-            imageList.append(imageInfo)
+        imageList.append(imageInfo)
 
     # Turn on the boot build for the first (main) app
     for image in imageList:    

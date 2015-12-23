@@ -79,8 +79,6 @@ parser.add_argument('-c', '--catalog', dest='catalogFile', metavar='CATALOG_FILE
                         help='The catalog XML file')
 parser.add_argument('-i', '--images', dest='imageList', metavar='IMAGE', type=str,
                         nargs="*", default=["all"],help='The board name (e.g. zed)')
-parser.add_argument('-j', '--join', dest='joinImages', action="store_true",
-                        help='Combine specified images')
 parser.add_argument('-e', '--environ', dest='setEnvrion', action="store_true",
                         help='Set Buildroot Environment variables based on BR2_OUTPUT_DIR')
 parser.add_argument('-o', '--output', dest='outputDir',
@@ -111,7 +109,7 @@ if args['outputDir'] is None:
 outputDir = os.path.realpath(args['outputDir'])
 
 # read in the tree
-catalog = parse_catalog.read_catalog(CATALOG_FILE, args['imageList'], args['joinImages'])
+catalog = parse_catalog.read_catalog(CATALOG_FILE, args['imageList'])
 # catalog may have provided some info
 PLATFORM_NAME = catalog['platformName']
 BOARD_NAME = catalog['boardName']

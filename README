@@ -1,39 +1,3 @@
-#### Embedded Platform Buildroot Repository ####
-
-This version of buildroot is setup to generate full SD card images for a number
-of platforms.The platforms supported can be found by reviewing the 
-board/mathworks/<platform> directories.
-
-
-The SD card generation system dynamically generates a buildroot configuration,
-builds it and runs a number of post-processing scripts. The overall execution
-is controlled via the build.sh script.
-
-The build.sh script can be invoked with the following syntax:
-
-./build.sh [options]<board_dir> <configname>
-
-The format of configname is defined by the underlying board dir, but is generally:
-
-<board>_<os>_<toolchain>
-
-The specifics of the syntax can be found in each <board_dir>'s build.sh script
-
-Some examples:
-==============
-
-Build the SoCFPGA platform for the SoCKit board running Linux with the Linaro
-toolchain:
-
-./build.sh board/mathworks/socfpga sockit_linux_linaro
-
-
-Build the Zynq platform for the Zed board running Linux with the Xilinx
-toolchain:
-
-./build.sh board/mathworks/zynq zed_linux_xilinx
-
-==========================
 Buildroot is a simple, efficient and easy-to-use tool to generate embedded
 Linux systems through cross-compilation.
 

@@ -39,8 +39,7 @@ def _get_cmdline_config(args, catalog):
 
     # configure the image generation
     argStr += " -i %s" % ' '.join(args['imageList'])
-    if args['joinImages']:
-        argStr += " -j"
+
     # configure the output directory    
     argStr += ' -o %s' % args['imageDest']
 
