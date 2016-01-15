@@ -68,6 +68,8 @@ def get_build_config(args):
         args['dlDir'] = os.path.realpath("%s/dl/%s" % (BR_ROOT,args['platformName']))
     elif not os.path.isabs(args['dlDir']):
         args['dlDir'] = os.path.realpath("%s/%s" % (os.getcwd(), args['dlDir']))
+
+    args['catalogFile'] = os.path.realpath(args['catalogFile'])
         
 ##################
 # Run the build
