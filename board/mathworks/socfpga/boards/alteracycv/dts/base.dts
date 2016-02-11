@@ -1,0 +1,9 @@
+/* Include the default DT from the kernel */
+#include "socfpga_cyclone5_socdk.dts"
+#include "socfpga-mw-fpga-bridge.dtsi"
+#include "socfpga-mw-mwipcore.dtsi"
+/ {
+    chosen {
+        bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait";
+    };
+};

@@ -1,7 +1,0 @@
-# Configure Loopback
-auto lo eth0
-iface eth0 inet static
-	address 192.168.1.101
-	netmask 255.255.255.0
-iface lo inet loopback
-

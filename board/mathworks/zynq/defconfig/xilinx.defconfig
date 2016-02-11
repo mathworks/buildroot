@@ -1,0 +1,9 @@
+###########################################
+# Xilinx Toolchain Options
+###########################################
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM=y
+BR2_TOOLCHAIN_EXTERNAL_PATH="/opt/Xilinx/SDK/2015.2/gnu/arm/lin"
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-xilinx-linux-gnueabi"
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
+BR2_TOOLCHAIN_EXTERNAL_CXX=y
+BR2_TOOLCHAIN_EXTERNAL_HEADERS_3_16=y

@@ -1,0 +1,25 @@
+###########################################
+# Platform Options
+###########################################
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="http://github.com/mathworks/altera-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_socfpga_R16.1.0"
+# BR2_LINUX_KERNEL_UIMAGE is not set
+BR2_LINUX_KERNEL_ZIMAGE=y
+BR2_PACKAGE_HOST_DOSFSTOOLS=y
+BR2_PACKAGE_HOST_UBOOT_TOOLS=y
+BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt board/mathworks/socfpga/device_table.txt"
+BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/socfpga/fs-overlay"
+BR2_ROOTFS_POST_BUILD_SCRIPT="board/mathworks/socfpga/scripts/postbuild_common.sh"
+BR2_TARGET_GENERIC_GETTY_PORT="ttyS0"
+BR2_TARGET_GENERIC_ROOT_PASSWD="cyclonevsoc"
+BR2_TARGET_ROOTFS_TAR_GZIP=y
+BR2_TARGET_ROOTFS_TAR=y
+BR2_PACKAGE_UBOOT_ALTERA=y
+BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_GIT=y
+BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_URL="http://github.com/mathworks/altera-uboot.git"
+BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION="mathworks_socfpga_R16.1.0"
+BR2_PACKAGE_UBOOT_ALTERA_FORMAT_IMG=y
+BR2_PACKAGE_UBOOT_ALTERA_UPDATE_FILES=y
+BR2_PACKAGE_ALTERA_PRELOADER=y
+BR2_PACKAGE_ALTERA_PRELOADER_EDS_VERSION="15.0.0-145"
+BR2_PACKAGE_ALTERA_PRELOADER_EDS_INSTALLATION="/opt/altera/15.0/embedded"

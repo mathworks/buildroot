@@ -1,0 +1,5 @@
+###########################################
+# Terasic SoCkit Options
+###########################################
+BR2_PACKAGE_UBOOT_ALTERA_BOARDNAME="socfpga_cyclone5"
+BR2_PACKAGE_ALTERA_PRELOADER_BSP_OPTIONS="--set spl.boot.FAT_SUPPORT True"

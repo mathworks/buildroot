@@ -1,0 +1,17 @@
+/dts-v1/;
+
+#include "zynq-zed.dtsi"
+
+/ {
+	chosen {
+        bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+		linux,stdout-path = "/amba@0/uart@E0001000";
+	};
+};
+&axi {
+		mwipcore0: mwipcore@400D0000 {
+			compatible = "mathworks,mwipcore-v2.00";
+			reg = <0x400D0000 0xffff>;
+		};
+};
+
