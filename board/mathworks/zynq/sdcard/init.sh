@@ -30,13 +30,6 @@ if [ -d /sys/class/sound/card0 ]; then
 	alsactl restore -f /mnt/asound.state 0
 fi
 
-# Program the FPGA if system.bit file is present
-if [ -f /mnt/system.bit.bin ]
-then
-    echo "+++ Loading default bitstream..."
-    /usr/bin/zynqfpgaprog /mnt/system.bit.bin
-fi
-
 # load the MW axi kernel module
 modprobe mwadma
 modprobe mwgeneric_of
