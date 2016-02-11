@@ -155,24 +155,23 @@ def get_src_dir(pkg):
         if dat:
             # use the local.mk directory if it's specified
             return re.sub(".*= *","", dat)
-        
+            
+    # Otherwise check the version and point to the build dir
+    if pkg.lower() == "linux":
+        ver = get_cfg_var(_LINUX_VAR)        
+    elif pkg.lower() == "uboot":        
+        ver = get_cfg_var(_UBOOT_VAR)
+        pkg = _UBOOT_PKG
+        if ver == "":
+            ver = get_cfg_var(_UBOOT_ALTERA_VAR)
+            pkg = _UBOOT_ALTERA_PKG
     else:
-        # Otherwise check the version and point to the build dir
-        if pkg.lower() == "linux":
-            ver = get_cfg_var(_LINUX_VAR)        
-        elif pkg.lower() == "uboot":        
-            ver = get_cfg_var(_UBOOT_VAR)
-            pkg = _UBOOT_PKG
-            if ver == "":
-                ver = get_cfg_var(_UBOOT_ALTERA_VAR)
-                pkg = _UBOOT_ALTERA_PKG
-        else:
-            ver = ""
-    
-        if ver != "":
-            return "%s/%s-%s" % (ENV['BUILD_DIR'], pkg.lower(), ver)        
-        else:        
-            return ver
+        ver = ""
+
+    if ver != "":
+        return "%s/%s-%s" % (ENV['BUILD_DIR'], pkg.lower(), ver)        
+    else:        
+        return ver
 
 ########################
 # Load environment variable
