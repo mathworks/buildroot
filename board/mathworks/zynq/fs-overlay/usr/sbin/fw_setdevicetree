@@ -12,5 +12,5 @@ if [ ! -e ${DT_DIR}/${NEWDT} ]; then
 	exit 1
 fi
 
-fw_setvar ${DT_VAR} ${NEWDT}
+fw_setenv ${DT_VAR} ${NEWDT}
 
