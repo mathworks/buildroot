@@ -40,5 +40,4 @@
 	
 &mwipcore0 {
 	dma-request = <&axi4stream 0x0>;
-	reg = <0x400D0000 0xffff>;
 };
