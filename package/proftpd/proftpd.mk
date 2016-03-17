@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PROFTPD_VERSION = 1.3.4d
+PROFTPD_VERSION = 1.3.5a
 PROFTPD_SOURCE = proftpd-$(PROFTPD_VERSION).tar.gz
 PROFTPD_SITE = ftp://ftp.proftpd.org/distrib/source
 PROFTPD_LICENSE = GPLv2+
@@ -51,8 +51,20 @@ define PROFTPD_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0644 -D $(@D)/sample-configurations/basic.conf $(TARGET_DIR)/etc/proftpd.conf
 endef
 
+define PROFTPD_USERS
+	ftp -1 ftp -1 * /home/ftp - - Anonymous FTP User
+endef
+
 define PROFTPD_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 0755 package/proftpd/S50proftpd $(TARGET_DIR)/etc/init.d/S50proftpd
+endef
+
+define PROFTPD_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 644 package/proftpd/proftpd.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/proftpd.service
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
+	ln -sf ../../../../usr/lib/systemd/system/proftpd.service \
+		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/proftpd.service
 endef
 
 $(eval $(autotools-package))

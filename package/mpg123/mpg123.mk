@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-MPG123_VERSION = 1.22.1
+MPG123_VERSION = 1.22.4
 MPG123_SOURCE = mpg123-$(MPG123_VERSION).tar.bz2
 MPG123_SITE = http://downloads.sourceforge.net/project/mpg123/mpg123/$(MPG123_VERSION)
 MPG123_CONF_OPTS = --disable-lfs-alias
@@ -54,7 +54,7 @@ MPG123_CONF_OPTS += --with-default-audio=portaudio
 MPG123_DEPENDENCIES += portaudio
 # configure script does NOT use pkg-config to figure out how to link
 # with portaudio, breaking static linking as portaudio uses pthreads
-MPG123_CONF_ENV += LIBS='$(shell $(PKG_CONFIG_HOST_BINARY) --libs portaudio-2.0)'
+MPG123_CONF_ENV += LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs portaudio-2.0`"
 endif
 
 ifeq ($(BR2_PACKAGE_SDL),y)
@@ -67,9 +67,12 @@ ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
 MPG123_AUDIO += alsa
 MPG123_CONF_OPTS += --with-default-audio=alsa
 MPG123_DEPENDENCIES += alsa-lib
+# configure script does NOT use pkg-config to figure out how to link
+# with alsa, breaking static linking as alsa uses pthreads
+MPG123_CONF_ENV += LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs alsa`"
 endif
 
-MPG123_CONF_OPTS += --with-audio=$(shell echo $(MPG123_AUDIO) | tr ' ' ,)
+MPG123_CONF_OPTS += --with-audio=$(subst $(space),$(comma),$(MPG123_AUDIO))
 
 ifeq ($(BR2_PACKAGE_LIBTOOL),y)
 MPG123_DEPENDENCIES += libtool

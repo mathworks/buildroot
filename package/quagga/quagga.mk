@@ -11,6 +11,15 @@ QUAGGA_DEPENDENCIES = host-gawk
 QUAGGA_LICENSE = GPLv2+
 QUAGGA_LICENSE_FILES = COPYING
 QUAGGA_CONF_OPTS = --program-transform-name=''
+# 0002-configure-fix-static-linking-with-readline.patch
+QUAGGA_AUTORECONF = YES
+
+ifeq ($(BR2_PACKAGE_LIBCAP),y)
+QUAGGA_CONF_OPTS += --enable-capabilities
+QUAGGA_DEPENDENCIES += libcap
+else
+QUAGGA_CONF_OPTS += --disable-capabilities
+endif
 
 QUAGGA_CONF_OPTS += $(if $(BR2_PACKAGE_QUAGGA_ZEBRA),--enable-zebra,--disable-zebra)
 QUAGGA_CONF_OPTS += $(if $(BR2_PACKAGE_QUAGGA_BABELD),--enable-babeld,--disable-babeld)
@@ -37,6 +46,10 @@ QUAGGA_CONF_OPTS += --enable-vtysh
 QUAGGA_DEPENDENCIES += readline
 else
 QUAGGA_CONF_OPTS += --disable-vtysh
+endif
+
+ifeq ($(BR2_arc),y)
+QUAGGA_CONF_OPTS += --disable-pie
 endif
 
 $(eval $(autotools-package))

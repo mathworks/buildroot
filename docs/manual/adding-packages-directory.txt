@@ -35,15 +35,24 @@ config BR2_PACKAGE_LIBFOO
 
 The +bool+ line, +help+ line and other metadata information about the
 configuration option must be indented with one tab. The help text
-itself should be indented with one tab and two spaces, and it must
-mention the upstream URL of the project.
+itself should be indented with one tab and two spaces, lines should
+not be longer than 72 columns, and it must mention the upstream URL
+of the project.
 
-You can add other sub-options into a +if
-BR2_PACKAGE_LIBFOO...endif+ statement to configure particular things
-in your software. You can look at examples in other packages. The
-syntax of the +Config.in+ file is the same as the one for the kernel
-Kconfig file. The documentation for this syntax is available at
-http://kernel.org/doc/Documentation/kbuild/kconfig-language.txt[]
+As a convention specific to Buildroot, the ordering of the attributes
+is as follows:
+
+1. The type of option: +bool+, +string+... with the prompt
+2. If needed, the +default+ value(s)
+3. Any dependency of the +depends on+ form
+4. Any dependency of the +select+ form
+5. The help keyword and help text.
+
+You can add other sub-options into a +if BR2_PACKAGE_LIBFOO...endif+
+statement to configure particular things in your software. You can look at
+examples in other packages. The syntax of the +Config.in+ file is the same
+as the one for the kernel Kconfig file. The documentation for this syntax is
+available at http://kernel.org/doc/Documentation/kbuild/kconfig-language.txt[]
 
 Finally you have to add your new +libfoo/Config.in+ to
 +package/Config.in+ (or in a category subdirectory if you decided to
@@ -265,9 +274,18 @@ use in the comment.
 ** Dependency symbol: +BR2_USE_MMU+
 ** Comment string: no comment to be added
 
-* Atomic instructions (whereby the architecture has instructions to
-  perform some operations atomically, like LOCKCMPXCHG on x86)
-** Dependency symbol: +BR2_ARCH_HAS_ATOMICS+
+* Gcc +__sync_*+ built-ins used for atomic operations. They are
+  available in variants operating on 1 byte, 2 bytes, 4 bytes and 8
+  bytes. Since different architectures support atomic operations on
+  different sizes, one dependency symbol is available for each size:
+** Dependency symbol: +BR2_TOOLCHAIN_HAS_SYNC_1+ for 1 byte,
+   +BR2_TOOLCHAIN_HAS_SYNC_2+ for 2 bytes,
+   +BR2_TOOLCHAIN_HAS_SYNC_4+ for 4 bytes, +BR2_TOOLCHAIN_HAS_SYNC_8+
+   for 8 bytes.
+** Comment string: no comment to be added
+
+* Gcc +__atomic_*+ built-ins used for atomic operations.
+** Dependency symbol: +BR2_TOOLCHAIN_HAS_ATOMIC+.
 ** Comment string: no comment to be added
 
 * Kernel headers
@@ -275,6 +293,19 @@ use in the comment.
    +X_Y+ with the proper version, see +toolchain/toolchain-common.in+)
 ** Comment string: +headers >= X.Y+ and/or `headers <= X.Y` (replace
    +X.Y+ with the proper version)
+
+* GCC version
+** Dependency symbol: +BR2_TOOLCHAIN_GCC_AT_LEAST_X_Y+, (replace
+   +X_Y+ with the proper version, see +toolchain/toolchain-common.in+)
+** Comment string: +gcc >= X.Y+ and/or `gcc <= X.Y` (replace
+   +X.Y+ with the proper version)
+
+* Host GCC version
+** Dependency symbol: +BR2_HOST_GCC_AT_LEAST_X_Y+, (replace
+   +X_Y+ with the proper version, see +Config.in+)
+** Comment string: no comment to be added
+** Note that it is usually not the package itself that has a minimum
+   host GCC version, but rather a host-package on which it depends.
 
 * C library
 ** Dependency symbol: +BR2_TOOLCHAIN_USES_GLIBC+,
@@ -442,19 +473,11 @@ strong hash yourself (preferably +sha256+, but not +md5+), and mention
 this in a comment line above the hashes.
 
 .Note
-If +libfoo+ is from GitHub (see xref:github-download-url[] for details), we
-can only accept a +.hash+ file if the package is a released (e.g. uploaded
-by the maintainer) tarball. Otherwise, the automatically generated tarball
-may change over time, and thus its hashes may be different each time it is
-downloaded, causing a +.hash+ mismatch for that tarball.
-
-.Note
 The number of spaces does not matter, so one can use spaces (or tabs) to
 properly align the different fields.
 
 The +none+ hash type is reserved to those archives downloaded from a
-repository, like a 'git clone', a 'subversion checkout'... or archives
-downloaded with the xref:github-download-url[github helper].
+repository, like a 'git clone', a 'subversion checkout'...
 
 The example below defines a +sha1+ and a +sha256+ published by upstream for
 the main +libfoo-1.2.3.tar.bz2+ tarball, an +md5+ from upstream and a
@@ -473,7 +496,7 @@ sha256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b libfoo-d
 # Locally computed:
 sha256 ff52101fb90bbfc3fe9475e425688c660f46216d7e751c4bbdb1dc85cdccacb9 libfoo-fix-blabla.patch
 
-# No hash for 1234, comes from the github-helper:
+# No hash for 1234:
 none   xxx                                                              libfoo-1234.tar.gz
 ----
 

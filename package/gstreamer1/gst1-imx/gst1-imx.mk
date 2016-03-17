@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GST1_IMX_VERSION = 0.10.1
+GST1_IMX_VERSION = 0.11.1
 GST1_IMX_SITE = $(call github,Freescale,gstreamer-imx,$(GST1_IMX_VERSION))
 
 GST1_IMX_LICENSE = LGPLv2+
@@ -13,7 +13,7 @@ GST1_IMX_LICENSE_FILES = LICENSE
 GST1_IMX_INSTALL_STAGING = YES
 
 GST1_IMX_DEPENDENCIES += host-pkgconf host-python \
-	gpu-viv-bin-mx6q gstreamer1 gst1-plugins-base libfslvpuwrap
+	imx-gpu-viv gstreamer1 gst1-plugins-base libfslvpuwrap
 
 # needs access to imx-specific kernel headers
 GST1_IMX_DEPENDENCIES += linux

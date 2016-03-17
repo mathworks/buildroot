@@ -55,6 +55,46 @@ define step_time
 endef
 GLOBAL_INSTRUMENTATION_HOOKS += step_time
 
+# Hooks to collect statistics about installed files
+
+# This hook will be called before the target installation of a
+# package. We store in a file named .br_filelist_before the list of
+# files currently installed in the target. Note that the MD5 is also
+# stored, in order to identify if the files are overwritten.
+define step_pkg_size_start
+	(cd $(TARGET_DIR) ; find . -type f -print0 | xargs -0 md5sum) | sort > \
+		$($(PKG)_DIR)/.br_filelist_before
+endef
+
+# This hook will be called after the target installation of a
+# package. We store in a file named .br_filelist_after the list of
+# files (and their MD5) currently installed in the target. We then do
+# a diff with the .br_filelist_before to compute the list of files
+# installed by this package.
+define step_pkg_size_end
+	(cd $(TARGET_DIR); find . -type f -print0 | xargs -0 md5sum) | sort > \
+		$($(PKG)_DIR)/.br_filelist_after
+	comm -13 $($(PKG)_DIR)/.br_filelist_before $($(PKG)_DIR)/.br_filelist_after | \
+		while read hash file ; do \
+			echo "$(1),$${file}" >> $(BUILD_DIR)/packages-file-list.txt ; \
+		done
+endef
+
+define step_pkg_size
+	$(if $(filter install-target,$(2)),\
+		$(if $(filter start,$(1)),$(call step_pkg_size_start,$(3))) \
+		$(if $(filter end,$(1)),$(call step_pkg_size_end,$(3))))
+endef
+GLOBAL_INSTRUMENTATION_HOOKS += step_pkg_size
+
+# This hook checks that host packages that need libraries that we build
+# have a proper DT_RPATH or DT_RUNPATH tag
+define check_host_rpath
+	$(if $(filter install-host,$(2)),\
+		$(if $(filter end,$(1)),support/scripts/check-host-rpath $(3) $(HOST_DIR)))
+endef
+GLOBAL_INSTRUMENTATION_HOOKS += check_host_rpath
+
 # User-supplied script
 ifneq ($(BR2_INSTRUMENTATION_SCRIPTS),)
 define step_user
@@ -93,8 +133,8 @@ $(BUILD_DIR)/%/.stamp_extracted:
 # some packages have messed up permissions inside
 	$(Q)chmod -R +rw $(@D)
 	$(foreach hook,$($(PKG)_POST_EXTRACT_HOOKS),$(call $(hook))$(sep))
-	$(Q)touch $@
 	@$(call step_end,extract)
+	$(Q)touch $@
 
 # Rsync the source directory if the <pkg>_OVERRIDE_SRCDIR feature is
 # used.
@@ -102,7 +142,7 @@ $(BUILD_DIR)/%/.stamp_rsynced:
 	@$(call MESSAGE,"Syncing from source dir $(SRCDIR)")
 	@test -d $(SRCDIR) || (echo "ERROR: $(SRCDIR) does not exist" ; exit 1)
 	$(foreach hook,$($(PKG)_PRE_RSYNC_HOOKS),$(call $(hook))$(sep))
-	rsync -au $(RSYNC_VCS_EXCLUSIONS) $(SRCDIR)/ $(@D)
+	rsync -au --chmod=u=rwX,go=rX $(RSYNC_VCS_EXCLUSIONS) $(call qstrip,$(SRCDIR))/ $(@D)
 	$(foreach hook,$($(PKG)_POST_RSYNC_HOOKS),$(call $(hook))$(sep))
 	$(Q)touch $@
 
@@ -113,7 +153,6 @@ $(BUILD_DIR)/%/.stamp_rsynced:
 # prefix of the patches
 #
 # For BR2_GLOBAL_PATCH_DIR, only generate if it is defined
-$(BUILD_DIR)/%/.stamp_patched: NAMEVER = $(RAWNAME)-$($(PKG)_VERSION)
 $(BUILD_DIR)/%/.stamp_patched: PATCH_BASE_DIRS =  $(PKGDIR)
 $(BUILD_DIR)/%/.stamp_patched: PATCH_BASE_DIRS += $(addsuffix /$(RAWNAME),$(call qstrip,$(BR2_GLOBAL_PATCH_DIR)))
 $(BUILD_DIR)/%/.stamp_patched:
@@ -133,8 +172,8 @@ $(BUILD_DIR)/%/.stamp_patched:
 	done; \
 	)
 	$(foreach hook,$($(PKG)_POST_PATCH_HOOKS),$(call $(hook))$(sep))
-	$(Q)touch $@
 	@$(call step_end,patch)
+	$(Q)touch $@
 
 # Check that all directories specified in BR2_GLOBAL_PATCH_DIR exist.
 $(foreach dir,$(call qstrip,$(BR2_GLOBAL_PATCH_DIR)),\
@@ -148,8 +187,8 @@ $(BUILD_DIR)/%/.stamp_configured:
 	$(foreach hook,$($(PKG)_PRE_CONFIGURE_HOOKS),$(call $(hook))$(sep))
 	$($(PKG)_CONFIGURE_CMDS)
 	$(foreach hook,$($(PKG)_POST_CONFIGURE_HOOKS),$(call $(hook))$(sep))
-	$(Q)touch $@
 	@$(call step_end,configure)
+	$(Q)touch $@
 
 # Build
 $(BUILD_DIR)/%/.stamp_built::
@@ -158,8 +197,8 @@ $(BUILD_DIR)/%/.stamp_built::
 	$(foreach hook,$($(PKG)_PRE_BUILD_HOOKS),$(call $(hook))$(sep))
 	+$($(PKG)_BUILD_CMDS)
 	$(foreach hook,$($(PKG)_POST_BUILD_HOOKS),$(call $(hook))$(sep))
-	$(Q)touch $@
 	@$(call step_end,build)
+	$(Q)touch $@
 
 # Install to host dir
 $(BUILD_DIR)/%/.stamp_host_installed:
@@ -168,10 +207,29 @@ $(BUILD_DIR)/%/.stamp_host_installed:
 	$(foreach hook,$($(PKG)_PRE_INSTALL_HOOKS),$(call $(hook))$(sep))
 	+$($(PKG)_INSTALL_CMDS)
 	$(foreach hook,$($(PKG)_POST_INSTALL_HOOKS),$(call $(hook))$(sep))
-	$(Q)touch $@
 	@$(call step_end,install-host)
+	$(Q)touch $@
 
 # Install to staging dir
+#
+# Some packages install libtool .la files alongside any installed
+# libraries. These .la files sometimes refer to paths relative to the
+# sysroot, which libtool will interpret as absolute paths to host
+# libraries instead of the target libraries. Since this is not what we
+# want, these paths are fixed by prefixing them with $(STAGING_DIR).
+# As we configure with --prefix=/usr, this fix needs to be applied to
+# any path that starts with /usr.
+#
+# To protect against the case that the output or staging directories or
+# the pre-installed external toolchain themselves are under /usr, we first
+# substitute away any occurrences of these directories with @BASE_DIR@,
+# @STAGING_DIR@ and @TOOLCHAIN_EXTERNAL_INSTALL_DIR@ respectively.
+#
+# Note that STAGING_DIR can be outside BASE_DIR when the user sets
+# BR2_HOST_DIR to a custom value. Note that TOOLCHAIN_EXTERNAL_INSTALL_DIR
+# can be under @BASE_DIR@ when it's a downloaded toolchain, and can be
+# empty when we use an internal toolchain.
+#
 $(BUILD_DIR)/%/.stamp_staging_installed:
 	@$(call step_start,install-staging)
 	@$(call MESSAGE,"Installing to staging directory")
@@ -189,8 +247,19 @@ $(BUILD_DIR)/%/.stamp_staging_installed:
 				-e "s,@BASE_DIR@,$(BASE_DIR),g" \
 				$(addprefix $(STAGING_DIR)/usr/bin/,$($(PKG)_CONFIG_SCRIPTS)) ;\
 	fi
-	$(Q)touch $@
+	@$(call MESSAGE,"Fixing libtool files")
+	$(Q)find $(STAGING_DIR)/usr/lib* -name "*.la" | xargs --no-run-if-empty \
+		$(SED) "s:$(BASE_DIR):@BASE_DIR@:g" \
+			-e "s:$(STAGING_DIR):@STAGING_DIR@:g" \
+			$(if $(TOOLCHAIN_EXTERNAL_INSTALL_DIR),\
+				-e "s:$(TOOLCHAIN_EXTERNAL_INSTALL_DIR):@TOOLCHAIN_EXTERNAL_INSTALL_DIR@:g") \
+			-e "s:\(['= ]\)/usr:\\1@STAGING_DIR@/usr:g" \
+			$(if $(TOOLCHAIN_EXTERNAL_INSTALL_DIR),\
+				-e "s:@TOOLCHAIN_EXTERNAL_INSTALL_DIR@:$(TOOLCHAIN_EXTERNAL_INSTALL_DIR):g") \
+			-e "s:@STAGING_DIR@:$(STAGING_DIR):g" \
+			-e "s:@BASE_DIR@:$(BASE_DIR):g"
 	@$(call step_end,install-staging)
+	$(Q)touch $@
 
 # Install to images dir
 $(BUILD_DIR)/%/.stamp_images_installed:
@@ -199,8 +268,8 @@ $(BUILD_DIR)/%/.stamp_images_installed:
 	@$(call MESSAGE,"Installing to images directory")
 	+$($(PKG)_INSTALL_IMAGES_CMDS)
 	$(foreach hook,$($(PKG)_POST_INSTALL_IMAGES_HOOKS),$(call $(hook))$(sep))
-	$(Q)touch $@
 	@$(call step_end,install-image)
+	$(Q)touch $@
 
 # Install to target dir
 $(BUILD_DIR)/%/.stamp_target_installed:
@@ -216,8 +285,8 @@ $(BUILD_DIR)/%/.stamp_target_installed:
 	$(Q)if test -n "$($(PKG)_CONFIG_SCRIPTS)" ; then \
 		$(RM) -f $(addprefix $(TARGET_DIR)/usr/bin/,$($(PKG)_CONFIG_SCRIPTS)) ; \
 	fi
-	$(Q)touch $@
 	@$(call step_end,install-target)
+	$(Q)touch $@
 
 # Remove package sources
 $(BUILD_DIR)/%/.stamp_dircleaned:
@@ -279,6 +348,14 @@ endef
 
 define inner-generic-package
 
+# Ensure the package is only declared once, i.e. do not accept that a
+# package be re-defined by a br2-external tree
+ifneq ($(call strip,$(filter $(1),$(PACKAGES_ALL))),)
+$$(error Package '$(1)' defined a second time in '$(pkgdir)'; \
+	previous definition was in '$$($(2)_PKGDIR)')
+endif
+PACKAGES_ALL += $(1)
+
 # Define default values for various package-related variables, if not
 # already defined. For some variables (version, source, site and
 # subdir), if they are undefined, we try to see if a variable without
@@ -289,6 +366,7 @@ define inner-generic-package
 $(2)_TYPE                       =  $(4)
 $(2)_NAME			=  $(1)
 $(2)_RAWNAME			=  $$(patsubst host-%,%,$(1))
+$(2)_PKGDIR			=  $(pkgdir)
 
 # Keep the package version that may contain forward slashes in the _DL_VERSION
 # variable, then replace all forward slashes ('/') by underscores ('_') to
@@ -298,16 +376,20 @@ $(2)_RAWNAME			=  $$(patsubst host-%,%,$(1))
 # Similar for spaces and colons (:) that may appear in date-based revisions for
 # CVS.
 ifndef $(2)_VERSION
- ifdef $(3)_VERSION
-  $(2)_DL_VERSION := $$(strip $$($(3)_VERSION))
-  $(2)_VERSION := $$(call sanitize,$$($(3)_VERSION))
+ ifdef $(3)_DL_VERSION
+  $(2)_DL_VERSION := $$($(3)_DL_VERSION)
+ else ifdef $(3)_VERSION
+  $(2)_DL_VERSION := $$($(3)_VERSION)
  else
-  $(2)_VERSION = undefined
   $(2)_DL_VERSION = undefined
  endif
 else
-  $(2)_DL_VERSION := $$(strip $$($(2)_VERSION))
-  $(2)_VERSION := $$(call sanitize,$$($(2)_VERSION))
+ $(2)_DL_VERSION := $$(strip $$($(2)_VERSION))
+endif
+$(2)_VERSION := $$(call sanitize,$$($(2)_DL_VERSION))
+
+ifdef $(3)_OVERRIDE_SRCDIR
+  $(2)_OVERRIDE_SRCDIR ?= $$($(3)_OVERRIDE_SRCDIR)
 endif
 
 $(2)_BASE_NAME	=  $(1)-$$($(2)_VERSION)
@@ -319,6 +401,14 @@ ifndef $(2)_SUBDIR
   $(2)_SUBDIR = $$($(3)_SUBDIR)
  else
   $(2)_SUBDIR ?=
+ endif
+endif
+
+ifndef $(2)_STRIP_COMPONENTS
+ ifdef $(3)_STRIP_COMPONENTS
+  $(2)_STRIP_COMPONENTS = $$($(3)_STRIP_COMPONENTS)
+ else
+  $(2)_STRIP_COMPONENTS ?= 1
  endif
 endif
 
@@ -346,7 +436,7 @@ endif
 $(2)_ALL_DOWNLOADS = \
 	$$(foreach p,$$($(2)_SOURCE) $$($(2)_PATCH) $$($(2)_EXTRA_DOWNLOADS),\
 		$$(if $$(findstring ://,$$(p)),$$(p),\
-			$$($(2)_SITE:/=)/$$(p)))
+			$$($(2)_SITE)/$$(p)))
 
 ifndef $(2)_SITE
  ifdef $(3)_SITE
@@ -397,10 +487,13 @@ $(2)_REDISTRIBUTE		?= YES
 $(2)_ADD_TOOLCHAIN_DEPENDENCY	?= YES
 
 ifeq ($(4),host)
-$(2)_DEPENDENCIES ?= $$(filter-out  host-toolchain $(1),\
+$(2)_DEPENDENCIES ?= $$(filter-out host-skeleton host-toolchain $(1),\
 	$$(patsubst host-host-%,host-%,$$(addprefix host-,$$($(3)_DEPENDENCIES))))
 endif
 ifeq ($(4),target)
+ifneq ($(1),skeleton)
+$(2)_DEPENDENCIES += skeleton
+endif
 ifeq ($$($(2)_ADD_TOOLCHAIN_DEPENDENCY),YES)
 $(2)_DEPENDENCIES += toolchain
 endif
@@ -431,7 +524,10 @@ $(2)_TARGET_DIRCLEAN =		$$($(2)_DIR)/.stamp_dircleaned
 # default extract command
 $(2)_EXTRACT_CMDS ?= \
 	$$(if $$($(2)_SOURCE),$$(INFLATE$$(suffix $$($(2)_SOURCE))) $$(DL_DIR)/$$($(2)_SOURCE) | \
-	$$(TAR) $$(TAR_STRIP_COMPONENTS)=1 -C $$($(2)_DIR) $$(TAR_OPTIONS) -)
+	$$(TAR) --strip-components=$$($(2)_STRIP_COMPONENTS) \
+		-C $$($(2)_DIR) \
+		$$(foreach x,$$($(2)_EXCLUDES),--exclude='$$(x)' ) \
+		$$(TAR_OPTIONS) -)
 
 # pre/post-steps hooks
 $(2)_PRE_DOWNLOAD_HOOKS         ?=
@@ -572,9 +668,11 @@ $(1)-show-depends:
 $(1)-graph-depends: graph-depends-requirements
 			@$$(INSTALL) -d $$(GRAPHS_DIR)
 			@cd "$$(CONFIG_DIR)"; \
-			$$(TOPDIR)/support/scripts/graph-depends -p $(1) $$(BR2_GRAPH_DEPS_OPTS) \
-			|tee $$(GRAPHS_DIR)/$$(@).dot \
-			|dot $$(BR2_GRAPH_DOT_OPTS) -T$$(BR_GRAPH_OUT) -o $$(GRAPHS_DIR)/$$(@).$$(BR_GRAPH_OUT)
+			$$(TOPDIR)/support/scripts/graph-depends $$(BR2_GRAPH_DEPS_OPTS) \
+				-p $(1) -o $$(GRAPHS_DIR)/$$(@).dot
+			dot $$(BR2_GRAPH_DOT_OPTS) -T$$(BR_GRAPH_OUT) \
+				-o $$(GRAPHS_DIR)/$$(@).$$(BR_GRAPH_OUT) \
+				$$(GRAPHS_DIR)/$$(@).dot
 
 $(1)-all-source:	$(1)-source
 $(1)-all-source:	$$(foreach p,$$($(2)_FINAL_ALL_DEPENDENCIES),$$(p)-all-source)
@@ -616,11 +714,11 @@ $(1)-reconfigure:	$(1)-clean-for-reconfigure $(1)
 $$($(2)_TARGET_INSTALL_TARGET):		PKG=$(2)
 $$($(2)_TARGET_INSTALL_STAGING):	PKG=$(2)
 $$($(2)_TARGET_INSTALL_IMAGES):		PKG=$(2)
-$$($(2)_TARGET_INSTALL_HOST):           PKG=$(2)
+$$($(2)_TARGET_INSTALL_HOST):		PKG=$(2)
 $$($(2)_TARGET_BUILD):			PKG=$(2)
 $$($(2)_TARGET_CONFIGURE):		PKG=$(2)
-$$($(2)_TARGET_RSYNC):                  SRCDIR=$$($(2)_OVERRIDE_SRCDIR)
-$$($(2)_TARGET_RSYNC):                  PKG=$(2)
+$$($(2)_TARGET_RSYNC):			SRCDIR=$$($(2)_OVERRIDE_SRCDIR)
+$$($(2)_TARGET_RSYNC):			PKG=$(2)
 $$($(2)_TARGET_PATCH):			PKG=$(2)
 $$($(2)_TARGET_PATCH):			RAWNAME=$$(patsubst host-%,%,$(1))
 $$($(2)_TARGET_PATCH):			PKGDIR=$(pkgdir)
@@ -634,9 +732,9 @@ $$($(2)_TARGET_DIRCLEAN):		PKG=$(2)
 # kernel case, the bootloaders case, and the normal packages case.
 ifeq ($(1),linux)
 $(2)_KCONFIG_VAR = BR2_LINUX_KERNEL
-else ifneq ($$(filter boot/%,$(pkgdir)),)
+else ifneq ($$(filter boot/% $(BR2_EXTERNAL)/boot/%,$(pkgdir)),)
 $(2)_KCONFIG_VAR = BR2_TARGET_$(2)
-else ifneq ($$(filter toolchain/%,$(pkgdir)),)
+else ifneq ($$(filter toolchain/% $(BR2_EXTERNAL)/toolchain/%,$(pkgdir)),)
 $(2)_KCONFIG_VAR = BR2_$(2)
 else
 $(2)_KCONFIG_VAR = BR2_PACKAGE_$(2)
@@ -663,11 +761,17 @@ ifneq ($$($(2)_SITE_METHOD),local)
 ifneq ($$($(2)_SITE_METHOD),override)
 # Packages that have a tarball need it downloaded beforehand
 $(1)-legal-info: $(1)-source $$(REDIST_SOURCES_DIR_$$(call UPPERCASE,$(4)))
-$(2)_MANIFEST_TARBALL = $$($(2)_SOURCE)
-$(2)_MANIFEST_SITE = $$(call qstrip,$$($(2)_SITE))
 endif
 endif
 endif
+
+# If FOO_ACTUAL_SOURCE_TARBALL is explicitly defined, it means FOO_SOURCE is
+# indeed a binary (e.g. external toolchain) and FOO_ACTUAL_SOURCE_TARBALL/_SITE
+# point to the actual sources tarball. Use the actual sources for legal-info.
+# For most packages the FOO_SITE/FOO_SOURCE pair points to real source code,
+# so these are the defaults for FOO_ACTUAL_*.
+$(2)_ACTUAL_SOURCE_TARBALL ?= $$($(2)_SOURCE)
+$(2)_ACTUAL_SOURCE_SITE    ?= $$(call qstrip,$$($(2)_SITE))
 
 # legal-info: produce legally relevant info.
 $(1)-legal-info:
@@ -699,13 +803,16 @@ else
 # Other packages
 
 ifeq ($$($(2)_REDISTRIBUTE),YES)
+ifneq ($$($(2)_ACTUAL_SOURCE_TARBALL),$$($(2)_SOURCE))
+	$$(call DOWNLOAD,$$($(2)_ACTUAL_SOURCE_SITE)/$$($(2)_ACTUAL_SOURCE_TARBALL))
+endif
 # Copy the source tarball (just hardlink if possible)
-	@cp -l $$(DL_DIR)/$$($(2)_SOURCE) $$(REDIST_SOURCES_DIR_$$(call UPPERCASE,$(4))) 2>/dev/null || \
-	   cp $$(DL_DIR)/$$($(2)_SOURCE) $$(REDIST_SOURCES_DIR_$$(call UPPERCASE,$(4)))
+	@cp -l $$(DL_DIR)/$$($(2)_ACTUAL_SOURCE_TARBALL) $$(REDIST_SOURCES_DIR_$$(call UPPERCASE,$(4))) 2>/dev/null || \
+	    cp $$(DL_DIR)/$$($(2)_ACTUAL_SOURCE_TARBALL) $$(REDIST_SOURCES_DIR_$$(call UPPERCASE,$(4)))
 endif # redistribute
 
 endif # other packages
-	@$$(call legal-manifest,$$($(2)_RAWNAME),$$($(2)_VERSION),$$($(2)_LICENSE),$$($(2)_MANIFEST_LICENSE_FILES),$$($(2)_MANIFEST_TARBALL),$$($(2)_MANIFEST_SITE),$$(call UPPERCASE,$(4)))
+	@$$(call legal-manifest,$$($(2)_RAWNAME),$$($(2)_VERSION),$$($(2)_LICENSE),$$($(2)_MANIFEST_LICENSE_FILES),$$($(2)_ACTUAL_SOURCE_TARBALL),$$($(2)_ACTUAL_SOURCE_SITE),$$(call UPPERCASE,$(4)))
 endif # ifneq ($$(call qstrip,$$($(2)_SOURCE)),)
 	$$(foreach hook,$$($(2)_POST_LEGAL_INFO_HOOKS),$$(call $$(hook))$$(sep))
 
@@ -801,6 +908,10 @@ endif
 	$(1)-show-version \
 	$(1)-source \
 	$(1)-source-check
+
+ifeq ($$(patsubst %/,ERROR,$$($(2)_SITE)),ERROR)
+$$(error $(2)_SITE ($$($(2)_SITE)) cannot have a trailing slash)
+endif
 
 endif # $(2)_KCONFIG_VAR
 endef # inner-generic-package

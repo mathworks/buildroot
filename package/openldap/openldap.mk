@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-OPENLDAP_VERSION = 2.4.40
+OPENLDAP_VERSION = 2.4.43
 OPENLDAP_SOURCE = openldap-$(OPENLDAP_VERSION).tgz
-OPENLDAP_SITE = ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release
+OPENLDAP_SITE = http://www.openldap.org/software/download/OpenLDAP/openldap-release
 OPENLDAP_LICENSE = OpenLDAP Public License
 OPENLDAP_LICENSE_FILES = LICENSE
 OPENLDAP_INSTALL_STAGING = YES
@@ -31,7 +31,7 @@ endif
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 OPENLDAP_MP = bignum
 OPENLDAP_DEPENDENCIES += openssl
-OPENLDAP_CONF_ENV = LIBS="$(shell $(PKG_CONFIG_HOST_BINARY) --libs libssl libcrypto)"
+OPENLDAP_CONF_ENV = LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs libssl libcrypto`"
 else ifeq ($(BR2_PACKAGE_GMP),y)
 OPENLDAP_MP = gmp
 OPENLDAP_DEPENDENCIES += gmp

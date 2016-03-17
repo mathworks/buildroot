@@ -11,13 +11,11 @@ GDB_SOURCE = gdb-$(GDB_VERSION).tar.xz
 ifeq ($(BR2_arc),y)
 GDB_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,binutils-gdb,$(GDB_VERSION))
 GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
-GDB_FROM_GIT = y
 endif
 
 ifeq ($(BR2_microblaze),y)
 GDB_SITE = $(call github,Xilinx,gdb,$(GDB_VERSION))
 GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
-GDB_FROM_GIT = y
 endif
 
 # Use .tar.bz2 for 7.7.x since there was no .tar.xz release back then
@@ -25,7 +23,7 @@ ifneq ($(filter 7.7.%,$(GDB_VERSION)),)
 GDB_SOURCE = gdb-$(GDB_VERSION).tar.bz2
 endif
 
-GDB_LICENSE = GPLv2+ LGPLv2+ GPLv3+ LGPLv3+
+GDB_LICENSE = GPLv2+, LGPLv2+, GPLv3+, LGPLv3+
 GDB_LICENSE_FILES = COPYING COPYING.LIB COPYING3 COPYING3.LIB
 
 # We only want gdbserver and not the entire debugger.
@@ -33,7 +31,8 @@ ifeq ($(BR2_PACKAGE_GDB_DEBUGGER),)
 GDB_SUBDIR = gdb/gdbserver
 HOST_GDB_SUBDIR = .
 else
-GDB_DEPENDENCIES = ncurses
+GDB_DEPENDENCIES = ncurses \
+	$(if $(BR2_PACKAGE_LIBICONV),libiconv)
 endif
 
 # For the host variant, we really want to build with XML support,
@@ -51,6 +50,19 @@ endef
 GDB_PRE_PATCH_HOOKS += GDB_XTENSA_PRE_PATCH
 HOST_GDB_PRE_PATCH_HOOKS += GDB_XTENSA_PRE_PATCH
 endif
+
+# Prevent gdb to build the documentation
+define GDB_DISABLE_DOC
+	$(SED) '/^SUBDIRS =/ s/doc//' $(@D)/gdb/Makefile.in
+	if test -e $(@D)/bfd/doc/Makefile.in ; then \
+		$(SED) 's/^INFO_DEPS =.*$$/INFO_DEPS =/' $(@D)/bfd/doc/Makefile.in ; \
+	fi
+	if test -e $(@D)/gprof/Makefile.in ; then \
+		$(SED) 's/^INFO_DEPS =.*$$/INFO_DEPS =/' $(@D)/gprof/Makefile.in ; \
+	fi
+endef
+GDB_PRE_CONFIGURE_HOOKS += GDB_DISABLE_DOC
+HOST_GDB_PRE_CONFIGURE_HOOKS += GDB_DISABLE_DOC
 
 # When gdb sources are fetched from the binutils-gdb repository, they
 # also contain the binutils sources, but binutils shouldn't be built,
@@ -96,6 +108,28 @@ GDB_CONF_OPTS += --with-python=$(TOPDIR)/package/gdb/gdb-python-config
 GDB_DEPENDENCIES += python
 else
 GDB_CONF_OPTS += --without-python
+endif
+
+ifeq ($(BR2_PACKAGE_EXPAT),y)
+GDB_CONF_OPTS += --with-expat
+GDB_CONF_OPTS += --with-libexpat-prefix=$(STAGING_DIR)/usr
+GDB_DEPENDENCIES += expat
+else
+GDB_CONF_OPTS += --without-expat
+endif
+
+ifeq ($(BR2_PACKAGE_XZ),y)
+GDB_CONF_OPTS += --with-lzma
+GDB_DEPENDENCIES += xz
+else
+GDB_CONF_OPTS += --without-lzma
+endif
+
+ifeq ($(BR2_PACKAGE_ZLIB),y)
+GDB_CONF_OPTS += --with-zlib
+GDB_DEPENDENCIES += zlib
+else
+GDB_CONF_OPTS += --without-zlib
 endif
 
 # This removes some unneeded Python scripts and XML target description
@@ -147,15 +181,6 @@ HOST_GDB_CONF_OPTS += --with-python=$(HOST_DIR)/usr/bin/python2
 HOST_GDB_DEPENDENCIES += host-python
 else
 HOST_GDB_CONF_OPTS += --without-python
-endif
-
-ifeq ($(GDB_FROM_GIT),y)
-GDB_DEPENDENCIES += host-texinfo
-HOST_GDB_DEPENDENCIES += host-texinfo
-else
-# don't generate documentation
-GDB_CONF_ENV += ac_cv_prog_MAKEINFO=missing
-HOST_GDB_CONF_ENV += ac_cv_prog_MAKEINFO=missing
 endif
 
 # legacy $arch-linux-gdb symlink
