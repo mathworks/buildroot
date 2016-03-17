@@ -9,9 +9,7 @@ SQUASHFS_SOURCE = squashfs$(SQUASHFS_VERSION).tar.gz
 SQUASHFS_SITE = http://downloads.sourceforge.net/project/squashfs/squashfs/squashfs$(SQUASHFS_VERSION)
 SQUASHFS_LICENSE = GPLv2+
 SQUASHFS_LICENSE_FILES = COPYING
-
-# no libattr in BR
-SQUASHFS_MAKE_ARGS = XATTR_SUPPORT=0
+SQUASHFS_MAKE_ARGS = XATTR_SUPPORT=1
 
 ifeq ($(BR2_PACKAGE_SQUASHFS_LZ4),y)
 SQUASHFS_DEPENDENCIES += lz4
@@ -50,9 +48,8 @@ endif
 
 HOST_SQUASHFS_DEPENDENCIES = host-zlib host-lz4 host-lzo host-xz
 
-# no libattr/xz in BR
 HOST_SQUASHFS_MAKE_ARGS = \
-	XATTR_SUPPORT=0 \
+	XATTR_SUPPORT=1 \
 	XZ_SUPPORT=1    \
 	GZIP_SUPPORT=1  \
 	LZ4_SUPPORT=1	\

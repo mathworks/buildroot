@@ -9,7 +9,6 @@ LIBARCHIVE_SITE = http://www.libarchive.org/downloads
 LIBARCHIVE_INSTALL_STAGING = YES
 LIBARCHIVE_LICENSE = BSD-2c, BSD-3c
 LIBARCHIVE_LICENSE_FILES = COPYING
-LIBARCHIVE_CONF_OPTS = --without-lzma
 
 ifeq ($(BR2_PACKAGE_LIBARCHIVE_BSDTAR),y)
 ifeq ($(BR2_STATIC_LIBS),y)
@@ -41,6 +40,13 @@ ifeq ($(BR2_PACKAGE_ATTR),y)
 LIBARCHIVE_DEPENDENCIES += attr
 else
 LIBARCHIVE_CONF_OPTS += --disable-xattr
+endif
+
+ifeq ($(BR2_PACKAGE_BZIP2),y)
+LIBARCHIVE_CONF_OPTS += --with-bz2lib
+LIBARCHIVE_DEPENDENCIES += bzip2
+else
+LIBARCHIVE_CONF_OPTS += --without-bz2lib
 endif
 
 ifeq ($(BR2_PACKAGE_EXPAT),y)
@@ -84,6 +90,13 @@ ifeq ($(BR2_PACKAGE_ZLIB),y)
 LIBARCHIVE_DEPENDENCIES += zlib
 else
 LIBARCHIVE_CONF_OPTS += --without-zlib
+endif
+
+ifeq ($(BR2_PACKAGE_XZ),y)
+LIBARCHIVE_DEPENDENCIES += xz
+LIBARCHIVE_CONF_OPTS += --with-lzma
+else
+LIBARCHIVE_CONF_OPTS += --without-lzma
 endif
 
 $(eval $(autotools-package))

@@ -55,13 +55,13 @@ copy_toolchain_lib_root = \
 		$${ARCH_SYSROOT_DIR}/$${ARCH_LIB_DIR} \
 		$${ARCH_SYSROOT_DIR}/usr/$${ARCH_LIB_DIR} \
 		$${SUPPORT_LIB_DIR} ; do \
-		LIBSPATH=`find $${dir} -maxdepth 1 -name "$${LIB}" 2>/dev/null` ; \
-		if test -n "$${LIBSPATH}" ; then \
+		LIBPATHS=`find $${dir} -maxdepth 1 -name "$${LIB}" 2>/dev/null` ; \
+		if test -n "$${LIBPATHS}" ; then \
 			break ; \
 		fi \
 	done ; \
 	mkdir -p $(TARGET_DIR)/$${DESTDIR}; \
-	for LIBPATH in $${LIBSPATH} ; do \
+	for LIBPATH in $${LIBPATHS} ; do \
 		while true ; do \
 			LIBNAME=`basename $${LIBPATH}`; \
 			LIBDIR=`dirname $${LIBPATH}` ; \
@@ -79,9 +79,7 @@ copy_toolchain_lib_root = \
 			fi ; \
 			LIBPATH="`readlink -f $${LIBPATH}`"; \
 		done; \
-	done; \
-\
-	echo -n
+	done
 
 #
 # Copy the full external toolchain sysroot directory to the staging
@@ -99,10 +97,22 @@ copy_toolchain_lib_root = \
 # corresponding architecture variants), and we don't want to import
 # them.
 #
-# Then, if the selected architecture variant is not the default one
-# (i.e, if SYSROOT_DIR != ARCH_SYSROOT_DIR), then we :
+# Then, we need to support two types of multilib toolchains:
 #
-#  * Import the header files from the default architecture
+#  - The toolchains that have nested sysroots: a main sysroot, and
+#    then additional sysroots available as subdirectories of the main
+#    one. This is for example used by Sourcery CodeBench toolchains.
+#
+#  - The toolchains that have side-by-side sysroots. Each sysroot is a
+#    complete one, they simply leave one next to each other. This is
+#    for example used by MIPS Codescape toolchains.
+#
+# So, we first detect if the selected architecture variant is not the
+# default one (i.e, if SYSROOT_DIR != ARCH_SYSROOT_DIR).
+#
+# If we are in the situation of a nested sysroot, we:
+#
+#  * If needed, import the header files from the default architecture
 #    variant. Header files are typically shared between the sysroots
 #    for the different architecture variants. If we use the
 #    non-default one, header files were not copied by the previous
@@ -116,10 +126,14 @@ copy_toolchain_lib_root = \
 #    non-default architecture variant is used. Without this, the
 #    compiler fails to find libraries and headers.
 #
-# Some toolchains (i.e Linaro binary toolchains) store support
-# libraries (libstdc++, libgcc_s) outside of the sysroot, so we simply
-# copy all the libraries from the "support lib directory" into our
-# sysroot.
+# If we are in the situation of a side-by-side sysroot, we:
+#
+# * Create a symbolic link
+#
+# Finally, some toolchains (i.e Linaro binary toolchains) store
+# support libraries (libstdc++, libgcc_s) outside of the sysroot, so
+# we simply copy all the libraries from the "support lib directory"
+# into our sysroot.
 #
 # Note that the 'locale' directories are not copied. They are huge
 # (400+MB) in CodeSourcery toolchains, and they are not really useful.
@@ -139,23 +153,30 @@ copy_toolchain_sysroot = \
 	SUPPORT_LIB_DIR="$(strip $5)" ; \
 	for i in etc $${ARCH_LIB_DIR} sbin usr usr/$${ARCH_LIB_DIR}; do \
 		if [ -d $${ARCH_SYSROOT_DIR}/$$i ] ; then \
-			rsync -au --chmod=Du+w --exclude 'usr/lib/locale' \
-				--exclude lib --exclude lib32 --exclude lib64 \
+			rsync -au --chmod=u=rwX,go=rX --exclude 'usr/lib/locale' \
+				--include '/libexec*/' --exclude '/lib*/' \
 				$${ARCH_SYSROOT_DIR}/$$i/ $(STAGING_DIR)/$$i/ ; \
 		fi ; \
 	done ; \
-	if [ `readlink -f $${SYSROOT_DIR}` != `readlink -f $${ARCH_SYSROOT_DIR}` ] ; then \
-		if [ ! -d $${ARCH_SYSROOT_DIR}/usr/include ] ; then \
-			cp -a $${SYSROOT_DIR}/usr/include $(STAGING_DIR)/usr ; \
-		fi ; \
-		mkdir -p `dirname $(STAGING_DIR)/$${ARCH_SUBDIR}` ; \
+	SYSROOT_DIR_CANON=`readlink -f $${SYSROOT_DIR}` ; \
+	ARCH_SYSROOT_DIR_CANON=`readlink -f $${ARCH_SYSROOT_DIR}` ; \
+	if [ $${SYSROOT_DIR_CANON} != $${ARCH_SYSROOT_DIR_CANON} ] ; then \
 		relpath="./" ; \
-		nbslashs=`echo -n $${ARCH_SUBDIR} | sed 's%[^/]%%g' | wc -c` ; \
-		for slash in `seq 1 $${nbslashs}` ; do \
-			relpath=$${relpath}"../" ; \
-		done ; \
-		ln -s $${relpath} $(STAGING_DIR)/$${ARCH_SUBDIR} ; \
-		echo "Symlinking $(STAGING_DIR)/$${ARCH_SUBDIR} -> $${relpath}" ; \
+		if [ $${ARCH_SYSROOT_DIR_CANON:0:$${\#SYSROOT_DIR_CANON}} == $${SYSROOT_DIR_CANON} ] ; then \
+			if [ ! -d $${ARCH_SYSROOT_DIR}/usr/include ] ; then \
+				cp -a $${SYSROOT_DIR}/usr/include $(STAGING_DIR)/usr ; \
+			fi ; \
+			mkdir -p `dirname $(STAGING_DIR)/$${ARCH_SUBDIR}` ; \
+			nbslashs=`printf $${ARCH_SUBDIR} | sed 's%[^/]%%g' | wc -c` ; \
+			for slash in `seq 1 $${nbslashs}` ; do \
+				relpath=$${relpath}"../" ; \
+			done ; \
+			ln -s $${relpath} $(STAGING_DIR)/$${ARCH_SUBDIR} ; \
+			echo "Symlinking $(STAGING_DIR)/$${ARCH_SUBDIR} -> $${relpath}" ; \
+		elif [ `dirname $${ARCH_SYSROOT_DIR_CANON}` == `dirname $${SYSROOT_DIR_CANON}` ] ; then \
+			ln -snf $${relpath} $(STAGING_DIR)/`basename $${ARCH_SYSROOT_DIR_CANON}` ; \
+			echo "Symlinking $(STAGING_DIR)/`basename $${ARCH_SYSROOT_DIR_CANON}` -> $${relpath}" ; \
+		fi ; \
 	fi ; \
 	if test -n "$${SUPPORT_LIB_DIR}" ; then \
 		cp -a $${SUPPORT_LIB_DIR}/* $(STAGING_DIR)/lib/ ; \
@@ -172,6 +193,36 @@ copy_toolchain_sysroot = \
 check_kernel_headers_version = \
 	if ! support/scripts/check-kernel-headers.sh $(1) $(2); then \
 		exit 1; \
+	fi
+
+#
+# Check the specific gcc version actually matches the version in the
+# toolchain
+#
+# $1: path to gcc
+# $2: expected gcc version
+#
+# Some details about the sed expression:
+# - 1!d
+#   - delete if not line 1
+#
+# - s/^[^)]+\) ([^[:space:]]+).*/\1/
+#   - eat all until the first ')' character followed by a space
+#   - match as many non-space chars as possible
+#   - eat all the remaining chars on the line
+#   - replace by the matched expression
+#
+check_gcc_version = \
+	expected_version="$(strip $2)" ; \
+	if [ -z "$${expected_version}" ]; then \
+		printf "Internal error, gcc version unknown (no GCC_AT_LEAST_X_Y selected)\n"; \
+		exit 1 ; \
+	fi; \
+	real_version=`$(1) --version | sed -r -e '1!d; s/^[^)]+\) ([^[:space:]]+).*/\1/;'` ; \
+	if [[ ! "$${real_version}" =~ ^$${expected_version}\. ]] ; then \
+		printf "Incorrect selection of gcc version: expected %s.x, got %s\n" \
+			"$${expected_version}" "$${real_version}" ; \
+		exit 1 ; \
 	fi
 
 #
@@ -308,12 +359,14 @@ check_arm_abi = \
 		echo "External toolchain uses the unsuported OABI" ; \
 		exit 1 ; \
 	fi ; \
-	if ! echo 'int main(void) {}' | $${__CROSS_CC} -x c -o /dev/null - ; then \
+	if ! echo 'int main(void) {}' | $${__CROSS_CC} -x c -o $(BUILD_DIR)/.br-toolchain-test.tmp - ; then \
+		rm -f $(BUILD_DIR)/.br-toolchain-test.tmp*; \
 		abistr_$(BR2_ARM_EABI)='EABI'; \
 		abistr_$(BR2_ARM_EABIHF)='EABIhf'; \
 		echo "Incorrect ABI setting: $${abistr_y} selected, but toolchain is incompatible"; \
 		exit 1 ; \
-	fi
+	fi ; \
+	rm -f $(BUILD_DIR)/.br-toolchain-test.tmp*
 
 #
 # Check that the external toolchain supports C++

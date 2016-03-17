@@ -10,19 +10,19 @@ web site.
 Note that the default Buildroot configuration is prepared to boot from
 an SD card: the first stage bootloader, second stage bootloader,
 kernel image and root filesystem are all located on the SD card. Some
-adjustements in the bootloader configuration will be needed to boot
-from NAND flash.
+adjustments in the bootloader configuration will be needed to boot
+from NAND flash, see board/atmel/readme.txt
 
 Configuring and building Buildroot
 ----------------------------------
 
-  make atmel_xplained_defconfig
+  make atmel_sama5d3_xplained_mmc_defconfig
   make
 
 Preparing the SD card
 ---------------------
 
-The SD card must be partitionned with at least two partitions: one
+The SD card must be partitioned with at least two partitions: one
 FAT16 partition for the bootloaders, kernel image and Device Tree
 blob, and one ext4 partition for the root filesystem. To partition the
 SD card:
@@ -52,7 +52,7 @@ sudo mount /dev/mmcblk0p2 /media/rootfs
 Copy the bootloaders, kernel image and Device Tree blob to the first
 partition:
 
-cp output/images/uboot-spl.bin /media/boot/boot.bin
+cp output/images/u-boot-spl.bin /media/boot/boot.bin
 cp output/images/u-boot.img /media/boot/u-boot.img
 cp output/images/zImage /media/boot/zImage
 cp output/images/at91-sama5d3_xplained.dtb /media/boot/at91-sama5d3_xplained.dtb

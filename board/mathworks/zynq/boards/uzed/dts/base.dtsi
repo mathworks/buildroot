@@ -1,6 +1,7 @@
 /dts-v1/;
 
 #include "zynq-uzed.dtsi"
+#include "zynq-mw-common.dtsi"
 
 / {
 	chosen {

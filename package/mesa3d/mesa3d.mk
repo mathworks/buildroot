@@ -5,7 +5,7 @@
 ################################################################################
 
 # When updating the version, please also update mesa3d-headers
-MESA3D_VERSION = 10.5.4
+MESA3D_VERSION = 11.1.1
 MESA3D_SOURCE = mesa-$(MESA3D_VERSION).tar.xz
 MESA3D_SITE = ftp://ftp.freedesktop.org/pub/mesa/$(MESA3D_VERSION)
 MESA3D_LICENSE = MIT, SGI, Khronos
@@ -19,6 +19,21 @@ MESA3D_PROVIDES =
 MESA3D_DEPENDENCIES = \
 	expat \
 	libdrm
+
+ifeq ($(BR2_PACKAGE_OPENSSL),y)
+MESA3D_DEPENDENCIES += openssl
+MESA3D_CONF_OPTS += --with-sha1=libcrypto
+else ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
+MESA3D_DEPENDENCIES += libgcrypt
+MESA3D_CONF_OPTS += --with-sha1=libgcrypt
+endif
+
+ifeq ($(BR2_PACKAGE_HAS_LIBUDEV),y)
+MESA3D_DEPENDENCIES += udev
+MESA3D_CONF_OPTS += --disable-sysfs
+else
+MESA3D_CONF_OPTS += --enable-sysfs
+endif
 
 ifeq ($(BR2_PACKAGE_XORG7),y)
 MESA3D_DEPENDENCIES += \
@@ -43,11 +58,6 @@ MESA3D_CONF_OPTS += \
 	--disable-xa
 endif
 
-ifeq ($(BR2_STATIC_LIBS),)
-# fix for "configure: error: Cannot use static libraries for DRI drivers"
-MESA3D_CONF_OPTS += --disable-static
-endif
-
 # Drivers
 
 #Gallium Drivers
@@ -55,10 +65,12 @@ MESA3D_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_NOUVEAU)  += nouveau
 MESA3D_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_R600)     += r600
 MESA3D_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_SVGA)     += svga
 MESA3D_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_SWRAST)   += swrast
+MESA3D_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_VIRGL)    += virgl
 # DRI Drivers
 MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_SWRAST) += swrast
 MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_I915)   += i915
 MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_I965)   += i965
+MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_NOUVEAU) += nouveau
 MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_RADEON) += radeon
 
 ifeq ($(BR2_PACKAGE_MESA3D_GALLIUM_DRIVER),)
@@ -70,9 +82,16 @@ MESA3D_CONF_OPTS += \
 	--with-gallium-drivers=$(subst $(space),$(comma),$(MESA3D_GALLIUM_DRIVERS-y))
 endif
 
+define MESA3D_REMOVE_OPENGL_PC
+	rm -f $(STAGING_DIR)/usr/lib/pkgconfig/dri.pc
+	rm -f $(STAGING_DIR)/usr/lib/pkgconfig/gl.pc
+	rm -rf $(STAGING_DIR)/usr/include/GL/
+endef
+
 ifeq ($(BR2_PACKAGE_MESA3D_DRI_DRIVER),)
 MESA3D_CONF_OPTS += \
-	--without-dri-drivers --without-dri --disable-dri3
+	--without-dri-drivers --disable-dri3
+MESA3D_POST_INSTALL_STAGING_HOOKS += MESA3D_REMOVE_OPENGL_PC
 else
 ifeq ($(BR2_PACKAGE_XPROTO_DRI3PROTO),y)
 MESA3D_DEPENDENCIES += xlib_libxshmfence xproto_dri3proto xproto_presentproto
@@ -85,7 +104,6 @@ MESA3D_DEPENDENCIES += xlib_libXxf86vm
 endif
 MESA3D_PROVIDES += libgl
 MESA3D_CONF_OPTS += \
-	--enable-dri \
 	--enable-shared-glapi \
 	--enable-driglx-direct \
 	--with-dri-drivers=$(subst $(space),$(comma),$(MESA3D_DRI_DRIVERS-y))
@@ -93,16 +111,29 @@ endif
 
 # APIs
 
+ifeq ($(BR2_PACKAGE_MESA3D_OSMESA),y)
+MESA3D_CONF_OPTS += --enable-osmesa
+else
+MESA3D_CONF_OPTS += --disable-osmesa
+endif
+
 # Always enable OpenGL:
 #   - it is needed for GLES (mesa3d's ./configure is a bit weird)
-#   - but if no DRI driver is enabled, then libgl is not built
-MESA3D_CONF_OPTS += --enable-opengl
+#   - but if no DRI driver is enabled, then libgl is not built,
+#     remove dri.pc and gl.pc in this case (MESA3D_REMOVE_OPENGL_PC)
+MESA3D_CONF_OPTS += --enable-opengl --enable-dri
+
+# libva and mesa3d have a circular dependency
+# we do not need libva support in mesa3d, therefore disable this option
+MESA3D_CONF_OPTS += --disable-va
 
 ifeq ($(BR2_PACKAGE_MESA3D_OPENGL_EGL),y)
 MESA3D_PROVIDES += libegl
-# egl depends on gbm, gbm depends on udev
-MESA3D_DEPENDENCIES += udev
+ifeq ($(BR2_PACKAGE_MESA3D_DRI_DRIVER),y)
 MESA3D_EGL_PLATFORMS = drm
+else ifeq ($(BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_VIRGL),y)
+MESA3D_EGL_PLATFORMS = drm
+endif
 ifeq ($(BR2_PACKAGE_WAYLAND),y)
 MESA3D_DEPENDENCIES += wayland
 MESA3D_EGL_PLATFORMS += wayland

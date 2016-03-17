@@ -1,6 +1,7 @@
 /dts-v1/;
 
 #include "zynq-zed.dtsi"
+#include "zynq-mw-common.dtsi"
 
 / {
 	chosen {
@@ -8,7 +9,7 @@
 		linux,stdout-path = "/amba@0/uart@E0001000";
 	};
 };
-&axi {
+&fpga_axi {
 		mwipcore0: mwipcore@400D0000 {
 			compatible = "mathworks,mwipcore-v2.00";
 			reg = <0x400D0000 0xffff>;

@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBPCAP_VERSION = 1.7.2
+LIBPCAP_VERSION = 1.7.4
 LIBPCAP_SITE = http://www.tcpdump.org/release
 LIBPCAP_LICENSE = BSD-3c
 LIBPCAP_LICENSE_FILES = LICENSE
@@ -55,8 +55,8 @@ else
 LIBPCAP_CONF_OPTS += --without-libnl
 endif
 
-# microblaze needs -fPIC instead of -fpic
-ifeq ($(BR2_microblaze),y)
+# microblaze/sparc64 need -fPIC instead of -fpic
+ifeq ($(BR2_microblaze)$(BR2_sparc64),y)
 LIBPCAP_CFLAGS += -fPIC
 endif
 

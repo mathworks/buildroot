@@ -43,16 +43,16 @@ system is based on hand-written Makefiles or shell scripts.
 28:	$(INSTALL) -d -m 0755 $(TARGET_DIR)/etc/foo.d
 29: endef
 30:
-31: define LIBFOO_DEVICES
-32:	/dev/foo  c  666  0  0	42  0  -  -  -
+31: define LIBFOO_USERS
+32:	foo -1 libfoo -1 * - - - LibFoo daemon
 33: endef
 34:
-35: define LIBFOO_PERMISSIONS
-36:	/bin/foo  f  4755  0  0	 -  -  -  -  -
+35: define LIBFOO_DEVICES
+36:	/dev/foo  c  666  0  0	42  0  -  -  -
 37: endef
 38:
-39: define LIBFOO_USERS
-40:	foo -1 libfoo -1 * - - - LibFoo daemon
+39: define LIBFOO_PERMISSIONS
+40:	/bin/foo  f  4755  foo  libfoo	 -  -  -  -  -
 41: endef
 42:
 43: $(eval $(generic-package))
@@ -142,14 +142,14 @@ All these steps rely on the +$(@D)+ variable, which
 contains the directory where the source code of the package has been
 extracted.
 
-On line 31..33, we define a device-node file used by this package
+On lines 31..43, we define a user that is used by this package (e.g.
+to run a daemon as non-root) (+LIBFOO_USERS+).
+
+On line 35..37, we define a device-node file used by this package
 (+LIBFOO_DEVICES+).
 
-On line 35..37, we define the permissions to set to specific files
+On line 39..41, we define the permissions to set to specific files
 installed by this package (+LIBFOO_PERMISSIONS+).
-
-On lines 39..41, we define a user that is used by this package (e.g.
-to run a daemon as non-root) (+LIBFOO_USERS+).
 
 Finally, on line 43, we call the +generic-package+ function, which
 generates, according to the variables defined previously, all the
@@ -227,7 +227,9 @@ information is (assuming the package name is +libfoo+) :
 
 * +LIBFOO_SITE+ provides the location of the package, which can be a
   URL or a local filesystem path. HTTP, FTP and SCP are supported URL
-  types for retrieving package tarballs. Git, Subversion, Mercurial,
+  types for retrieving package tarballs. In these cases don't include a
+  trailing slash: it will be added by Buildroot between the directory
+  and the filename as appropriate. Git, Subversion, Mercurial,
   and Bazaar are supported URL types for retrieving packages directly
   from source code management systems. There is a helper function to make
   it easier to download source tarballs from GitHub (refer to
@@ -246,7 +248,7 @@ information is (assuming the package name is +libfoo+) :
     +LIBFOO_SITE=http://www.libfoosoftware.org/libfoo+ +
     +LIBFOO_SITE=http://svn.xiph.org/trunk/Tremor+ +
     +LIBFOO_SITE=/opt/software/libfoo.tar.gz+ +
-    +LIBFOO_SITE=$(TOPDIR)/../src/libfoo/+
+    +LIBFOO_SITE=$(TOPDIR)/../src/libfoo+
 
 * +LIBFOO_EXTRA_DOWNLOADS+ is a space-separated list of additional
   files that Buildroot should download. If an entry contains +://+
@@ -277,10 +279,17 @@ information is (assuming the package name is +libfoo+) :
   ** +cvs+ for retrieving source code from a CVS repository.
      Used by default when +LIBFOO_SITE+ begins with +cvs://+.
      The downloaded source code is cached as with the +svn+ method.
-     Only anonymous pserver mode is supported.
+     Anonymous pserver mode is assumed otherwise explicitly defined
+     on +LIBFOO_SITE+. Both
+     +LIBFOO_SITE=cvs://libfoo.net:/cvsroot/libfoo+ and
+     +LIBFOO_SITE=cvs://:ext:libfoo.net:/cvsroot/libfoo+
+     are accepted, on the former anonymous pserver access mode is
+     assumed.
      +LIBFOO_SITE+ 'must' contain the source URL as well as the remote
      repository directory. The module is the package name.
-     +LIBFOO_VERSION+ is 'mandatory' and 'must' be a timestamp.
+     +LIBFOO_VERSION+ is 'mandatory' and 'must' be a tag, a branch, or
+     a date (e.g. "2014-10-20", "2014-10-20 13:45", "2014-10-20
+     13:45+01" see "man cvs" for further details).
   ** +git+ for retrieving source code from a Git repository. Used by
      default when +LIBFOO_SITE+ begins with +git://+. The downloaded
      source code is cached as with the +svn+
@@ -300,6 +309,19 @@ information is (assuming the package name is +libfoo+) :
      when +LIBFOO_SITE+ specifies a local directory path containing
      the package source code. Buildroot copies the contents of the
      source directory into the package's build directory.
+
+* +LIBFOO_STRIP_COMPONENTS+ is the number of leading components
+  (directories) that tar must strip from file names on extraction.
+  The tarball for most packages has one leading component named
+  "<pkg-name>-<pkg-version>", thus Buildroot passes
+  --strip-components=1 to tar to remove it.
+  For non-standard packages that don't have this component, or
+  that have more than one leading component to strip, set this
+  variable with the value to be passed to tar. Default: 1.
+
+* +LIBFOO_EXCLUDES+ is a space-separated list of patterns to exclude
+  when extracting the archive. Each item from that list is passed as
+  a tar's +--exclude+ option. By default, empty.
 
 * +LIBFOO_DEPENDENCIES+ lists the dependencies (in terms of package
   name) that are required for the current target package to
@@ -374,6 +396,25 @@ information is (assuming the package name is +libfoo+) :
   This variable is optional. If it is not defined, a warning will be produced
   to let you know, and +not saved+ will appear in the +license files+ field
   of the manifest file for this package.
+
+* +LIBFOO_ACTUAL_SOURCE_TARBALL+ only applies to packages whose
+  +LIBFOO_SITE+ / +LIBTOO_SOURCE+ pair points to an archive that does
+  not actually contain source code, but binary code. This a very
+  uncommon case, only known to apply to external toolchains which come
+  already compiled, although theoretically it might apply to other
+  packages. In such cases a separate tarball is usually available with
+  the actual source code. Set +LIBFOO_ACTUAL_SOURCE_TARBALL+ to the
+  name of the actual source code archive and Buildroot will download
+  it and use it when you run +make legal-info+ to collect
+  legally-relevant material.  Note this file will not be downloaded
+  during regular builds nor by +make source+.
+
+* +LIBFOO_ACTUAL_SOURCE_SITE+ provides the location of the actual
+  source tarball. The default value is +LIBFOO_SITE+, so you don't
+  need to set this variable if the binary and source archives are
+  hosted on the same directory.  If +LIBFOO_ACTUAL_SOURCE_TARBALL+ is
+  not set, it doesn't make sense to define
+  +LIBFOO_ACTUAL_SOURCE_SITE+.
 
 * +LIBFOO_REDISTRIBUTE+ can be set to +YES+ (default) or +NO+ to indicate if
   the package source code is allowed to be redistributed. Set it to +NO+ for
@@ -458,6 +499,11 @@ endef
 ----------------------
 
 In the action definitions, you can use the following variables:
+
+* +$(FOO_PKGDIR)+ contains the path to the directory containing the
+  +foo.mk+ and +Config.in+ files. This variable is useful when it is
+  necessary to install a file bundled in Buildroot, like a runtime
+  configuration file, a splashscreen image...
 
 * +$(@D)+, which contains the directory in which the package source
   code has been uncompressed.

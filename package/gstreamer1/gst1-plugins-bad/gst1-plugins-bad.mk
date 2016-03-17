@@ -4,9 +4,10 @@
 #
 ################################################################################
 
-GST1_PLUGINS_BAD_VERSION = 1.4.5
+GST1_PLUGINS_BAD_VERSION = 1.6.3
 GST1_PLUGINS_BAD_SOURCE = gst-plugins-bad-$(GST1_PLUGINS_BAD_VERSION).tar.xz
 GST1_PLUGINS_BAD_SITE = http://gstreamer.freedesktop.org/src/gst-plugins-bad
+GST1_PLUGINS_BAD_INSTALL_STAGING = YES
 GST1_PLUGINS_BAD_LICENSE_FILES = COPYING COPYING.LIB
 # Unknown and GPL licensed plugins will append to GST1_PLUGINS_BAD_LICENSE if
 # enabled.
@@ -22,12 +23,10 @@ GST1_PLUGINS_BAD_CONF_OPTS = \
 	--disable-directsound \
 	--disable-wsapi \
 	--disable-direct3d \
-	--disable-directdraw \
 	--disable-direct3d9 \
 	--disable-winks \
 	--disable-android_media \
 	--disable-apple_media \
-	--disable-osx_video \
 	--disable-sdltest \
 	--disable-wininet \
 	--disable-acm
@@ -35,10 +34,10 @@ GST1_PLUGINS_BAD_CONF_OPTS = \
 # Options which require currently unpackaged libraries
 GST1_PLUGINS_BAD_CONF_OPTS += \
 	--disable-avc \
-	--disable-quicktime \
 	--disable-opensles \
 	--disable-uvch264 \
 	--disable-voamrwbenc \
+	--disable-bs2b \
 	--disable-chromaprint \
 	--disable-dash \
 	--disable-dc1394 \
@@ -51,17 +50,15 @@ GST1_PLUGINS_BAD_CONF_OPTS += \
 	--disable-kate \
 	--disable-ladspa \
 	--disable-lv2 \
+	--disable-libde265 \
 	--disable-strp \
 	--disable-linsys \
 	--disable-modplug \
 	--disable-mimic \
 	--disable-mplex \
-	--disable-mythtv \
 	--disable-nas \
 	--disable-ofa \
-	--disable-openal \
 	--disable-openexr \
-	--disable-openjpeg \
 	--disable-openni2 \
 	--disable-pvr \
 	--disable-libvisual \
@@ -81,9 +78,72 @@ GST1_PLUGINS_BAD_CONF_OPTS += \
 	--disable-spandsp \
 	--disable-gsettings \
 	--disable-sndio \
-	--disable-hls
+	--disable-hls \
+	--disable-gtk3 \
+	--disable-qt
 
 GST1_PLUGINS_BAD_DEPENDENCIES = gst1-plugins-base gstreamer1
+
+ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
+# RPI has odd locations for several required headers.
+GST1_PLUGINS_BAD_CONF_ENV += \
+	CPPFLAGS="$(TARGET_CPPFLAGS) \
+	-I$(STAGING_DIR)/usr/include/IL \
+	-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads \
+	-I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux"
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_OPENGL),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-opengl
+GST1_PLUGINS_BAD_DEPENDENCIES += libgl libglu
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-opengl
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_GLES2),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-gles2
+GST1_PLUGINS_BAD_DEPENDENCIES += libgles
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-gles2
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_GLX),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-glx
+GST1_PLUGINS_BAD_DEPENDENCIES += xproto_glproto xlib_libXrender
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-glx
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_EGL),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-egl
+GST1_PLUGINS_BAD_DEPENDENCIES += libegl
+GST1_PLUGINS_BAD_CONF_ENV += \
+	CPPFLAGS="$(TARGET_CPPFLAGS) `$(PKG_CONFIG_HOST_BINARY) --cflags egl`" \
+	LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs egl`"
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-egl
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_X11),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-x11
+GST1_PLUGINS_BAD_DEPENDENCIES += xlib_libX11 xlib_libXext
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-x11
+endif
+
+ifneq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_WAYLAND)$(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WAYLAND),)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-wayland
+GST1_PLUGINS_BAD_DEPENDENCIES += wayland
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-wayland
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_DISPMANX),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dispmanx
+GST1_PLUGINS_BAD_DEPENDENCIES += rpi-userland
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dispmanx
+endif
 
 ifeq ($(BR2_PACKAGE_ORC),y)
 GST1_PLUGINS_BAD_DEPENDENCIES += orc
@@ -198,6 +258,13 @@ ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DEBUGUTILS),y)
 GST1_PLUGINS_BAD_CONF_OPTS += --enable-debugutils
 else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-debugutils
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DTLS),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dtls
+GST1_PLUGINS_BAD_DEPENDENCIES += openssl
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dtls
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DVBSUBOVERLAY),y)
@@ -370,6 +437,12 @@ else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-nuvdemux
 endif
 
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ONVIF),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-onvif
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-onvif
+endif
+
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_PATCHDETECT),y)
 GST1_PLUGINS_BAD_CONF_OPTS += --enable-patchdetect
 else
@@ -394,16 +467,16 @@ else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-rawparse
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_REAL),y)
-GST1_PLUGINS_BAD_CONF_OPTS += --enable-real
-else
-GST1_PLUGINS_BAD_CONF_OPTS += --disable-real
-endif
-
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_REMOVESILENCE),y)
 GST1_PLUGINS_BAD_CONF_OPTS += --enable-removesilence
 else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-removesilence
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_RTP),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-rtp
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-rtp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SDI),y)
@@ -544,13 +617,6 @@ else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-bz2
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_CDAUDIO),y)
-GST1_PLUGINS_BAD_CONF_OPTS += --enable-cdaudio
-GST1_PLUGINS_BAD_DEPENDENCIES += libcdaudio
-else
-GST1_PLUGINS_BAD_CONF_OPTS += --disable-cdaudio
-endif
-
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_CURL),y)
 GST1_PLUGINS_BAD_CONF_OPTS += --enable-curl
 GST1_PLUGINS_BAD_DEPENDENCIES += libcurl
@@ -583,13 +649,6 @@ GST1_PLUGINS_BAD_CONF_OPTS += --enable-directfb
 GST1_PLUGINS_BAD_DEPENDENCIES += directfb
 else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-directfb
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WAYLAND),y)
-GST1_PLUGINS_BAD_CONF_OPTS += --enable-wayland
-GST1_PLUGINS_BAD_DEPENDENCIES += wayland
-else
-GST1_PLUGINS_BAD_CONF_OPTS += --disable-wayland
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FAAD),y)
@@ -642,11 +701,32 @@ else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-neon
 endif
 
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENAL),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-openal
+GST1_PLUGINS_BAD_DEPENDENCIES += openal
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-openal
+endif
+
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENCV),y)
 GST1_PLUGINS_BAD_CONF_OPTS += --enable-opencv
 GST1_PLUGINS_BAD_DEPENDENCIES += opencv
 else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-opencv
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENH264),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-openh264
+GST1_PLUGINS_BAD_DEPENDENCIES += libopenh264
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-openh264
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENJPEG),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-openjpeg
+GST1_PLUGINS_BAD_DEPENDENCIES += openjpeg
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-openjpeg
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPUS),y)
@@ -663,21 +743,10 @@ else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-rsvg
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_EGLGLES),y)
-GST1_PLUGINS_BAD_CONF_OPTS += --enable-eglgles
-GST1_PLUGINS_BAD_DEPENDENCIES += libegl libgles
-
-ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
-# RPI has odd locations for several required headers.
-GST1_PLUGINS_BAD_CONF_OPTS += --with-egl-window-system=rpi
-GST1_PLUGINS_BAD_CONF_ENV += \
-	CFLAGS="$(TARGET_CFLAGS) \
-	-I$(STAGING_DIR)/usr/include/IL \
-	-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads \
-	-I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux"
-endif
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_GL),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-gl
 else
-GST1_PLUGINS_BAD_CONF_OPTS += --disable-eglgles
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-gl
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SDL),y)
@@ -707,6 +776,14 @@ GST1_PLUGINS_BAD_CONF_OPTS += --enable-hls
 GST1_PLUGINS_BAD_DEPENDENCIES += gnutls
 else
 GST1_PLUGINS_BAD_CONF_OPTS += --disable-hls
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_X265),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-x265
+GST1_PLUGINS_BAD_DEPENDENCIES += x265
+GST1_PLUGINS_BAD_HAS_GPL_LICENSE = y
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-x265
 endif
 
 # Add GPL license if GPL licensed plugins enabled.

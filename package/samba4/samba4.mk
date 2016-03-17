@@ -4,13 +4,14 @@
 #
 ################################################################################
 
-SAMBA4_VERSION = 4.2.1
-SAMBA4_SITE = http://ftp.samba.org/pub/samba
+SAMBA4_VERSION = 4.3.4
+SAMBA4_SITE = http://ftp.samba.org/pub/samba/stable
 SAMBA4_SOURCE = samba-$(SAMBA4_VERSION).tar.gz
 SAMBA4_INSTALL_STAGING = YES
 SAMBA4_LICENSE = GPLv3+
 SAMBA4_LICENSE_FILES = COPYING
 SAMBA4_DEPENDENCIES = host-e2fsprogs host-heimdal e2fsprogs popt python zlib \
+	$(if $(BR2_PACKAGE_LIBBSD),libbsd) \
 	$(if $(BR2_PACKAGE_LIBCAP),libcap) \
 	$(if $(BR2_PACKAGE_READLINE),readline)
 
@@ -153,6 +154,22 @@ endif
 define SAMBA4_INSTALL_INIT_SYSV
 	$(INSTALL) -m 0755 -D package/samba4/S91smb \
 		$(TARGET_DIR)/etc/init.d/S91smb
+endef
+
+define SAMBA4_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 644 $(@D)/packaging/systemd/nmb.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/nmb.service
+	$(INSTALL) -D -m 644 $(@D)/packaging/systemd/smb.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/smb.service
+	$(INSTALL) -D -m 644 $(@D)/packaging/systemd/winbind.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/winbind.service
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
+	ln -sf ../../../../usr/lib/systemd/system/nmb.service \
+		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/nmb.service
+	ln -sf ../../../../usr/lib/systemd/system/smb.service \
+		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/smb.service
+	ln -sf ../../../../usr/lib/systemd/system/winbind.service \
+		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/winbind.service
 endef
 
 $(eval $(generic-package))

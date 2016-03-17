@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LSOF_VERSION = 4.88
+LSOF_VERSION = 4.89
 LSOF_SOURCE = lsof_$(LSOF_VERSION).tar.bz2
 # Use http mirror since master ftp site access is very draconian
 LSOF_SITE = http://www.mirrorservice.org/sites/lsof.itap.purdue.edu/pub/tools/unix/lsof
@@ -34,7 +34,7 @@ endif
 define LSOF_EXTRACT_CMDS
 	$(call suitable-extractor,$(LSOF_SOURCE)) $(DL_DIR)/$(LSOF_SOURCE) | \
 		$(TAR) -O $(TAR_OPTIONS) - lsof_$(LSOF_VERSION)/lsof_$(LSOF_VERSION)_src.tar | \
-	$(TAR) $(TAR_STRIP_COMPONENTS)=1 -C $(LSOF_DIR) $(TAR_OPTIONS) -
+	$(TAR) --strip-components=1 -C $(LSOF_DIR) $(TAR_OPTIONS) -
 endef
 
 define LSOF_CONFIGURE_CMDS

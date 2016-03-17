@@ -4,11 +4,10 @@
 #
 ################################################################################
 
-ULOGD_VERSION = 2.0.4
+ULOGD_VERSION = 2.0.5
 ULOGD_SOURCE = ulogd-$(ULOGD_VERSION).tar.bz2
 ULOGD_SITE = http://www.netfilter.org/projects/ulogd/files
 ULOGD_CONF_OPTS = --with-dbi=no --with-pgsql=no
-ULOGD_AUTORECONF = YES
 ULOGD_DEPENDENCIES = host-pkgconf \
 	libmnl libnetfilter_acct libnetfilter_conntrack libnetfilter_log \
 	libnfnetlink
@@ -28,6 +27,20 @@ ULOGD_DEPENDENCIES += sqlite
 endif
 else
 ULOGD_CONF_OPTS += --with-mysql=no --without-sqlite
+endif
+
+ifeq ($(BR2_PACKAGE_LIBPCAP),y)
+ULOGD_CONF_OPTS += --with-pcap
+ULOGD_DEPENDENCIES += libpcap
+else
+ULOGD_CONF_OPTS += --without-pcap
+endif
+
+ifeq ($(BR2_PACKAGE_JANSSON),y)
+ULOGD_CONF_OPTS += --with-jansson
+ULOGD_DEPENDENCIES += jansson
+else
+ULOGD_CONF_OPTS += --without-jansson
 endif
 
 $(eval $(autotools-package))
