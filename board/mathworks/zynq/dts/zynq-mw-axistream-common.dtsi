@@ -5,7 +5,7 @@
 	};
 };
 
-&axi {
+&fpga_axi {
 	axi4stream:axidma@40020000 {
 		#address-cells = <0x1>;
 		#size-cells = <0x1>;
@@ -13,7 +13,7 @@
 		axistream-connected = <0x2>;
 		axistream-control-connected = <0x2>;
 		compatible = "xlnx,axi-dma";
-		interrupt-parent = <0x1>;
+		interrupt-parent = <&intc>;
 		reg = <0x40020000 0xffff>;
 		xlnx,dlytmr-resolution = <0x7d>;
 		xlnx,family = "zynq";

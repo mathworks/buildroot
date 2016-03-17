@@ -1,12 +1,11 @@
 #include "zynq-zybo.dts"
+#include "zynq-mw-common.dtsi"
 
 / {
 	chosen {
         bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
 	};
 };
-
-#define axi amba
 
 #include "zynq-mw-axilite-common.dtsi"
 
