@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Initialize the alsa system
+#
+
+source /etc/bootvars.conf
+
+if [ "$_SYS_PERSISTENT_FILESYSTEM" == "true" ]; then
+    UPDATE=mv
+else
+    UPDATE=cp
+fi
+
+if [ -d /sys/class/sound/card0 ]; then
+    if [ -f ${_SD_ROOT}/asound.state ]; then
+        echo "+++ Updating the ALSA config files"
+        $UPDATE -f ${_SD_ROOT}/asound.state /var/lib/alsa/asound.state
+    fi
+
+    if [ -f /var/lib/alsa/asound.state ]; then
+        alsactl restore
+    else
+        alsactl init    
+    fi
+fi
+
+
