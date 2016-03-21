@@ -6,10 +6,6 @@ if [ -d /sys/class/sound/card0 ]; then
 	alsactl restore -f /mnt/asound.state 0
 fi
 
-# load the MW axi kernel module
-modprobe mwadma
-modprobe mwgeneric_of
-
 # Run the default ARM application if file is present
 if [ -f /mnt/system.elf ]; then
     echo "+++ Launching default application..."

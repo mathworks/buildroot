@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# Load modules for cold-plugged devices
+#
+
+echo "Loading drivers for discovered hardware..."
+
+modlist=$(grep -h MODALIAS /sys/bus/*/devices/*/uevent)
+modaliases=$(echo "$modlist" | cut -d = -f 2 | sort -u)
+modprobe -abq $modaliases 2>/dev/null
+
+
