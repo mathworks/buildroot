@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "Starting MathWorks Linux image..."
-cd /mnt
+# Add any custom code to be run at startup here
+
