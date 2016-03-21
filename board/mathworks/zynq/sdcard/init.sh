@@ -1,29 +1,5 @@
 #!/bin/sh
 
-# Uncomment following lines for viewing verbose kernel debug messages
-# dmesg -n 8
-# echo 7 > /proc/sys/kernel/printk
-
-echo "+++ Configuring device hostname"
-if [ -f /mnt/hostname ]
-then
-    cp -f /mnt/hostname /etc/hostname
-else
-    echo "### hostname file not found in the SD card. Using default settings in /etc/hostname..."
-fi
-
-echo "+++ Configuring network interfaces"
-if [ -f /mnt/interfaces ]
-then
-    # Make the network-interface directories if not already present
-    cp -f /mnt/interfaces /etc/network/interfaces
-else
-    echo "### interfaces file not found in the SD card. Using default settings in /etc/interfaces..."
-fi
-
-# Restart network so that interfaces file change takes effect
-/etc/init.d/*network restart
-
 # load the soundcard config, if present
 if [ -d /sys/class/sound/card0 ]; then
 	echo "+++ Loading alsa settings"
