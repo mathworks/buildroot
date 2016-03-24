@@ -1,0 +1,16 @@
+<board name="pzsdr" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <kernel_config file="../../apps/sdr/sdr_kernel_config"/>
+        <br2_config file="../../apps/sdr/br2_config"/>
+    </default>
+    <image name="zynq7000sdr">
+        <app name="sdr">
+            <dts file="sdr.dts"/>
+            <fsbl file="sdr_fsbl.elf"/>
+            <bit file="sdr.bit"/>
+        </app>
+        <sdcard dir="../../apps/sdr/sdcard"/>
+    </image>
+</board>

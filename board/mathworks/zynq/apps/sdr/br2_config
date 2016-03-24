@@ -1,0 +1,11 @@
+###########################################
+# SDR Options
+###########################################
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/mfornero/linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="xilinx-sdr"
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/mfornero/uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="xilinx-sdr"
+BR2_TOOLCHAIN_EXTERNAL_PATH="/opt/Xilinx/SDK/2014.4/gnu/arm/lin"
+BR2_TOOLCHAIN_EXTERNAL_GCC_4_8=y
+BR2_TOOLCHAIN_EXTERNAL_HEADERS_3_13=y
+

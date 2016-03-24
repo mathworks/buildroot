@@ -1,0 +1,4 @@
+###########################################
+# PicoZed SDR Options
+###########################################
+BR2_TARGET_UBOOT_BOARDNAME="zynq_picozed_sdr2"
