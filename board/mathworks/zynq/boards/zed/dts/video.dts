@@ -1,0 +1,3 @@
+#include "base.dtsi"
+#include "zynq-mw-video.dtsi"
+
