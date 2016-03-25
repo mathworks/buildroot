@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Load modules for cold-plugged devices
+#
+
+source /etc/bootvars.conf
+
+source /etc/init.d/start_only.sh
+
+mounted=$(mount | grep "${_SD_ROOT}")
+if [ "$mounted" == "" ] && [ "${_SD_ROOT}" != "" ] ; then
+    echo "+++ Waiting to mount SD card ..."
+    i=0
+    while [ "$mounted" == "" ] && [ $i -lt 5 ]; do
+        sleep 1
+        mount -a
+        mounted=$(mount | grep ${_SD_ROOT})
+        i=$(( i + 1 ))
+    done
+    if [ "$mounted" != "" ]; then
+        echo "+++ SD Card mounted ..."
+    else
+        echo "ERROR: Failed to mount SD card"
+    fi
+fi
+
+
+
+
+
