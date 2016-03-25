@@ -3,6 +3,8 @@
 # Load modules for cold-plugged devices
 #
 
+source /etc/init.d/start_only.sh
+
 echo "Loading drivers for discovered hardware..."
 
 modlist=$(grep -h MODALIAS /sys/bus/*/devices/*/uevent)
