@@ -5,6 +5,8 @@
 
 source /etc/bootvars.conf
 
+source /etc/init.d/start_only.sh
+
 if [ "$_SYS_PERSISTENT_FILESYSTEM" == "true" ]; then
     UPDATE=mv
     WARN_NOTFOUND=false
