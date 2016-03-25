@@ -301,7 +301,7 @@
 	};
 
 	chosen {
-        bootargs = "console=ttyPS0,115200 root=/dev/ram rw cma=256M coherent_pool=16M ip=192.168.3.2:::255.255.255.0:ZC706:eth0 earlyprintk ";
+        bootargs = "console=ttyPS0,115200 root=/dev/ram rw cma=256M coherent_pool=16M earlyprintk ";
 		linux,stdout-path = "/amba@0/uart@E0001000";
 	};
 
