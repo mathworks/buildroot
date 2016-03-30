@@ -703,6 +703,14 @@ config BR2_TOOLCHAIN_EXTERNAL_PREFIX
 	default BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX \
 					 if BR2_TOOLCHAIN_EXTERNAL_CUSTOM
 
+config BR2_TOOLCHAIN_EXTERNAL_NEEDS_PREFIX_SYMLINK
+	bool
+	default y if BR2_TOOLCHAIN_EXTERNAL_LINARO_ARM && BR2_HOSTARCH = "x86"
+	default y if BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64 && BR2_HOSTARCH = "x86"
+	default y if BR2_TOOLCHAIN_EXTERNAL_LINARO_ARMEB && BR2_HOSTARCH = "x86"
+	default y if BR2_TOOLCHAIN_EXTERNAL_PREFIX_SYMLINK
+	default n
+    
 config BR2_TOOLCHAIN_EXTERNAL_GLIBC
 	bool
 	select BR2_TOOLCHAIN_USES_GLIBC
@@ -1008,6 +1016,13 @@ config BR2_TOOLCHAIN_EXTRA_EXTERNAL_LIBS
 	  need to be copied to the target filesystem, enter them
 	  here, separated by spaces. They will be copied to the
 	  target's /lib directory.
+
+config BR2_TOOLCHAIN_EXTERNAL_PREFIX_SYMLINK
+	bool "Symlink /lib/<tuple>?"
+	help
+	  Select this option if your external toolchain needs a symlink
+	  from the /lib directory to the /lib/<tuple> directory. This is
+	  may be required if your toolchain is based on one from Linaro.
 
 endif # BR2_TOOLCHAIN_EXTERNAL_CUSTOM
 

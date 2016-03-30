@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# Copy the network scripts from the boot device
+#
+
+source /etc/bootvars.conf
+
+if [ "$_SYS_PERSISTENT_FILESYSTEM" == "true" ]; then
+    UPDATE=mv
+    WARN_NOTFOUND=false
+else
+    UPDATE=cp
+    WARN_NOTFOUND=true
+fi
+
+if [ -f ${_SD_ROOT}/hostname ]; then
+    echo "+++ Configuring device hostname"
+    $UPDATE -f ${_SD_ROOT}/hostname /etc/hostname
+elif  [ "$WARN_NOTFOUND" == "true"]; then
+    echo "### hostname file not found in the SD card. Using default settings in /etc/hostname..."
+fi
+
+
+if [ -f ${_SD_ROOT}/interfaces ]; then
+    echo "+++ Configuring network interfaces"
+    $UPDATE -f ${_SD_ROOT}/interfaces /etc/network/interfaces
+elif [ "$WARN_NOTFOUND" == "true"]; then
+    echo "### interfaces file not found in the SD card. Using default settings in /etc/network/interfaces..."
+fi

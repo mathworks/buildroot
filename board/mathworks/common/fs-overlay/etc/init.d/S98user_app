@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Run the user-specified applciation
+#
+
+source /etc/bootvars.conf
+
+
+case "$1" in
+	start)
+        if [ -f ${_SD_ROOT}/system.elf ]; then
+            echo "+++ Launching default application..."
+            ${_SD_ROOT}/system.elf > /tmp/system.elf.log &
+            echo $! > /tmp/system.elf.pid
+        fi
+		;;
+	stop)
+        if [ -f /tmp/system.elf.pid ]; then
+            echo "+++ Terminating the default application..."
+            pid=$(cat /tmp/system.elf.pid)
+            kill $pid
+        fi
+		;;
+	restart | reload)
+		"$0" stop
+		"$0" start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
+
+exit $?
+
+

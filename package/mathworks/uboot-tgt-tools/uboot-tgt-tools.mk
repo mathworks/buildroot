@@ -92,26 +92,6 @@ define UBOOT_TGT_TOOLS_INSTALL_TARGET_CMDS
 	$(UBOOT_TGT_TOOLS_INSTALL_FWPRINTENV)
 endef
 
-define UBOOT_TGT_TOOLS_CONFIGURE_CMDS
-	$(TARGET_MAKE_ENV)  \
-		$(MAKE) -C $(@D)    \
-        ARCH=$(UBOOT_TGT_TOOLS_ARCH)    \
-		$(UBOOT_TGT_TOOLS_BOARD_NAME)_config
-	@echo >> $(@D)/include/config.h
-	@echo "/* Add a wrapper around the values Buildroot sets. */" >> $(@D)/include/config.h
-	@echo "#ifndef __BR2_ADDED_CONFIG_H" >> $(@D)/include/config.h
-	@echo "#define __BR2_ADDED_CONFIG_H" >> $(@D)/include/config.h
-	$(call insert_define,DATE,$(DATE))
-	$(call insert_define,CONFIG_LOAD_SCRIPTS,1)
-	$(call insert_define,CONFIG_IPADDR,$(BR2_TARGET_UBOOT_IPADDR))
-	$(call insert_define,CONFIG_GATEWAYIP,$(BR2_TARGET_UBOOT_GATEWAY))
-	$(call insert_define,CONFIG_NETMASK,$(BR2_TARGET_UBOOT_NETMASK))
-	$(call insert_define,CONFIG_SERVERIP,$(BR2_TARGET_UBOOT_SERVERIP))
-	$(call insert_define,CONFIG_ETHADDR,$(BR2_TARGET_UBOOT_ETHADDR))
-	$(call insert_define,CONFIG_ETH1ADDR,$(BR2_TARGET_UBOOT_ETH1ADDR))
-	@echo "#endif /* __BR2_ADDED_CONFIG_H */" >> $(@D)/include/config.h
-endef
-
 define HOST_UBOOT_TGT_TOOLS_BUILD_CMDS
 	$(MAKE1) -C $(@D) 			\
 		HOSTCC="$(HOSTCC)"		\

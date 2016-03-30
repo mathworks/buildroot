@@ -1,0 +1,13 @@
+#!/bin/sh
+# Set uboot to use a new devicetree when booting
+# Syntax fw_setdevicetree <new dtb>
+
+source /etc/bootvars.conf
+
+NEWDT=$1
+
+_mw_setbootfile $_UBOOT_VAR_DEVICETREE $NEWDT Devicetree
+rc=$?
+
+exit $rc
+

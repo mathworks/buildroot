@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# Run user defined init scripts
+#
+
+source /etc/bootvars.conf
+
+INIT_DIR=${_SD_ROOT}/init.d
+
+case "$1" in
+    start)
+        mode=start
+        lsargs=""
+        ;;
+    stop)
+        mode=stop
+        lsargs="-r"
+        ;;
+    restart | reload)
+        "$0" stop
+        "$0" start
+        exit $?
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+if [ -d $INIT_DIR ]; then
+    for i in $(ls $lsargs ${INIT_DIR}/S??*) ;do
+
+         # Ignore dangling symlinks (if any).
+         [ ! -f "$i" ] && continue
+
+         case "$i" in
+        *.sh)
+            # Source shell script for speed.
+            (
+            trap - INT QUIT TSTP
+            set $mode
+            . $i
+            )
+            ;;
+        *)
+            # No sh extension, so fork subprocess.
+            $i $mode
+            ;;
+        esac
+    done
+fi

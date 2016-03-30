@@ -79,61 +79,221 @@ state.ADAU1761 {
 	}
 	control.7 {
 		iface MIXER
-		name 'Input 1 Capture Volume'
-		value 7
+		name 'Capture Volume'
+		value.0 32
+		value.1 32
 		comment {
 			access 'read write'
 			type INTEGER
-			count 1
-			range '0 - 7'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 600
+			count 2
+			range '0 - 63'
+			dbmin -1200
+			dbmax 3525
+			dbvalue.0 1200
+			dbvalue.1 1200
 		}
 	}
 	control.8 {
 		iface MIXER
-		name 'Input 2 Capture Volume'
-		value 7
+		name 'Capture Switch'
+		value.0 true
+		value.1 true
 		comment {
 			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 7'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 600
+			type BOOLEAN
+			count 2
 		}
 	}
 	control.9 {
 		iface MIXER
-		name 'Input 3 Capture Volume'
-		value 0
+		name 'PGA Boost Capture Volume'
+		value.0 0
+		value.1 0
 		comment {
 			access 'read write'
 			type INTEGER
-			count 1
-			range '0 - 7'
+			count 2
+			range '0 - 2'
 			dbmin -9999999
-			dbmax 600
+			dbmax 2000
 			dbvalue.0 -9999999
+			dbvalue.1 -9999999
 		}
 	}
 	control.10 {
 		iface MIXER
-		name 'Input 4 Capture Volume'
+		name 'PGA Capture Slew Time'
+		value '24 ms'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Off
+			item.1 '24 ms'
+			item.2 '48 ms'
+			item.3 '96 ms'
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'ALC Capture Max Gain Volume'
 		value 0
 		comment {
 			access 'read write'
 			type INTEGER
 			count 1
 			range '0 - 7'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
+			dbmin -1200
+			dbmax 3000
+			dbvalue.0 -1200
 		}
 	}
-	control.11 {
+	control.12 {
+		iface MIXER
+		name 'ALC Capture Function'
+		value Off
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Off
+			item.1 Right
+			item.2 Left
+			item.3 Stereo
+			item.4 'DSP control'
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'ALC Capture Hold Time'
+		value '2.67 ms'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '2.67 ms'
+			item.1 '5.34 ms'
+			item.2 '10.68 ms'
+			item.3 '21.36 ms'
+			item.4 '42.72 ms'
+			item.5 '85.44 ms'
+			item.6 '170.88 ms'
+			item.7 '341.76 ms'
+			item.8 '683.52 ms'
+			item.9 '1367 ms'
+			item.10 '2734.1 ms'
+			item.11 '5468.2 ms'
+			item.12 '10936 ms'
+			item.13 '21873 ms'
+			item.14 '43745 ms'
+			item.15 '87491 ms'
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'ALC Capture Target Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+			dbmin -2850
+			dbmax -600
+			dbvalue.0 -2850
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'ALC Capture Attack Time'
+		value '24 ms'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '24 ms'
+			item.1 '48 ms'
+			item.2 '96 ms'
+			item.3 '192 ms'
+			item.4 '384 ms'
+			item.5 '768 ms'
+			item.6 '15400 ms'
+			item.7 '30700 ms'
+			item.8 '61400 ms'
+			item.9 '12290 ms'
+			item.10 '24580 ms'
+			item.11 '49150 ms'
+			item.12 '98300 ms'
+			item.13 '196610 ms'
+			item.14 '393220 ms'
+			item.15 '786430 ms'
+		}
+	}
+	control.16 {
+		iface MIXER
+		name 'ALC Capture Decay Time'
+		value '6 ms'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '6 ms'
+			item.1 '12 ms'
+			item.2 '24 ms'
+			item.3 '48 ms'
+			item.4 '96 ms'
+			item.5 '192 ms'
+			item.6 '384 ms'
+			item.7 '768 ms'
+			item.8 '1540 ms'
+			item.9 '3070 ms'
+			item.10 '6140 ms'
+			item.11 '12290 ms'
+			item.12 '24580 ms'
+			item.13 '49150 ms'
+			item.14 '98300 ms'
+			item.15 '196610 ms'
+		}
+	}
+	control.17 {
+		iface MIXER
+		name 'ALC Capture Noise Gate Type'
+		value Hold
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Hold
+			item.1 Mute
+			item.2 Fade
+			item.3 'Fade + Mute'
+		}
+	}
+	control.18 {
+		iface MIXER
+		name 'ALC Capture Noise Gate Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.19 {
+		iface MIXER
+		name 'ALC Capture Noise Gate Threshold Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 31'
+			dbmin -7650
+			dbmax -3000
+			dbvalue.0 -7650
+		}
+	}
+	control.20 {
 		iface MIXER
 		name 'Mono Playback Volume'
 		value 0
@@ -147,7 +307,7 @@ state.ADAU1761 {
 			dbvalue.0 -5700
 		}
 	}
-	control.12 {
+	control.21 {
 		iface MIXER
 		name 'Mono Playback Switch'
 		value false
@@ -157,7 +317,7 @@ state.ADAU1761 {
 			count 1
 		}
 	}
-	control.13 {
+	control.22 {
 		iface MIXER
 		name 'Aux Capture Volume'
 		value.0 0
@@ -173,7 +333,7 @@ state.ADAU1761 {
 			dbvalue.1 -9999999
 		}
 	}
-	control.14 {
+	control.23 {
 		iface MIXER
 		name 'Headphone Playback Volume'
 		value.0 63
@@ -189,7 +349,7 @@ state.ADAU1761 {
 			dbvalue.1 600
 		}
 	}
-	control.15 {
+	control.24 {
 		iface MIXER
 		name 'Headphone Playback Switch'
 		value.0 true
@@ -200,7 +360,7 @@ state.ADAU1761 {
 			count 2
 		}
 	}
-	control.16 {
+	control.25 {
 		iface MIXER
 		name 'Lineout Playback Volume'
 		value.0 0
@@ -216,7 +376,7 @@ state.ADAU1761 {
 			dbvalue.1 -5700
 		}
 	}
-	control.17 {
+	control.26 {
 		iface MIXER
 		name 'Lineout Playback Switch'
 		value.0 false
@@ -227,7 +387,7 @@ state.ADAU1761 {
 			count 2
 		}
 	}
-	control.18 {
+	control.27 {
 		iface MIXER
 		name 'ADC Bias'
 		value 'Normal operation'
@@ -241,7 +401,7 @@ state.ADAU1761 {
 			item.3 'Power saving'
 		}
 	}
-	control.19 {
+	control.28 {
 		iface MIXER
 		name 'DAC Bias'
 		value 'Normal operation'
@@ -255,7 +415,7 @@ state.ADAU1761 {
 			item.3 'Power saving'
 		}
 	}
-	control.20 {
+	control.29 {
 		iface MIXER
 		name 'Capture Bias'
 		value 'Normal operation'
@@ -268,7 +428,7 @@ state.ADAU1761 {
 			item.2 'Power saving'
 		}
 	}
-	control.21 {
+	control.30 {
 		iface MIXER
 		name 'Playback Bias'
 		value 'Normal operation'
@@ -281,7 +441,7 @@ state.ADAU1761 {
 			item.2 'Power saving'
 		}
 	}
-	control.22 {
+	control.31 {
 		iface MIXER
 		name 'Headphone Bias'
 		value 'Normal operation'
@@ -295,163 +455,7 @@ state.ADAU1761 {
 			item.3 'Power saving'
 		}
 	}
-	control.23 {
-		iface MIXER
-		name 'Capture Mux'
-		value Decimator
-		comment {
-			access 'read write'
-			type ENUMERATED
-			count 1
-			item.0 DSP
-			item.1 Decimator
-		}
-	}
-	control.24 {
-		iface MIXER
-		name 'DAC Playback Mux'
-		value AIFIN
-		comment {
-			access 'read write'
-			type ENUMERATED
-			count 1
-			item.0 DSP
-			item.1 AIFIN
-		}
-	}
-	control.25 {
-		iface MIXER
-		name 'DAC Mono-Stereo-Mode'
-		value Stereo
-		comment {
-			access 'read write'
-			type ENUMERATED
-			count 1
-			item.0 Stereo
-			item.1 'Mono Left Channel (L+R)'
-			item.2 'Mono Right Channel (L+R)'
-			item.3 'Mono (L+R)'
-		}
-	}
-	control.26 {
-		iface MIXER
-		name 'Right LR Playback Mixer Left Volume'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 2'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
-		}
-	}
-	control.27 {
-		iface MIXER
-		name 'Right LR Playback Mixer Right Volume'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 2'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
-		}
-	}
-	control.28 {
-		iface MIXER
-		name 'Left LR Playback Mixer Left Volume'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 2'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
-		}
-	}
-	control.29 {
-		iface MIXER
-		name 'Left LR Playback Mixer Right Volume'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 2'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
-		}
-	}
-	control.30 {
-		iface MIXER
-		name 'Right Playback Mixer Left DAC Switch'
-		value false
-		comment {
-			access 'read write'
-			type BOOLEAN
-			count 1
-		}
-	}
-	control.31 {
-		iface MIXER
-		name 'Right Playback Mixer Right DAC Switch'
-		value true
-		comment {
-			access 'read write'
-			type BOOLEAN
-			count 1
-		}
-	}
 	control.32 {
-		iface MIXER
-		name 'Right Playback Mixer Aux Bypass Volume'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 8'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
-		}
-	}
-	control.33 {
-		iface MIXER
-		name 'Right Playback Mixer Right Bypass Volume'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 8'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
-		}
-	}
-	control.34 {
-		iface MIXER
-		name 'Right Playback Mixer Left Bypass Volume'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 8'
-			dbmin -9999999
-			dbmax 600
-			dbvalue.0 -9999999
-		}
-	}
-	control.35 {
 		iface MIXER
 		name 'Left Playback Mixer Left DAC Switch'
 		value true
@@ -461,7 +465,7 @@ state.ADAU1761 {
 			count 1
 		}
 	}
-	control.36 {
+	control.33 {
 		iface MIXER
 		name 'Left Playback Mixer Right DAC Switch'
 		value false
@@ -471,7 +475,7 @@ state.ADAU1761 {
 			count 1
 		}
 	}
-	control.37 {
+	control.34 {
 		iface MIXER
 		name 'Left Playback Mixer Aux Bypass Volume'
 		value 0
@@ -485,7 +489,7 @@ state.ADAU1761 {
 			dbvalue.0 -9999999
 		}
 	}
-	control.38 {
+	control.35 {
 		iface MIXER
 		name 'Left Playback Mixer Right Bypass Volume'
 		value 0
@@ -499,7 +503,7 @@ state.ADAU1761 {
 			dbvalue.0 -9999999
 		}
 	}
-	control.39 {
+	control.36 {
 		iface MIXER
 		name 'Left Playback Mixer Left Bypass Volume'
 		value 0
@@ -513,4 +517,161 @@ state.ADAU1761 {
 			dbvalue.0 -9999999
 		}
 	}
+	control.37 {
+		iface MIXER
+		name 'Right Playback Mixer Left DAC Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.38 {
+		iface MIXER
+		name 'Right Playback Mixer Right DAC Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.39 {
+		iface MIXER
+		name 'Right Playback Mixer Aux Bypass Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 8'
+			dbmin -9999999
+			dbmax 600
+			dbvalue.0 -9999999
+		}
+	}
+	control.40 {
+		iface MIXER
+		name 'Right Playback Mixer Right Bypass Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 8'
+			dbmin -9999999
+			dbmax 600
+			dbvalue.0 -9999999
+		}
+	}
+	control.41 {
+		iface MIXER
+		name 'Right Playback Mixer Left Bypass Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 8'
+			dbmin -9999999
+			dbmax 600
+			dbvalue.0 -9999999
+		}
+	}
+	control.42 {
+		iface MIXER
+		name 'Left LR Playback Mixer Left Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 2'
+			dbmin -9999999
+			dbmax 600
+			dbvalue.0 -9999999
+		}
+	}
+	control.43 {
+		iface MIXER
+		name 'Left LR Playback Mixer Right Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 2'
+			dbmin -9999999
+			dbmax 600
+			dbvalue.0 -9999999
+		}
+	}
+	control.44 {
+		iface MIXER
+		name 'Right LR Playback Mixer Left Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 2'
+			dbmin -9999999
+			dbmax 600
+			dbvalue.0 -9999999
+		}
+	}
+	control.45 {
+		iface MIXER
+		name 'Right LR Playback Mixer Right Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 2'
+			dbmin -9999999
+			dbmax 600
+			dbvalue.0 -9999999
+		}
+	}
+	control.46 {
+		iface MIXER
+		name 'DAC Mono-Stereo-Mode'
+		value Stereo
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Stereo
+			item.1 'Mono Left Channel (L+R)'
+			item.2 'Mono Right Channel (L+R)'
+			item.3 'Mono (L+R)'
+		}
+	}
+	control.47 {
+		iface MIXER
+		name 'DAC Playback Mux'
+		value AIFIN
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 DSP
+			item.1 AIFIN
+		}
+	}
+	control.48 {
+		iface MIXER
+		name 'Capture Mux'
+		value Decimator
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 DSP
+			item.1 Decimator
+		}
+	}
 }
+
