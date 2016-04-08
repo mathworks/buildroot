@@ -11,6 +11,6 @@
             <fsbl file="sdr_fsbl.elf"/>
             <bit file="sdr.bit"/>
         </app>
-        <sdcard dir="../../apps/sdr/sdcard"/>
+        <sdcard dir="../../apps/sdr/sdcard/zc706"/>
     </image>
 </board>
