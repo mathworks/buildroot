@@ -412,6 +412,19 @@
             compatible = "mathworks,axi-dataverifier-pcore-1.00.a","mathworks,axi-dataverifier";
             reg = < 0x43C50000 0x10000 >;
         } ;
+		
+        rx_fifo_irq_ctrl_pcore_0: axi-fifoirqctrl-rx@43C60000 {
+            compatible = "mathworks,axi-fifoirqctrl-pcore-1.00.a","mathworks,axi-fifoirqctrl-rx";
+            reg = < 0x43C60000 0x10000 >;
+            interrupts = < 0 31 0x4 >;
+        } ;
+
+        tx_fifo_irq_ctrl_pcore_0: axi-fifoirqctrl-tx@43C70000 {
+            compatible = "mathworks,axi-fifoirqctrl-pcore-1.00.a","mathworks,axi-fifoirqctrl-tx";
+            reg = < 0x43C70000 0x10000 >;
+            interrupts = < 0 32 0x4 >;
+        } ;
+		
         axi_lite_data_packer_pcore_0: axi-data-packer@43C10000 {
             compatible = "mathworks,axi-data-packer-pcore-1.00.a","mathworks,axi-data-packer";
             reg = < 0x43C10000 0x10000 >;
@@ -662,7 +675,7 @@
         ad9361: ad9361@43c00000 {
             compatible = "generic-uio", "uio", "uio_pdrv";
             reg = <0x43c00000 0x10000>;
-			interrupts = <0x0 31 0x0>;
+			interrupts = <0x0 33 0x0>;
         };
     };
 
