@@ -6,7 +6,14 @@ source /etc/bootvars.conf
 
 NEWDT=$1
 
-_mw_setbootfile $_UBOOT_VAR_DEVICETREE $NEWDT Devicetree
+# Determine if anything was passed in
+if [ "$NEWDT" = "" ]; then
+    # No arguement passed in, use $_SYS_DEFAULT_DEVICETREE_FILE
+    echo "# No devicetree specified, using default ${_SYS_DEFAULT_DEVICETREE_FILE}"
+    NEWDT=$_SYS_DEFAULT_DEVICETREE_FILE
+fi
+
+_mw_setbootfile "$_UBOOT_VAR_DEVICETREE" "$NEWDT" Devicetree
 rc=$?
 
 exit $rc

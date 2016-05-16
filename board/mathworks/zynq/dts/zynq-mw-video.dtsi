@@ -6,6 +6,17 @@
                 #size-cells = <0x1>;
                 ranges;
 
+		mwipcore1: mwipcore-rgb2ycbcr@40020000 {
+                        compatible = "mathworks,mwipcore-v2.00";
+                        reg = <0x40020000 0x10000>;
+                };
+
+                mwipcore2: mwipcore-ycbcr2rgb@40030000 {
+                        compatible = "mathworks,mwipcore-v2.00";
+                        reg = <0x40030000 0x10000>;
+                };
+
+
 		i2c@41600000 {
 			compatible = "xlnx,axi-iic-1.01.b", "xlnx,xps-iic-2.00.a";
 			interrupt-parent = <&intc>;
