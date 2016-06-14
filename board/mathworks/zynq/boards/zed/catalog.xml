@@ -18,5 +18,8 @@
         <app name="video">
             <dts file="video.dts"/>
         </app>
+        <app name="axistream_iio">
+            <dts file="axistream_iio.dts"/>
+        </app>
     </image>
 </board>
