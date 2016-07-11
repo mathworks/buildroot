@@ -169,11 +169,16 @@ def _load_board_info(boardNode):
 
     # Parse the node
     if boardDir is None:
-        boardInfo['dir'] = "%s/%s/boards/%s" % (MW_DIR, _PLATFORM_NAME, _BOARD_NAME)
+        boardDir = _find_file("", "%s/%s/boards/%s" % (MW_DIR, _PLATFORM_NAME, _BOARD_NAME))
+        if boardDir is None:
+            # Default to the catalog dir
+            boardDir = _find_file(_CATALOG_DIR, './')
     else:
-        boardInfo['dir'] = _find_file(_CATALOG_DIR,boardDir)
-        if boardInfo['dir'] is None:
-            raise IOError("Cannot find specified board directory: %s" % (boardDir))
+        boardDir = _find_file(_CATALOG_DIR,boardDir)
+
+    boardInfo['dir'] = boardDir
+    if boardInfo['dir'] is None:
+        raise IOError("Cannot find specified board directory: %s" % (boardDir))
 
     return boardInfo
 
