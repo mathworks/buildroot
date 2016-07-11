@@ -96,6 +96,12 @@ def _make_sdimage(outputDir, image, catalog):
 def set_default_dtb(defaultApp):
     defaultDTB = "devicetree_%s.dtb" % (defaultApp['name'])
     shutil.copyfile("%s/%s" %(ENV['SD_DIR'], defaultDTB), "%s/socfpga.dtb" % (ENV['SD_DIR']))
+
+##############
+# Set the default bitstream
+##############
+def set_default_bitsream(defaultApp):
+    shutil.copyfile(defaultApp['bit'], "%s/socfpga.rbf" % (ENV['SD_DIR']))
     
 ##############
 # Build the SD card image
@@ -113,12 +119,9 @@ def build_sdimage(outputDir, image, catalog):
     # Copy over the application specific rbfs
     ##############
     for app in image['appList']:
-        appBit = "%s/socfpga_%s.rbf" % (ENV['SD_DIR'], app['name'])
-        shutil.copy(app['bit'], appBit)
-
-    # boot from the base rbf by default
-    print_msg("Setting %s as default rbf" % (defaultApp['name']))
-    shutil.copy("%s/socfpga_%s.rbf" % (ENV['SD_DIR'], defaultApp['name']), "%s/socfpga.rbf" % (ENV['SD_DIR']) )
+        if not app['bit'] is None:
+            appBit = "%s/socfpga_%s.rbf" % (ENV['SD_DIR'], app['name'])
+            shutil.copy(app['bit'], appBit)
 
     ##############
     # Copy over the u-boot script

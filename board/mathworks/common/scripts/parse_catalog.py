@@ -37,6 +37,28 @@ def _find_file(baseDir,filePath, tag=""):
     return filePath
 
 ###############
+# Find File from Element
+###############
+def _find_file_from_element(element):
+    tag = element.tag
+    fileSrc = element.get('file')
+    if fileSrc is None:
+        fileSrc = element.get('dir')
+    
+    # First search relative to the board xml file, in the specified directories
+    filePath = _find_file(_CATALOG_DIR,fileSrc, tag=tag)
+    if filePath is None:
+        # Next search relative to the board xml file
+        filePath = _find_file(_CATALOG_DIR,fileSrc)
+        if filePath is None:
+            # Last search in the board directory
+            filePath = _find_file(_defaults['boardInfo']['dir'],fileSrc, tag=tag)
+    
+    if filePath is None:                
+        raise IOError("[App: %s]Cannot find %s file: %s" %(appInfo['name'], tag, fileSrc))
+    return filePath
+
+###############
 # Load App
 ###############
 def _load_app(xmlApp, loadDefaults=True):
@@ -45,31 +67,29 @@ def _load_app(xmlApp, loadDefaults=True):
         appInfo = dict(_defaults['app'])
     else:
         appInfo = dict()
+        appInfo['bit'] = None
+        appInfo['dts'] = None
     appInfo['name'] = xmlApp.get('name')
-    appInfo['buildBoot'] = False
     for element in xmlApp:
         tag = element.tag
-        fileSrc = element.get('file')
-        if fileSrc is None:
-            fileSrc = element.get('dir')
-        
-        # First search relative to the board xml file, in the specified directories
-        filePath = _find_file(_CATALOG_DIR,fileSrc, tag=tag)
-        if filePath is None:
-            # Next search relative to the board xml file
-            filePath = _find_file(_CATALOG_DIR,fileSrc)
-            if filePath is None:
-                # Last search in the board directory
-                filePath = _find_file(_defaults['boardInfo']['dir'],fileSrc, tag=tag)
-        
-        if filePath is None:                
-            raise IOError("[App: %s]Cannot find %s file: %s" %(appInfo['name'], tag, fileSrc))
-
+        if tag == "fsbl" or tag == "handoff":
+            raise ValueError("FSBL or Handoff files must be specified in the defaults node only")
+        filePath = _find_file_from_element(element)        
         appInfo[tag] = filePath
-        if tag == "bit" or tag == "fsbl" or tag == "handoff":
-            appInfo['buildBoot'] = True
     return appInfo
 
+###############
+# Find Boot Info
+###############
+def _find_fsbl_info(xmlNode):
+    fsblInfo = xmlNode.find('fsbl')
+    tag = 'fsbl'
+    if fsblInfo is None:
+        fsblInfo = xmlNode.find('handoff')
+        tag = 'handoff'
+    if fsblInfo is None:
+        raise IOError("Missing boot info in node: %s", xmlNode)
+    return _find_file_from_element(fsblInfo)
 
 ###############
 # Find SD dir
@@ -133,6 +153,7 @@ def _load_image(imageNode):
     imageInfo['imageName'] = imageNode.get('name') 
     imageInfo['appList'] = appList
     imageInfo['defaultApp'] = appList[0]
+
     return imageInfo
 
 ###############
@@ -196,6 +217,8 @@ def _load_defaults(defNode):
     _defaults['br2_config'] = _find_local_file(defNode.find('br2_config'))
     # Load the kernel config file
     _defaults['kernel_config'] = _find_local_file(defNode.find('kernel_config'))
+    # Determine the fsbl and/or handoff info
+    _defaults['fsbl'] = _find_fsbl_info(defNode)
 
 ########################################
 # Public Functions

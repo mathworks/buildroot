@@ -1,10 +1,8 @@
 <board name="alteracycv" platform="socfpga">
     <default>
         <app name="default">
-            <dts file="base.dts"/>
-            <handoff dir="handoff"/>
-            <bit file="base.rbf"/>
         </app>
+        <handoff dir="handoff"/>
     </default>
     <image name="alterasocec">
         <app name="axilite">
