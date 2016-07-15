@@ -6,7 +6,7 @@
     </default>
     <image name="alterasocec">
         <app name="axilite">
-            <dts file="base.dts"/>
+            <dts file="axilite.dts"/>
             <bit file="base.rbf"/>
         </app>
     </image>

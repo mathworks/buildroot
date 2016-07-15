@@ -1,2 +1,2 @@
-#include "base.dts"
+#include "base.dtsi"
 #include "socfpga-mw-dma.dtsi"
