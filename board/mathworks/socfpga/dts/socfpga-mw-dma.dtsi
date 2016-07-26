@@ -1,9 +1,0 @@
-#include "mw-generic.dtsi"
-/{
-	soc{
-        fpga2sdram0: fpgabridge@3 {
-			compatible = "altr,socfpga-fpga2sdram-bridge";
-			bridge-enable = <0>;
-	    };
-    };
-};

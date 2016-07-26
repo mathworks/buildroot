@@ -1,5 +1,10 @@
 /{
     soc{
+
+        fpga2sdram0: fpgabridge@3 {
+			compatible = "altr,socfpga-fpga2sdram-bridge";
+	    };
+
         fpga_axi_bridge: bridge@0xc0000000 {
             ranges =    <0x0 0x0 0xc0000000 0x20000000>,
                         <0x1 0x0 0xff200000 0x00200000>;
