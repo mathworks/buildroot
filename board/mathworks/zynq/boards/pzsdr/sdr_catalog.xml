@@ -9,7 +9,6 @@
         <app name="sdr">
             <dts file="sdr.dts"/>
             <fsbl file="sdr_fsbl.elf"/>
-            <bit file="sdr.bit"/>
         </app>
         <sdcard dir="../../apps/sdr/sdcard/pzsdr"/>
     </image>

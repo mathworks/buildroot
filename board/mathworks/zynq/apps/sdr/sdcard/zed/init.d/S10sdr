@@ -10,18 +10,13 @@ FIMRWARE_PATH=${_SD_ROOT}/${FIRMWARE_FILE}
 
 case "$1" in
     start)
+        # Stop info messages from displaying on the console.
+        echo 5 > /proc/sys/kernel/printk
+
         echo "+++ Setting recv socket buffer limit to 1048576"
         sysctl -w net.core.rmem_max=1048576 
         echo "+++ Setting send socket buffer limit to 1048576"
         sysctl -w net.core.wmem_max=1048576 
-
-        # Used by HDL Coder SDR Workflow
-        # TODO: Migrate to system.bit u-boot mechanism
-        if [ -f ${_SD_ROOT}/system.bin ]; then
-            echo "+++ Programming bitstream"
-            /usr/bin/zynqfpgaprog ${_SD_ROOT}/system.bin          
-            echo "+++ Done programming bitstream"
-        fi
 
         if [ -f $FIMRWARE_PATH ]; then
             echo "+++ Launching SDR Firmware..."

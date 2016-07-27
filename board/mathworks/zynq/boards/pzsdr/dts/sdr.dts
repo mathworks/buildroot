@@ -212,7 +212,6 @@
           xlnx,has-cd = <0x1>;
           clock-frequency = <0x2faf080>;
           status = "okay";
-          wp-inverted; /* wp-disabled */
       };
 
       usb@e0002000 {

@@ -10,12 +10,11 @@ from helper_func import *
 ##############
 # Create a bif file
 ##############
-def _create_bif(bifFilePath,fsblFile,bitFile,ubootFile):
+def _create_bif(bifFilePath,fsblFile,ubootFile):
     f = open(bifFilePath, 'w')
     f.write("the_ROM_image:\n")
     f.write("{\n")
     f.write("    [bootloader]%s\n" % (fsblFile))
-    f.write("    %s\n" % (bitFile))
     f.write("    %s\n" % (ubootFile))
     f.write("}\n")
     f.close()
@@ -32,8 +31,6 @@ def _create_boot(app):
     uboot_dst_path = "%s/%s"  % (ENV['IMAGE_DIR'], uboot_dst)
     fsbl_dst = "zynq_fsbl.elf"
     fsbl_dst_path = "%s/%s" % (ENV['IMAGE_DIR'], fsbl_dst)
-    bit_dst = "zynq.bit"
-    bit_dst_path = "%s/%s" % (ENV['IMAGE_DIR'], bit_dst)
 
     tc_path = get_cfg_var("BR2_TOOLCHAIN_EXTERNAL_PATH")
     sdk_root = os.path.dirname(os.path.dirname(os.path.dirname(tc_path)))
@@ -45,11 +42,10 @@ def _create_boot(app):
     # rename to .elf for bitgen
     shutil.copy("%s/u-boot" % (ENV['IMAGE_DIR']), uboot_dst_path)
     shutil.copy(app['fsbl'], fsbl_dst_path)
-    shutil.copy(app['bit'], bit_dst_path)
 
     # create BOOT.BIN
     rm(boot_bin_path)
-    _create_bif(bif_file_path,fsbl_dst,bit_dst,uboot_dst)
+    _create_bif(bif_file_path,fsbl_dst,uboot_dst)
     argStr = "%s -image %s -o i %s" % (bootgen_bin, bif_file, boot_bin)
     subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
     shutil.move(boot_bin_path, "%s/%s" % (ENV['SD_DIR'],boot_bin) )
@@ -57,7 +53,6 @@ def _create_boot(app):
     # cleanup
     os.remove(uboot_dst_path)
     os.remove(fsbl_dst_path)
-    os.remove(bit_dst_path)
     os.remove(bif_file_path)       
     #rm ${UBOOT_ELF} ${UBOOT_ELF}.bin ${FSBL_DST} ${FSBL_DST}.bin ${BITSTREAM_DST} ${BIF_FILE} ${BOOT_BIN} &>/dev/null
 
