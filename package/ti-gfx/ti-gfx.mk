@@ -21,6 +21,7 @@ TI_GFX_LICENSE_FILES = TSPA.txt
 TI_GFX_INSTALL_STAGING = YES
 
 TI_GFX_DEPENDENCIES = linux
+
 TI_GFX_PROVIDES = libegl libgles powervr
 
 ifeq ($(BR2_PACKAGE_TI_GFX_ES3),y)
@@ -188,6 +189,16 @@ endif
 define TI_GFX_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 0755 package/ti-gfx/S80ti-gfx \
 		$(TARGET_DIR)/etc/init.d/S80ti-gfx
+endef
+
+define TI_GFX_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 755 package/ti-gfx/S80ti-gfx \
+		$(TARGET_DIR)/usr/lib/systemd/scripts/ti-gfx
+	$(INSTALL) -D -m 644 package/ti-gfx/ti-gfx.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/ti-gfx.service
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
+	ln -sf ../../../../usr/lib/systemd/system/ti-gfx.service \
+		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/ti-gfx.service
 endef
 
 define TI_GFX_INSTALL_TARGET_CMDS

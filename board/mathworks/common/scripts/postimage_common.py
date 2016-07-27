@@ -6,7 +6,7 @@
 #	HOST_DIR, STAGING_DIR, TARGET_DIR
 #	BINARIES_DIR: images dir
 #	BASE_DIR: base output directory
-import sys, os, shutil, glob, imp, argparse
+import sys, os, shutil, glob, imp, argparse, distutils.dir_util
 
 import parse_catalog
 import gen_dtb
@@ -30,13 +30,11 @@ def _gen_sdcard(image, catalog, outputDir):
     # Copy Over the sdcard files
     ##############
     sdSrc = catalog['defaultInfo']['sdcardDir']
-    print_msg("Sourcing SD card contents from %s" %(catalog['defaultInfo']['sdcardDir']))
-    for fil in glob.iglob(catalog['defaultInfo']['sdcardDir'] + "/*"):
-        shutil.copy2(fil, ENV['SD_DIR'])
+    print_msg("Sourcing SD card contents from %s" %(sdSrc))
+    distutils.dir_util.copy_tree(sdSrc, ENV['SD_DIR'])
     if image['sdcardDir'] != sdSrc:
         print_msg("Adding SD card contents from %s" % (image['sdcardDir']))
-        for fil in glob.iglob(image['sdcardDir'] + "/*"):
-            shutil.copy2(fil, ENV['SD_DIR'])
+        distutils.dir_util.copy_tree(image['sdcardDir'], ENV['SD_DIR'])
 
     ##############
     # Add the verinfo script

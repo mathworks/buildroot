@@ -1,17 +1,22 @@
 #!/bin/sh
 #
-# Mount the SD card and run the init.sh script
+# Run the init.sh/shutdown.sh script on the SD card
 #
+
+source /etc/bootvars.conf
 
 case "$1" in
 	start)
-		echo "running sd card init.sh"
-		if [ -f /mnt/init.sh ]; then
-			/mnt/init.sh
+		if [ -f ${_SD_ROOT}/init.sh ]; then
+			echo "+++ Running sd card init.sh"
+			${_SD_ROOT}/init.sh
 		fi
 		;;
 	stop)
-		# do nothing
+		if [ -f ${_SD_ROOT}/shutdown.sh ]; then
+			echo "+++ Running sd card shutdown.sh"
+			${_SD_ROOT}/shutdown.sh
+		fi
 		;;
 	restart | reload)
 		"$0" stop

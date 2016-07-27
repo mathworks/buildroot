@@ -11,7 +11,7 @@ set -e
 # Environment:
 #   WGET     : the wget command to call
 
-verbose=-v
+verbose=
 while getopts :q OPT; do
     case "${OPT}" in
     q)  verbose=-q;;
@@ -23,4 +23,10 @@ shift $((OPTIND-1))
 output="${1}"
 url="${2}"
 
-${WGET} ${verbose} -O "${output}" "${url}"
+# Caller needs to single-quote its arguments to prevent them from
+# being expanded a second time (in case there are spaces in them)
+_wget() {
+    eval ${WGET} "${@}"
+}
+
+_wget ${verbose} -O "'${output}'" "'${url}'"

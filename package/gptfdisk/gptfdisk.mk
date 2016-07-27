@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GPTFDISK_VERSION = 0.8.10
+GPTFDISK_VERSION = 1.0.0
 GPTFDISK_SITE = http://downloads.sourceforge.net/sourceforge/gptfdisk
 GPTFDISK_LICENSE = GPLv2+
 GPTFDISK_LICENSE_FILES = COPYING
@@ -46,4 +46,15 @@ define GPTFDISK_INSTALL_TARGET_CMDS
 	done
 endef
 
+HOST_GPTFDISK_DEPENDENCIES = host-util-linux host-popt
+
+define HOST_GPTFDISK_BUILD_CMDS
+	$(HOST_MAKE_ENV) $(MAKE) $(HOST_CONFIGURE_OPTS) -C $(@D) sgdisk
+endef
+
+define HOST_GPTFDISK_INSTALL_CMDS
+	$(INSTALL) -D -m 0755 $(@D)/sgdisk $(HOST_DIR)/usr/sbin/sgdisk
+endef
+
 $(eval $(generic-package))
+$(eval $(host-generic-package))

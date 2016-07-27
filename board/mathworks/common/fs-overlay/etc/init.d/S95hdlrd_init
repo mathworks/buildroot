@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# Run user defined init scripts
+#
+
+source /etc/bootvars.conf
+
+
+case "$1" in
+  start)
+    script="init.sh"         
+    ;;
+  stop)
+    script="shutdown.sh"
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    exit $?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+if [ -d ${_SYS_RD_INIT_DIR} ]; then
+    if [ -f ${_SYS_RD_INIT_DIR}/${_SYS_RD_NAME_FILE} ]; then
+        # Check the RD name stored in the file    
+        rdfile=$(cat ${_SYS_RD_INIT_DIR}/${_SYS_RD_NAME_FILE})
+        # Compare to the RD name in uboot
+        rdvar=$(fw_getrdname)
+        rc=$?
+        if [ "$rdfile" == "$rdvar" ] && [ "$rc" == "0" ]; then
+            # determine if the script exists
+            if [ -f ${_SYS_RD_INIT_DIR}/${script} ]; then
+                echo "+++ Executing HD Reference Design ${script}..."
+                # Execute the script out of the RD dir
+                (cd ${_SYS_RD_INIT_DIR} && ./${script})
+                exit $?
+            fi
+        fi
+    fi
+fi
+

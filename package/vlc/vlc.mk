@@ -12,6 +12,9 @@ VLC_LICENSE_FILES = COPYING COPYING.LIB
 VLC_DEPENDENCIES = host-pkgconf
 VLC_AUTORECONF = YES
 
+# Install vlc libraries in staging.
+VLC_INSTALL_STAGING = YES
+
 # VLC defines two autoconf functions which are also defined by our own pkg.m4
 # from pkgconf. Unfortunately, they are defined in a different way: VLC adds
 # --enable- options, but pkg.m4 adds --with- options. To make sure we use
@@ -41,7 +44,6 @@ VLC_CONF_OPTS += \
 	--disable-projectm \
 	--disable-vsxu \
 	--disable-mtp \
-	--disable-opencv \
 	--disable-mmal-codec \
 	--disable-mmal-vout \
 	--disable-dvdnav \
@@ -52,6 +54,7 @@ VLC_CONF_OPTS += \
 	--disable-mfx \
 	--disable-vdpau \
 	--disable-addonmanagermodules \
+	--enable-run-as-root \
 
 # Building static and shared doesn't work, so force static off.
 ifeq ($(BR2_STATIC_LIBS),)
@@ -62,6 +65,12 @@ ifeq ($(BR2_POWERPC_CPU_HAS_ALTIVEC),y)
 VLC_CONF_OPTS += --enable-altivec
 else
 VLC_CONF_OPTS += --disable-altivec
+endif
+
+ifeq ($(BR2_X86_CPU_HAS_SSE),y)
+VLC_CONF_OPTS += --enable-sse
+else
+VLC_CONF_OPTS += --disable-sse
 endif
 
 ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
@@ -145,6 +154,17 @@ else
 VLC_CONF_OPTS += --disable-gles2
 endif
 
+ifeq ($(BR2_PACKAGE_OPENCV)$(BR2_PACKAGE_OPENCV3),y)
+VLC_CONF_OPTS += --enable-opencv
+ifeq ($(BR2_PACKAGE_OPENCV),y)
+VLC_DEPENDENCIES += opencv
+else
+VLC_DEPENDENCIES += opencv3
+endif
+else
+VLC_CONF_OPTS += --disable-opencv
+endif
+
 ifeq ($(BR2_PACKAGE_OPUS),y)
 VLC_CONF_OPTS += --enable-opus
 VLC_DEPENDENCIES += libvorbis opus
@@ -157,6 +177,20 @@ VLC_CONF_OPTS += --enable-libass
 VLC_DEPENDENCIES += libass
 else
 VLC_CONF_OPTS += --disable-libass
+endif
+
+ifeq ($(BR2_PACKAGE_LIBBLURAY),y)
+VLC_CONF_OPTS += --enable-bluray
+VLC_DEPENDENCIES += libbluray
+else
+VLC_CONF_OPTS += --disable-bluray
+endif
+
+ifeq ($(BR2_PACKAGE_LIBDVBPSI),y)
+VLC_CONF_OPTS += --enable-dvbpsi
+VLC_DEPENDENCIES += libdvbpsi
+else
+VLC_CONF_OPTS += --disable-dvbpsi
 endif
 
 ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
@@ -173,6 +207,13 @@ VLC_CONF_OPTS += --enable-mad
 VLC_DEPENDENCIES += libmad
 else
 VLC_CONF_OPTS += --disable-mad
+endif
+
+ifeq ($(BR2_PACKAGE_LIBMATROSKA),y)
+VLC_CONF_OPTS += --enable-mkv
+VLC_DEPENDENCIES += libmatroska
+else
+VLC_CONF_OPTS += --disable-mkv
 endif
 
 ifeq ($(BR2_PACKAGE_LIBMODPLUG),y)
@@ -201,6 +242,13 @@ VLC_CONF_OPTS += --enable-svg --enable-svgdec
 VLC_DEPENDENCIES += librsvg
 else
 VLC_CONF_OPTS += --disable-svg --disable-svgdec
+endif
+
+ifeq ($(BR2_PACKAGE_LIBSIDPLAY2),y)
+VLC_CONF_OPTS += --enable-sid
+VLC_DEPENDENCIES += libsidplay2
+else
+VLC_CONF_OPTS += --disable-sid
 endif
 
 ifeq ($(BR2_PACKAGE_LIBTHEORA),y)
@@ -299,6 +347,13 @@ else
 VLC_CONF_OPTS += --disable-speex
 endif
 
+ifeq ($(BR2_PACKAGE_TAGLIB),y)
+VLC_CONF_OPTS += --enable-taglib
+VLC_DEPENDENCIES += taglib
+else
+VLC_CONF_OPTS += --disable-taglib
+endif
+
 ifeq ($(BR2_PACKAGE_TREMOR),y)
 VLC_CONF_OPTS += --enable-tremor
 VLC_DEPENDENCIES += tremor
@@ -318,6 +373,10 @@ VLC_CONF_OPTS += --with-x
 VLC_DEPENDENCIES += xlib_libX11
 else
 VLC_CONF_OPTS += --without-x
+endif
+
+ifeq ($(BR2_PACKAGE_ZLIB),y)
+VLC_DEPENDENCIES += zlib
 endif
 
 $(eval $(autotools-package))

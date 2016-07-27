@@ -9,12 +9,15 @@ config BR2_PACKAGE_QT5WEBKIT
 	# This module does not support static linking
 	depends on !BR2_STATIC_LIBS
 	depends on BR2_PACKAGE_QT5_JSCORE_AVAILABLE
-	depends on BR2_ARCH_HAS_ATOMICS # icu
 	depends on !BR2_BINFMT_FLAT # icu
 	help
 	  Qt is a cross-platform application and UI framework for
 	  developers using C++.
 
 	  This package corresponds to the qt5webkit module.
+
+	  This package has been tagged as deprecated since version
+	  5.5.0 and should be replaced by Qt WebEngine module in
+	  new design.
 
 	  http://qt.io

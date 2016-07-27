@@ -1,8 +1,7 @@
 menuconfig BR2_PACKAGE_FFMPEG
 	bool "ffmpeg"
-	# fenv.h lacks FE_INVALID, FE_OVERFLOW & FE_UNDERFLOW
-	depends on !BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_NIOSII201305
-	depends on !BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_NIOSII201405
+	# fenv.h lacks FE_INVALID, FE_OVERFLOW & FE_UNDERFLOW on nios2
+	depends on !BR2_nios2
 	help
 	  FFmpeg is a complete, cross-platform solution to record, convert
 	  and stream audio and video.
@@ -25,7 +24,6 @@ config BR2_PACKAGE_FFMPEG_NONFREE
 
 config BR2_PACKAGE_FFMPEG_FFMPEG
 	bool "Build ffmpeg (the command line application)"
-	select BR2_PACKAGE_FFMPEG_SWSCALE
 	default y
 	help
 	  FFmpeg is a very fast video and audio converter.
@@ -36,6 +34,7 @@ config BR2_PACKAGE_FFMPEG_FFMPEG
 
 config BR2_PACKAGE_FFMPEG_FFPLAY
 	bool "Build ffplay"
+	select BR2_PACKAGE_FFMPEG_SWSCALE
 	select BR2_PACKAGE_SDL
 	help
 	  FFplay is a very simple and portable media player using the
@@ -44,6 +43,7 @@ config BR2_PACKAGE_FFMPEG_FFPLAY
 
 config BR2_PACKAGE_FFMPEG_FFSERVER
 	bool "Build ffserver"
+	depends on BR2_USE_MMU # fork()
 	help
 	  FFserver is a streaming server for both audio and video.
 

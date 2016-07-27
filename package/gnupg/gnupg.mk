@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GNUPG_VERSION = 1.4.19
+GNUPG_VERSION = 1.4.20
 GNUPG_SOURCE = gnupg-$(GNUPG_VERSION).tar.bz2
 GNUPG_SITE = ftp://ftp.gnupg.org/gcrypt/gnupg
 GNUPG_LICENSE = GPLv3+
@@ -29,6 +29,12 @@ ifeq ($(BR2_PACKAGE_READLINE),y)
 GNUPG_DEPENDENCIES += readline
 else
 GNUPG_CONF_OPTS += --without-readline
+endif
+
+ifeq ($(BR2_PACKAGE_GNUPG_AES),y)
+GNUPG_CONF_OPTS += --enable-aes
+else
+GNUPG_CONF_OPTS += --disable-aes
 endif
 
 ifeq ($(BR2_PACKAGE_GNUPG_RSA),y)

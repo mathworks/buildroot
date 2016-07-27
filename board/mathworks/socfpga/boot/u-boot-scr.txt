@@ -1,5 +1,0 @@
-mmc rescan
-setenv fpgafile socfpga.rbf
-${mmcloadcmd} mmc 0:${mmcloadpart} ${fpgadata} ${fpgafile}
-fpga load 0 ${fpgadata} ${filesize};
-run bridge_enable_handoff;

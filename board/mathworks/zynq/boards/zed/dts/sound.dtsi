@@ -1,8 +1,8 @@
 
-&axi {
+&fpga_axi {
 	i2c@41600000 {
 		compatible = "xlnx,axi-iic-1.01.b", "xlnx,xps-iic-2.00.a";
-		interrupt-parent = <&gic>;
+		interrupt-parent = <&intc>;
 		interrupts = <0 58 0x4>;
 		reg = <0x41600000 0x10000>;
 
@@ -24,10 +24,10 @@
 	axi_i2s_0: axi-i2s@0x77600000 {
 		compatible = "adi,axi-i2s-1.00.a";
 		reg = <0x77600000 0x1000>;
-		dmas = <&ps7_dma 1 &ps7_dma 2>;
+		dmas = <&dmac_s 1 &dmac_s 2>;
 		dma-names = "tx", "rx";
-		clocks = <&clkc 15>, <&audio_clock>, <&audio_clock>;
-		clock-names = "axi", "ref", "i2s";
+		clocks = <&clkc 15>, <&audio_clock>;
+		clock-names = "axi", "ref";
 	};
 
 	zed_sound {

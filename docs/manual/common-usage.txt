@@ -84,6 +84,9 @@ to +make+ or set in the environment:
   configuration interface, so through the Buildroot +.config+ file; this
   is the recommended way of setting it.
   +
+* +BR2_CCACHE_DIR+ to override the directory where
+  Buildroot stores the cached files when using ccache.
+  +
 * +BR2_DL_DIR+ to override the directory in which
   Buildroot stores/retrieves downloaded files
   +
@@ -209,9 +212,10 @@ The +graph-depends+ behaviour can be controlled by setting options in the
   default, +0+, means no limit.
 
 * +--stop-on PKG+, +-s PKG+, to stop the graph on the package +PKG+.
-  +PKG+ can be an actual package name, a glob, or the keyword 'virtual'
-  (to stop on virtual packages). The package is still present on the
-  graph, but its dependencies are not.
+  +PKG+ can be an actual package name, a glob, the keyword 'virtual'
+  (to stop on virtual packages), or the keyword 'host' (to stop on
+  host packages). The package is still present on the graph, but its
+  dependencies are not.
 
 * +--exclude PKG+, +-x PKG+, like +--stop-on+, but also omits +PKG+ from
   the graph.
@@ -271,6 +275,57 @@ only other format supported is PNG:
 
 ----------------
 BR2_GRAPH_OUT=png make graph-build
+----------------
+
+=== Graphing the filesystem size contribution of packages
+
+When your target system grows, it is sometimes useful to understand
+how much each Buildroot package is contributing to the overall root
+filesystem size. To help with such an analysis, Buildroot collects
+data about files installed by each package and using this data,
+generates a graph and CSV files detailing the size contribution of
+the different packages.
+
+To generate these data after a build, run:
+
+----------------
+make graph-size
+----------------
+
+This will generate:
+
+* +output/graphs/graph-size.pdf+, a pie chart of the contribution of
+  each package to the overall root filesystem size
+
+* +output/graphs/package-size-stats.csv+, a CSV file giving the size
+  contribution of each package to the overall root filesystem size
+
+* +output/graphs/file-size-stats.csv+, a CSV file giving the size
+  contribution of each installed file to the package it belongs, and
+  to the overall filesystem size.
+
+This +graph-size+ target requires the Python Matplotlib library to be
+installed (+python-matplotlib+ on most distributions), and also the
++argparse+ module if you're using a Python version older than 2.7
+(+python-argparse+ on most distributions).
+
+Just like for the duration graph, a +BR2_GRAPH_OUT+ environment is
+supported to adjust the output file format. See xref:graph-depends[]
+for details about this environment variable.
+
+.Note
+The collected filesystem size data is only meaningful after a complete
+clean rebuild. Be sure to run +make clean all+ before using +make
+graph-size+.
+
+To compare the root filesystem size of two different Buildroot compilations,
+for example after adjusting the configuration or when switching to another
+Buildroot release, use the +size-stats-compare+ script. It takes two
++file-size-stats.csv+ files (produced by +make graph-size+) as input.
+Refer to the help text of this script for more details:
+
+----------------
+support/scripts/size-stats-compare -h
 ----------------
 
 include::eclipse-integration.txt[]

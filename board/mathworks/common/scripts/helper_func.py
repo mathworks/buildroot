@@ -131,10 +131,26 @@ def gen_verinfo_file(tgt_file):
     f.close()
 
 ########################
+# Update package name
+########################
+
+def update_pkg(pkg):
+    if pkg.lower() == _UBOOT_PKG:
+        ver = get_cfg_var(_UBOOT_VAR)
+        if ver == "":
+            ver = get_cfg_var(_UBOOT_ALTERA_VAR)
+            if ver != "":
+                return _UBOOT_ALTERA_PKG
+    return pkg
+
+########################
 # Locate source directory
 ########################
 
 def get_src_dir(pkg):
+
+    # Resolve the package
+    pkg = update_pkg(pkg)
 
     # Check if we're overriding the source
     override_file = ""    
@@ -151,7 +167,7 @@ def get_src_dir(pkg):
         f = open(override_file, 'r')
         dat = f.read()
         f.close()
-        dat = grep(dat, "%s_OVERRIDE_SRCDIR" % (pkg.upper()))
+        dat = grep(dat, "%s_OVERRIDE_SRCDIR" % (pkg.upper().replace("-", "_")))
         if dat:
             # use the local.mk directory if it's specified
             return re.sub(".*= *","", dat)
@@ -159,12 +175,12 @@ def get_src_dir(pkg):
     # Otherwise check the version and point to the build dir
     if pkg.lower() == "linux":
         ver = get_cfg_var(_LINUX_VAR)        
-    elif pkg.lower() == "uboot":        
+    elif pkg.lower() == _UBOOT_PKG:        
         ver = get_cfg_var(_UBOOT_VAR)
         pkg = _UBOOT_PKG
-        if ver == "":
-            ver = get_cfg_var(_UBOOT_ALTERA_VAR)
-            pkg = _UBOOT_ALTERA_PKG
+    elif pkg.lower() == _UBOOT_ALTERA_PKG:
+        ver = get_cfg_var(_UBOOT_ALTERA_VAR)
+        pkg = _UBOOT_ALTERA_PKG
     else:
         ver = ""
 

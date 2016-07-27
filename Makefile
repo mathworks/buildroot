@@ -2,7 +2,7 @@
 #
 # Copyright (C) 1999-2005 by Erik Andersen <andersen@codepoet.org>
 # Copyright (C) 2006-2014 by the Buildroot developers <buildroot@uclibc.org>
-# Copyright (C) 2014 by the Buildroot developers <buildroot@buildroot.org>
+# Copyright (C) 2014-2016 by the Buildroot developers <buildroot@buildroot.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,27 +24,33 @@
 # You shouldn't need to mess with anything beyond this point...
 #--------------------------------------------------------------
 
+# Trick for always running with a fixed umask
+UMASK = 0022
+ifneq ($(shell umask),$(UMASK))
+.PHONY: _all $(MAKECMDGOALS)
+
+$(MAKECMDGOALS): _all
+	@:
+
+_all:
+	@umask $(UMASK) && $(MAKE) --no-print-directory $(MAKECMDGOALS)
+
+else # umask
+
 # This is our default rule, so must come first
 all:
 
 # Set and export the version string
-export BR2_VERSION := 2015.05
+export BR2_VERSION := 2016.02
+
+# Save running make version since it's clobbered by the make package
+RUNNING_MAKE_VERSION := $(MAKE_VERSION)
 
 # Check for minimal make version (note: this check will break at make 10.x)
 MIN_MAKE_VERSION = 3.81
-ifneq ($(firstword $(sort $(MAKE_VERSION) $(MIN_MAKE_VERSION))),$(MIN_MAKE_VERSION))
-$(error You have make '$(MAKE_VERSION)' installed. GNU make >= $(MIN_MAKE_VERSION) is required)
+ifneq ($(firstword $(sort $(RUNNING_MAKE_VERSION) $(MIN_MAKE_VERSION))),$(MIN_MAKE_VERSION))
+$(error You have make '$(RUNNING_MAKE_VERSION)' installed. GNU make >= $(MIN_MAKE_VERSION) is required)
 endif
-
-export HOSTARCH := $(shell uname -m | \
-	sed -e s/i.86/x86/ \
-	    -e s/sun4u/sparc64/ \
-	    -e s/arm.*/arm/ \
-	    -e s/sa110/arm/ \
-	    -e s/ppc64/powerpc64/ \
-	    -e s/ppc/powerpc/ \
-	    -e s/macppc/powerpc/\
-	    -e s/sh.*/sh/)
 
 # Parallel execution of this Makefile is disabled because it changes
 # the packages building order, that can be a problem for two reasons:
@@ -58,8 +64,8 @@ export HOSTARCH := $(shell uname -m | \
 #
 # Taking into account the above considerations, if you still want to execute
 # this top-level Makefile in parallel comment the ".NOTPARALLEL" line and
-# build using the following command:
-#	make BR2_JLEVEL= -j$((`getconf _NPROCESSORS_ONLN`+1))
+# use the -j<jobs> option when building, e.g:
+#      make -j$((`getconf _NPROCESSORS_ONLN`+1))
 .NOTPARALLEL:
 
 # absolute path
@@ -88,7 +94,7 @@ noconfig_targets := menuconfig nconfig gconfig xconfig config oldconfig randconf
 # something else than one of the nobuild_targets.
 nobuild_targets := source source-check \
 	legal-info external-deps _external-deps \
-	clean distclean
+	clean distclean help
 ifeq ($(MAKECMDGOALS),)
 BR_BUILDING = y
 else ifneq ($(filter-out $(nobuild_targets),$(MAKECMDGOALS)),)
@@ -167,7 +173,9 @@ endif
 ifneq ($(BR2_DL_DIR),)
 DL_DIR := $(BR2_DL_DIR)
 endif
-
+ifneq ($(BR2_CCACHE_DIR),)
+BR_CACHE_DIR := $(BR2_CCACHE_DIR)
+endif
 
 # Need that early, before we scan packages
 # Avoids doing the $(or...) everytime
@@ -210,13 +218,12 @@ ifndef KBUILD_VERBOSE
 endif
 
 ifeq ($(KBUILD_VERBOSE),1)
-  quiet =
   Q =
 ifndef VERBOSE
   VERBOSE = 1
 endif
+export VERBOSE
 else
-  quiet = quiet_
   Q = @
 endif
 
@@ -228,7 +235,7 @@ SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 # kconfig uses CONFIG_SHELL
 CONFIG_SHELL := $(SHELL)
 
-export SHELL CONFIG_SHELL quiet Q KBUILD_VERBOSE VERBOSE
+export SHELL CONFIG_SHELL Q KBUILD_VERBOSE
 
 ifndef HOSTAR
 HOSTAR := ar
@@ -276,6 +283,40 @@ HOSTRANLIB := $(shell which $(HOSTRANLIB) || type -p $(HOSTRANLIB) || echo ranli
 export HOSTAR HOSTAS HOSTCC HOSTCXX HOSTLD
 export HOSTCC_NOCCACHE HOSTCXX_NOCCACHE
 
+# Determine the userland we are running on.
+#
+# Note that, despite its name, we are not interested in the actual
+# architecture name. This is mostly used to determine whether some
+# of the binary tools (e.g. pre-built external toolchains) can run
+# on the current host. So we need to know if the userland we're
+# running on can actually run those toolchains.
+#
+# For example, a 64-bit prebuilt toolchain will not run on a 64-bit
+# kernel if the userland is 32-bit (e.g. in a chroot for example).
+#
+# So, we extract the first part of the tuple the host gcc was
+# configured to generate code for; we assume this is our userland.
+#
+export HOSTARCH := $(shell LC_ALL=C $(HOSTCC_NOCCACHE) -v 2>&1 | \
+	sed -e '/^Target: \([^-]*\).*/!d' \
+	    -e 's//\1/' \
+	    -e 's/i.86/x86/' \
+	    -e 's/sun4u/sparc64/' \
+	    -e 's/arm.*/arm/' \
+	    -e 's/sa110/arm/' \
+	    -e 's/ppc64/powerpc64/' \
+	    -e 's/ppc/powerpc/' \
+	    -e 's/macppc/powerpc/' \
+	    -e 's/sh.*/sh/' )
+
+HOSTCC_VERSION := $(shell $(HOSTCC_NOCCACHE) --version | \
+	sed -n -r 's/^.* ([0-9]*)\.([0-9]*)\.([0-9]*)[ ]*.*/\1 \2/p')
+
+# For gcc >= 5.x, we only need the major version.
+ifneq ($(firstword $(HOSTCC_VERSION)),4)
+HOSTCC_VERSION := $(firstword $(HOSTCC_VERSION))
+endif
+
 # Make sure pkg-config doesn't look outside the buildroot tree
 HOST_PKG_CONFIG_PATH := $(PKG_CONFIG_PATH)
 unexport PKG_CONFIG_PATH
@@ -304,6 +345,7 @@ unexport ARCH
 unexport CC
 unexport CXX
 unexport CPP
+unexport RANLIB
 unexport CFLAGS
 unexport CXXFLAGS
 unexport GREP_OPTIONS
@@ -312,10 +354,12 @@ unexport CONFIG_SITE
 unexport QMAKESPEC
 unexport TERMINFO
 unexport MACHINE
+unexport O
 
 GNU_HOST_NAME := $(shell support/gnuconfig/config.guess)
 
 PACKAGES :=
+PACKAGES_ALL :=
 
 # silent mode requested?
 QUIET := $(if $(findstring s,$(filter-out --%,$(MAKEFLAGS))),-q)
@@ -328,7 +372,7 @@ KERNEL_ARCH := $(shell echo "$(ARCH)" | sed -e "s/-.*//" \
 	-e s/arcle/arc/ \
 	-e s/arceb/arc/ \
 	-e s/arm.*/arm/ -e s/sa110/arm/ \
-	-e s/aarch64/arm64/ \
+	-e s/aarch64.*/arm64/ \
 	-e s/bfin/blackfin/ \
 	-e s/parisc64/parisc/ \
 	-e s/powerpc64.*/powerpc/ \
@@ -347,18 +391,18 @@ HOST_DIR := $(call qstrip,$(BR2_HOST_DIR))
 # Quotes are needed for spaces and all in the original PATH content.
 BR_PATH = "$(HOST_DIR)/bin:$(HOST_DIR)/sbin:$(HOST_DIR)/usr/bin:$(HOST_DIR)/usr/sbin:$(PATH)"
 
-TARGET_SKELETON = $(TOPDIR)/system/skeleton
-
 # Location of a file giving a big fat warning that output/target
 # should not be used as the root filesystem.
 TARGET_DIR_WARNING_FILE = $(TARGET_DIR)/THIS_IS_NOT_YOUR_ROOT_FILESYSTEM
 
 ifeq ($(BR2_CCACHE),y)
 CCACHE := $(HOST_DIR)/usr/bin/ccache
-BR_CACHE_DIR = $(call qstrip,$(BR2_CCACHE_DIR))
+BR_CACHE_DIR ?= $(call qstrip,$(BR2_CCACHE_DIR))
 export BR_CACHE_DIR
 HOSTCC := $(CCACHE) $(HOSTCC)
 HOSTCXX := $(CCACHE) $(HOSTCXX)
+else
+export BR_NO_CCACHE
 endif
 
 # Scripts in support/ or post-build scripts may need to reference
@@ -402,10 +446,37 @@ include $(sort $(wildcard package/*/*.mk))
 
 include boot/common.mk
 include linux/linux.mk
-include system/system.mk
 include fs/common.mk
 
 include $(BR2_EXTERNAL)/external.mk
+
+# Now we are sure we have all the packages scanned and defined. We now
+# check for each package in the list of enabled packages, that all its
+# dependencies are indeed enabled.
+#
+# Only trigger the check for default builds. If the user forces building
+# a package, even if not enabled in the configuration, we want to accept
+# it.
+#
+ifeq ($(MAKECMDGOALS),)
+
+define CHECK_ONE_DEPENDENCY
+ifeq ($$($(2)_TYPE),target)
+ifeq ($$($(2)_IS_VIRTUAL),)
+ifneq ($$($$($(2)_KCONFIG_VAR)),y)
+$$(error $$($(2)_NAME) is in the dependency chain of $$($(1)_NAME) that \
+has added it to its _DEPENDENCIES variable without selecting it or \
+depending on it from Config.in)
+endif
+endif
+endif
+endef
+
+$(foreach pkg,$(call UPPERCASE,$(PACKAGES)),\
+	$(foreach dep,$(call UPPERCASE,$($(pkg)_FINAL_ALL_DEPENDENCIES)),\
+		$(eval $(call CHECK_ONE_DEPENDENCY,$(pkg),$(dep))$(sep))))
+
+endif
 
 dirs: $(BUILD_DIR) $(STAGING_DIR) $(TARGET_DIR) \
 	$(HOST_DIR) $(BINARIES_DIR)
@@ -427,47 +498,17 @@ world: target-post-image
 # dependencies anywhere else
 #
 ################################################################################
-$(BUILD_DIR) $(HOST_DIR) $(BINARIES_DIR) $(LEGAL_INFO_DIR) $(REDIST_SOURCES_DIR_TARGET) $(REDIST_SOURCES_DIR_HOST):
+$(BUILD_DIR) $(TARGET_DIR) $(HOST_DIR) $(BINARIES_DIR) $(LEGAL_INFO_DIR) $(REDIST_SOURCES_DIR_TARGET) $(REDIST_SOURCES_DIR_HOST):
 	@mkdir -p $@
 
-# We make a symlink lib32->lib or lib64->lib as appropriate
-# MIPS64/n32 requires lib32 even though it's a 64-bit arch.
-ifeq ($(BR2_ARCH_IS_64)$(BR2_MIPS_NABI32),y)
-LIB_SYMLINK = lib64
-else
-LIB_SYMLINK = lib32
-endif
-
+# Populating the staging with the base directories is handled by the skeleton package
 $(STAGING_DIR):
-	@mkdir -p $(STAGING_DIR)/bin
-	@mkdir -p $(STAGING_DIR)/lib
-	@ln -snf lib $(STAGING_DIR)/$(LIB_SYMLINK)
-	@mkdir -p $(STAGING_DIR)/usr/lib
-	@ln -snf lib $(STAGING_DIR)/usr/$(LIB_SYMLINK)
-	@mkdir -p $(STAGING_DIR)/usr/include
-	@mkdir -p $(STAGING_DIR)/usr/bin
+	@mkdir -p $(STAGING_DIR)
 	@ln -snf $(STAGING_DIR) $(BASE_DIR)/staging
-
-ifeq ($(BR2_ROOTFS_SKELETON_CUSTOM),y)
-TARGET_SKELETON = $(BR2_ROOTFS_SKELETON_CUSTOM_PATH)
-endif
 
 RSYNC_VCS_EXCLUSIONS = \
 	--exclude .svn --exclude .git --exclude .hg --exclude .bzr \
 	--exclude CVS
-
-$(BUILD_DIR)/.root:
-	mkdir -p $(TARGET_DIR)
-	rsync -a --ignore-times $(RSYNC_VCS_EXCLUSIONS) \
-		--chmod=Du+w --exclude .empty --exclude '*~' \
-		$(TARGET_SKELETON)/ $(TARGET_DIR)/
-	$(INSTALL) -m 0644 support/misc/target-dir-warning.txt $(TARGET_DIR_WARNING_FILE)
-	@ln -snf lib $(TARGET_DIR)/$(LIB_SYMLINK)
-	@mkdir -p $(TARGET_DIR)/usr
-	@ln -snf lib $(TARGET_DIR)/usr/$(LIB_SYMLINK)
-	touch $@
-
-$(TARGET_DIR): $(BUILD_DIR)/.root
 
 STRIP_FIND_CMD = find $(TARGET_DIR)
 ifneq (,$(call qstrip,$(BR2_STRIP_EXCLUDE_DIRS)))
@@ -477,11 +518,12 @@ STRIP_FIND_CMD += -type f \( -perm /111 -o -name '*.so*' \)
 # file exclusions:
 # - libpthread.so: a non-stripped libpthread shared library is needed for
 #   proper debugging of pthread programs using gdb.
+# - ld.so: a non-stripped dynamic linker library is needed for valgrind
 # - kernel modules (*.ko): do not function properly when stripped like normal
 #   applications and libraries. Normally kernel modules are already excluded
 #   by the executable permission check above, so the explicit exclusion is only
 #   done for kernel modules with incorrect permissions.
-STRIP_FIND_CMD += -not \( $(call findfileclauses,libpthread*.so* *.ko $(call qstrip,$(BR2_STRIP_EXCLUDE_FILES))) \) -print0
+STRIP_FIND_CMD += -not \( $(call findfileclauses,libpthread*.so* ld-*.so* *.ko $(call qstrip,$(BR2_STRIP_EXCLUDE_FILES))) \) -print0
 
 ifeq ($(BR2_ECLIPSE_REGISTER),y)
 define TOOLCHAIN_ECLIPSE_REGISTER
@@ -526,17 +568,32 @@ ifeq ($(BR2_ENABLE_LOCALE_PURGE),y)
 LOCALE_WHITELIST = $(BUILD_DIR)/locales.nopurge
 LOCALE_NOPURGE = $(call qstrip,$(BR2_ENABLE_LOCALE_WHITELIST))
 
+# This piece of junk does the following:
+# First collect the whitelist in a file.
+# Then go over all the locale dirs and for each subdir, check if it exists
+# in the whitelist file. If it doesn't, kill it.
+# Finally, specifically for X11, regenerate locale.dir from the whitelist.
 define PURGE_LOCALES
 	rm -f $(LOCALE_WHITELIST)
 	for i in $(LOCALE_NOPURGE) locale-archive; do echo $$i >> $(LOCALE_WHITELIST); done
 
-	for dir in $(wildcard $(addprefix $(TARGET_DIR),/usr/share/locale /usr/share/X11/locale /usr/man /usr/share/man /usr/lib/locale)); \
+	for dir in $(wildcard $(addprefix $(TARGET_DIR),/usr/share/locale /usr/share/X11/locale /usr/lib/locale)); \
 	do \
-		for lang in $$(cd $$dir; ls .|grep -v man); \
+		for langdir in $$dir/*; \
 		do \
-			grep -qx $$lang $(LOCALE_WHITELIST) || rm -rf $$dir/$$lang; \
+			grep -qx $${langdir##*/} $(LOCALE_WHITELIST) || rm -rf $$langdir; \
 		done; \
 	done
+	if [ -d $(TARGET_DIR)/usr/share/X11/locale ]; \
+	then \
+		for lang in $(LOCALE_NOPURGE); \
+		do \
+			if [ -f $(TARGET_DIR)/usr/share/X11/locale/$$lang/XLC_LOCALE ]; \
+			then \
+				echo "$$lang/XLC_LOCALE: $$lang"; \
+			fi \
+		done > $(TARGET_DIR)/usr/share/X11/locale/locale.dir; \
+	fi
 endef
 TARGET_FINALIZE_HOOKS += PURGE_LOCALES
 endif
@@ -550,10 +607,16 @@ target-finalize: $(PACKAGES)
 		$(TARGET_DIR)/usr/lib/pkgconfig $(TARGET_DIR)/usr/share/pkgconfig \
 		$(TARGET_DIR)/usr/lib/cmake $(TARGET_DIR)/usr/share/cmake
 	find $(TARGET_DIR)/usr/{lib,share}/ -name '*.cmake' -print0 | xargs -0 rm -f
-	find $(TARGET_DIR)/lib \( -name '*.a' -o -name '*.la' \) -print0 | xargs -0 rm -f
-	find $(TARGET_DIR)/usr/lib \( -name '*.a' -o -name '*.la' \) -print0 | xargs -0 rm -f
+	find $(TARGET_DIR)/lib $(TARGET_DIR)/usr/lib $(TARGET_DIR)/usr/libexec \
+		\( -name '*.a' -o -name '*.la' \) -print0 | xargs -0 rm -f
 ifneq ($(BR2_PACKAGE_GDB),y)
 	rm -rf $(TARGET_DIR)/usr/share/gdb
+endif
+ifneq ($(BR2_PACKAGE_BASH),y)
+	rm -rf $(TARGET_DIR)/usr/share/bash-completion
+endif
+ifneq ($(BR2_PACKAGE_ZSH),y)
+	rm -rf $(TARGET_DIR)/usr/share/zsh
 endif
 	rm -rf $(TARGET_DIR)/usr/man $(TARGET_DIR)/usr/share/man
 	rm -rf $(TARGET_DIR)/usr/info $(TARGET_DIR)/usr/share/info
@@ -573,19 +636,15 @@ ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
 		xargs -r $(STRIPCMD) $(STRIP_STRIP_DEBUG)
 endif
 
+# Valgrind needs ld.so with enough information, so only strip
+# debugging symbols.
+	find $(TARGET_DIR)/lib -type f -name 'ld-*.so*' | \
+		xargs -r $(STRIPCMD) $(STRIP_STRIP_DEBUG)
+	test -f $(TARGET_DIR)/etc/ld.so.conf && \
+		{ echo "ERROR: we shouldn't have a /etc/ld.so.conf file"; exit 1; } || true
+	test -d $(TARGET_DIR)/etc/ld.so.conf.d && \
+		{ echo "ERROR: we shouldn't have a /etc/ld.so.conf.d directory"; exit 1; } || true
 	mkdir -p $(TARGET_DIR)/etc
-	# Mandatory configuration file and auxiliary cache directory
-	# for recent versions of ldconfig
-	touch $(TARGET_DIR)/etc/ld.so.conf
-	mkdir -p $(TARGET_DIR)/var/cache/ldconfig
-	if [ -x "$(TARGET_CROSS)ldconfig" ]; \
-	then \
-		$(TARGET_CROSS)ldconfig -r $(TARGET_DIR) \
-					-f $(TARGET_DIR)/etc/ld.so.conf; \
-	else \
-		/sbin/ldconfig -r $(TARGET_DIR) \
-			       -f $(TARGET_DIR)/etc/ld.so.conf; \
-	fi
 	( \
 		echo "NAME=Buildroot"; \
 		echo "VERSION=$(BR2_VERSION_FULL)"; \
@@ -597,7 +656,7 @@ endif
 	@$(foreach d, $(call qstrip,$(BR2_ROOTFS_OVERLAY)), \
 		$(call MESSAGE,"Copying overlay $(d)"); \
 		rsync -a --ignore-times $(RSYNC_VCS_EXCLUSIONS) \
-			--chmod=Du+w --exclude .empty --exclude '*~' \
+			--chmod=u=rwX,go=rX --exclude .empty --exclude '*~' \
 			$(d)/ $(TARGET_DIR)$(sep))
 
 	@$(foreach s, $(call qstrip,$(BR2_ROOTFS_POST_BUILD_SCRIPT)), \
@@ -628,7 +687,6 @@ legal-info-prepare: $(LEGAL_INFO_DIR)
 	@$(call legal-manifest,PACKAGE,VERSION,LICENSE,LICENSE FILES,SOURCE ARCHIVE,SOURCE SITE,HOST)
 	@$(call legal-manifest,buildroot,$(BR2_VERSION_FULL),GPLv2+,COPYING,not saved,not saved,HOST)
 	@$(call legal-warning,the Buildroot source code has not been saved)
-	@$(call legal-warning,the toolchain has not been saved)
 	@cp $(BR2_CONFIG) $(LEGAL_INFO_DIR)/buildroot.config
 
 legal-info: dirs legal-info-clean legal-info-prepare $(foreach p,$(PACKAGES),$(p)-all-legal-info) \
@@ -663,8 +721,21 @@ graph-depends: graph-depends-requirements
 	@$(INSTALL) -d $(GRAPHS_DIR)
 	@cd "$(CONFIG_DIR)"; \
 	$(TOPDIR)/support/scripts/graph-depends $(BR2_GRAPH_DEPS_OPTS) \
-	|tee $(GRAPHS_DIR)/$(@).dot \
-	|dot $(BR2_GRAPH_DOT_OPTS) -T$(BR_GRAPH_OUT) -o $(GRAPHS_DIR)/$(@).$(BR_GRAPH_OUT)
+		-o $(GRAPHS_DIR)/$(@).dot
+	dot $(BR2_GRAPH_DOT_OPTS) -T$(BR_GRAPH_OUT) \
+		-o $(GRAPHS_DIR)/$(@).$(BR_GRAPH_OUT) \
+		$(GRAPHS_DIR)/$(@).dot
+
+graph-size:
+	$(Q)mkdir -p $(GRAPHS_DIR)
+	$(Q)$(TOPDIR)/support/scripts/size-stats --builddir $(BASE_DIR) \
+		--graph $(GRAPHS_DIR)/graph-size.$(BR_GRAPH_OUT) \
+		--file-size-csv $(GRAPHS_DIR)/file-size-stats.csv \
+		--package-size-csv $(GRAPHS_DIR)/package-size-stats.csv
+
+check-dependencies:
+	@cd "$(CONFIG_DIR)"; \
+	$(TOPDIR)/support/scripts/graph-depends -C
 
 else # ifeq ($(BR2_HAVE_DOT_CONFIG),y)
 
@@ -694,6 +765,7 @@ COMMON_CONFIG_ENV = \
 	KCONFIG_TRISTATE=$(BUILD_DIR)/buildroot-config/tristate.config \
 	BR2_CONFIG=$(BR2_CONFIG) \
 	BR2_EXTERNAL=$(BR2_EXTERNAL) \
+	HOST_GCC_VERSION="$(HOSTCC_VERSION)" \
 	SKIP_LEGACY=
 
 xconfig: $(BUILD_DIR)/buildroot-config/qconf outputmakefile
@@ -777,6 +849,7 @@ savedefconfig: $(BUILD_DIR)/buildroot-config/conf outputmakefile
 	@$(COMMON_CONFIG_ENV) $< \
 		--savedefconfig=$(if $(DEFCONFIG),$(DEFCONFIG),$(CONFIG_DIR)/defconfig) \
 		$(CONFIG_CONFIG_IN)
+	@$(SED) '/BR2_DEFCONFIG=/d' $(if $(DEFCONFIG),$(DEFCONFIG),$(CONFIG_DIR)/defconfig)
 
 .PHONY: defconfig savedefconfig
 
@@ -794,10 +867,13 @@ ifeq ($(NEED_WRAPPER),y)
 	$(Q)$(TOPDIR)/support/scripts/mkmakefile $(TOPDIR) $(O)
 endif
 
-# printvars prints all the variables currently defined in our Makefiles
+# printvars prints all the variables currently defined in our
+# Makefiles. Alternatively, if a non-empty VARS variable is passed,
+# only the variables matching the make pattern passed in VARS are
+# displayed.
 printvars:
 	@$(foreach V, \
-		$(sort $(.VARIABLES)), \
+		$(sort $(if $(VARS),$(filter $(VARS),$(.VARIABLES)),$(.VARIABLES))), \
 		$(if $(filter-out environment% default automatic, \
 				$(origin $V)), \
 		$(info $V=$($V) ($(value $V)))))
@@ -815,7 +891,7 @@ ifeq ($(O),output)
 	rm -rf $(O)
 endif
 	rm -rf $(BR2_CONFIG) $(CONFIG_DIR)/.config.old $(CONFIG_DIR)/..config.tmp \
-		$(CONFIG_DIR)/.auto.deps
+		$(CONFIG_DIR)/.auto.deps $(BR2_EXTERNAL_FILE)
 
 help:
 	@echo 'Cleaning:'
@@ -856,7 +932,6 @@ help:
 	@echo '  <pkg>-dirclean         - Remove <pkg> build directory'
 	@echo '  <pkg>-reconfigure      - Restart the build from the configure step'
 	@echo '  <pkg>-rebuild          - Restart the build from the build step'
-	@echo '  <pkg>-legal-info       - Generate license information for <pkg>'
 ifeq ($(BR2_PACKAGE_BUSYBOX),y)
 	@echo '  busybox-menuconfig     - Run BusyBox menuconfig'
 endif
@@ -883,6 +958,7 @@ endif
 	@echo '  manual-epub            - build manual in ePub'
 	@echo '  graph-build            - generate graphs of the build times'
 	@echo '  graph-depends          - generate graph of the dependency tree'
+	@echo '  graph-size             - generate stats of the filesystem size'
 	@echo '  list-defconfigs        - list all defconfigs (pre-configured minimal systems)'
 	@echo
 	@echo 'Miscellaneous:'
@@ -917,6 +993,7 @@ release: OUT = buildroot-$(BR2_VERSION)
 release:
 	git archive --format=tar --prefix=$(OUT)/ HEAD > $(OUT).tar
 	$(MAKE) O=$(OUT) manual-html manual-text manual-pdf
+	$(MAKE) O=$(OUT) manual-clean
 	tar rf $(OUT).tar $(OUT)
 	gzip -9 -c < $(OUT).tar > $(OUT).tar.gz
 	bzip2 -9 -c < $(OUT).tar > $(OUT).tar.bz2
@@ -929,3 +1006,5 @@ include docs/manual/manual.mk
 -include $(BR2_EXTERNAL)/docs/*/*.mk
 
 .PHONY: $(noconfig_targets)
+
+endif #umask

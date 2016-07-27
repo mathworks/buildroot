@@ -123,13 +123,15 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     # Copy over the u-boot script
     ##############
-    # Copy to image dir
-    shutil.copy("%s/boot/u-boot-scr.txt" % (_PLATFORM_DIR), "%s/u-boot-scr.txt" % (ENV['IMAGE_DIR']) )    
-    # Convert to uimage
-    argStr = """%s/usr/bin/mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "U-Boot Script" -d u-boot-scr.txt u-boot.scr""" % (ENV['HOST_DIR'])
-    subprocess.call(shlex.split(argStr), cwd=ENV['IMAGE_DIR'])
-    # move to sd card
-    shutil.move("%s/u-boot.scr" % (ENV['IMAGE_DIR']), "%s/u-boot.scr" % (ENV['SD_DIR']))
+    scriptSrc = "%s/boot/u-boot-scr.txt" % (_PLATFORM_DIR) 
+    if os.path.exists(scriptSrc):
+        # Copy to image dir
+        shutil.copy(scriptSrc, "%s/u-boot-scr.txt" % (ENV['IMAGE_DIR']) )    
+        # Convert to uimage
+        argStr = """%s/usr/bin/mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "U-Boot Script" -d u-boot-scr.txt u-boot.scr""" % (ENV['HOST_DIR'])
+        subprocess.call(shlex.split(argStr), cwd=ENV['IMAGE_DIR'])
+        # move to sd card
+        shutil.move("%s/u-boot.scr" % (ENV['IMAGE_DIR']), "%s/u-boot.scr" % (ENV['SD_DIR']))
 
     ##############
     # Copy over u-boot (SPL will load u-boot.img)
