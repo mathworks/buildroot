@@ -5,20 +5,17 @@
 			compatible = "altr,socfpga-fpga2sdram-bridge";
 	    };
 
-        fpga_axi_bridge: bridge@0xc0000000 {
+        base_fpga: base_fpga_region {
+            
             ranges =    <0x0 0x0 0xc0000000 0x20000000>,
                         <0x1 0x0 0xff200000 0x00200000>;
             #size-cells = <0x1>;
             #address-cells = <0x2>;
-            reg-names = "axi_h2f", "axi_h2f_lw";
-            reg = <0xc0000000 0x20000000 0xff200000 0x200000>;
-            compatible = "altr,bridge-1.0", "simple-bus";
             
             fpga_axi: bridge0@0x0 {
                 compatible = "simple-bus";
                 #size-cells = <0x1>;
                 #address-cells = <0x1>;
-                reg = <0x0 0x0 0x20000000>;
                 ranges = <0x0 0x0 0x0 0x20000000>;
             };
 
@@ -26,7 +23,6 @@
                 compatible = "simple-bus";
                 #size-cells = <0x1>;
                 #address-cells = <0x1>;
-                reg = <0x1 0x0 0x00200000>;
                 ranges = <0x0 0x1 0x0 0x00200000>;
             };       
         };
