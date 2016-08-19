@@ -1,4 +1,0 @@
-###########################################
-# ZedBoard Options
-###########################################
-BR2_TARGET_UBOOT_BOARDNAME="zynq_microzed"

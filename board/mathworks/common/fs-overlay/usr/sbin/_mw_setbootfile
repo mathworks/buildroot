@@ -49,6 +49,7 @@ fi
 # 2) The target RD dir is not empty
 if [ "$SRCDIR" != "$_UBOOT_ROOT" ] || [ "$_UBOOT_RD_TGT_DIR" != "" ]; then
     echo "# Copying $FILETYPE $FILENAME to $TGTDIR"
+    mkdir -p $TGTDIR
     cp -f $FILEPATH ${TGTDIR}/${FILENAME}
 fi
 
