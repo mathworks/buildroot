@@ -131,26 +131,10 @@ def gen_verinfo_file(tgt_file):
     f.close()
 
 ########################
-# Update package name
-########################
-
-def update_pkg(pkg):
-    if pkg.lower() == _UBOOT_PKG:
-        ver = get_cfg_var(_UBOOT_VAR)
-        if ver == "":
-            ver = get_cfg_var(_UBOOT_ALTERA_VAR)
-            if ver != "":
-                return _UBOOT_ALTERA_PKG
-    return pkg
-
-########################
 # Locate source directory
 ########################
 
 def get_src_dir(pkg):
-
-    # Resolve the package
-    pkg = update_pkg(pkg)
 
     # Check if we're overriding the source
     override_file = ""    
@@ -178,9 +162,6 @@ def get_src_dir(pkg):
     elif pkg.lower() == _UBOOT_PKG:        
         ver = get_cfg_var(_UBOOT_VAR)
         pkg = _UBOOT_PKG
-    elif pkg.lower() == _UBOOT_ALTERA_PKG:
-        ver = get_cfg_var(_UBOOT_ALTERA_VAR)
-        pkg = _UBOOT_ALTERA_PKG
     else:
         ver = ""
 
@@ -265,8 +246,6 @@ _BMSG = {
 _LINUX_VAR = "BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION"
 _UBOOT_VAR = "BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION"
 _UBOOT_PKG = "uboot"
-_UBOOT_ALTERA_VAR = "BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION"
-_UBOOT_ALTERA_PKG = "uboot-altera"
 
 ########################################
 # Exported Globals

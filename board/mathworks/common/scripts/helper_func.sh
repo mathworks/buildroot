@@ -33,8 +33,8 @@ function verinfo() {
 
 function gen_verinfo_file() {
     local tgt_file=$1
-    local uboot_var=$2
-    local uboot_pkg=$3
+    local uboot_var='BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION'
+    local uboot_pkg='uboot'
     local linux_var='BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION'
 
     pushd ${BR_ROOT}

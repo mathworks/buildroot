@@ -12,13 +12,6 @@ PLATFORM_DIR=$( cd "$( dirname "${SCRIPT_DIR}" )" && pwd )
 COMMON_DIR=$( cd "$( dirname "${PLATFORM_DIR}" )" && pwd )/common
 source ${COMMON_DIR}/scripts/parse_opts.sh
 
-
-###################################
-# Setup some params
-###################################
-UBOOT_VAR="BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION"
-UBOOT_PKG="uboot-altera"
-
 ###################################
 # Source the common script
 ###################################

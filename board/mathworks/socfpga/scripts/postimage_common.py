@@ -41,7 +41,7 @@ def _make_sdimage(outputDir, image, catalog):
         binDirs[idx] = os.path.join(ENV['HOST_DIR'], d)
     sudoPath = "PATH=%s:%s" % (":".join(binDirs), os.environ['PATH'])
     
-    SPL = "%s/preloader-mkpimage.bin" % (ENV['IMAGE_DIR'])
+    SPL = "%s/u-boot-spl.bin.crc" % (ENV['IMAGE_DIR'])
     bootLoader = "%s/u-boot.img" % (ENV['IMAGE_DIR'])
     buildDate = time.strftime("%F")
     fatFileList = ",".join(_build_file_list(ENV['SD_DIR']))
