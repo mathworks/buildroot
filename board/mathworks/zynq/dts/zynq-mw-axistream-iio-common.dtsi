@@ -21,7 +21,7 @@
             dma-channels = <0x1>;
             xlnx,datawidth = <0x20>;
             xlnx,no-coalesce;
-            xlnx,force-halt;
+            xlnx,halt-mode = "always-force";
         };
     };
     axi4stream_s2mm:axidma@40030000 {
@@ -39,7 +39,7 @@
             dma-channels = <0x1>;            
             xlnx,datawidth = <0x20>;
             xlnx,no-coalesce;
-            xlnx,force-halt;
+            xlnx,halt-mode = "always-force";
         };
     };
 };
