@@ -8,15 +8,16 @@ to build and how to combine them together. An example file is show below:
     <default>
         <app name="default">
             <fsbl file="axilite_fsbl.elf"/>
-            <bit file="axilite.bit"/>
         </app>
     </default>
     <image name="zynq7000ec">
         <app name="axilite">
             <dts file="axilite.dts"/>
+            <bit file="axilite.bit"/>
         </app>
         <app name="axistream">
             <dts file="axistream.dts"/>
+            <bit file="axistream.bit"/>
         </app>
     </image>
 </board>
@@ -67,6 +68,13 @@ The board node has the following sub-nodes:
 | dtsi          | dir   | A DTS include directory-- will be added to the path for compiling the DTB file. Multiple nodes can be specified |
 | br2_config    | file  | A buildroot config file to append to generated buildroot config. Can be used to specify new values or override existing ones |
 | kernel_config | file  | The kernel configuration to use instead of the default in-tree defconfig |
+| fsbl          | file  | (zynq only) The First Stage Bootloader to build for the SD Card. |
+| handoff       | dir   | (socfpga only) The Quartus handoff files to use in generating the U-Boot SPL. |
+
+When locating the fsbl/handoff files, the following paths are searched (in order):
+* Relative to the catalog file, in the *boot* subdirectory
+* Relative to the catalog file
+* Relative to the board directory (in-tree or otherwise), in the *boot* subdirectory as above
 
 #### Platform Notes: socfpga
 
@@ -96,19 +104,11 @@ The app node has the following sub-nodes:
 | __Node__      | __Attributes__ | __Description__ |
 | ---           | ---   | --- |
 | dts           | file  | The DTS file to build for the application. |
-| fsbl          | file  | (zynq only) The First Stage Bootloader to build for the application. |
-| handoff       | dir   | (socfpga only) The Quartus handoff files to use in generating the U-Boot SPL. |
 | bit           | file  | The bitstream to build for the application. |
 
 When locating the specified files, the following paths are searched (in order):
 * Relative to the catalog file, in the per-file subdirectories
     * dts: ./dts directory
     * bit: ./boot directory
-    * fsbl: ./boot directory
 * Relative to the catalog file
 * Relative to the board directory (in-tree or otherwise), in the per-file subdirectories as above
-
-#### Platform Notes: zynq
-If an _app_ node specifies a FSBL or bitstream, a BOOT.BIN will be generated for
-the app. Otherwise one will not be generated. A BOOT.BIN will always be genreated for
-the first (default) app.
