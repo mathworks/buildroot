@@ -70,6 +70,10 @@ main() {
         # blocks; we scale inodes / blocks with 10% to compensate for
         # bitmaps size + slack
         nb_blocks=$(du -s -k "${root_dir}" |sed -r -e 's/[[:space:]]+.*$//')
+        nb_blocks_a=$(du -s -k --apparent-size "${root_dir}" |sed -r -e 's/[[:space:]]+.*$//')
+        if [ $nb_blocks_a -gt $nb_blocks ]; then
+            nb_blocks=$nb_blocks_a
+        fi
         nb_blocks=$((500+(nb_blocks+nb_inodes/8)*11/10))
         if [ ${gen} -ge 3 ]; then
             # we add 1300 blocks (a bit more than 1 MiB, assuming 1KiB blocks)
