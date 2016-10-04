@@ -83,6 +83,9 @@ if [ ${recurse} -eq 1 ]; then
     _git submodule update --init --recursive
 fi
 
+# Capture the git hash
+_git log -n 1 --pretty="%H" > .br2_version
+
 # We do not need the .git dir; we keep other .git files, in case they
 # are the only files in their directory.
 rm -rf .git
