@@ -1,0 +1,70 @@
+config BR2_TARGET_ATFIRMWARE
+	bool "ARM Trusted Firmware (ATF)"
+	depends on BR2_aarch64 && BR2_TARGET_UBOOT
+	select BR2_TARGET_SCPFIRMWARE if BR2_TARGET_ATFIRMWARE_PLATFORM='juno'
+	help
+	  Enable this option if you want to build the ATF for your ARM based
+	  embedded device.
+
+if BR2_TARGET_ATFIRMWARE
+choice
+	prompt "version"
+	help
+	  Select the specific ATF version you want to use
+
+config BR2_TARGET_ATFIRMWARE_LATEST_VERSION
+	bool "v1.2"
+
+config BR2_TARGET_ATFIRMWARE_CUSTOM_TARBALL
+	bool "Custom tarball"
+
+config BR2_TARGET_ATFIRMWARE_CUSTOM_GIT
+	bool "Custom Git repository"
+
+endchoice
+
+if BR2_TARGET_ATFIRMWARE_CUSTOM_TARBALL
+
+config BR2_TARGET_ATFIRMWARE_CUSTOM_TARBALL_LOCATION
+	string "URL of custom ARM Trusted Firmware tarball"
+
+endif
+
+config BR2_TARGET_ATFIRMWARE_VERSION
+	string
+	default "v1.2"	if BR2_TARGET_ATFIRMWARE_LATEST_VERSION
+	default "custom"	if BR2_TARGET_ATFIRMWARE_CUSTOM_TARBALL
+	default BR2_TARGET_ATFIRMWARE_CUSTOM_GIT_VERSION if BR2_TARGET_ATFIRMWARE_CUSTOM_GIT
+
+config BR2_TARGET_ATFIRMWARE_CUSTOM_PATCH_DIR
+	string "Custom patch dir"
+	help
+	  If your ATF requires custom patches, add the path to the
+	  directory containing the patches here.
+
+if BR2_TARGET_ATFIRMWARE_CUSTOM_GIT
+
+config BR2_TARGET_ATFIRMWARE_CUSTOM_GIT_REPO_URL
+	string "URL of custom Git repository"
+
+config BR2_TARGET_ATFIRMWARE_CUSTOM_GIT_VERSION
+	string "Custom Git version"
+	help
+	  Revision to use in the typical format used by Git
+	  E.G. a sha id, a tag, ..
+
+endif
+
+config BR2_TARGET_ATFIRMWARE_PLATFORM
+	string "Name of ATF platform to build for"
+	help
+	  Target plaform to build for.
+	  E.G. If using ARM Juno, please type 'juno'
+
+config BR2_TARGET_ATFIRMWARE_ADDITIONAL_VARIABLES
+	string "Additional ATF build variables"
+	help
+	  Additional parameters for the ATF build
+	  E.G. 'DEBUG=1 LOG_LEVEL=20'
+
+endif
