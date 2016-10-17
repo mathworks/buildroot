@@ -7,8 +7,8 @@ to build and how to combine them together. An example file is show below:
 <board name="zed" platform="zynq">
     <default>
         <app name="default">
-            <fsbl file="axilite_fsbl.elf"/>
         </app>
+        <fsbl file="axilite_fsbl.elf"/>
     </default>
     <image name="zynq7000ec">
         <app name="axilite">
@@ -78,9 +78,11 @@ When locating the fsbl/handoff files, the following paths are searched (in order
 
 #### Platform Notes: socfpga
 
-For the socfpga platform, the _app_ node must specify a _handoff_ directory
-(see the app section below). This is used in the catalog-wide build process and cannot
-be overriden by image-specific applications.
+The handoff folder can either be the output of Quartus (the hps_isw_handoff 
+folder) or a folder containing two folders: "handoff" (the Quartus files) 
+and "generated", the _generated_ folder from the SoC EDS BSP Creator. If the 
+former is used, buildroot will automatically create the BSP, but will require 
+the Altera SoC EDS to be present on the build machine
 
 ## Image Node(s)
 Each image represents a distinct output from the tool, made up of the common settings
