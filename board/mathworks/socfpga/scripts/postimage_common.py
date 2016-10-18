@@ -6,10 +6,10 @@ from helper_func import *
 ####################################
 # Helper functions
 ####################################
-def _generate_a2_cfgFile(spl, uboot, cfgFile):
+def _generate_a2_cfgFile(spl, cfgFile):
 
-    splsize = os.stat(spl).st_size
-    ubootsize = os.stat(uboot).st_size
+    # Pad the A2 image up to 1M
+    # HPS will fail to boot with too small of a2 partition
     a2size = 1024*1024
 
     f = open(cfgFile, 'w')
@@ -27,12 +27,7 @@ def _generate_a2_cfgFile(spl, uboot, cfgFile):
     f.write("    partition spl {\n")
     f.write('        in-partition-table = "no"\n')
     f.write('        image = "%s" \n' % spl)   
-    f.write("        size = %d" % splsize)
-    f.write("    }\n")
-    f.write("    partition u-boot {\n")
-    f.write('        in-partition-table = "no"\n')
-    f.write('        image = "%s"\n' % uboot)
-    f.write("        size = %d" % ubootsize)
+    f.write("        size = %d\n" % a2size)
     f.write("    }\n")
     f.write("}\n")
 
@@ -45,8 +40,7 @@ def _generate_a2_img():
 
     cfgFile = "%s/boot.a2.cfg" % ENV['IMAGE_DIR']
     spl = "%s/u-boot-spl.bin.crc" % (ENV['IMAGE_DIR'])
-    uboot = "%s/u-boot.img" % (ENV['IMAGE_DIR'])
-    _generate_a2_cfgFile(spl, uboot, cfgFile)
+    _generate_a2_cfgFile(spl, cfgFile)
 
     run_genimage(cfgFile, ENV['IMAGE_DIR'])
     return imgFile
@@ -67,7 +61,7 @@ def _make_sdimage(outputDir, image, catalog):
 
     # Generate the SD FAT partition config file
     gen_sd_fat_cfg()
-    # Generate the A2 image
+    # Generate the A2 parition
     _generate_a2_img()
 
     print_msg("Generating target image: %s" % imageFile)
