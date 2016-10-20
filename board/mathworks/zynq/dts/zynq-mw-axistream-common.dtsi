@@ -35,7 +35,7 @@
 };
 	
 &mwipcore0 {
-    dmas = <&axi4stream 0 
-            &axi4stream 1>;
-    dma-names = "mm2s", "s2mm";
+	dmas = <&axi4stream 0 
+			&axi4stream 1>;
+	dma-names = "mm2s", "s2mm";
 };

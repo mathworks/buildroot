@@ -1,5 +1,5 @@
 &i2c0{
-    i2cswitch@74 {
+	i2cswitch@74 {
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -18,8 +18,8 @@
 				clock-frequency = <148500000>;
 			};
 		};
-        
-        i2c@1 {
+		
+		i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
@@ -38,7 +38,7 @@
 				adi,hsync-polarity = <0x02>;
 				adi,tdms-clock-inversion;
 				adi,clock-delay = <0x03>;
-		    };
+			};
 		};
 
 		i2c@2 {
