@@ -14,6 +14,10 @@
 		compatible = "xlnx,axi-dma-1.00.a";
 		reg = <0x40020000 0xffff>;
 		xlnx,include-sg = <0x1>;
+		xlnx,halt-mode = "reset-always";
+		xlnx,addrwidth = <0x20>;
+		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
+		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_mm2s_aclk";
 		dma-channel@40020000  {
 			reg = <0x0>;
 			compatible = "xlnx,axi-dma-mm2s-channel";
@@ -21,7 +25,6 @@
 			dma-channels = <0x1>;
 			xlnx,datawidth = <0x20>;
 			xlnx,no-coalesce;
-			xlnx,halt-mode = "always-force";
 		};
 	};
 	axi4stream_s2mm:axidma@40030000 {
@@ -32,6 +35,10 @@
 		compatible = "xlnx,axi-dma-1.00.a";
 		reg = <0x40030000 0xffff>;
 		xlnx,include-sg = <0x1>;
+		xlnx,halt-mode = "reset-always";
+		xlnx,addrwidth = <0x20>;
+		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
+		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_s2mm_aclk";
 		dma-channel@40030030 {
 			reg = <0x0>;
 			compatible = "xlnx,axi-dma-s2mm-channel";
@@ -39,7 +46,6 @@
 			dma-channels = <0x1>;			
 			xlnx,datawidth = <0x20>;
 			xlnx,no-coalesce;
-			xlnx,halt-mode = "always-force";
 		};
 	};
 };
