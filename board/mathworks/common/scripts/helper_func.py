@@ -21,6 +21,92 @@ def _get_color(val, bg=False):
         color = _BCOLORS['FG'] + str(val) + 'm'
     return color
 
+
+########################
+# File Listing
+########################
+def build_file_list(inDir):
+    fList = os.listdir(inDir)
+    for idx, f in enumerate(fList):
+        fList[idx] = os.path.realpath(os.path.join(inDir, f))
+    return fList
+
+def build_relative_file_list(inDir, toDir):
+    fList = build_file_list(inDir)       
+    toDir = "%s/" % os.path.realpath(toDir)
+    for idx, f in enumerate(fList):
+        fList[idx] = fList[idx].replace(toDir,"")
+
+    return fList
+
+########################
+# Genimage
+########################
+def run_genimage(cfgFile, ioPath, rootPath=""):
+    genimgDir = "%s/genimg" % ioPath
+    mkdir(genimgDir)
+    if rootPath is None:
+        rootPath = "%s/root" % genimgDir
+        mkdir(rootPath)
+    elif rootPath == "":
+        rootPath = ENV['TARGET_DIR']
+    genimgTmp = "%s/tmp" % genimgDir
+    rm(genimgTmp)
+    argStr = (  "genimage "
+                "--rootpath %s " 
+                "--tmppath %s " 
+                "--inputpath %s " 
+                "--outputpath %s " 
+                "--config %s"  ) % (
+                    rootPath,
+                    genimgTmp,
+                    ioPath,
+                    ioPath,
+                    cfgFile)
+    print argStr           
+    subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
+    rm(genimgDir)
+
+def generate_fat_genimg_cfg(fileList, cfgFile, imgFile, size="250M"):
+    f = open(cfgFile, 'w')
+    f.write("image %s {\n" % imgFile)
+    f.write("    vfat {\n")
+    f.write("        files = {\n")
+        
+    for idx, elem in enumerate(fileList):
+        f.write('            "%s"' % elem)
+        if idx != len(fileList)-1:
+            f.write(",")
+        f.write("\n")
+    f.write("        }\n")
+    f.write("    }\n")
+    f.write("    size = %s\n" % size)
+    f.write("}\n")
+        
+    f.close()
+
+def generate_fat_image(fatDir, imgFile):
+    imgFilePath = os.path.realpath("%s/%s" % (ENV['IMAGE_DIR'], imgFile))
+    rm(imgFilePath)
+    print_msg("Generating FAT32 image: %s" % imgFilePath)
+
+    cfgFile = "%s/sdcard.vfat.cfg" % ENV['IMAGE_DIR']
+    fileList = build_relative_file_list(fatDir,ENV['IMAGE_DIR'])
+    generate_fat_genimg_cfg(fileList, cfgFile, imgFile)
+
+    run_genimage(cfgFile, ENV['IMAGE_DIR'])
+    return imgFilePath
+
+######################
+# Generate the standard SD FAT partition config
+######################
+def gen_sd_fat_cfg():
+    imgFile = "sdcard.vfat.img"
+    cfgFile = "%s/sdcard.vfat.cfg" % ENV['IMAGE_DIR']
+    fileList = build_relative_file_list(ENV['SD_DIR'],ENV['IMAGE_DIR'])
+    generate_fat_genimg_cfg(fileList, cfgFile, imgFile)
+
+
 ########################
 # Printing Functions
 ########################
@@ -67,6 +153,13 @@ def rm(fileDir):
         shutil.rmtree(fileDir)
     elif os.path.exists(fileDir):
         os.remove(fileDir)
+
+########################
+# mkdir utility
+########################
+def mkdir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 
 ########################
@@ -131,26 +224,10 @@ def gen_verinfo_file(tgt_file):
     f.close()
 
 ########################
-# Update package name
-########################
-
-def update_pkg(pkg):
-    if pkg.lower() == _UBOOT_PKG:
-        ver = get_cfg_var(_UBOOT_VAR)
-        if ver == "":
-            ver = get_cfg_var(_UBOOT_ALTERA_VAR)
-            if ver != "":
-                return _UBOOT_ALTERA_PKG
-    return pkg
-
-########################
 # Locate source directory
 ########################
 
 def get_src_dir(pkg):
-
-    # Resolve the package
-    pkg = update_pkg(pkg)
 
     # Check if we're overriding the source
     override_file = ""    
@@ -178,9 +255,6 @@ def get_src_dir(pkg):
     elif pkg.lower() == _UBOOT_PKG:        
         ver = get_cfg_var(_UBOOT_VAR)
         pkg = _UBOOT_PKG
-    elif pkg.lower() == _UBOOT_ALTERA_PKG:
-        ver = get_cfg_var(_UBOOT_ALTERA_VAR)
-        pkg = _UBOOT_ALTERA_PKG
     else:
         ver = ""
 
@@ -265,8 +339,6 @@ _BMSG = {
 _LINUX_VAR = "BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION"
 _UBOOT_VAR = "BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION"
 _UBOOT_PKG = "uboot"
-_UBOOT_ALTERA_VAR = "BR2_PACKAGE_UBOOT_ALTERA_CUSTOM_REPO_VERSION"
-_UBOOT_ALTERA_PKG = "uboot-altera"
 
 ########################################
 # Exported Globals

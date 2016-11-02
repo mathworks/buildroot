@@ -37,14 +37,9 @@ def _find_file(baseDir,filePath, tag=""):
     return filePath
 
 ###############
-# Find File from Element
+# Search for file
 ###############
-def _find_file_from_element(element):
-    tag = element.tag
-    fileSrc = element.get('file')
-    if fileSrc is None:
-        fileSrc = element.get('dir')
-    
+def _search_file(baseDir, fileSrc, tag="", noneOkay=False):
     # First search relative to the board xml file, in the specified directories
     filePath = _find_file(_CATALOG_DIR,fileSrc, tag=tag)
     if filePath is None:
@@ -54,8 +49,20 @@ def _find_file_from_element(element):
             # Last search in the board directory
             filePath = _find_file(_defaults['boardInfo']['dir'],fileSrc, tag=tag)
     
-    if filePath is None:                
-        raise IOError("[App: %s]Cannot find %s file: %s" %(appInfo['name'], tag, fileSrc))
+    if (filePath is None) and (not noneOkay):                
+        raise IOError("Cannot find %s file: %s" %(tag, fileSrc))
+    return filePath
+
+###############
+# Find File from Element
+###############
+def _find_file_from_element(element):
+    tag = element.tag
+    fileSrc = element.get('file')
+    if fileSrc is None:
+        fileSrc = element.get('dir')
+    
+    filePath = _search_file(_CATALOG_DIR, fileSrc, tag=tag)
     return filePath
 
 ###############
@@ -215,6 +222,15 @@ def _load_defaults(defNode):
     # Load the default SD card directory
     _defaults['sdcardDir'] = _find_sd_dir(defNode, loadDefaults=False)
     _defaults['dtsIncDirs'] = list()
+
+    # Load the genimage config
+    genImg = defNode.find('genimage')
+    if genImg is None:
+        genImgCfg = "%s/genimg.cfg" % (_PLATFORM_DIR)
+        _defaults['genimage'] = _search_file(_CATALOG_DIR, genImgCfg, "", True)
+    else:
+        _defaults['genimage'] = _search_file(_CATALOG_DIR, genImg.get('file'))
+
     # Load the global include directories
     for dtsi in defNode.findall('dtsi'):
         _add_include_dir(dtsi.get('dir'),_defaults['dtsIncDirs'])
@@ -234,6 +250,7 @@ def _load_defaults(defNode):
 def read_catalog(catalogFile, imageNames=["all"]):
     global _CATALOG_DIR
     global _PLATFORM_NAME
+    global _PLATFORM_DIR
     global _BOARD_NAME
 
     # Determine the board dir
@@ -245,6 +262,7 @@ def read_catalog(catalogFile, imageNames=["all"]):
     # Now capture some info
     _PLATFORM_NAME = root.get('platform')
     _BOARD_NAME = root.get('name')
+    _PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + _PLATFORM_NAME
 
     # determine the group configuration
     if imageNames == ["all"]:
@@ -275,7 +293,7 @@ def read_catalog(catalogFile, imageNames=["all"]):
     catalog = dict()
     catalog['boardName'] = _BOARD_NAME
     catalog['platformName'] = _PLATFORM_NAME
-    catalog['platformDir'] = os.path.dirname(COMMON_DIR) + "/" + catalog['platformName']
+    catalog['platformDir'] = _PLATFORM_DIR
     catalog['catalogDir'] = _CATALOG_DIR
     catalog['defaultInfo'] = _defaults
     catalog['imageList'] = imageList
@@ -289,3 +307,4 @@ _defaults = dict()
 _CATALOG_DIR = ""
 _PLATFORM_NAME = ""
 _BOARD_NAME = ""
+_PLATFORM_DIR = ""

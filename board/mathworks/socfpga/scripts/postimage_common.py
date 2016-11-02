@@ -6,86 +6,73 @@ from helper_func import *
 ####################################
 # Helper functions
 ####################################
-##############
-# Build a list of files in a dir
-##############
-def _build_file_list(inDir):
-    fList = os.listdir(inDir)
-    for idx, f in enumerate(fList):
-        fList[idx] = os.path.join(inDir, f)
-    return fList
-    
-##############
-# Run a sudo command
-##############
-def sudocmd(cmd, cwd=None, env=None):
-    if cwd is None:
-        cwd = os.getcwd()
-    if isinstance(cmd, str):
-        cmd = shlex.split(cmd)
-    if not env is None:
-        newcmd = env
-        newcmd.insert(0,"env")
-        newcmd.extend(cmd)
-        cmd = newcmd
-    cmd.insert(0,"sudo")
-    subprocess.call(cmd, cwd=cwd)
-    
+def _generate_a2_cfgFile(spl, cfgFile):
+
+    # Pad the A2 image up to 1M
+    # HPS will fail to boot with too small of a2 partition
+    a2size = 1024*1024
+
+    f = open(cfgFile, 'w')
+
+    f.write("flash dummy {\n")
+    f.write("    pebsize = 1\n")
+    f.write("    lebsize = 1\n")
+    f.write("    numpebs = %d\n" % a2size)
+    f.write("}\n")
+
+    f.write("image boot.a2 {\n")
+    f.write("    flash{\n")
+    f.write("    }\n")
+    f.write('    flashtype = "dummy"\n')
+    f.write("    partition spl {\n")
+    f.write('        in-partition-table = "no"\n')
+    f.write('        image = "%s" \n' % spl)   
+    f.write("        size = %d\n" % a2size)
+    f.write("    }\n")
+    f.write("}\n")
+
+    f.close()
+
+def _generate_a2_img():
+    imgFile = os.path.realpath("%s/boot.a2" % ENV['IMAGE_DIR'])
+    rm(imgFile)
+    print_msg("Generating a2 image: %s" % imgFile)
+
+    cfgFile = "%s/boot.a2.cfg" % ENV['IMAGE_DIR']
+    spl = "%s/u-boot-spl.bin.crc" % (ENV['IMAGE_DIR'])
+    _generate_a2_cfgFile(spl, cfgFile)
+
+    run_genimage(cfgFile, ENV['IMAGE_DIR'])
+    return imgFile
+   
 ##############
 # Build the SD disk iamge
 ##############
 def _make_sdimage(outputDir, image, catalog):
-    # Build up a path for the sudo command
-    binDirs = ["bin", "sbin", "usr/sbin", "usr/bin"]
-    for idx, d in enumerate(binDirs):
-        binDirs[idx] = os.path.join(ENV['HOST_DIR'], d)
-    sudoPath = "PATH=%s:%s" % (":".join(binDirs), os.environ['PATH'])
-    
-    SPL = "%s/preloader-mkpimage.bin" % (ENV['IMAGE_DIR'])
-    bootLoader = "%s/u-boot.img" % (ENV['IMAGE_DIR'])
     buildDate = time.strftime("%F")
-    fatFileList = ",".join(_build_file_list(ENV['SD_DIR']))
-    imageSize = 1000
-    fatSize = 250
-    a2Size = 10
-    extSize = (imageSize - fatSize - a2Size - 10)
-    rootFSFile = "%s/rootfs.tar.gz" % (ENV['IMAGE_DIR'])
-    imageFile = "%s/%s_sdcard_%s_%s.img" % (outputDir, catalog['boardName'], image['imageName'], buildDate)
+    tmpImg = "%s/sdcard.img" % ENV['IMAGE_DIR']
+    imageFile = "%s/%s_sdcard_%s_%s.img" % (
+        outputDir, catalog['boardName'], image['imageName'], buildDate)
+
     # Cleanup any previous images
-    files = [imageFile, imageFile + ".gz"]
+    files = [tmpImg, imageFile, imageFile + ".gz"]
     for f in files:
-        rm(f)        
+        rm(f)
 
-    print_msg("Generating disk image: %s.gz" % (imageFile), level=5)
-    # Untar the rootfs
-    rootFSDir = "%s/tempRootFS" % (ENV['IMAGE_DIR'])
-    # remove the dir first, then create it (need to be root)
-    rmRootFSCmd = "rm -rf %s" % (rootFSDir)
-    sudocmd(rmRootFSCmd)
-    os.makedirs(rootFSDir)
-    # untar as root
-    sudocmd("tar -xzf %s" % (rootFSFile), cwd=rootFSDir)
+    # Generate the SD FAT partition config file
+    gen_sd_fat_cfg()
+    # Generate the A2 parition
+    _generate_a2_img()
 
-     
-    mkSDStr = ["%s/make_sdimage.py -f" % (_PLATFORM_SCRIPTS),
-        "-P %s,%s,num=3,format=raw,size=%dM,type=A2" % (SPL, bootLoader, a2Size),
-        "-P %s,num=2,format=ext3,size=%dM" % (rootFSDir, extSize), 
-        "-P %s,num=1,format=vfat,size=%dM" % (fatFileList, fatSize),
-        "-s %dM" % (imageSize),
-        "-n %s" % (imageFile)]
-    mkSDStr = ' '.join(mkSDStr)
-    sudocmd(mkSDStr, cwd=ENV['IMAGE_DIR'], env=[sudoPath])
-    
-    # Cleanup the temp rootfs
-    sudocmd(rmRootFSCmd)
+    print_msg("Generating target image: %s" % imageFile)
+    run_genimage(catalog['defaultInfo']['genimage'], ENV['IMAGE_DIR'], None)
 
-    # Change the owner back to the current user
-    thisUser = subprocess.check_output("id -un".split()).strip('\n')
-    thisGroup = subprocess.check_output("id -gn".split()).strip('\n')
-    sudocmd("chown %s:%s %s" % (thisUser,thisGroup, imageFile))    
+    # Rename the image file
+    os.rename(tmpImg, imageFile)
+        
 
-    #compress the SD card image
-    sudocmd("gzip %s" % (imageFile), cwd=outputDir)
+    argStr = "gzip %s" % (imageFile)
+    subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
 
 ####################################
 # Public Functions

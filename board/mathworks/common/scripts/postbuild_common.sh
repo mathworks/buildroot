@@ -17,5 +17,5 @@ sed 's|\(.*\)::respawn.*# GENERIC_SERIAL$|\1::respawn:-/bin/sh # GENERIC_SERIAL|
 #####################################
 # Add the version info to the rootfs	
 #####################################
-gen_verinfo_file ${TARGET_DIR}/etc/buildinfo $UBOOT_VAR $UBOOT_PKG
+gen_verinfo_file ${TARGET_DIR}/etc/buildinfo
 

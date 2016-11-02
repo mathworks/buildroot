@@ -1,0 +1,29 @@
+From a2fba7be471442c1ba58f61fbf9fd4664a852ad8 Mon Sep 17 00:00:00 2001
+From: Matt Fornero <matt.fornero@mathworks.com>
+Date: Wed, 19 Oct 2016 14:57:37 -0400
+Subject: [PATCH] agent: Update ranlib for cross-compilation
+
+Update the ranlib invocation to pass the library as an argument to
+enable cross compilation in buildroot
+
+Signed-off-by: Matt Fornero <matt.fornero@mathworks.com>
+---
+ agent/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/agent/Makefile b/agent/Makefile
+index e2b2e26..d67ea65 100644
+--- a/agent/Makefile
++++ b/agent/Makefile
+@@ -45,7 +45,7 @@ override CFLAGS += $(OPTS)
+ 
+ $(BINDIR)/libtcf$(EXTLIB) : $(OFILES)
+ 	$(AR) $(AR_FLAGS) $(AR_OUT_F)$@ $^
+-	$(RANLIB)
++	$(RANLIB) $@
+ 
+ $(BINDIR)/agent$(EXTEXE): $(BINDIR)/tcf/main/main$(EXTOBJ) $(LIBTCF)
+ 	$(LINK) $(LINK_FLAGS) $(LINK_OUT_F)$@ $(BINDIR)/tcf/main/main$(EXTOBJ) \
+-- 
+1.8.3.1
+

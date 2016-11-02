@@ -1,0 +1,12 @@
+config BR2_PACKAGE_TCF_AGENT
+	bool "Eclipse Target Communication Framework (TCF) Agent"
+	select BR2_PACKAGE_UTIL_LINUX_LIBUUID
+	select BR2_PACKAGE_UTIL_LINUX
+    select BR2_PACKAGE_OPENSSL
+	help
+      Eclipse Target Communication Framework provides a
+      mechansim to remotely debug applications running on the
+      target from the Eclipse IDE.
+      
+      http://www.eclipse.org/tcf/
+

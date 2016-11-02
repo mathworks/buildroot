@@ -1,0 +1,27 @@
+#!/bin/sh
+
+TCFAGENT_OPTS=-"d -L- -l0"
+
+case "$1" in
+	start)
+		echo "Starting TCF Agent"
+		start-stop-daemon -S -b -q -m -p /var/run/tcf-agent.pid -x /usr/sbin/tcf-agent -- $TCFAGENT_OPTS
+		exit $?
+		;;
+
+	stop)
+		echo "Stopping TCF Agent"
+		start-stop-daemon -K -q -p /var/run/tcf-agent.pid 2>/dev/null
+		exit $?
+		;;
+
+	restart)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
