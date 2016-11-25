@@ -4,11 +4,11 @@
         </app>
         <kernel_config file="../../apps/sdr/sdr_kernel_config"/>
         <br2_config file="../../apps/sdr/br2_config"/>
+        <fsbl file="sdr_fsbl.elf"/>
     </default>
     <image name="zynq7000sdr">
         <app name="sdr">
             <dts file="sdr.dts"/>
-            <fsbl file="sdr_fsbl.elf"/>
         </app>
         <sdcard dir="../../apps/sdr/sdcard/zed"/>
     </image>
