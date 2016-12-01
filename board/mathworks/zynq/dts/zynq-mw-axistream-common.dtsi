@@ -20,7 +20,6 @@
 			xlnx,include-dre = <0x0>;
 			dma-channels = <0x1>;
 			xlnx,no-coalesce;
-			xlnx,halt-mode = "always-force";
 		};
 		dma-channel@40020030 {
 			compatible = "xlnx,axi-dma-s2mm-channel";
@@ -29,7 +28,6 @@
 			xlnx,include-dre = <0x0>;
 			dma-channels = <0x1>;
 			xlnx,no-coalesce;
-			xlnx,halt-mode = "always-force";
 		};
 	};
 };
