@@ -41,14 +41,23 @@ def _gen_sdcard(image, catalog, outputDir):
     ##############
     gen_verinfo_file(ENV['SD_DIR'] + "/BUILDINFO")
 
+
+    defaultApp = image['defaultApp']
     ##############
     # Generate DTBs
     ##############
-    defaultApp = image['defaultApp']
     gen_dtb.generate_dtbs(PLATFORM_NAME, BOARD_NAME, image)
     # Copy the default DTB to devicetree.dtb
     print_msg("Setting %s as default dtb" %(defaultApp['name']))
     br_platform.set_default_dtb(defaultApp)
+
+    ##############
+    # Setup bitstreams
+    ##############
+    if not defaultApp['bit'] is None:
+        print_msg("Setting %s as default bitstream" %(defaultApp['name']))
+        br_platform.set_default_bitsream(defaultApp)
+
 
     ##############
     # Create the output dir if needed

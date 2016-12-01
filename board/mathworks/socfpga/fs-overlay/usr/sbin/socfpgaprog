@@ -1,0 +1,40 @@
+#!/bin/sh
+
+FPGAFILE=$1
+DTS=$2
+DEFAULT_DTS=/etc/overlays/mw.dts
+DTB=/tmp/mw_overlay.dtbo
+OVERLAYROOT=/config/device-tree/overlays
+OVERLAY=mwsoc
+OVERLAYDIR=${OVERLAYROOT}/${OVERLAY}
+FIRMWARE_DIR=/lib/firmware
+FIRMWARE_TGT=${FIRMWARE_DIR}/socfpga.rbf
+
+if [ "$2" == "" ]; then
+    DTS=$DEFAULT_DTS
+fi
+
+# Remove the existing overlay, if it exists
+if [ -d $OVERLAYDIR ]; then
+	rmdir $OVERLAYDIR
+fi
+
+# Create the new overlay
+mkdir $OVERLAYDIR
+
+# Copy the bitstream
+mkdir -p $FIRMWARE_DIR
+cp $FPGAFILE $FIRMWARE_TGT
+
+# Compile the DTS File
+dtc -I dts -O dtb -o $DTB $DTS
+
+# Apply the overlay
+cat $DTB > ${OVERLAYDIR}/dtbo
+
+# Remove the temp files
+rm $DTB
+rm $FIRMWARE_TGT
+
+exit 0
+

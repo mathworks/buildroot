@@ -37,6 +37,35 @@ def _find_file(baseDir,filePath, tag=""):
     return filePath
 
 ###############
+# Search for file
+###############
+def _search_file(baseDir, fileSrc, tag="", noneOkay=False):
+    # First search relative to the board xml file, in the specified directories
+    filePath = _find_file(_CATALOG_DIR,fileSrc, tag=tag)
+    if filePath is None:
+        # Next search relative to the board xml file
+        filePath = _find_file(_CATALOG_DIR,fileSrc)
+        if filePath is None:
+            # Last search in the board directory
+            filePath = _find_file(_defaults['boardInfo']['dir'],fileSrc, tag=tag)
+    
+    if (filePath is None) and (not noneOkay):                
+        raise IOError("Cannot find %s file: %s" %(tag, fileSrc))
+    return filePath
+
+###############
+# Find File from Element
+###############
+def _find_file_from_element(element):
+    tag = element.tag
+    fileSrc = element.get('file')
+    if fileSrc is None:
+        fileSrc = element.get('dir')
+    
+    filePath = _search_file(_CATALOG_DIR, fileSrc, tag=tag)
+    return filePath
+
+###############
 # Load App
 ###############
 def _load_app(xmlApp, loadDefaults=True):
@@ -45,31 +74,29 @@ def _load_app(xmlApp, loadDefaults=True):
         appInfo = dict(_defaults['app'])
     else:
         appInfo = dict()
+        appInfo['bit'] = None
+        appInfo['dts'] = None
     appInfo['name'] = xmlApp.get('name')
-    appInfo['buildBoot'] = False
     for element in xmlApp:
         tag = element.tag
-        fileSrc = element.get('file')
-        if fileSrc is None:
-            fileSrc = element.get('dir')
-        
-        # First search relative to the board xml file, in the specified directories
-        filePath = _find_file(_CATALOG_DIR,fileSrc, tag=tag)
-        if filePath is None:
-            # Next search relative to the board xml file
-            filePath = _find_file(_CATALOG_DIR,fileSrc)
-            if filePath is None:
-                # Last search in the board directory
-                filePath = _find_file(_defaults['boardInfo']['dir'],fileSrc, tag=tag)
-        
-        if filePath is None:                
-            raise IOError("[App: %s]Cannot find %s file: %s" %(appInfo['name'], tag, fileSrc))
-
+        if tag == "fsbl" or tag == "handoff":
+            raise ValueError("FSBL or Handoff files must be specified in the defaults node only")
+        filePath = _find_file_from_element(element)        
         appInfo[tag] = filePath
-        if tag == "bit" or tag == "fsbl" or tag == "handoff":
-            appInfo['buildBoot'] = True
     return appInfo
 
+###############
+# Find Boot Info
+###############
+def _find_fsbl_info(xmlNode):
+    fsblInfo = xmlNode.find('fsbl')
+    tag = 'fsbl'
+    if fsblInfo is None:
+        fsblInfo = xmlNode.find('handoff')
+        tag = 'handoff'
+    if fsblInfo is None:
+        raise IOError("Missing boot info in node: %s", xmlNode)
+    return _find_file_from_element(fsblInfo)
 
 ###############
 # Find SD dir
@@ -133,6 +160,7 @@ def _load_image(imageNode):
     imageInfo['imageName'] = imageNode.get('name') 
     imageInfo['appList'] = appList
     imageInfo['defaultApp'] = appList[0]
+
     return imageInfo
 
 ###############
@@ -148,11 +176,16 @@ def _load_board_info(boardNode):
 
     # Parse the node
     if boardDir is None:
-        boardInfo['dir'] = "%s/%s/boards/%s" % (MW_DIR, _PLATFORM_NAME, _BOARD_NAME)
+        boardDir = _find_file("", "%s/%s/boards/%s" % (MW_DIR, _PLATFORM_NAME, _BOARD_NAME))
+        if boardDir is None:
+            # Default to the catalog dir
+            boardDir = _find_file(_CATALOG_DIR, './')
     else:
-        boardInfo['dir'] = _find_file(_CATALOG_DIR,boardDir)
-        if boardInfo['dir'] is None:
-            raise IOError("Cannot find specified board directory: %s" % (boardDir))
+        boardDir = _find_file(_CATALOG_DIR,boardDir)
+
+    boardInfo['dir'] = boardDir
+    if boardInfo['dir'] is None:
+        raise IOError("Cannot find specified board directory: %s" % (boardDir))
 
     return boardInfo
 
@@ -189,6 +222,15 @@ def _load_defaults(defNode):
     # Load the default SD card directory
     _defaults['sdcardDir'] = _find_sd_dir(defNode, loadDefaults=False)
     _defaults['dtsIncDirs'] = list()
+
+    # Load the genimage config
+    genImg = defNode.find('genimage')
+    if genImg is None:
+        genImgCfg = "%s/genimg.cfg" % (_PLATFORM_DIR)
+        _defaults['genimage'] = _search_file(_CATALOG_DIR, genImgCfg, "", True)
+    else:
+        _defaults['genimage'] = _search_file(_CATALOG_DIR, genImg.get('file'))
+
     # Load the global include directories
     for dtsi in defNode.findall('dtsi'):
         _add_include_dir(dtsi.get('dir'),_defaults['dtsIncDirs'])
@@ -196,6 +238,8 @@ def _load_defaults(defNode):
     _defaults['br2_config'] = _find_local_file(defNode.find('br2_config'))
     # Load the kernel config file
     _defaults['kernel_config'] = _find_local_file(defNode.find('kernel_config'))
+    # Determine the fsbl and/or handoff info
+    _defaults['fsbl'] = _find_fsbl_info(defNode)
 
 ########################################
 # Public Functions
@@ -206,6 +250,7 @@ def _load_defaults(defNode):
 def read_catalog(catalogFile, imageNames=["all"]):
     global _CATALOG_DIR
     global _PLATFORM_NAME
+    global _PLATFORM_DIR
     global _BOARD_NAME
 
     # Determine the board dir
@@ -217,6 +262,7 @@ def read_catalog(catalogFile, imageNames=["all"]):
     # Now capture some info
     _PLATFORM_NAME = root.get('platform')
     _BOARD_NAME = root.get('name')
+    _PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + _PLATFORM_NAME
 
     # determine the group configuration
     if imageNames == ["all"]:
@@ -247,7 +293,7 @@ def read_catalog(catalogFile, imageNames=["all"]):
     catalog = dict()
     catalog['boardName'] = _BOARD_NAME
     catalog['platformName'] = _PLATFORM_NAME
-    catalog['platformDir'] = os.path.dirname(COMMON_DIR) + "/" + catalog['platformName']
+    catalog['platformDir'] = _PLATFORM_DIR
     catalog['catalogDir'] = _CATALOG_DIR
     catalog['defaultInfo'] = _defaults
     catalog['imageList'] = imageList
@@ -261,3 +307,4 @@ _defaults = dict()
 _CATALOG_DIR = ""
 _PLATFORM_NAME = ""
 _BOARD_NAME = ""
+_PLATFORM_DIR = ""

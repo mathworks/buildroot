@@ -20,10 +20,10 @@ def _create_bif(bifFilePath,fsblFile,ubootFile):
     f.close()
 
 ##############
-# Create BOOT.BIN for a given app
+# Create BOOT.BIN for a given image
 ##############
-def _create_boot(app):
-    boot_bin = "BOOT_%s.BIN" % (app['name'])
+def _create_boot(image, catalog):
+    boot_bin = "BOOT.BIN"
     boot_bin_path = "%s/%s" % (ENV['IMAGE_DIR'], boot_bin)
     bif_file = "bootimage.bif"
     bif_file_path = "%s/%s" % (ENV['IMAGE_DIR'], bif_file)
@@ -41,11 +41,11 @@ def _create_boot(app):
     # stage files in image dir 
     # rename to .elf for bitgen
     shutil.copy("%s/u-boot" % (ENV['IMAGE_DIR']), uboot_dst_path)
-    shutil.copy(app['fsbl'], fsbl_dst_path)
+    shutil.copy(catalog['defaultInfo']['fsbl'], fsbl_dst_path)
 
     # create BOOT.BIN
     rm(boot_bin_path)
-    _create_bif(bif_file_path,fsbl_dst,uboot_dst)
+    _create_bif(bif_file_path,fsbl_dst, uboot_dst)
     argStr = "%s -image %s -o i %s" % (bootgen_bin, bif_file, boot_bin)
     subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
     shutil.move(boot_bin_path, "%s/%s" % (ENV['SD_DIR'],boot_bin) )
@@ -54,15 +54,10 @@ def _create_boot(app):
     os.remove(uboot_dst_path)
     os.remove(fsbl_dst_path)
     os.remove(bif_file_path)       
-    #rm ${UBOOT_ELF} ${UBOOT_ELF}.bin ${FSBL_DST} ${FSBL_DST}.bin ${BITSTREAM_DST} ${BIF_FILE} ${BOOT_BIN} &>/dev/null
 
 ##############
-# Create BOOT.BIN for the image
+# Copy over the app files
 ##############
-def _gen_boot(image):
-    for app in image['appList']:
-        if app['buildBoot']:
-            _create_boot(app)
 
 ####################################
 # Public Functions
@@ -73,6 +68,12 @@ def _gen_boot(image):
 def set_default_dtb(defaultApp):
     defaultDTB = "devicetree_%s.dtb" % (defaultApp['name'])
     shutil.copyfile("%s/%s" %(ENV['SD_DIR'], defaultDTB), "%s/devicetree.dtb" % (ENV['SD_DIR']))
+
+##############
+# Set the default bitstream
+##############
+def set_default_bitsream(defaultApp):
+    shutil.copyfile(defaultApp['bit'], "%s/system.bit" % (ENV['SD_DIR']))
 
 ##############
 # Build the SD card image
@@ -87,6 +88,14 @@ def build_sdimage(outputDir, image, catalog):
     shutil.copy("%s/uImage" % (ENV['IMAGE_DIR']), ENV['SD_DIR'] )
 
     ##############
+    # Copy over the application specific rbfs
+    ##############
+    for app in image['appList']:
+        if not app['bit'] is None:
+            appBit = "%s/%s.bit" % (ENV['SD_DIR'], app['name'])
+            shutil.copy(app['bit'], appBit)
+
+    ##############
     # Create the u-boot ramdisk image
     ##############
     MKIMAGE_BIN = ENV['HOST_DIR'] + "/usr/bin/mkimage"
@@ -97,11 +106,9 @@ def build_sdimage(outputDir, image, catalog):
     subprocess.call(argStr.split())
     
     ##############
-    # Create the boot.bin files
+    # Create the boot.bin file
     ##############
-    _gen_boot(image)
-    print_msg("Setting %s as default BOOT.BIN" % (defaultApp['name']))
-    shutil.copy("%s/BOOT_%s.BIN" % (ENV['SD_DIR'], defaultApp['name']), "%s/BOOT.BIN" % (ENV['SD_DIR']) )
+    _create_boot(image, catalog)
 
     ##############
     # Zip the SD Card Directory
