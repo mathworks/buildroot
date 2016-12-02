@@ -5,4 +5,12 @@
 		#size-cells = <0x1>;
 		ranges;
 	};
+	core_clkwiz: clockwiz0 {
+		compatible = "fixed-factor-clock";
+		clocks = <&clkc 15>;
+		#clock-cells = <1>;
+		clock-div = <2>;
+		clock-mult = <1>;
+		clock-output-names = "clk0";
+	};
 };
