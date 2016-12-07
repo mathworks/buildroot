@@ -370,6 +370,13 @@ _UBOOT_VAR = "BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION"
 _UBOOT_PKG = "uboot"
 
 ########################################
+# Enumerations
+######################################## 
+class BuildMode:
+    NORMAL="NORMAL"
+    RECOVERY="RECOVERY"
+
+########################################
 # Exported Globals
 ########################################
 

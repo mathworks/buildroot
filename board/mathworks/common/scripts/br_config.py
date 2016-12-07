@@ -120,7 +120,8 @@ def _gen_defconfig(args, catalog):
         f.write(cfgData)
 
     # use CPP to expand the includes
-    cpp_expand(_DYNCONFIG_INC_FILE, _DYNCONFIG_FILE, _cfgIncludeDirs)
+    postArgs = "-DBUILD_MODE_%s" % args['buildMode']
+    cpp_expand(_DYNCONFIG_INC_FILE, _DYNCONFIG_FILE, _cfgIncludeDirs, extraPostFlags=postArgs)
     rm(_DYNCONFIG_INC_FILE)
 
 ########################################

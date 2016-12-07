@@ -212,6 +212,14 @@ def _load_defaults(defNode):
     # Load the board node, if present
     boardNode = defNode.find('board_dir')
     _defaults['boardInfo'] = _load_board_info(boardNode)
+
+    # Determine the mode
+    buildMode = defNode.find('build_mode')
+    if buildMode is None:
+        _defaults['buildMode'] = BuildMode.NORMAL
+    else:
+        _defaults['buildMode'] = getattr(BuildMode,buildMode.get('mode').upper())
+
     # Load the default files for apps
     appNode = defNode.find('app')
     if not appNode is None:
@@ -219,9 +227,14 @@ def _load_defaults(defNode):
     else:
         _defaults['app'] = None
 
-    # Load the default SD card directory
-    _defaults['sdcardDir'] = _find_sd_dir(defNode, loadDefaults=False)
+    # Capture the DTC include dirs
     _defaults['dtsIncDirs'] = list()
+
+    # Load the default SD card directory
+    if _defaults['buildMode'] == BuildMode.NORMAL:
+        _defaults['sdcardDir'] = _find_sd_dir(defNode, loadDefaults=False)
+    else:    
+        _defaults['sdcardDir'] = None
 
     # Load the genimage config
     genImg = defNode.find('genimage')
@@ -236,10 +249,15 @@ def _load_defaults(defNode):
         _add_include_dir(dtsi.get('dir'),_defaults['dtsIncDirs'])
     # Load the extra br2 config files
     _defaults['br2_config'] = _find_local_file(defNode.find('br2_config'))
-    # Load the kernel config file
-    _defaults['kernel_config'] = _find_local_file(defNode.find('kernel_config'))
-    # Determine the fsbl and/or handoff info
-    _defaults['fsbl'] = _find_fsbl_info(defNode)
+
+    if _defaults['buildMode'] == BuildMode.NORMAL:
+        # Load the kernel config file
+        _defaults['kernel_config'] = _find_local_file(defNode.find('kernel_config'))
+        # Determine the fsbl and/or handoff info
+        _defaults['fsbl'] = _find_fsbl_info(defNode)
+    else:
+        _defaults['kernel_config'] = None
+        _defaults['fsbl'] = None
 
 ########################################
 # Public Functions
@@ -297,6 +315,7 @@ def read_catalog(catalogFile, imageNames=["all"]):
     catalog['catalogDir'] = _CATALOG_DIR
     catalog['defaultInfo'] = _defaults
     catalog['imageList'] = imageList
+    catalog['buildMode'] = _defaults['buildMode']
 
     return catalog
 
