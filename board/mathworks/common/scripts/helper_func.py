@@ -106,6 +106,35 @@ def gen_sd_fat_cfg():
     fileList = build_relative_file_list(ENV['SD_DIR'],ENV['IMAGE_DIR'])
     generate_fat_genimg_cfg(fileList, cfgFile, imgFile)
 
+########################
+# CPP expansion
+########################
+def cpp_expand(infile, outfile, include_dirs=[], extraPreFlags="", extraPostFlags=""):
+
+    CPP_PRE_FLAGS = "-nostdinc"
+    CPP_POST_FLAGS = "-undef -x assembler-with-cpp -P"
+
+    outfile = os.path.realpath(outfile)
+    infile = os.path.realpath(infile)
+    outdir = os.path.dirname(outfile)
+
+    # Automatically add the infile directory
+    include_dirs.append(os.path.dirname(infile))
+
+    # build the cpp command
+    dtc_cpp_flags = list()
+    dtc_cpp_flags.extend(CPP_PRE_FLAGS.split())
+    dtc_cpp_flags.extend(extraPreFlags.split())
+    for inc in include_dirs:
+        inc_str = "-I" + inc
+        dtc_cpp_flags.append(inc_str)
+    dtc_cpp_flags.extend(CPP_POST_FLAGS.split())
+    dtc_cpp_flags.extend(extraPostFlags.split())
+
+    args = ["cpp"]
+    args.extend(dtc_cpp_flags)
+    args.extend(["-o", outfile, infile])
+    subprocess.call(args, cwd=outdir)
 
 ########################
 # Printing Functions

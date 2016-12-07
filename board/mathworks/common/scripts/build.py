@@ -7,12 +7,6 @@ from helper_func import *
 import br_config
 
 ########################################
-# Constants
-########################################
-DYNCONFIG = "dynconfig"
-DYNCONFIG_FILE = "%s/configs/%s_defconfig" % (BR_ROOT, DYNCONFIG)
-
-########################################
 # Helper Functions
 ########################################
 
