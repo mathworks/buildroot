@@ -1,12 +1,17 @@
 #!/bin/sh
 # Set a boot file to a new value
-# Syntax _mw_setbootfile <uboot variable> <file path> <file type>
+# Syntax _mw_setbootfile <uboot variable> <file path> <file type> [<RD Dir>]
 
 source /etc/bootvars.conf
 
 UBOOTVAR=$1
 FILEPATH=$2
 FILETYPE=$3
+
+if [ "$#" == "4" ]; then
+    #override the target RD dir
+    _UBOOT_RD_TGT_DIR=$4
+fi
 
 # Determine if anything was passed in
 if [ "$FILEPATH" = "" ]; then
