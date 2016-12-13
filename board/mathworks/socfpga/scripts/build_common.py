@@ -13,6 +13,10 @@ def platform_checkconfig(args):
     return
 
 def platform_gen_target(args, catalog, cfgDataList):
+    # Do nothing for recovery mode
+    if catalog['buildMode'] == BuildMode.RECOVERY:
+        return
+
     handoffStr = 'BR2_PACKAGE_UBOOT_ALTERA_QUARTUS_HANDOFF_DIR='
     handoffStr += '"%s"\n' % catalog['defaultInfo']['fsbl']
 
