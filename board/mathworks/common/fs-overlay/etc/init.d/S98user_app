@@ -5,6 +5,9 @@
 
 source /etc/bootvars.conf
 
+if [ "${_SYS_BOOT_MODE}" == "RECOVERY" ]; then
+    exit 0
+fi
 
 case "$1" in
 	start)
