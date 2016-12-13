@@ -38,6 +38,15 @@ def build_relative_file_list(inDir, toDir):
         fList[idx] = fList[idx].replace(toDir,"")
 
     return fList
+########################
+# Create a ramdisk
+########################
+def create_uramdisk(cpio_img, uimage, name=""):
+    MKIMAGE_BIN = ENV['HOST_DIR'] + "/usr/bin/mkimage"
+    print_msg("Creating uramdisk %s" % (uimage))
+    argStr = '%s -n "%s" -A arm -T ramdisk -C gzip -d %s %s' % (MKIMAGE_BIN, name, cpio_img, uimage)
+    print argStr
+    subprocess.call(argStr.split())
 
 ########################
 # Genimage
