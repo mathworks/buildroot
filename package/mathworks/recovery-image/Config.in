@@ -1,0 +1,55 @@
+config BR2_PACKAGE_RECOVERY_IMAGE
+	bool "Build Recovery RAMDisk Image"
+	help
+	  Build ramdisk image to faciliate system recovery/update
+
+if BR2_PACKAGE_RECOVERY_IMAGE
+menu "Recovery Image Options"
+
+choice
+	prompt "Recovery Image Specification"
+	default BR2_PACKAGE_RECOVERY_IMAGE_USE_BRDPLT
+
+config BR2_PACKAGE_RECOVERY_IMAGE_USE_CATALOG
+	bool "Use a catalog.xml file"
+	help
+	  Run the build tool as:
+	  build.py -c <catalog file>
+
+config BR2_PACKAGE_RECOVERY_IMAGE_USE_BRDPLT
+	bool "Use a board / platform specification"
+	help
+	  Run the build tool as:
+	  build.py -b <board> -p <platform>
+
+endchoice
+
+if BR2_PACKAGE_RECOVERY_IMAGE_USE_BRDPLT
+config BR2_PACKAGE_RECOVERY_IMAGE_PLATFORM
+	string "Recovery Image Platform"
+	help
+	  The platform to use for recovery image selection
+
+config BR2_PACKAGE_RECOVERY_IMAGE_BOARD
+	string "Recovery Image Board"
+	help
+	  The platform to use for recovery image selection
+
+endif #BR2_PACKAGE_RECOVERY_IMAGE_USE_BRDPLT
+
+if BR2_PACKAGE_RECOVERY_IMAGE_USE_CATALOG
+config BR2_PACKAGE_RECOVERY_IMAGE_CATALOG
+	string "Recovery Image Catalog File Path"
+	help
+	  The platform to use for recovery image selection
+endif #BR2_PACKAGE_RECOVERY_IMAGE_USE_CATALOG
+
+config BR2_PACKAGE_RECOVERY_IMAGE_FILE
+	string "Recovery Image File"
+	default "uramdisk_recovery.image.gz"
+	help
+	  The name of the generated recovery image
+
+endmenu #"Recovery Image Options"
+endif #BR2_PACKAGE_RECOVERY_IMAGE
+
