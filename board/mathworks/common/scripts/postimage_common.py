@@ -16,6 +16,19 @@ from helper_func import *
 ########################################
 # Helper Functions
 ########################################
+def _gen_recovery(catalog, outputDir):
+    print ""
+    print_msg("Starting on recovery files %s" % (outputDir), level=3, fg=2, bold=True)
+    ##############
+    # Create the output dir if needed
+    ##############
+    if not os.path.isdir(outputDir):
+        os.makedirs(outputDir)
+
+    CPIO_IMG = ENV['IMAGE_DIR'] + "/rootfs.cpio.gz"
+    UIMAGE= outputDir + "/uramdisk_recovery.image.gz"
+    create_uramdisk(CPIO_IMG, UIMAGE)
+
 def _gen_sdcard(image, catalog, outputDir):
     
     print ""
@@ -127,8 +140,11 @@ PLATFORM_MODULE = PLATFORM_DIR + "/scripts/postimage_common.py"
 m = imp.load_source('br_platform', PLATFORM_MODULE)
 import br_platform
 
-for image in catalog['imageList']:
-    _gen_sdcard(image, catalog, outputDir)
+if catalog['buildMode'] == BuildMode.RECOVERY:
+    _gen_recovery(catalog, outputDir)
+else:
+    for image in catalog['imageList']:
+        _gen_sdcard(image, catalog, outputDir)
 
 
 
