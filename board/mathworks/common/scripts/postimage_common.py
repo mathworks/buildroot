@@ -50,6 +50,17 @@ def _gen_sdcard(image, catalog, outputDir):
         distutils.dir_util.copy_tree(image['sdcardDir'], ENV['SD_DIR'])
 
     ##############
+    # Copy the recovery image, if it exists
+    ##############
+    recovery_file = get_cfg_var('BR2_PACKAGE_RECOVERY_IMAGE_FILE')
+    if recovery_file != "":
+        recovery_image = "%s/%s" % (ENV['BINARIES_DIR'] ,recovery_file)
+        if os.path.exists(recovery_image):
+            shutil.copyfile(recovery_image, "%s/%s" % (ENV['SD_DIR'], recovery_file))
+        else:
+            raise IOError("Cannot find specified recovery file: %s" % recovery_file)
+
+    ##############
     # Add the verinfo script
     ##############
     gen_verinfo_file(ENV['SD_DIR'] + "/BUILDINFO")
