@@ -8,11 +8,11 @@ FIRMWARE_TEMP=/tmp/${FIRMWARE_FILE}
 NETWORK_TEMP=/tmp/network_backup
 
 # Discover the SD card device
-SD_PART=$(df -h ${_SD_ROOT} | grep /dev | sed -E "s|(/dev/\w+).*|\1|")
-SD_DEV=$(echo ${SD_PART} | sed -E "s|(.*)[0-9]+|\1|" | sed -E "s|(.*)p|\1|")
 
-if [ ! -e $SD_DEV ]; then
-    echo "ERROR: Could not find $SD_DEV"
+source $(which _mw_getbootdev)
+
+if [ ! -e ${_SD_DEV} ]; then
+    echo "ERROR: Could not find ${_SD_DEV}"
     exit 1
 fi
 
@@ -32,7 +32,7 @@ umount ${_SD_ROOT}
 
 #Update the SD card
 echo "# Updating the SD Card (this may take a few minutes)"
-gunzip -c $FIRMWARE_TEMP > $SD_DEV
+gunzip -c $FIRMWARE_TEMP > ${_SD_DEV}
 
 # Remount the SD card
 /etc/init.d/S09sdcard_mount start
