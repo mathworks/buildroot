@@ -4,6 +4,7 @@ source /etc/bootvars.conf
 
 NEW_IMG=$1
 FIRMWARE_FILE=$(basename $NEW_IMG)
+FIRMWARE_EXT="${FIRMWARE_FILE#*.}"
 FIRMWARE_TEMP=/tmp/${FIRMWARE_FILE}
 NETWORK_TEMP=/tmp/network_backup
 
@@ -32,7 +33,25 @@ umount ${_SD_ROOT}
 
 #Update the SD card
 echo "# Updating the SD Card (this may take a few minutes)"
-gunzip -c $FIRMWARE_TEMP > ${_SD_DEV}
+case ${FIRMWARE_EXT} in
+    zip)
+        FW_DIR=/tmp/fw_img
+        FW_SCRIPT=fw_update.sh
+        mkdir -p $FW_DIR
+        unzip -d $FW_DIR $FIRMWARE_TEMP
+        chmod +x ${FW_DIR}/${FW_SCRIPT}
+        THIS_DIR=$(pwd)
+        cd $FW_DIR 
+        ${FW_DIR}/${FW_SCRIPT} ${_SD_DEV}
+        cd $THIS_DIR
+        ;;
+    img.gz)
+        gunzip -c $FIRMWARE_TEMP > ${_SD_DEV}
+        ;;
+    *)
+        echo "ERROR: Invalid firmware format"
+        ;;
+esac
 
 # Remount the SD card
 /etc/init.d/S09sdcard_mount start
