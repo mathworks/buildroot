@@ -1,6 +1,6 @@
 #!/bin/sh
 # Update the chosen bitstream and devicetree for a given reference design
-# syntax: mw_setboot <bitstream> <devicetree> <init folder> <RD name>
+# syntax: mw_setboot <bitstream> <devicetree> <init folder> <RD name> [fw_set_xxx args]
 #
 # Both <bitstream> and <devicetree> may be either an absolute path or a
 # file located at the root of the SD card
@@ -13,6 +13,7 @@ BITSTREAM=$1
 DEVICETREE=$2
 RDINITDIR=$3
 RDNAME=$4
+shift 4
 
 if [ -e ${_UBOOT_ROOT}/${_UBOOT_SCR} ]; then
     echo "WARNING: Uboot script $_UBOOT_SCR detected, this may override boot settings"
@@ -38,21 +39,21 @@ if [ "$RDINITDIR" != "" ]; then
     fi
 fi
 
-fw_setbitstream ${BITSTREAM}
+fw_setbitstream ${BITSTREAM} "$@"
 rc=$?
 if [ "$rc" != "0" ]; then
     echo "ERROR: Failed to set the target bitstream"
     exit $rc
 fi
 
-fw_setdevicetree ${DEVICETREE}
+fw_setdevicetree ${DEVICETREE} "$@"
 rc=$?
 if [ "$rc" != "0" ]; then
     echo "ERROR: Failed to set the target devicetree"
     exit $rc
 fi
 
-fw_setrdname "${RDNAME}"
+fw_setrdname "${RDNAME}" "$@"
 rc=$?
 if [ "$rc" != "0" ]; then
     echo "ERROR: Failed to set the target reference design name"

@@ -7,12 +7,6 @@ from helper_func import *
 import br_config
 
 ########################################
-# Constants
-########################################
-DYNCONFIG = "dynconfig"
-DYNCONFIG_FILE = "%s/configs/%s_defconfig" % (BR_ROOT, DYNCONFIG)
-
-########################################
 # Helper Functions
 ########################################
 
@@ -46,7 +40,10 @@ def get_build_config(args):
         args['rtos'] = br_platform.supported['rtos'][0]
 
     if args['outputDir'] is None:
-        pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['boardName'], args['rtos'], args['toolchain'])
+        if args['buildMode'] == BuildMode.RECOVERY:
+            pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['platformName'], args['boardName'], args['toolchain'])
+        else:
+            pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['boardName'], args['rtos'], args['toolchain'])
         args['outputDir'] = os.path.realpath(pathStr)
     else:
         args['outputDir'] = os.path.realpath(args['outputDir'])
@@ -153,6 +150,7 @@ catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'])
 # catalog may have provided some info
 args['platformName'] = catalog['platformName'].lower()
 args['boardName'] = catalog['boardName'].lower()
+args['buildMode'] = catalog['buildMode']
 
 # load the platform functions
 PLATFORM_MODULE = catalog['platformDir'] + "/scripts/build_common.py"

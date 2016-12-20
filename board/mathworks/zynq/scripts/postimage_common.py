@@ -98,12 +98,9 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     # Create the u-boot ramdisk image
     ##############
-    MKIMAGE_BIN = ENV['HOST_DIR'] + "/usr/bin/mkimage"
     CPIO_IMG = ENV['IMAGE_DIR'] + "/rootfs.cpio.gz"
     UIMAGE= ENV['SD_DIR'] + "/uramdisk.image.gz"
-    print_msg("Creating uramdisk %s" % (UIMAGE))
-    argStr = "%s -A arm -T ramdisk -C gzip -d %s %s" % (MKIMAGE_BIN, CPIO_IMG, UIMAGE)
-    subprocess.call(argStr.split())
+    create_uramdisk(CPIO_IMG, UIMAGE)
     
     ##############
     # Create the boot.bin file

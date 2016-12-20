@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Copy the network scripts from the boot device
+#
+
+source /etc/bootvars.conf
+
+if [ "$1" == "" ]; then
+    echo "Usage: $0 {BACKUP_DIR}"
+    exit 1
+else
+    BACKUP_DIR=$1
+fi
+
+SD_KEYDIR=${BACKUP_DIR}/sshkeys
+
+echo "Restoring network configuration..."  
+cp -f ${BACKUP_DIR}/hostname ${_SD_ROOT}/hostname
+cp -f ${BACKUP_DIR}/interfaces ${_SD_ROOT}/interfaces
+cp -r $SD_KEYDIR ${_SD_ROOT}
+
+sync
+
+

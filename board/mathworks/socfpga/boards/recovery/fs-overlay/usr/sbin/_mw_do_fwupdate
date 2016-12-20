@@ -1,0 +1,66 @@
+#!/bin/sh
+
+source /etc/bootvars.conf
+
+NEW_IMG=$1
+FIRMWARE_FILE=$(basename $NEW_IMG)
+FIRMWARE_EXT="${FIRMWARE_FILE#*.}"
+FIRMWARE_TEMP=/tmp/${FIRMWARE_FILE}
+NETWORK_TEMP=/tmp/network_backup
+
+# Discover the SD card device
+
+source $(which _mw_getbootdev)
+
+if [ ! -e ${_SD_DEV} ]; then
+    echo "ERROR: Could not find ${_SD_DEV}"
+    exit 1
+fi
+
+#Backup the network settings
+_mw_backup_network $NETWORK_TEMP ${_SD_ROOT}
+
+#Move the image to a staging area
+if [ -e $NEW_IMG ]; then
+    cp $NEW_IMG $FIRMWARE_TEMP
+else
+    echo "ERROR: Could not find image file: $NEW_IMG"
+    exit 1
+fi
+
+#Unmount the SD card
+umount ${_SD_ROOT}
+
+#Update the SD card
+echo "# Updating the SD Card (this may take a few minutes)"
+case ${FIRMWARE_EXT} in
+    zip)
+        FW_DIR=/tmp/fw_img
+        FW_SCRIPT=fw_update.sh
+        mkdir -p $FW_DIR
+        unzip -d $FW_DIR $FIRMWARE_TEMP
+        chmod +x ${FW_DIR}/${FW_SCRIPT}
+        THIS_DIR=$(pwd)
+        cd $FW_DIR 
+        ${FW_DIR}/${FW_SCRIPT} ${_SD_DEV}
+        cd $THIS_DIR
+        ;;
+    img.gz)
+        gunzip -c $FIRMWARE_TEMP > ${_SD_DEV}
+        ;;
+    *)
+        echo "ERROR: Invalid firmware format"
+        ;;
+esac
+
+# Remount the SD card
+/etc/init.d/S09sdcard_mount start
+
+# Restore the network settings
+_mw_restore_network $NETWORK_TEMP
+
+echo "# Update complete, rebooting..."
+
+# Reboot
+sync
+reboot -f

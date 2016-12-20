@@ -4,7 +4,6 @@ import os, sys, imp, subprocess
 import helper_func
 from helper_func import *
 
-
 def generate_dtbs(platform, boardName, image):
     LINUX_DIR = get_src_dir("linux")
 
@@ -29,10 +28,6 @@ def generate_dtbs(platform, boardName, image):
                 "%s/include" % (LINUX_DTS)]
     INCLUDE_DIRS.extend(image['dtsIncDirs'])
 
-    DEPENDENCY_FILE = "dependency.pre.tmp"
-    DTC_CPP_PRE_FLAGS = "-Wp,-MD,%s -nostdinc" % (DEPENDENCY_FILE)
-    DTC_CPP_POST_FLAGS = "-undef -D__DTS__ -x assembler-with-cpp"
-
     for app in image['appList']:
         print_msg("Generating %s dtb" % (app['name']))
         app_dts_path = app['dts']
@@ -43,21 +38,10 @@ def generate_dtbs(platform, boardName, image):
 
         include_dirs = list(INCLUDE_DIRS)
         include_dirs.append(dts_dir)
-    
-        # build the cpp command
-        dtc_cpp_flags = list()
-        dtc_cpp_flags.extend(DTC_CPP_PRE_FLAGS.split())
-        for inc in include_dirs:
-            inc_str = "-I" + inc
-            dtc_cpp_flags.append(inc_str)
-        dtc_cpp_flags.extend(DTC_CPP_POST_FLAGS.split())
         
-        # Run the DTS through CPP     
-        tmpFile = app['name'] + ".tmp.dts"    
-        args = ["%s/usr/bin/%s-cpp" % (ENV['HOST_DIR'], TC_PREFIX)]
-        args.extend(dtc_cpp_flags)
-        args.extend(["-o", tmpFile, app_dts_path])
-        subprocess.call(args, cwd=ENV['SD_DIR'])
+        # Expand the DTS file
+        tmpFile = "%s/%s.tmp.dts" % (ENV['SD_DIR'], app['name'])
+        cpp_expand(app_dts_path, tmpFile, include_dirs, extraPostFlags="-D__DTS__")
 
         # Call DTC
         args = [DTC]
@@ -68,8 +52,7 @@ def generate_dtbs(platform, boardName, image):
         subprocess.call(args, cwd=ENV['SD_DIR'])
 
         # Cleanup
-        os.remove("%s/%s" % (ENV['SD_DIR'],DEPENDENCY_FILE))
-        os.remove("%s/%s" % (ENV['SD_DIR'],tmpFile))
+        os.remove(tmpFile)
 
 
 ########################################

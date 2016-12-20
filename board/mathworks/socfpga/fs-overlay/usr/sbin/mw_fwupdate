@@ -1,0 +1,29 @@
+#!/bin/sh
+
+source /etc/bootvars.conf
+
+NEW_IMG=$1
+
+FIRMWARE_EXT="${NEW_IMG#*.}"
+FIRMWARE_TEMP="firmware.${FIRMWARE_EXT}"
+
+# Put the image on the SD card for use on the next boot
+if [ -e $NEW_IMG ]; then
+    cp $NEW_IMG ${_SD_ROOT}/${FIRMWARE_TEMP}
+    fw_setenv ${_UBOOT_VAR_FWUPDATE_FILE} ${FIRMWARE_TEMP}
+else
+    echo "ERROR: Could not find image file: $NEW_IMG"
+    exit 1
+fi
+
+# Preserve the network settings
+_mw_backup_network
+
+# Boot into recovery mode
+_mw_reboot_mode RECOVERY
+
+# Reboot
+sync
+reboot
+
+
