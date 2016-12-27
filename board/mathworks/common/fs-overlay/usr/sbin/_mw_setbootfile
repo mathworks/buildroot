@@ -56,9 +56,7 @@ fi
 fw_setenv $UBOOTVAR $TGTNAME
 rc=$?
 
-if [ "$_UBOOT_DO_SYNC" == "true" ]; then
-    sync
-fi
+sync
 
 if [ "$rc" == "0" ]; then
     echo "# Set $FILETYPE to $TGTNAME"

@@ -65,9 +65,9 @@ build.py --help
 The content to build is described in a _catalog_ XML file, described in the
 [catalog documentation][1]. Examples of the catalog file can be found in the
 platform/board directories:
-* [ZedBoard](board/mathworks/zynq/boards/zed/catalog.xml)
-* [ZC706](board/mathworks/zynq/boards/zc706/catalog.xml)
-* [Arrow/Terasic SoCKit](board/mathworks/socfpga/boards/sockit/catalog.xml)
+* [ZedBoard](../zynq/boards/zed/catalog.xml)
+* [ZC706](../zynq/boards/zc706/catalog.xml)
+* [Arrow/Terasic SoCKit](../socfpga/boards/sockit/catalog.xml)
 
 These files are designed to exist either in-tree or out-of-tree. To extend the
 build system to support new applications or new boards, simply author a new
@@ -93,14 +93,15 @@ settings files. The hierarchy, from least-specific to most-specific is:
 
 
 
-[1]:board/mathworks/doc/catalog.md
-[mw-common-defconfig]:board/mathworks/common/defconfig/common.defconfig
-[zynq-platform-defconfig]:board/mathworks/zynq/defconfig/common.defconfig
-[xilinx-toolchain-defconfig]:board/mathworks/zynq/defconfig/xilinx.defconfig
-[linaro-toolchain-defconfig]:board/mathworks/zynq/defconfig/linaro.defconfig
-[zedboard-board-defconfig]:board/mathworks/zynq/boards/zed/defconfig
-[linux-os-defconfig]:board/mathworks/zynq/defconfig/linux.defconfig
-[xenomai-os-defconfig]:board/mathworks/zynq/defconfig/xenomai.defconfig
-[eds-toolchain-defconfig]:board/mathworks/socfpga/defconfig/linaro.defconfig
-[socfpga-platform-defconfig]:board/mathworks/socfpga/defconfig/common.defconfig
-[common-builds-script]:board/mathworks/common/scripts/build.py
+[1]:catalog.md
+[mw-common-defconfig]:../common/defconfig/common.defconfig
+[zynq-platform-defconfig]:../zynq/defconfig/common.defconfig
+[xilinx-toolchain-defconfig]:../zynq/defconfig/xilinx.defconfig
+[linaro-toolchain-defconfig]:../zynq/defconfig/linaro.defconfig
+[zedboard-board-defconfig]:../zynq/boards/zed/defconfig
+[linux-os-defconfig]:../zynq/defconfig/linux.defconfig
+[xenomai-os-defconfig]:../zynq/defconfig/xenomai.defconfig
+[eds-toolchain-defconfig]:../socfpga/defconfig/linaro.defconfig
+[socfpga-platform-defconfig]:../socfpga/defconfig/common.defconfig
+[common-builds-script]:../common/scripts/build.py
+
