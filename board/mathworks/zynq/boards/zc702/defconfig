@@ -1,4 +1,5 @@
 ###########################################
 # ZC702 Options
 ###########################################
-BR2_TARGET_UBOOT_BOARDNAME="zynq_zc70x"
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="zynq_zc702"
+BR2_PACKAGE_UBOOT_XILINX_UBOOT_TARGET_DIR="board/xilinx/zynq/zynq-zc702"
