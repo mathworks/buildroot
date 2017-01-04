@@ -63,6 +63,11 @@ def _get_cmdline_config(args, catalog):
     ## Setup the DL directory
     _br_set_var('BR2_DL_DIR', args['dlDir'])
 
+    if args['enableCCache']:
+        _br_set_var('BR2_CCACHE', 'y')
+        _br_set_var('BR2_CCACHE_USE_BASEDIR', 'y')
+        _br_set_var('BR2_CCACHE_INITIAL_SETUP', '')
+
 ##################
 # Setup config values based on the catalog
 ###################
