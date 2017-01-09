@@ -1,6 +1,7 @@
 ###########################################
 # Platform Options
 ###########################################
+#include "arm_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
 BR2_LINUX_KERNEL_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/EmbeddedLinux/xilinx-linux.git"
 BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="next"

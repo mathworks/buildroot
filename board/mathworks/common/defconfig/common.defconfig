@@ -1,11 +1,6 @@
 ###########################################
 # Common Options
 ###########################################
-BR2_arm=y
-BR2_cortex_a9=y
-BR2_ARM_ENABLE_NEON=y
-BR2_ARM_FPU_NEON=y
-BR2_ARM_ENABLE_VFP=y
 BR2_ENABLE_LOCALE_PURGE=y
 BR2_ENABLE_LOCALE_WHITELIST="C en_US"
 # BR2_LINUX_KERNEL_DTS_SUPPORT is not set
