@@ -1,0 +1,38 @@
+###########################################
+# Platform Options
+###########################################
+#include "aarch64_common.defconfig"
+#ifdef BUILD_MODE_NORMAL
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mfornero/linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="xilinx-next-4.6"
+BR2_LINUX_KERNEL_UIMAGE=y
+BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x8000"
+#endif
+BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt board/mathworks/zynqmp/device_table.txt"
+BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/zynqmp/fs-overlay"
+BR2_ROOTFS_POST_BUILD_SCRIPT="board/mathworks/zynqmp/scripts/postbuild_common.sh"
+BR2_TARGET_GENERIC_HOSTNAME="buildroot-zynqmp"
+BR2_TARGET_GENERIC_GETTY_PORT="ttyPS0"
+BR2_TARGET_GENERIC_ROOT_PASSWD="root"
+BR2_TARGET_ROOTFS_CPIO_GZIP=y
+BR2_TARGET_ROOTFS_CPIO=y
+BR2_TARGET_ROOTFS_CPIO_UIMAGE=y
+# BR2_TARGET_ROOTFS_TAR is not set
+#ifdef BUILD_MODE_NORMAL
+BR2_TARGET_UBOOT=y
+BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG=y
+BR2_TARGET_UBOOT_NEEDS_DTC=y
+BR2_TARGET_UBOOT_CUSTOM_GIT=y
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mfornero/u-boot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="xilinx-16b"
+BR2_TARGET_ATFIRMWARE=y
+BR2_TARGET_ATFIRMWARE_CUSTOM_GIT=y
+BR2_TARGET_ATFIRMWARE_VERSION="xilinx-v2016.4"
+BR2_TARGET_ATFIRMWARE_CUSTOM_GIT_REPO_URL="https://github.com/Xilinx/arm-trusted-firmware.git"
+BR2_TARGET_ATFIRMWARE_CUSTOM_GIT_VERSION="xilinx-v2016.4"
+BR2_TARGET_ATFIRMWARE_PLATFORM="zynqmp"
+BR2_TARGET_ATFIRMWARE_ADDITIONAL_VARIABLES="RESET_TO_BL31=1"
+BR2_PACKAGE_XILINX_BOOTLOADER=y
+BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH="/opt/Xilinx/SDK/2016.4/bin/bootgen"
+#endif
+

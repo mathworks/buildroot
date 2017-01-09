@@ -1,0 +1,7 @@
+&fpd_hpm0_32 {
+		mwipcore0: mwipcore@A0000000 {
+			compatible = "mathworks,mwipcore-v3.00";
+			reg = <0xA0000000 0x10000>;
+		};
+};
+

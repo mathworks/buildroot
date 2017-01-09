@@ -1,0 +1,11 @@
+/ {
+    fpd_hpm0_32: fpd-hpm0-32 {
+        compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0xA0000000 0x0 0xA0000000 0x10000000>;
+    };
+};
+
+#define fpga_axi fpd_hpm0_32
+

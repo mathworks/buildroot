@@ -1,0 +1,37 @@
+#!/bin/sh
+
+DEVNODE=/dev/xdevcfg
+DEVMAJ=259
+DEVMIN=0
+
+SYSNODE=`find /sys/devices -type f -name prog_done`
+PROGDONE="cat $SYSNODE"
+
+# create the device node if it doesn't already exist
+if [ ! -e $DEVNODE ]; then
+	mknod $DEVNODE c $DEVMAJ $DEVMIN
+fi
+
+if [ ! -e "$1" ]; then
+	echo "You must supply a byte-swapped bistream"
+	exit 1
+fi
+
+echo "Initial FPGA status: $($PROGDONE)"
+
+echo "Downloading bitstream"
+cat $1 > $DEVNODE
+
+echo "Download completed"
+
+TIMEOUT=100
+
+while [ "$($PROGDONE)" != 1 ]; do
+	TIMEOUT=$((TIMEOUT-1))
+	if [ "$TIMEOUT" == "0" ]; then
+		echo "Programming Failed"
+		exit 1
+	fi
+done
+
+echo "Programming successful"
