@@ -1,4 +1,5 @@
 ###########################################
-# ZedBoard Options
+# Zybo Options
 ###########################################
-BR2_TARGET_UBOOT_BOARDNAME="zynq_zybo"
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="zynq_zybo"
+BR2_PACKAGE_UBOOT_XILINX_UBOOT_TARGET_DIR="board/xilinx/zynq/zynq-zybo"

@@ -2,7 +2,7 @@
     <default>
         <app name="default">
         </app>
-        <fsbl file="axilite_fsbl.elf"/>
+        <fsbl dir="handoff"/>
     </default>
     <image name="zynq7000ec">
         <app name="axilite">
