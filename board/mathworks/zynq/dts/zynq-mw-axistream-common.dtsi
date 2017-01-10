@@ -8,34 +8,38 @@
 &fpga_axi {
 	axi4stream:axidma@40020000 {
 		#address-cells = <0x1>;
+		#size-cells = <0x1>;
 		#dma-cells = <0x1>;
-		compatible = "xlnx,axi-dma-1.00.a";
+		axistream-connected = <0x2>;
+		axistream-control-connected = <0x2>;
+		compatible = "xlnx,axi-adi-dma";
 		interrupt-parent = <&intc>;
 		reg = <0x40020000 0xffff>;
+		xlnx,dlytmr-resolution = <0x7d>;
+		xlnx,family = "zynq";
 		xlnx,include-sg = <0x1>;
+		xlnx,instance = "axi_dma_0";
+		xlnx,sg-include-desc-queue = <0x0>;
+		xlnx,sg-include-stscntrl-strm = <0x0>;
+		xlnx,sg-length-width = <0xe>;
+		xlnx,sg-use-stsapp-length = <0x1>;
 		dma-channel@40020000 {
 			compatible = "xlnx,axi-dma-mm2s-channel";
 			interrupts = <0x0 0x1d 0x4>;
 			xlnx,datawidth = <0x20>;
 			xlnx,include-dre = <0x0>;
-			dma-channels = <0x1>;
-			xlnx,no-coalesce;
-			xlnx,force-halt;
 		};
 		dma-channel@40020030 {
 			compatible = "xlnx,axi-dma-s2mm-channel";
 			interrupts = <0x0 0x1e 0x4>;
 			xlnx,datawidth = <0x20>;
 			xlnx,include-dre = <0x0>;
-			dma-channels = <0x1>;
-			xlnx,no-coalesce;
-			xlnx,force-halt;
 		};
 	};
 };
-	
+
 &mwipcore0 {
 	dmas = <&axi4stream 0 
-			&axi4stream 1>;
+                &axi4stream 1>;
 	dma-names = "mm2s", "s2mm";
 };

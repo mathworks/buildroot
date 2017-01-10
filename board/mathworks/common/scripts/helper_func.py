@@ -38,6 +38,15 @@ def build_relative_file_list(inDir, toDir):
         fList[idx] = fList[idx].replace(toDir,"")
 
     return fList
+########################
+# Create a ramdisk
+########################
+def create_uramdisk(cpio_img, uimage, name=""):
+    MKIMAGE_BIN = ENV['HOST_DIR'] + "/usr/bin/mkimage"
+    print_msg("Creating uramdisk %s" % (uimage))
+    argStr = '%s -n "%s" -A arm -T ramdisk -C gzip -d %s %s' % (MKIMAGE_BIN, name, cpio_img, uimage)
+    print argStr
+    subprocess.call(argStr.split())
 
 ########################
 # Genimage
@@ -106,6 +115,35 @@ def gen_sd_fat_cfg():
     fileList = build_relative_file_list(ENV['SD_DIR'],ENV['IMAGE_DIR'])
     generate_fat_genimg_cfg(fileList, cfgFile, imgFile)
 
+########################
+# CPP expansion
+########################
+def cpp_expand(infile, outfile, include_dirs=[], extraPreFlags="", extraPostFlags=""):
+
+    CPP_PRE_FLAGS = "-nostdinc"
+    CPP_POST_FLAGS = "-undef -x assembler-with-cpp -P"
+
+    outfile = os.path.realpath(outfile)
+    infile = os.path.realpath(infile)
+    outdir = os.path.dirname(outfile)
+
+    # Automatically add the infile directory
+    include_dirs.append(os.path.dirname(infile))
+
+    # build the cpp command
+    dtc_cpp_flags = list()
+    dtc_cpp_flags.extend(CPP_PRE_FLAGS.split())
+    dtc_cpp_flags.extend(extraPreFlags.split())
+    for inc in include_dirs:
+        inc_str = "-I" + inc
+        dtc_cpp_flags.append(inc_str)
+    dtc_cpp_flags.extend(CPP_POST_FLAGS.split())
+    dtc_cpp_flags.extend(extraPostFlags.split())
+
+    args = ["cpp"]
+    args.extend(dtc_cpp_flags)
+    args.extend(["-o", outfile, infile])
+    subprocess.call(args, cwd=outdir)
 
 ########################
 # Printing Functions
@@ -339,6 +377,13 @@ _BMSG = {
 _LINUX_VAR = "BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION"
 _UBOOT_VAR = "BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION"
 _UBOOT_PKG = "uboot"
+
+########################################
+# Enumerations
+######################################## 
+class BuildMode:
+    NORMAL="NORMAL"
+    RECOVERY="RECOVERY"
 
 ########################################
 # Exported Globals

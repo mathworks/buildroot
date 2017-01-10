@@ -1,0 +1,1 @@
+BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/socfpga/fs-overlay ./board/mathworks/socfpga/boards/recovery/fs-overlay"

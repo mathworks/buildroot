@@ -7,11 +7,26 @@ from helper_func import *
 # Constants
 ########################################
 _DYNCONFIG = "dynconfig"
-_DYNCONFIG_FILE = "%s/configs/%s_defconfig" % (BR_ROOT, _DYNCONFIG)
+_CONFIG_DIR = "%s/configs" % BR_ROOT
+_DYNCONFIG_FILE = "%s/%s_defconfig" % (_CONFIG_DIR, _DYNCONFIG)
+_DYNCONFIG_INC_FILE = "%s/%s_defconfig.h" % (_CONFIG_DIR, _DYNCONFIG)
 _cfgDataList = []
+_cfgIncludeDirs = []
 ########################################
 # Helper Functions
 ########################################
+def _br_add_includeDir(incdir):
+    global _cfgIncludeDirs    
+
+    _cfgIncludeDirs.append(incdir)
+
+def _br_add_include(incfile, addPath=True):
+    global _cfgDataList
+
+    _cfgDataList.append('#include "%s"\n' % incfile)
+    if addPath:
+        _br_add_includeDir(os.path.dirname(incfile))
+
 def _br_set_var(var, value, quoted=True):
     global _cfgDataList
 
@@ -48,6 +63,11 @@ def _get_cmdline_config(args, catalog):
     ## Setup the DL directory
     _br_set_var('BR2_DL_DIR', args['dlDir'])
 
+    if args['enableCCache']:
+        _br_set_var('BR2_CCACHE', 'y')
+        _br_set_var('BR2_CCACHE_USE_BASEDIR', 'y')
+        _br_set_var('BR2_CCACHE_INITIAL_SETUP', '')
+
 ##################
 # Setup config values based on the catalog
 ###################
@@ -65,54 +85,62 @@ def _get_catalog_config(args, catalog):
     # Populate any board-specific catalog content
     br_platform.platform_gen_target(args, catalog, _cfgDataList)
 
-########################################
-# Public Functions
-########################################
-
 ##################
-# Create the buildroot defconfig
+# Generate the config file
 ###################
-def gen_target(args, catalog):
+def _gen_defconfig(args, catalog):
     global _cfgDataList
+    global _cfgIncludeDirs
+
     CONFIG_DIR = "%s/defconfig" % catalog['platformDir']
-    configList = []
     # add configs to the list from lowest to highest priority
-    configList.append("%s/defconfig/common.defconfig" % COMMON_DIR) # Company config
-    configList.append("%s/common.defconfig" % CONFIG_DIR) # Platform config
-    configList.append("%s/%s.defconfig" % (CONFIG_DIR, args['toolchain'])) # Toolchain config
-    configList.append("%s/%s.defconfig" % (CONFIG_DIR, args['rtos'])) # OS config
-    configList.append("%s/defconfig" % catalog['defaultInfo']['boardInfo']['dir']) # Board config
+    _br_add_include("%s/defconfig/common.defconfig" % COMMON_DIR) # Company config
+    _br_add_include("%s/common.defconfig" % CONFIG_DIR) # Platform config
+    _br_add_include("%s/%s.defconfig" % (CONFIG_DIR, args['toolchain'])) # Toolchain config
+    _br_add_include("%s/%s.defconfig" % (CONFIG_DIR, args['rtos'])) # OS config
+    _br_add_include("%s/defconfig" % catalog['defaultInfo']['boardInfo']['dir']) # Board config
 
-    # Use the specified config if it exists
-    if not catalog['defaultInfo']['br2_config'] is None:
-        configList.append(catalog['defaultInfo']['br2_config'])
+    # Add the mw directory
+    _br_add_includeDir(MW_DIR)       
 
-    # Use the .localconfig if it exists
-    lConfig = "%s/.localconfig" % os.getcwd()
-    if os.path.isfile(lConfig):
-        configList.append(lConfig)
-
-    # Concatentate the config files    
-    _cfgDataList = []
-    for cfg in configList:
-        if not os.path.isfile(cfg):
-            raise RuntimeError("Defconfig file '%s' does not exist" % cfg)
-        with open(cfg) as f:
-            cfgData = f.read()
-        _cfgDataList.append(cfgData)
-        _cfgDataList.append("\n")
-    
     # Load any config data from the catalog
     _get_catalog_config(args, catalog)
 
     # Load any config data from the cmdline    
     _get_cmdline_config(args, catalog)
     
+    # Use the specified config if it exists
+    if not catalog['defaultInfo']['br2_config'] is None:
+        _br_add_include(catalog['defaultInfo']['br2_config'])
+
+    # Use the .localconfig if it exists
+    lConfig = "%s/.localconfig" % os.getcwd()
+    if os.path.isfile(lConfig):
+        _br_add_include(lConfig)
+
+
     # Generate the BR defconfig
-    with open(_DYNCONFIG_FILE, 'w') as f:
+    with open(_DYNCONFIG_INC_FILE, 'w') as f:
         cfgData = ''.join(_cfgDataList)
         f.write(cfgData)
 
+    # use CPP to expand the includes
+    postArgs = "-DBUILD_MODE_%s" % args['buildMode']
+    cpp_expand(_DYNCONFIG_INC_FILE, _DYNCONFIG_FILE, _cfgIncludeDirs, extraPostFlags=postArgs)
+    rm(_DYNCONFIG_INC_FILE)
+
+########################################
+# Public Functions
+########################################
+
+##################
+# Create the buildroot config and run make
+###################
+def gen_target(args, catalog):
+
+    # Generate the config file
+    _gen_defconfig(args, catalog)
+    
     # Cleanup as required
     if args['cleanBuild']:
         rm(args['outputDir'])

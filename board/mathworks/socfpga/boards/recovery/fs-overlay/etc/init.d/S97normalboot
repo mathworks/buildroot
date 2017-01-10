@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Update the firmware at boot
+#
+
+source /etc/bootvars.conf
+
+source /etc/init.d/start_only.sh
+
+echo "+++ Restoring normal boot mode for next boot..."
+/usr/sbin/_mw_reboot_mode NORMAL
