@@ -32,6 +32,9 @@ endef
 ifeq ($(BR2_PACKAGE_UBOOT_ALTERA),y)
 UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_ALTERA_UPDATE_UBOOT
 UBOOT_DEPENDENCIES += uboot-altera
+# The Altera U-Boot tree uses the BUILD_DIR env variable to set the output directory
+# clear it so that binaries show up where they should
+UBOOT_MAKE_OPTS += BUILD_DIR=""
 endif
 
 # Generate the BSP based on the handoff files
