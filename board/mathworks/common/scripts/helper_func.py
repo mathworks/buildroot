@@ -311,6 +311,15 @@ def load_env(var, default=""):
     return var
 
 #######################
+# Subprocess With Error Checking
+#######################
+def subproc(args, cwd=None, stdout=None, stderr=None, shell=False):
+    rc = subprocess.call( args, cwd=cwd, stdout=stdout, stderr=stderr, shell=shell)
+    if (rc != 0):
+        cmdStr = " ".join(args)
+        raise StandardError("Command:\n%s\n\nFailed with error code: %d" % (cmdStr, rc))
+
+#######################
 # Subprocess logger
 #######################
 def subproc_log(cmdStr, logfile=None, cwd=None, verbose=True):
@@ -320,14 +329,15 @@ def subproc_log(cmdStr, logfile=None, cwd=None, verbose=True):
         logfile = "/dev/null"
 
     if (logfile is None):
-        subprocess.call( cmdStr.split(), cwd=cwd)
+        subproc( cmdStr.split(), cwd=cwd)
     else:
         if verbose == False:
             with open(logfile, 'w') as f:
-                subprocess.call( cmdStr.split(), cwd=cwd, stdout=f, stderr=subprocess.STDOUT)    
+                rc = subproc( cmdStr.split(), cwd=cwd, stdout=f, stderr=subprocess.STDOUT)    
         else:            
             cmdStr += " | tee %s" % logfile
-            subprocess.call( cmdStr.split(), cwd=cwd)
+            rc = subproc( cmdStr.split(), cwd=cwd)
+    return rc
 
 ########################
 # Load buildroot env

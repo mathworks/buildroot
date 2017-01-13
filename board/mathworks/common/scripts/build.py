@@ -78,7 +78,7 @@ def build_target(args, catalog):
     # Clean if required
     if not args['updateBuild']:
         argStr = "make clean"   
-        subprocess.call( argStr.split(), cwd=args['outputDir'])
+        rc = subproc( argStr.split(), cwd=args['outputDir'])
 
     if (args['cleanCCache'] and args['enableCCache']):
         cacheDir = get_cfg_var('BR2_CCACHE_DIR').replace("$(HOME)", os.environ['HOME'])
