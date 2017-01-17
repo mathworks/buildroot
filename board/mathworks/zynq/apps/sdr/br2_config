@@ -2,9 +2,9 @@
 # SDR Options
 ###########################################
 BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_sdr_R16.2.0"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_sdr_R17.1.0"
 BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-uboot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_sdr_R16.2.0"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_sdr_R17.1.0"
 BR2_TOOLCHAIN_EXTERNAL_PATH="/opt/Xilinx/SDK/2016.2/gnu/arm/lin"
 BR2_TOOLCHAIN_EXTERNAL_GCC_4_9=y
 BR2_TOOLCHAIN_EXTERNAL_HEADERS_3_19=y
