@@ -44,6 +44,31 @@ def _generate_a2_img():
 
     run_genimage(cfgFile, ENV['IMAGE_DIR'])
     return imgFile
+
+##############
+# Build the SD zip image
+##############
+def _make_sdzip(outputDir, image, catalog):
+    # Zip up the SD files
+    sdZip = "%s/sd.zip" % ENV['IMAGE_DIR']
+    rm(sdZip)
+    argStr = "zip -r %s ." % sdZip
+    subprocess.call( argStr.split(), cwd=ENV['SD_DIR'] )
+
+    # Copy the update script
+    shutil.copyfile("%s/fw_update.sh" % catalog['platformDir'], "%s/fw_update.sh" % ENV['IMAGE_DIR'])
+
+    # Package the payload
+    buildDate = time.strftime("%F")
+    imageFile = "%s/%s_sdcard_%s_%s.zip" % (
+        outputDir, catalog['boardName'], image['imageName'], buildDate)
+    rm(imageFile)
+    zipList = [ 'sd.zip',
+                'boot.a2',
+                'fw_update.sh',
+                'rootfs.tar.gz']
+    argStr = "zip %s %s" % (imageFile, " ".join(zipList))
+    subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
    
 ##############
 # Build the SD disk iamge
@@ -132,6 +157,7 @@ def build_sdimage(outputDir, image, catalog):
     # Call the Altera Script
     ##############
     _make_sdimage(outputDir, image, catalog)
+    _make_sdzip(outputDir, image, catalog)
 
 ####################################
 # Module Globals

@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Restores SSH keys from the SD card
+#
+
+source /etc/bootvars.conf
+
+source /etc/init.d/start_only.sh
+
+if [ "$_SYS_PERSISTENT_FILESYSTEM" == "true" ]; then
+    UPDATE=mv
+else
+    UPDATE=cp
+fi
+
+SD_KEYDIR=${_SD_ROOT}/sshkeys
+ETC_KEYDIR=/etc/ssh
+
+if [ -d $SD_KEYDIR ]; then
+	echo -n "Restoring SSH keys from the SD card: "    
+	${UPDATE} -f $SD_KEYDIR/ssh_host_*key* $ETC_KEYDIR/
+	chmod 600 $ETC_KEYDIR/ssh_host_*key*
+	echo "OK"
+	if [ "$_SYS_PERSISTENT_FILESYSTEM" == "true" ]; then
+		rm -rf $SD_KEYDIR
+	fi
+fi
+
+
+exit 0
+

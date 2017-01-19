@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Update the firmware at boot
+#
+
+source /etc/bootvars.conf
+
+source /etc/init.d/start_only.sh
+
+# Get the firmware file
+FIRMWARE_FILE=$(/usr/sbin/fw_printenv -n ${_UBOOT_VAR_FWUPDATE_FILE} 2> /dev/null)
+if [ "$FIRMWARE_FILE" == "" ]; then
+    echo "+++ Skipping firmware update..."
+    exit 0
+fi
+
+UPDATE_FIRMWARE_PATH=${_SD_ROOT}/${FIRMWARE_FILE}
+if [ -e ${UPDATE_FIRMWARE_PATH} ]; then
+    echo "+++ Performing firmware update..."
+    /usr/sbin/_mw_do_fwupdate ${UPDATE_FIRMWARE_PATH}
+fi

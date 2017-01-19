@@ -1,5 +1,7 @@
 menu "Target packages"
 	source "package/mathworks/uboot-altera/Config.in"
+	source "package/mathworks/uboot-xilinx/Config.in"
+	source "package/mathworks/recovery-image/Config.in"
 	source "package/mathworks/toolchain-customization/Config.in"
 endmenu
 source "package/mathworks/Config.in.host"

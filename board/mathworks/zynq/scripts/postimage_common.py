@@ -20,6 +20,20 @@ def _create_bif(bifFilePath,fsblFile,ubootFile):
     f.close()
 
 ##############
+# Copy boot.bin
+##############
+def _copy_boot():
+    spl_bin = "boot.bin"
+    spl_src_path = "%s/%s" % (ENV['IMAGE_DIR'], spl_bin)
+    spl_dst_path = "%s/%s" % (ENV['SD_DIR'], spl_bin)
+    uboot = "u-boot.img"
+    uboot_src_path = "%s/%s"  % (ENV['IMAGE_DIR'], uboot)
+    uboot_dst_path = "%s/%s"  % (ENV['SD_DIR'], uboot)
+
+    shutil.copy(spl_src_path, spl_dst_path)
+    shutil.copy(uboot_src_path, uboot_dst_path)  
+
+##############
 # Create BOOT.BIN for a given image
 ##############
 def _create_boot(image, catalog):
@@ -98,17 +112,26 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     # Create the u-boot ramdisk image
     ##############
-    MKIMAGE_BIN = ENV['HOST_DIR'] + "/usr/bin/mkimage"
     CPIO_IMG = ENV['IMAGE_DIR'] + "/rootfs.cpio.gz"
     UIMAGE= ENV['SD_DIR'] + "/uramdisk.image.gz"
-    print_msg("Creating uramdisk %s" % (UIMAGE))
-    argStr = "%s -A arm -T ramdisk -C gzip -d %s %s" % (MKIMAGE_BIN, CPIO_IMG, UIMAGE)
-    subprocess.call(argStr.split())
+    create_uramdisk(CPIO_IMG, UIMAGE)
     
     ##############
-    # Create the boot.bin file
+    # Create/copy the boot.bin file
     ##############
-    _create_boot(image, catalog)
+    if os.path.isdir(catalog['defaultInfo']['fsbl']):
+        # use the SPL
+        _copy_boot()
+    else:
+        # Build the boot.bin, with uboot built in
+        _create_boot(image, catalog)
+
+    ##############
+    # Create the hostname file
+    ##############
+    f = open(ENV['SD_DIR'] + "/hostname", 'w')
+    f.write("buildroot-%s\n" % (catalog['boardName']))
+    f.close()
 
     ##############
     # Zip the SD Card Directory

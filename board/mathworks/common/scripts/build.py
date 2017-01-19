@@ -7,12 +7,6 @@ from helper_func import *
 import br_config
 
 ########################################
-# Constants
-########################################
-DYNCONFIG = "dynconfig"
-DYNCONFIG_FILE = "%s/configs/%s_defconfig" % (BR_ROOT, DYNCONFIG)
-
-########################################
 # Helper Functions
 ########################################
 
@@ -46,7 +40,10 @@ def get_build_config(args):
         args['rtos'] = br_platform.supported['rtos'][0]
 
     if args['outputDir'] is None:
-        pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['boardName'], args['rtos'], args['toolchain'])
+        if args['buildMode'] == BuildMode.RECOVERY:
+            pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['platformName'], args['boardName'], args['toolchain'])
+        else:
+            pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['boardName'], args['rtos'], args['toolchain'])
         args['outputDir'] = os.path.realpath(pathStr)
     else:
         args['outputDir'] = os.path.realpath(args['outputDir'])
@@ -70,6 +67,9 @@ def get_build_config(args):
         args['dlDir'] = os.path.realpath("%s/%s" % (os.getcwd(), args['dlDir']))
 
     args['catalogFile'] = os.path.realpath(args['catalogFile'])
+
+    # Setup the BR environment variables for future use
+    set_br_env(args['outputDir'])
         
 ##################
 # Run the build
@@ -79,6 +79,10 @@ def build_target(args, catalog):
     if not args['updateBuild']:
         argStr = "make clean"   
         subprocess.call( argStr.split(), cwd=args['outputDir'])
+
+    if (args['cleanCCache'] and args['enableCCache']):
+        cacheDir = get_cfg_var('BR2_CCACHE_DIR').replace("$(HOME)", os.environ['HOME'])
+        rm(cacheDir)
 
     # Call the makefile
     argStr = "make %s" % args['makeTarget']
@@ -124,6 +128,10 @@ buildTypeGrp.add_argument('-l', '--logfile', dest='logFile', metavar='LOG_FILE',
                         help='File to log the build output(default: build_DD_MM_YYYY.log)')
 buildTypeGrp.add_argument('-q', '--quiet', dest='quietBuild', action='store_true',
                         help='Do not print build output to stdout')
+buildTypeGrp.add_argument('--ccache', dest='enableCCache', action='store_true',
+                        help='Enable the ccache build mechanism (default: false)')
+buildTypeGrp.add_argument('--ccache-clean', dest='cleanCCache', action='store_true',
+                        help='Clean the ccache cache (default: false)')
 
 buildType=buildTypeGrp.add_mutually_exclusive_group(required=False)
 buildType.add_argument('-u', '--update', dest='updateBuild', action='store_true',
@@ -153,6 +161,7 @@ catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'])
 # catalog may have provided some info
 args['platformName'] = catalog['platformName'].lower()
 args['boardName'] = catalog['boardName'].lower()
+args['buildMode'] = catalog['buildMode']
 
 # load the platform functions
 PLATFORM_MODULE = catalog['platformDir'] + "/scripts/build_common.py"

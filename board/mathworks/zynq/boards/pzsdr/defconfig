@@ -1,4 +1,5 @@
 ###########################################
 # PicoZed SDR Options
 ###########################################
-BR2_TARGET_UBOOT_BOARDNAME="zynq_zc70x"
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="zynq_picozed_sdr2"
+BR2_PACKAGE_UBOOT_XILINX_UBOOT_TARGET_DIR="board/xilinx/zynq/zynq-picozed-sdr2"

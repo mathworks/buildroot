@@ -1,0 +1,15 @@
+<board name="e310" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <kernel_config file="../../apps/sdr/sdr_kernel_config"/>
+        <br2_config file="../../apps/sdr/br2_config"/>
+        <fsbl dir="handoff"/>
+    </default>
+    <image name="zynq7000sdr">
+        <app name="sdr">
+            <dts file="sdr.dts"/>
+        </app>
+        <sdcard dir="../../apps/sdr/sdcard/e310"/>
+    </image>
+</board>

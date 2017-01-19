@@ -5,6 +5,7 @@
 source /etc/bootvars.conf
 
 NEWDT=$1
+shift
 
 # Determine if anything was passed in
 if [ "$NEWDT" = "" ]; then
@@ -13,7 +14,7 @@ if [ "$NEWDT" = "" ]; then
     NEWDT=$_SYS_DEFAULT_DEVICETREE_FILE
 fi
 
-_mw_setbootfile "$_UBOOT_VAR_DEVICETREE" "$NEWDT" Devicetree
+_mw_setbootfile "$_UBOOT_VAR_DEVICETREE" "$NEWDT" Devicetree "$@"
 rc=$?
 
 exit $rc

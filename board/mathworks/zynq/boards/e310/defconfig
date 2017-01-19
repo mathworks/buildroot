@@ -1,0 +1,5 @@
+###########################################
+# E310 Options
+###########################################
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="zynq_e310"
+BR2_PACKAGE_UBOOT_XILINX_UBOOT_TARGET_DIR="board/xilinx/zynq/zynq-e310"
