@@ -4,12 +4,14 @@ import os, sys, imp, subprocess
 import helper_func
 from helper_func import *
 
-def generate_dtbs(platform, boardName, image):
+def generate_dtbs(catalog, image):
+    platform = catalog['platformInfo']['platformName']
+    boardName = catalog['boardName']
     LINUX_DIR = get_src_dir("linux")
 
     # Tool paths
     DTC = ENV['HOST_DIR'] +"/usr/bin/dtc"
-    LINUX_DTS = LINUX_DIR + "/arch/arm/boot/dts"
+    LINUX_DTS = [LINUX_DIR + "/" + dtsi for dtsi in catalog['platformInfo']['kernelDTSDir']]
     DTS_FILE = "devicetree.dts"
 
     # Determine the toolchain name for CPP
@@ -23,10 +25,9 @@ def generate_dtbs(platform, boardName, image):
 
     INCLUDE_DIRS = ["%s/dts" % (COMMON_DIR),
                 "%s/dts" % (PLATFORM_DIR),
-                "%s/dts" % (BOARD_DIR),
-                "%s" % (LINUX_DTS),
-                "%s/include" % (LINUX_DTS)]
+                "%s/dts" % (BOARD_DIR)]
     INCLUDE_DIRS.extend(image['dtsIncDirs'])
+    INCLUDE_DIRS.extend(LINUX_DTS)
 
     for app in image['appList']:
         print_msg("Generating %s dtb" % (app['name']))
@@ -49,7 +50,7 @@ def generate_dtbs(platform, boardName, image):
             args.extend(["-i", inc])
         strArgs = "-I dts -O dtb -o %s %s" % (dtb_file, tmpFile)
         args.extend(strArgs.split())
-        subprocess.call(args, cwd=ENV['SD_DIR'])
+        subproc(args, cwd=ENV['SD_DIR'])
 
         # Cleanup
         os.remove(tmpFile)

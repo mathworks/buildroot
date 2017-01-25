@@ -70,7 +70,7 @@ def _gen_sdcard(image, catalog, outputDir):
     ##############
     # Generate DTBs
     ##############
-    gen_dtb.generate_dtbs(PLATFORM_NAME, BOARD_NAME, image)
+    gen_dtb.generate_dtbs(catalog, image)
     # Copy the default DTB to devicetree.dtb
     print_msg("Setting %s as default dtb" %(defaultApp['name']))
     br_platform.set_default_dtb(defaultApp)
@@ -142,14 +142,16 @@ outputDir = os.path.realpath(args['outputDir'])
 # read in the tree
 catalog = parse_catalog.read_catalog(CATALOG_FILE, args['imageList'])
 # catalog may have provided some info
-PLATFORM_NAME = catalog['platformName']
+PLATFORM_NAME = catalog['platformInfo']['platformName']
 BOARD_NAME = catalog['boardName']
 PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + PLATFORM_NAME
 
 # load the platform functions
-PLATFORM_MODULE = PLATFORM_DIR + "/scripts/postimage_common.py"
+PLATFORM_MODULE = catalog['platformInfo']['platformDir'] + "/scripts/platform_support.py"
 m = imp.load_source('br_platform', PLATFORM_MODULE)
 import br_platform
+
+br_platform.platform_update_catalog(catalog)
 
 if catalog['buildMode'] == BuildMode.RECOVERY:
     _gen_recovery(catalog, outputDir)

@@ -92,7 +92,7 @@ def _gen_defconfig(args, catalog):
     global _cfgDataList
     global _cfgIncludeDirs
 
-    CONFIG_DIR = "%s/defconfig" % catalog['platformDir']
+    CONFIG_DIR = "%s/defconfig" % catalog['platformInfo']['platformDir']
     # add configs to the list from lowest to highest priority
     _br_add_include("%s/defconfig/common.defconfig" % COMMON_DIR) # Company config
     _br_add_include("%s/common.defconfig" % CONFIG_DIR) # Platform config

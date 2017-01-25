@@ -56,7 +56,7 @@ def _make_sdzip(outputDir, image, catalog):
     subprocess.call( argStr.split(), cwd=ENV['SD_DIR'] )
 
     # Copy the update script
-    shutil.copyfile("%s/fw_update.sh" % catalog['platformDir'], "%s/fw_update.sh" % ENV['IMAGE_DIR'])
+    shutil.copyfile("%s/fw_update.sh" % catalog['platformInfo']['platformDir'], "%s/fw_update.sh" % ENV['IMAGE_DIR'])
 
     # Package the payload
     buildDate = time.strftime("%F")
@@ -158,6 +158,59 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     _make_sdimage(outputDir, image, catalog)
     _make_sdzip(outputDir, image, catalog)
+
+##############
+# Configure the build process
+##############
+def platform_supported():
+    supported = dict()
+    # List of valid toolchains
+    supported['toolchain'] = ["linaro"]
+    # List of valid OSes
+    supported['rtos'] = ["linux"]
+    return supported
+
+def platform_checkconfig(args):
+    return
+
+def platform_gen_target(args, catalog, cfgDataList):
+    # Do nothing for recovery mode
+    if catalog['buildMode'] == BuildMode.RECOVERY:
+        return
+
+    handoffStr = 'BR2_PACKAGE_UBOOT_ALTERA_QUARTUS_HANDOFF_DIR='
+    handoffStr += '"%s"\n' % catalog['defaultInfo']['fsbl']
+
+    cfgDataList.append(handoffStr)
+
+    bspBuildStr = "BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP="
+
+    # Validate the handoff directory
+    handoffDir = "%s/handoff" % catalog['defaultInfo']['fsbl']
+    if os.path.isdir(handoffDir):
+        if not os.path.isdir("%s/generated" % catalog['defaultInfo']['fsbl']):
+            errStr = "The handoff directory (%s) does not contain both handoff and generated folders\n" % catalog['defaultInfo']['fsbl']
+            errStr += "When supplying both the handoff files and the BSP, they must be placed in 'handoff'"
+            errStr += " and 'generated' subfolders respectively\n"
+            raise RuntimeError(errStr)
+        bspBuildStr += "n\n"
+    else:
+        handoffDir = catalog['defaultInfo']['fsbl']
+        bspBuildStr += "y\n"
+    if not os.path.isfile("%s/hps.xml" % handoffDir):
+        errStr = "The handoff directory (%s) does not contain the hps.xml file\n" % handoffDir
+        errStr += "Please ensure this folder contains the contents of the hps_isw_software directory\n"
+        raise RuntimeError(errStr)
+
+    cfgDataList.append(bspBuildStr)
+
+    return
+
+def platform_update_catalog(catalog):
+    catalog['platformInfo']['kernelDTSDir'] = [
+                'arch/arm/boot/dts',
+                'arch/arm/boot/dts/include']
+    return
 
 ####################################
 # Module Globals

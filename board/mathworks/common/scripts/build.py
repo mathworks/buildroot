@@ -15,14 +15,14 @@ import br_config
 ###################
 def checkconfig(args):
     # common checking
-    if not args['toolchain'] in br_platform.supported['toolchain']:
+    if not args['toolchain'] in SUPPORTED['toolchain']:
         errStr = "Toolchain '%s' is not supported for platform '%s'" % (args['toolchain'], args['platformName'])
-        errStr = errStr + "\n\tSupported toolchains: %s" % br_platform.supported['toolchain']
+        errStr = errStr + "\n\tSupported toolchains: %s" % SUPPORTED['toolchain']
         raise RuntimeError(errStr)
         
-    if not args['rtos'] in br_platform.supported['rtos']:
+    if not args['rtos'] in SUPPORTED['rtos']:
         errStr = "RTOS '%s' is not supported for platform '%s'" % (args['toolchain'], args['platformName'])
-        errStr = errStr + "\n\tSupported RTOS: %s" % br_platform.supported['rtos']
+        errStr = errStr + "\n\tSupported RTOS: %s" % SUPPORTED['rtos']
         raise RuntimeError(errStr)
 
     # platform specific checking
@@ -34,10 +34,10 @@ def checkconfig(args):
 def get_build_config(args):
     # Use the platform defaults to populate the values
     if args['toolchain'] is None:
-        args['toolchain'] = br_platform.supported['toolchain'][0]
+        args['toolchain'] = SUPPORTED['toolchain'][0]
 
     if args['rtos'] is None:
-        args['rtos'] = br_platform.supported['rtos'][0]
+        args['rtos'] = SUPPORTED['rtos'][0]
 
     if args['outputDir'] is None:
         if args['buildMode'] == BuildMode.RECOVERY:
@@ -159,14 +159,17 @@ if args['catalogFile'] is None:
 # read in the tree
 catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'])
 # catalog may have provided some info
-args['platformName'] = catalog['platformName'].lower()
+args['platformName'] = catalog['platformInfo']['platformName'].lower()
 args['boardName'] = catalog['boardName'].lower()
 args['buildMode'] = catalog['buildMode']
 
 # load the platform functions
-PLATFORM_MODULE = catalog['platformDir'] + "/scripts/build_common.py"
+PLATFORM_MODULE = catalog['platformInfo']['platformDir'] + "/scripts/platform_support.py"
 m = imp.load_source('br_platform', PLATFORM_MODULE)
 import br_platform
+
+br_platform.platform_update_catalog(catalog)
+SUPPORTED = br_platform.platform_supported()
 
 get_build_config(args)
 

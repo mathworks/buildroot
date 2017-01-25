@@ -310,12 +310,13 @@ def read_catalog(catalogFile, imageNames=["all"]):
     # Create the catalog
     catalog = dict()
     catalog['boardName'] = _BOARD_NAME
-    catalog['platformName'] = _PLATFORM_NAME
-    catalog['platformDir'] = _PLATFORM_DIR
     catalog['catalogDir'] = _CATALOG_DIR
     catalog['defaultInfo'] = _defaults
     catalog['imageList'] = imageList
     catalog['buildMode'] = _defaults['buildMode']
+    catalog['platformInfo'] = dict()
+    catalog['platformInfo']['platformName'] = _PLATFORM_NAME
+    catalog['platformInfo']['platformDir'] = _PLATFORM_DIR
 
     return catalog
 
