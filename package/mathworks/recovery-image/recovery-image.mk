@@ -14,6 +14,10 @@ else ifeq ($(BR2_PACKAGE_RECOVERY_IMAGE_USE_BRDPLT),y)
 RECOVERY_IMAGE_BUILD_SPEC = -b $(call qstrip,$(BR2_PACKAGE_RECOVERY_IMAGE_BOARD)) -p $(call qstrip,$(BR2_PACKAGE_RECOVERY_IMAGE_PLATFORM))
 endif
 
+ifeq ($(BR2_CCACHE),y)
+RECOVERY_IMAGE_BUILD_SPEC += --ccache
+endif
+
 RECOVERY_IMAGE_FILE = $(call qstrip,$(BR2_PACKAGE_RECOVERY_IMAGE_FILE))
 RECOVERY_IMAGE_BUILD_SCRIPT = board/mathworks/common/scripts/build.py
 
