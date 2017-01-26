@@ -94,7 +94,7 @@ custom_sources_job:
         - rm -rf output/*/build
         - ./build.py -u -b zed -p zynq --target source --dl $CI_BR2_DL_DIR/zynq -l logs/${CI_BUILD_NAME}_zynq.log
         - ./build.py -u -b sockit -p socfpga --target source --dl $CI_BR2_DL_DIR/socfpga -l logs/${CI_BUILD_NAME}_socfpga.log
-#        - ./build.py -u -b zcu102 -p zynqmp --target source --dl $CI_BR2_DL_DIR/zynqmp -l logs/${CI_BUILD_NAME}_zynqmp.log
+        - ./build.py -u -b zcu102 -p zynqmp --target source --dl $CI_BR2_DL_DIR/zynqmp -l logs/${CI_BUILD_NAME}_zynqmp.log
 
 ########################
 # Build Jobs (per-board)
@@ -111,4 +111,10 @@ build_sockit_job:
     variables:
         CI_JOB_PLATFORM: socfpga
         CI_JOB_BOARD: sockit
+
+build_zcu102_job:
+    <<: *build_job_template
+    variables:
+        CI_JOB_PLATFORM: zynqmp
+        CI_JOB_BOARD: zcu102
 
