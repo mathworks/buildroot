@@ -14,7 +14,9 @@ BR2_LINUX_KERNEL_CUSTOM_GIT=y
 # BR2_LINUX_KERNEL_CUSTOM_GIT is not set
 #endif
 BR2_PACKAGE_BUSYBOX_CONFIG="board/mathworks/common/busybox_config"
+#ifdef BUILD_MODE_NORMAL
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/mathworks/common/scripts/postimage_common.py"
+#endif
 
 #ifdef BUILD_MODE_NORMAL
 ###########################################
@@ -91,6 +93,7 @@ BR2_PACKAGE_HOST_UBOOT_TOOLS=y
 # Build a RAMDISK for recovery
 BR2_TARGET_ROOTFS_CPIO_GZIP=y
 BR2_TARGET_ROOTFS_CPIO=y
+BR2_TARGET_ROOTFS_CPIO_UIMAGE=y
 #endif
 
 ###########################################

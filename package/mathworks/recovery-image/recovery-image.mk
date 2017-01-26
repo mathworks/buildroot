@@ -26,7 +26,7 @@ define RECOVERY_IMAGE_BUILD_CMDS
 endef
 
 define RECOVERY_IMAGE_INSTALL_IMAGES_CMDS
-	cp -f $(@D)/images/$(RECOVERY_IMAGE_FILE) $(BINARIES_DIR)/
+	cp -f $(@D)/images/rootfs.cpio.uboot $(BINARIES_DIR)/$(RECOVERY_IMAGE_FILE)
 endef
 
 $(eval $(generic-package))
