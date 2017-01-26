@@ -109,11 +109,11 @@ def build_sdimage(outputDir, image, catalog):
             shutil.copy(app['bit'], appBit)
 
     ##############
-    # Create the u-boot ramdisk image
+    # Copy the u-boot ramdisk image
     ##############
-    CPIO_IMG = ENV['IMAGE_DIR'] + "/rootfs.cpio.gz"
+    CPIO_IMG = ENV['IMAGE_DIR'] + "/rootfs.cpio.uboot"
     UIMAGE= ENV['SD_DIR'] + "/uramdisk.image.gz"
-    create_uramdisk(CPIO_IMG, UIMAGE)
+    shutil.copy(CPIO_IMG, UIMAGE)
     
     ##############
     # Create/copy the boot.bin file
