@@ -1,0 +1,182 @@
+################################################################################
+#
+# Xilinx Bootloader Configuration
+#
+################################################################################
+
+XILINX_BOOTLOADER_INSTALL_TARGET = NO
+
+XILINX_BOOTLOADER_VIVADO_HANDOFF_DIR = $(call qstrip,$(BR2_PACKAGE_XILINX_BOOTLOADER_VIVADO_HANDOFF_DIR))
+XILINX_BOOTLOADER_UBOOT_TARGET_DIR = $(call qstrip,$(BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR))
+XILINX_BOOTLOADER_PMUFW_PATH = $(call qstrip,$(BR2_PACKAGE_XILINX_BOOTLOADER_PMUFW_PATH))
+XILINX_BOOTLOADER_PMUFW_FILENAME = $(notdir $(XILINX_BOOTLOADER_PMUFW_PATH))
+XILINX_BOOTLOADER_PMUFW_EXT = $(suffix $(XILINX_BOOTLOADER_PMUFW_PATH))
+XILINX_BOOTLOADER_UBOOT_PMUFW_TARGET_PATH=$(XILINX_BOOTLOADER_UBOOT_TARGET_DIR)/$(XILINX_BOOTLOADER_PMUFW_FILENAME)
+XILINX_BOOTLOADER_BOOTGEN_PATH = $(call qstrip,$(BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH))
+
+XILINX_BOOTLOADER_FSBL_ELF_PATH = $(call qstrip,$(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_ELF_PATH))
+XILINX_BOOTLOADER_PLATFORM = $(call qstrip,$(BR2_PACKAGE_XILINX_BOOTLOADER_PLATFORM))
+XILINX_BOOTLOADER_BIF_SOURCE = $(XILINX_BOOTLOADER_PKGDIR)/$(XILINX_BOOTLOADER_PLATFORM).bif
+XILINX_BOOTLOADER_ATFIRMWARE_BUILD_DIR = $(BUILD_DIR)/atfirmware-$(ATFIRMWARE_VERSION)/build
+
+# Verify that the PMUFW has the correct suffix
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_PMUFW),y)
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK),y)
+ifneq ($(XILINX_BOOTLOADER_PMUFW_EXT), .elf)
+$(error PMU Firmware must be a .elf file when using the Vivado FSBL)
+endif #($(XILINX_BOOTLOADER_PMUFW_EXT), elf)
+else # ! ($(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK),y)
+ifneq ($(XILINX_BOOTLOADER_PMUFW_EXT), .bin)
+$(error PMU Firmware must be a .bin file when using the U-Boot SPL)
+endif #($(XILINX_BOOTLOADER_PMUFW_EXT), elf)
+endif #($(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK),y)
+endif #($(BR2_PACKAGE_XILINX_BOOTLOADER_PMUFW),y)
+
+ifeq ($(XILINX_BOOTLOADER_PLATFORM),zynq)
+# Zynq uses the "uboot" file
+XILINX_BOOTLOADER_UBOOT_ELF = u-boot
+else
+# Zynqmp uses the uboot.elf file
+XILINX_BOOTLOADER_UBOOT_ELF = u-boot.elf
+endif 
+
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK),y)
+XILINX_BOOTLOADER_INSTALL_IMAGES = YES
+else
+XILINX_BOOTLOADER_INSTALL_IMAGES = NO
+endif #($(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK),y)
+
+############################################
+# U-Boot Update tasks
+############################################
+define XILINX_BOOTLOADER_UBOOT_UPDATE_SPL
+    @echo ">>> Copying handoff files from $(XILINX_BOOTLOADER_VIVADO_HANDOFF_DIR)"
+    cp -R -f $(XILINX_BOOTLOADER_VIVADO_HANDOFF_DIR)/* $(@D)/$(XILINX_BOOTLOADER_UBOOT_TARGET_DIR)/
+endef
+
+define XILINX_BOOTLOADER_UBOOT_UPDATE_PMUFW
+    @echo ">>> Copying PMUFW files from $(XILINX_BOOTLOADER_PMUFW_PATH)"
+    cp -R -f $(XILINX_BOOTLOADER_PMUFW_PATH) $(@D)/$(XILINX_BOOTLOADER_UBOOT_TARGET_DIR)/
+endef
+
+define XILINX_BOOTLOADER_UBOOT_ENABLE_PMUFW
+    @echo ">>> Updating UBoot $(UBOOT_KCONFIG_DOTCONFIG) for PMUFW"
+    sed -i -e 's|^.*\(CONFIG_PMUFW_INIT_FILE\).*$$|\1="$(XILINX_BOOTLOADER_UBOOT_PMUFW_TARGET_PATH)"|' $(@D)/.config
+endef
+
+define XILINX_BOOTLOADER_UBOOT_INSTALL_ELF
+	cp -f $(@D)/u-boot.elf $(BINARIES_DIR)/u-boot.elf
+endef
+
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_SPL),y)
+# Update U-Boot to use the handoff files
+UBOOT_PRE_CONFIGURE_HOOKS += XILINX_BOOTLOADER_UBOOT_UPDATE_SPL
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_PMUFW),y)
+
+# Verify the PMU Firmware is in the correct format
+ifneq ($(XILINX_BOOTLOADER_PMUFW_EXT), .bin)
+$(error PMU Firmware must be a .bin file when using the U-Boot SPL)
+endif 
+
+# Update U-Boot to include the PMU FW
+UBOOT_PRE_CONFIGURE_HOOKS += XILINX_BOOTLOADER_UBOOT_UPDATE_PMUFW
+UBOOT_POST_CONFIGURE_HOOKS += XILINX_BOOTLOADER_UBOOT_ENABLE_PMUFW
+endif #($(BR2_PACKAGE_XILINX_BOOTLOADER_PMUFW),y)
+UBOOT_DEPENDENCIES += xilinx-bootloader
+else # ! ($(BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_SPL),y)
+ifeq ($(XILINX_BOOTLOADER_PLATFORM),zynqmp)
+UBOOT_POST_INSTALL_IMAGES_HOOKS += XILINX_BOOTLOADER_UBOOT_INSTALL_ELF
+endif
+endif #($(BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_SPL),y)
+
+############################################
+# ATFirmware Packaging
+############################################
+define XILINX_BOOTLOADER_ATFIRMWARE_MKIMAGE
+    $(XILINX_BOOTLOADER_PKGDIR)/atfirmware-xilinx.sh $(BINARIES_DIR) \
+        $(TARGET_READELF) $(MKIMAGE) $(MKIMAGE_ARCH)
+endef
+
+define XILINX_BOOTLOADER_ATFIRMWARE_INSTALL_ELF
+	cp -f $(XILINX_BOOTLOADER_ATFIRMWARE_BUILD_DIR)/$(ATFIRMWARE_PLATFORM)/release/bl31/bl31.elf $(BINARIES_DIR)/bl31.elf
+endef
+
+ATFIRMWARE_POST_INSTALL_IMAGES_HOOKS += XILINX_BOOTLOADER_ATFIRMWARE_INSTALL_ELF
+
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_SPL),y)
+# Create a U-Boot Image from the ATFirmware
+ATFIRMWARE_POST_INSTALL_IMAGES_HOOKS += XILINX_BOOTLOADER_ATFIRMWARE_MKIMAGE
+ATFIRMWARE_DEPENDENCIES += host-uboot-tools
+endif
+
+############################################
+# Create boot.bin via bootgen
+############################################
+
+define XILINX_BOOTLOADER_LOAD_BIF
+
+endef
+
+define XILINX_BOOTLOADER_BIF_REMOVE_PMUFW
+	sed -i '/^.*pmufw\.elf.*$$/d' $(@D)/boot.bif
+endef
+
+define XILINX_BOOTLOADER_GET_PMUFW
+	cp -f $(XILINX_BOOTLOADER_PMUFW_PATH) $(@D)/pmufw.elf
+endef
+
+define XILINX_BOOTLOADER_BIF_REMOVE_ATFIRMWARE
+	sed -i '/^.*bl31\.elf.*$$/d' $(@D)/boot.bif
+endef
+
+define XILINX_BOOTLOADER_GET_ATFIRMWARE
+	cp -f $(BINARIES_DIR)/bl31.elf $(@D)/bl31.elf
+endef
+
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK),y)
+
+ifeq ($(BR2_PACKAGE_XILINX_BOOTLOADER_PMUFW),y)
+
+# Verify the PMU Firmware is in the correct format
+ifneq ($(XILINX_BOOTLOADER_PMUFW_EXT), .elf)
+$(error PMU Firmware must be a .elf file when using the Vivado FSBL)
+endif 
+
+#Copy the PMUFW
+XILINX_BOOTLOADER_POST_CONFIGURE_HOOKS += XILINX_BOOTLOADER_GET_PMUFW
+else
+#Remove the PMUFW
+XILINX_BOOTLOADER_POST_CONFIGURE_HOOKS += XILINX_BOOTLOADER_BIF_REMOVE_PMUFW
+endif #($(BR2_PACKAGE_XILINX_BOOTLOADER_PMUFW),y)
+
+ifeq ($(BR2_TARGET_ATFIRMWARE),y)
+#Copy the ATFirmware files
+XILINX_BOOTLOADER_POST_CONFIGURE_HOOKS += XILINX_BOOTLOADER_GET_ATFIRMWARE
+XILINX_BOOTLOADER_DEPENDENCIES += atfirmware
+else
+#Remove the PMUFW
+XILINX_BOOTLOADER_POST_CONFIGURE_HOOKS += XILINX_BOOTLOADER_BIF_REMOVE_ATFIRMWARE
+endif #($(BR2_TARGET_ATFIRMWARE),y)
+
+define XILINX_BOOTLOADER_CONFIGURE_CMDS
+	@echo ">>> $(XILINX_BOOTLOADER_UBOOT_ELF)"
+	cp -f $(XILINX_BOOTLOADER_BIF_SOURCE) $(@D)/boot.bif
+	cp -f $(XILINX_BOOTLOADER_FSBL_ELF_PATH) $(@D)/fsbl.elf
+	cp -f $(BINARIES_DIR)/$(XILINX_BOOTLOADER_UBOOT_ELF) $(@D)/u-boot.elf
+endef
+
+define XILINX_BOOTLOADER_BUILD_CMDS
+	cd $(@D) && \
+		$(XILINX_BOOTLOADER_BOOTGEN_PATH) -arch $(XILINX_BOOTLOADER_PLATFORM) \
+		-image boot.bif -w -o boot.bin
+endef
+
+define XILINX_BOOTLOADER_INSTALL_IMAGES_CMDS
+	cp -f $(@D)/boot.bin $(BINARIES_DIR)/boot.bin
+endef
+
+# Build boot.bin via bootgen
+XILINX_BOOTLOADER_DEPENDENCIES += uboot 
+endif #($(BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK),y)
+
+$(eval $(generic-package))
