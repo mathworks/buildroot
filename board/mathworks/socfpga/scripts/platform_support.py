@@ -173,17 +173,12 @@ def platform_supported():
 def platform_checkconfig(args):
     return
 
-def platform_gen_target(args, catalog, cfgDataList):
+def platform_gen_target(args, catalog):
     # Do nothing for recovery mode
     if catalog['buildMode'] == BuildMode.RECOVERY:
         return
 
-    handoffStr = 'BR2_PACKAGE_UBOOT_ALTERA_QUARTUS_HANDOFF_DIR='
-    handoffStr += '"%s"\n' % catalog['defaultInfo']['fsbl']
-
-    cfgDataList.append(handoffStr)
-
-    bspBuildStr = "BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP="
+    br_set_var("BR2_PACKAGE_UBOOT_ALTERA_QUARTUS_HANDOFF_DIR", catalog['defaultInfo']['fsbl'])
 
     # Validate the handoff directory
     handoffDir = "%s/handoff" % catalog['defaultInfo']['fsbl']
@@ -193,16 +188,14 @@ def platform_gen_target(args, catalog, cfgDataList):
             errStr += "When supplying both the handoff files and the BSP, they must be placed in 'handoff'"
             errStr += " and 'generated' subfolders respectively\n"
             raise RuntimeError(errStr)
-        bspBuildStr += "n\n"
+        br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", None)
     else:
         handoffDir = catalog['defaultInfo']['fsbl']
-        bspBuildStr += "y\n"
+        br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", "y")
     if not os.path.isfile("%s/hps.xml" % handoffDir):
         errStr = "The handoff directory (%s) does not contain the hps.xml file\n" % handoffDir
         errStr += "Please ensure this folder contains the contents of the hps_isw_software directory\n"
         raise RuntimeError(errStr)
-
-    cfgDataList.append(bspBuildStr)
 
     return
 

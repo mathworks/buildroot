@@ -213,6 +213,38 @@ def get_cfg_var(var):
     line = re.sub("\"","", line)
     return line
 
+
+########################
+# Buildroot config helpers
+########################
+def br_add_includeDir(incdir):
+    global BRCONFIG_cfgIncludeDirs    
+
+    BRCONFIG_cfgIncludeDirs.append(incdir)
+
+def br_add_include(incfile, addPath=True):
+    global BRCONFIG_cfgDataList
+
+    BRCONFIG_cfgDataList.append('#include "%s"\n' % incfile)
+    if addPath:
+        br_add_includeDir(os.path.dirname(incfile))
+
+def br_set_var(var, value, quoted=True):
+    global BRCONFIG_cfgDataList
+
+    if value is None:
+        argStr = "# %s is not set\n" % var
+    else:
+        if value.lower() == 'y':
+            quoted = False
+
+        if quoted:
+            argStr = '%s="%s"\n' % (var, value)
+        else:
+            argStr = '%s=%s\n' % (var, value)
+
+    BRCONFIG_cfgDataList.append(argStr)
+
 ########################
 # Get version info
 ########################
@@ -396,5 +428,8 @@ COMMON_SCRIPTS = os.path.dirname(os.path.realpath(__file__))
 COMMON_DIR = os.path.dirname(COMMON_SCRIPTS)
 MW_DIR = os.path.dirname(COMMON_DIR)
 BR_ROOT = os.path.dirname(os.path.dirname(MW_DIR))
+
+BRCONFIG_cfgDataList = []
+BRCONFIG_cfgIncludeDirs = []
 
 
