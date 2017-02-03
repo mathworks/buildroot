@@ -27,7 +27,7 @@ def _find_file(baseDir,filePath, tag=""):
         # First search relative to the board xml file
         if tag == "dts":
             baseDir = baseDir + "/dts"
-        elif tag == "fsbl" or tag == "bit":
+        elif tag == "fsbl" or tag == "bit" or tag == "pmufw" or tag == "handoff":
             baseDir = baseDir + "/boot"                
         else:
             baseDir = baseDir
@@ -255,6 +255,11 @@ def _load_defaults(defNode):
         _defaults['kernel_config'] = _find_local_file(defNode.find('kernel_config'))
         # Determine the fsbl and/or handoff info
         _defaults['fsbl'] = _find_fsbl_info(defNode)
+        pmuFW = defNode.find('pmufw')
+        if pmuFW is None:
+            _defaults['pmufw'] = None
+        else:
+            _defaults['pmufw'] = _find_file_from_element(pmuFW)
     else:
         _defaults['kernel_config'] = None
         _defaults['fsbl'] = None
