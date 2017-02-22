@@ -41,6 +41,19 @@ def _get_cmdline_config(args, catalog):
         br_set_var('BR2_CCACHE_INITIAL_SETUP', '')
 
 ##################
+# Setup config values based on command line args (if any)
+###################
+def _get_cmdline_config_args(args, catalog):
+    ## Setup the post script args  
+
+
+    for cfg in args['brconfig']:
+        cfg_args = cfg.split('=')
+        varName = cfg_args[0].strip('"')
+        varValue = cfg_args[1].strip('"')
+        br_set_var(varName, varValue)
+
+##################
 # Setup config values based on the catalog
 ###################
 def _get_catalog_config(args, catalog):
@@ -90,6 +103,8 @@ def _gen_defconfig(args, catalog):
     if os.path.isfile(lConfig):
         br_add_include(lConfig)
 
+    # Load any config data from the cmdline args   
+    _get_cmdline_config_args(args, catalog)
 
     # Generate the BR defconfig
     with open(_DYNCONFIG_INC_FILE, 'w') as f:

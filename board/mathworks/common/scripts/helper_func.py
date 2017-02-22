@@ -232,7 +232,7 @@ def br_add_include(incfile, addPath=True):
 def br_set_var(var, value, quoted=True):
     global BRCONFIG_cfgDataList
 
-    if value is None:
+    if (value is None) or (value.lower() == 'n'):
         argStr = "# %s is not set\n" % var
     else:
         if value.lower() == 'y':

@@ -132,6 +132,9 @@ buildTypeGrp.add_argument('--ccache', dest='enableCCache', action='store_true',
                         help='Enable the ccache build mechanism (default: false)')
 buildTypeGrp.add_argument('--ccache-clean', dest='cleanCCache', action='store_true',
                         help='Clean the ccache cache (default: false)')
+buildTypeGrp.add_argument('--brconfig', dest='brconfig', action='append', default=[],
+                        help='Specify buildroot variables in the form <VARNAM>=<VALUE>')
+
 
 buildType=buildTypeGrp.add_mutually_exclusive_group(required=False)
 buildType.add_argument('-u', '--update', dest='updateBuild', action='store_true',
