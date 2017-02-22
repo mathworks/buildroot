@@ -22,6 +22,8 @@ before_script:
 # Global job template
 # Used by all jobs
 .global_job_template: &global_job_template
+    script:
+        - ./board/mathworks/common/scripts/gitlab_automation.sh    
     only:
         - /.*-ci$/
         - next
@@ -34,13 +36,18 @@ before_script:
 .build_job_template: &build_job_template
     <<: *global_job_template  
     stage: build
-    script:
-        - ./build.py --dl $CI_BR2_DL_DIR/$CI_JOB_PLATFORM -u -b $CI_JOB_BOARD -p $CI_JOB_PLATFORM --ccache -q -l logs/${CI_BUILD_NAME}.log
     artifacts:
         paths:
             - output/$CI_JOB_BOARD*/images/$CI_JOB_BOARD*.zip
             - output/$CI_JOB_BOARD*/images/$CI_JOB_BOARD*.gz
         expire_in: 1 month
+
+# Global source job template
+# Used by all source jobs
+.build_job_template: &source_job_template
+    <<: *global_job_template  
+    stage: sources_custom
+    
 
 ########################
 # Pipeline Definition
@@ -65,13 +72,7 @@ common_sources_job:
     stage: sources_common
     variables:
         GIT_STRATEGY: fetch
-    script:
-        - echo "Preparing Common Sources"    
-        - ./build.py -b zed -p zynq --target source --ccache --ccache-clean --dl $CI_BR2_DL_DIR/zynq -q -l logs/${CI_BUILD_NAME}.log
-        - cp -R $CI_BR2_DL_DIR/zynq $CI_BR2_DL_DIR/socfpga
-        - cp -R $CI_BR2_DL_DIR/zynq $CI_BR2_DL_DIR/zynqmp
 
-# Now get the custom source files
 upload_logs_job:
     <<: *global_job_template
     stage: upload_logs
@@ -83,18 +84,27 @@ upload_logs_job:
     script:
         - echo "Capturing Pipeline logs"    
 
-# Now get the custom source files
-custom_sources_job:
-    <<: *global_job_template
-    stage: sources_custom
-    script:
-        - echo "Preparing Custom Sources"    
-        - rm -rf $CI_BR2_DL_DIR/*/linux-*
-        - rm -rf $CI_BR2_DL_DIR/*/uboot-*
-        - rm -rf output/*/build
-        - ./build.py -u -b zed -p zynq --target source --dl $CI_BR2_DL_DIR/zynq -l logs/${CI_BUILD_NAME}_zynq.log
-        - ./build.py -u -b sockit -p socfpga --target source --dl $CI_BR2_DL_DIR/socfpga -l logs/${CI_BUILD_NAME}_socfpga.log
-        - ./build.py -u -b zcu102 -p zynqmp --target source --dl $CI_BR2_DL_DIR/zynqmp -l logs/${CI_BUILD_NAME}_zynqmp.log
+########################
+# Source Jobs (per-platform)
+########################
+
+source_zynq_job:
+    <<: *source_job_template
+    variables:
+        CI_JOB_PLATFORM: zynq
+        CI_JOB_BOARD: zed
+
+source_socfpga_job:
+    <<: *source_job_template
+    variables:
+        CI_JOB_PLATFORM: socfpga
+        CI_JOB_BOARD: sockit
+
+source_zynqmp_job:
+    <<: *source_job_template
+    variables:
+        CI_JOB_PLATFORM: zynqmp
+        CI_JOB_BOARD: zcu102
 
 ########################
 # Build Jobs (per-board)
