@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Set the hostname
+#
+
+source /etc/bootvars.conf
+
+source /etc/init.d/start_only.sh
+
+# Update the hostname after copying/moving files from the SD card
+/bin/hostname -F /etc/hostname
