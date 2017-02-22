@@ -180,7 +180,7 @@ checkconfig(args)
 
 br_config.gen_target(args, catalog)
 
-br_config.clean_defconfig()
+br_config.clean_defconfig(args, catalog)
 
 build_target(args, catalog)
 

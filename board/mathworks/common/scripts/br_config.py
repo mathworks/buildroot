@@ -6,10 +6,7 @@ from helper_func import *
 ########################################
 # Constants
 ########################################
-_DYNCONFIG = "dynconfig"
 _CONFIG_DIR = "%s/configs" % BR_ROOT
-_DYNCONFIG_FILE = "%s/%s_defconfig" % (_CONFIG_DIR, _DYNCONFIG)
-_DYNCONFIG_INC_FILE = "%s/%s_defconfig.h" % (_CONFIG_DIR, _DYNCONFIG)
 ########################################
 # Helper Functions
 ########################################
@@ -70,12 +67,20 @@ def _get_catalog_config(args, catalog):
     # Populate any board-specific catalog content
     br_platform.platform_gen_target(args, catalog)
 
+def _get_dynconfig(catalog):
+    dynconfig = "%s_%s_dynconfig" % (catalog['platformInfo']['platformName'], catalog['boardName'])
+    return dynconfig
+
 ##################
 # Generate the config file
 ###################
 def _gen_defconfig(args, catalog):
     global BRCONFIG_cfgDataList
     global BRCONFIG_cfgIncludeDirs
+
+    dynconfig = _get_dynconfig(catalog)
+    dynconfig_file = "%s/%s_defconfig" % (_CONFIG_DIR, dynconfig)
+    dynconfig_inc_file = "%s/%s_defconfig.h" % (_CONFIG_DIR, dynconfig)
 
     CONFIG_DIR = "%s/defconfig" % catalog['platformInfo']['platformDir']
     # add configs to the list from lowest to highest priority
@@ -107,14 +112,15 @@ def _gen_defconfig(args, catalog):
     _get_cmdline_config_args(args, catalog)
 
     # Generate the BR defconfig
-    with open(_DYNCONFIG_INC_FILE, 'w') as f:
+    with open(dynconfig_inc_file, 'w') as f:
         cfgData = ''.join(BRCONFIG_cfgDataList)
         f.write(cfgData)
 
     # use CPP to expand the includes
     postArgs = "-DBUILD_MODE_%s" % args['buildMode']
-    cpp_expand(_DYNCONFIG_INC_FILE, _DYNCONFIG_FILE, BRCONFIG_cfgIncludeDirs, extraPostFlags=postArgs)
-    rm(_DYNCONFIG_INC_FILE)
+    cpp_expand(dynconfig_inc_file, dynconfig_file, BRCONFIG_cfgIncludeDirs, extraPostFlags=postArgs)
+    rm(dynconfig_inc_file)
+    return dynconfig
 
 ########################################
 # Public Functions
@@ -126,7 +132,7 @@ def _gen_defconfig(args, catalog):
 def gen_target(args, catalog):
 
     # Generate the config file
-    _gen_defconfig(args, catalog)
+    dynconfig = _gen_defconfig(args, catalog)
     
     # Cleanup as required
     if args['cleanBuild']:
@@ -138,12 +144,14 @@ def gen_target(args, catalog):
     if not os.path.isdir(args['outputDir']):
         os.makedirs(args['outputDir'])
     # Call the makefile with the defconfig
-    argStr = "make O=%s -C %s %s_defconfig" % (args['outputDir'], BR_ROOT, _DYNCONFIG)
+    argStr = "make O=%s -C %s %s_defconfig" % (args['outputDir'], BR_ROOT, dynconfig)
     subprocess.call( argStr.split(), cwd=args['outputDir'])
 
 ##################
 # Remove the buildroot defconfig
 ###################
-def clean_defconfig():   
-    rm(_DYNCONFIG_FILE)
+def clean_defconfig(args, catalog):   
+    dynconfig = _gen_defconfig(args, catalog)
+    dynconfig_file = "%s/%s_defconfig" % (_CONFIG_DIR, dynconfig)
+    rm(dynconfig_file)
 
