@@ -121,7 +121,7 @@ buildTypeGrp.add_argument('-o', '--output', dest='outputDir', metavar='OUTPUT_DI
 buildTypeGrp.add_argument('--cleandl', dest='cleanDL', action='store_true',
                         help='Clean the download directory before building (default: false)')
 buildTypeGrp.add_argument('--target', dest='makeTarget', metavar='MAKE_TARGET', type=str,
-                        default="all", help='Make target (default: all)')
+                        default="all legal-info", help='Make target (default: all legal-info)')
 buildTypeGrp.add_argument('--dl', dest='dlDir', metavar='ML_DIR', type=str,
                         help='Buildroot download directory (default: dl/<platform>)')
 buildTypeGrp.add_argument('-l', '--logfile', dest='logFile', metavar='LOG_FILE', type=str,

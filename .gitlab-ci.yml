@@ -40,6 +40,7 @@ before_script:
         paths:
             - output/$CI_JOB_BOARD*/images/$CI_JOB_BOARD*.zip
             - output/$CI_JOB_BOARD*/images/$CI_JOB_BOARD*.gz
+            - output/$CI_JOB_BOARD*/legal-info/licenses.txt
         expire_in: 1 month
 
 # Global source job template

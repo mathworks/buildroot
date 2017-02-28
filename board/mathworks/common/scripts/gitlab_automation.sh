@@ -48,7 +48,7 @@ run_build_command() {
 	local extraargs=$@
 	local brvars=$(resolve_br_vars)
 	set -x
-	${CI_PROJECT_DIR}/build.py --target $target --dl $CI_BR2_DL_DIR/$CI_JOB_PLATFORM -b $CI_JOB_BOARD -p $CI_JOB_PLATFORM --ccache -l logs/${CI_BUILD_NAME}.log $brvars $extraargs
+	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CI_BR2_DL_DIR/$CI_JOB_PLATFORM -b $CI_JOB_BOARD -p $CI_JOB_PLATFORM --ccache -l logs/${CI_BUILD_NAME}.log $brvars $extraargs
 	set +x
 }
 
@@ -73,7 +73,7 @@ case "${CI_BUILD_STAGE}" in
 		;;
 	build)
 		echo "Building $CI_JOB_BOARD/$CI_JOB_PLATFORM"
-		run_build_command all -u -q
+		run_build_command "all legal-info" -u -q
 		;;
 	*)
 		echo "No automation defined for ${CI_BUILD_STAGE}"
