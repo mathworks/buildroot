@@ -5,7 +5,8 @@
 ################################################################################
 
 ATFIRMWARE_VERSION = $(call qstrip,$(BR2_TARGET_ATFIRMWARE_VERSION))
-
+ATFIRMWARE_LICENSE_FILES = license.md
+ATFIRMWARE_LICENSE = BSD-3c
 #package dependencies
 ATFIRMWARE_DEPENDENCIES += uboot
 
