@@ -1,5 +1,5 @@
 #!/bin/bash
-# Syntax: atfirmware-xilinx.sh <BINARIES_DIR> <readelf path> <mkimage path> <mkimage arch>
+# Syntax: arm-trusted-firmware-xilinx.sh <BINARIES_DIR> <readelf path> <mkimage path> <mkimage arch>
 BINARIES_DIR=$1
 READELF=$2
 MKIMAGE=$3
