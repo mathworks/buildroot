@@ -1,0 +1,18 @@
+/{
+	core_clkwiz: clockwiz0 {
+		compatible = "fixed-factor-clock";
+		clocks = <&clkc 15>;
+		#clock-cells = <1>;
+		clock-div = <2>;
+		clock-mult = <1>;
+		clock-output-names = "clk0";
+	};
+};
+
+&fpga_axi {
+		mwipcore0: mwipcore@A0000000 {
+			compatible = "mathworks,mwipcore-v3.00";
+			reg = <0xA0000000 0x10000>;
+		};
+};
+

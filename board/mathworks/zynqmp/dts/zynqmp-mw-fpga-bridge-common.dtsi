@@ -1,4 +1,4 @@
-/ {
+/{
     fpd_hpm0_32: fpd-hpm0-32 {
         compatible = "simple-bus";
 		#address-cells = <1>;
