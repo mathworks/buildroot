@@ -52,9 +52,33 @@ run_build_command() {
 	set +x
 }
 
+prep_git_credentials() {
+	local cred_file=""
+	local gitConfig=""
+
+	if [ "$XDG_CONFIG_HOME" != "" ]; then
+		gitConfig=$XDG_CONFIG_HOME/git/config
+		cred_file=$XDG_CONFIG_HOME/git/cred_store
+	else
+		gitConfig=$HOME/.gitconfig
+		cred_file=$HOME/.git_cred_store
+	fi
+
+	echo -n "" > $cred_file
+
+	if [ "$CONFIG_CREDENTIAL_USER_GITHUB" != "" ]; then
+		echo "https://${CONFIG_CREDENTIAL_USER_GITHUB}:${CONFIG_CREDENTIAL_PASS_GITHUB}@github.com" >> $cred_file
+		echo "http://${CONFIG_CREDENTIAL_USER_GITHUB}:${CONFIG_CREDENTIAL_PASS_GITHUB}@github.com" >> $cred_file
+	fi
+
+	git config --file $gitConfig credential.helper "store --file $cred_file"
+}
+
 ##############################
 # Main Script
 #############################
+prep_git_credentials
+
 case "${CI_BUILD_STAGE}" in
 	sources_common)
 	  	echo "Preparing Common Sources"
