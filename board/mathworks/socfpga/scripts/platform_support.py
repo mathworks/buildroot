@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, shutil, glob, imp, subprocess, time, shlex
+import sys, os, shutil, glob, imp, time
 import helper_func
 from helper_func import *
 
@@ -53,7 +53,7 @@ def _make_sdzip(outputDir, image, catalog):
     sdZip = "%s/sd.zip" % ENV['IMAGE_DIR']
     rm(sdZip)
     argStr = "zip -r %s ." % sdZip
-    subprocess.call( argStr.split(), cwd=ENV['SD_DIR'] )
+    subproc(argStr, cwd=ENV['SD_DIR'] )
 
     # Copy the update script
     shutil.copyfile("%s/fw_update.sh" % catalog['platformInfo']['platformDir'], "%s/fw_update.sh" % ENV['IMAGE_DIR'])
@@ -68,7 +68,7 @@ def _make_sdzip(outputDir, image, catalog):
                 'fw_update.sh',
                 'rootfs.tar.gz']
     argStr = "zip %s %s" % (imageFile, " ".join(zipList))
-    subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
+    subproc(argStr, cwd=ENV['IMAGE_DIR'] )
    
 ##############
 # Build the SD disk iamge
@@ -97,7 +97,7 @@ def _make_sdimage(outputDir, image, catalog):
         
 
     argStr = "gzip %s" % (imageFile)
-    subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
+    subproc(argStr, cwd=ENV['IMAGE_DIR'] )
 
 ####################################
 # Public Functions
@@ -144,7 +144,7 @@ def build_sdimage(outputDir, image, catalog):
         shutil.copy(scriptSrc, "%s/u-boot-scr.txt" % (ENV['IMAGE_DIR']) )    
         # Convert to uimage
         argStr = """%s/usr/bin/mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "U-Boot Script" -d u-boot-scr.txt u-boot.scr""" % (ENV['HOST_DIR'])
-        subprocess.call(shlex.split(argStr), cwd=ENV['IMAGE_DIR'])
+        subproc(argStr, cwd=ENV['IMAGE_DIR'])
         # move to sd card
         shutil.move("%s/u-boot.scr" % (ENV['IMAGE_DIR']), "%s/u-boot.scr" % (ENV['SD_DIR']))
 

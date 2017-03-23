@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, shutil, glob, imp, argparse, subprocess, datetime
+import sys, os, shutil, glob, imp, argparse, datetime
 
 import parse_catalog
 import helper_func
@@ -77,8 +77,8 @@ def get_build_config(args):
 def build_target(args, catalog):
     # Clean if required
     if not args['updateBuild']:
-        argStr = "make clean"   
-        rc = subproc( argStr.split(), cwd=args['outputDir'])
+        argStr = "make clean" 
+        subproc( argStr.split(), cwd=args['outputDir'])
 
     if (args['cleanCCache'] and args['enableCCache']):
         cacheDir = get_cfg_var('BR2_CCACHE_DIR').replace("$(HOME)", os.environ['HOME'])

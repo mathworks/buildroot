@@ -10,10 +10,15 @@ import subprocess
 import os
 import re
 import shutil
+import shlex
 
 ########################################
 # Helper Functions
 ########################################
+
+########################
+# Colorize Prompt
+########################
 def _get_color(val, bg=False):
     if bg:
         color = _BCOLORS['BG'] + str(val) + 'm'
@@ -64,7 +69,7 @@ def run_genimage(cfgFile, ioPath, rootPath=""):
                     ioPath,
                     cfgFile)
     print argStr           
-    subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
+    subproc(argStr, cwd=ENV['IMAGE_DIR'] )
     rm(genimgDir)
 
 def generate_fat_genimg_cfg(fileList, cfgFile, imgFile, size="250M"):
@@ -134,7 +139,7 @@ def cpp_expand(infile, outfile, include_dirs=[], extraPreFlags="", extraPostFlag
     args = ["cpp"]
     args.extend(dtc_cpp_flags)
     args.extend(["-o", outfile, infile])
-    subprocess.call(args, cwd=outdir)
+    subproc(args, cwd=outdir)
 
 ########################
 # Printing Functions
@@ -171,7 +176,7 @@ def sudocmd(cmd, cwd=None, env=None):
         newcmd.extend(cmd)
         cmd = newcmd
     cmd.insert(0,"sudo")
-    subprocess.call(cmd, cwd=cwd)
+    subproc(cmd, cwd=cwd)
 
 ########################
 # rm utility
@@ -250,7 +255,7 @@ def br_set_var(var, value, quoted=True):
 ########################
 
 def _git_verinfo(git_dir):
-    git_hash = subprocess.check_output(['git','log', '-n', '1', '--pretty="%H"'], cwd=git_dir)
+    git_hash = subproc_output('git log -n 1 --pretty="%H"', cwd=git_dir)
     git_hash = re.sub("\n", "", git_hash)
     git_hash = re.sub('"',"", git_hash)
     return git_hash
@@ -337,11 +342,24 @@ def load_env(var, default=""):
 # Subprocess With Error Checking
 #######################
 def subproc(args, cwd=None, stdout=None, stderr=None, shell=False):
-    rc = subprocess.call( args, cwd=cwd, stdout=stdout, stderr=stderr, shell=shell)
-    if (rc != 0):
-        cmdStr = " ".join(args)
-        raise StandardError("Command:\n%s\n\nFailed with error code: %d" % (cmdStr, rc))
 
+    # Support strings or lists as args
+    if isinstance(args, basestring):
+        args = shlex.split(args)
+
+    subprocess.check_call( args, cwd=cwd, stdout=stdout, stderr=stderr, shell=shell)
+
+#######################
+# Subprocess With Output
+#######################
+def subproc_output(args, cwd=None, stderr=None, shell=False, universal_newlines=False):
+
+    # Support strings or lists as args
+    if isinstance(args, basestring):
+        args = shlex.split(args)
+
+    return subprocess.check_output( args, cwd=cwd, stderr=stderr, shell=shell, universal_newlines=universal_newlines)
+    
 #######################
 # Subprocess logger
 #######################
@@ -352,15 +370,15 @@ def subproc_log(cmdStr, logfile=None, cwd=None, verbose=True):
         logfile = "/dev/null"
 
     if (logfile is None):
-        subproc( cmdStr.split(), cwd=cwd)
+        subproc( cmdStr, cwd=cwd)
     else:
         if verbose == False:
             with open(logfile, 'w') as f:
-                rc = subproc( cmdStr.split(), cwd=cwd, stdout=f, stderr=subprocess.STDOUT)    
+                subproc( cmdStr, cwd=cwd, stdout=f, stderr=subprocess.STDOUT)    
         else:            
             cmdStr += " | tee %s" % logfile
-            rc = subproc( cmdStr.split(), cwd=cwd)
-    return rc
+            print "++++ " + cmdStr
+            subproc( cmdStr, cwd=cwd)
 
 ########################
 # Load buildroot env

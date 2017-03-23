@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # syntax: <gen_dtb.py> <platform> <board_name> image 
-import os, sys, imp, subprocess
+import os, sys, imp
 import helper_func
 from helper_func import *
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, shutil, subprocess
+import sys, os, shutil
 
 import helper_func
 from helper_func import *
@@ -145,7 +145,7 @@ def gen_target(args, catalog):
         os.makedirs(args['outputDir'])
     # Call the makefile with the defconfig
     argStr = "make O=%s -C %s %s_defconfig" % (args['outputDir'], BR_ROOT, dynconfig)
-    subprocess.call( argStr.split(), cwd=args['outputDir'])
+    subproc(argStr, cwd=args['outputDir'])
 
 ##################
 # Remove the buildroot defconfig
