@@ -106,6 +106,8 @@ parser.add_argument('-o', '--output', dest='outputDir',
 # Move the output dir to the end of the list
 args = vars(parser.parse_args())
 
+init_logging(console=0)
+
 if (args['catalogFile'] is None and 
     ((args['platformName'] is None) or (args['boardName'] is None))):
     raise SyntaxError("Either a CATALOG_FILE or a BOARD_NAME and PLATFORM are required")

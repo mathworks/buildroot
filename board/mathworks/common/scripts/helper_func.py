@@ -11,6 +11,155 @@ import os
 import re
 import shutil
 import shlex
+import logging
+import select
+
+########################################
+# GLOBALS
+########################################
+SYS_LOGGER = None
+_SUBPROC_LOGGER = None
+
+########################################
+# Logging Utilities
+########################################
+
+########################
+# SubProcLogger
+#
+# Helper class to emit stdout/stderr to logger object
+########################
+class _SubProcLogger(object):
+    """
+    Helper class to log subprocess call output to a log file
+    
+    Inspired by https://gist.github.com/bgreenlee/1402841
+    """
+    def __init__(self, logger, log_level=logging.INFO):
+        self.logger = logger
+        self.log_level_stdout = log_level
+        self.log_level_stderr = logging.ERROR
+        self.proc = None
+
+    def getArgs(self, args):
+        if isinstance(args, str):
+            args = shlex.split(args)
+        return args
+
+    def strArgs(self, args):
+        if not isinstance(args, str):
+            args = " ".join(args)
+        return args
+
+    def check_io(self):
+        log_level = {self.proc.stdout: self.log_level_stdout,
+                     self.proc.stderr: self.log_level_stderr}
+        ready_to_read = select.select([self.proc.stdout, self.proc.stderr], [], [], 1000)[0]
+
+        for io in ready_to_read:
+            line = io.readline()
+            if line:
+                self.logger.log(log_level[io], line[:-1])
+
+    def call(self, args, cwd=None, shell=False):
+         # Support strings or lists as args
+        args = self.getArgs(args)
+        self.proc = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
+        
+        # Keep checking until the process exits
+        while self.proc.poll() is None:
+            self.check_io()
+
+        # Get any trailing output
+        self.check_io()
+        
+        if self.proc.returncode != 0:
+            raise subprocess.CalledProcessError(self.proc.returncode, self.strArgs(args), None)
+
+########################
+# Level Formatter
+#
+# Customize message format based on level
+########################
+class _LevelFormatter(object):
+    """
+    Vary the format based on the log level
+    """
+    def __init__(self, formatters, default_formatter):
+        self.formatters = formatters
+        self.default_formatter = default_formatter
+
+    def format(self, record):
+        formatter = self.formatters.get(record.levelno, self.default_formatter)
+        return formatter.format(record)
+
+########################
+# Context Filter
+#
+# Filter messages based on supress level
+########################
+class _ContextFilter(logging.Filter):
+    """
+    Filter the messages based on supress level
+        0: Supress no messages
+        1: Supress messages that do not announce a build stage
+        2: Supress all messages
+    """
+    def __init__(self, supress):
+        self.supress = supress
+
+    def filter(self, record):
+        if self.supress == 0:
+            return True
+        if self.supress == 2:
+            return False
+        if ">>>" in record.getMessage():
+            return True
+
+
+########################
+# Exception Handler
+#
+# Send exceptions to log
+########################
+def _handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    SYS_LOGGER.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+########################
+# Exception Handler
+#
+# Send exceptions to log
+########################
+def init_logging(level=logging.DEBUG, filename=None, filemode='w', console=None, loggerName=''):
+    
+    global SYS_LOGGER
+    global _SUBPROC_LOGGER
+
+    SYS_LOGGER=logging.getLogger(loggerName)
+    SYS_LOGGER.setLevel(level)
+
+    if not console is None:
+        consoleH = logging.StreamHandler()
+        consoleH.setLevel(level)
+        consoleH.setFormatter(logging.Formatter('%(message)s'))
+        consoleH.addFilter(_ContextFilter(console))
+        SYS_LOGGER.addHandler(consoleH)
+
+    if not filename is None:
+        fh = logging.FileHandler(filename, mode=filemode)
+        fh.setLevel(level)
+        fh.setFormatter(_LevelFormatter({
+                logging.ERROR : logging.Formatter('%(levelname)s:%(name)s: %(message)s'),
+                logging.CRITICAL: logging.Formatter('%(levelname)s:%(name)s: %(message)s')},
+            logging.Formatter('%(message)s')))
+        SYS_LOGGER.addHandler(fh)
+ 
+    _SUBPROC_LOGGER = _SubProcLogger(SYS_LOGGER, log_level=level)
+    sys.excepthook = _handle_exception
 
 ########################################
 # Helper Functions
@@ -341,13 +490,9 @@ def load_env(var, default=""):
 #######################
 # Subprocess With Error Checking
 #######################
-def subproc(args, cwd=None, stdout=None, stderr=None, shell=False):
+def subproc(args, cwd=None, shell=False):
 
-    # Support strings or lists as args
-    if isinstance(args, basestring):
-        args = shlex.split(args)
-
-    subprocess.check_call( args, cwd=cwd, stdout=stdout, stderr=stderr, shell=shell)
+   _SUBPROC_LOGGER.call(args, cwd=cwd, shell=shell)
 
 #######################
 # Subprocess With Output
@@ -359,26 +504,6 @@ def subproc_output(args, cwd=None, stderr=None, shell=False, universal_newlines=
         args = shlex.split(args)
 
     return subprocess.check_output( args, cwd=cwd, stderr=stderr, shell=shell, universal_newlines=universal_newlines)
-    
-#######################
-# Subprocess logger
-#######################
-def subproc_log(cmdStr, logfile=None, cwd=None, verbose=True):
-    if cwd is None:
-        cwd = os.getcwd()
-    if (logfile is None) and (verbose == False):
-        logfile = "/dev/null"
-
-    if (logfile is None):
-        subproc( cmdStr, cwd=cwd)
-    else:
-        if verbose == False:
-            with open(logfile, 'w') as f:
-                subproc( cmdStr, cwd=cwd, stdout=f, stderr=subprocess.STDOUT)    
-        else:            
-            cmdStr += " | tee %s" % logfile
-            print "++++ " + cmdStr
-            subproc( cmdStr, cwd=cwd)
 
 ########################
 # Load buildroot env
@@ -450,4 +575,4 @@ BR_ROOT = os.path.dirname(os.path.dirname(MW_DIR))
 BRCONFIG_cfgDataList = []
 BRCONFIG_cfgIncludeDirs = []
 
-
+init_logging()

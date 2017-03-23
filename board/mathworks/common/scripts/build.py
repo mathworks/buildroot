@@ -49,7 +49,7 @@ def get_build_config(args):
         args['outputDir'] = os.path.realpath(args['outputDir'])
 
     if args['logFile'] is None:
-        logFile = 'build_%s.log' % datetime.datetime.now().strftime("%b_%d_%Y_%H%M%S")
+        logFile = 'build.log'
         args['logFile'] = os.path.join(args['outputDir'], logFile)
     else:
         args['logFile'] = os.path.realpath(args['logFile'])
@@ -77,8 +77,7 @@ def get_build_config(args):
 def build_target(args, catalog):
     # Clean if required
     if not args['updateBuild']:
-        argStr = "make clean" 
-        subproc( argStr.split(), cwd=args['outputDir'])
+        subproc("make clean", cwd=args['outputDir'])
 
     if (args['cleanCCache'] and args['enableCCache']):
         cacheDir = get_cfg_var('BR2_CCACHE_DIR').replace("$(HOME)", os.environ['HOME'])
@@ -86,7 +85,8 @@ def build_target(args, catalog):
 
     # Call the makefile
     argStr = "make %s" % args['makeTarget']
-    subproc_log(argStr, logfile=args['logFile'], cwd=args['outputDir'], verbose=(not args['quietBuild']))
+    #subproc_log(argStr, logfile=args['logFile'], cwd=args['outputDir'], verbose=(not args['quietBuild']))
+    subproc(argStr, cwd=args['outputDir'])
 
 ########################################
 # Main
@@ -125,9 +125,9 @@ buildTypeGrp.add_argument('--target', dest='makeTarget', metavar='MAKE_TARGET', 
 buildTypeGrp.add_argument('--dl', dest='dlDir', metavar='ML_DIR', type=str,
                         help='Buildroot download directory (default: dl/<platform>)')
 buildTypeGrp.add_argument('-l', '--logfile', dest='logFile', metavar='LOG_FILE', type=str,
-                        help='File to log the build output(default: build_DD_MM_YYYY.log)')
-buildTypeGrp.add_argument('-q', '--quiet', dest='quietBuild', action='store_true',
-                        help='Do not print build output to stdout')
+                        help='File to log the build output(default: build.log)')
+buildTypeGrp.add_argument('-q', '--quiet', dest='quietBuild', action='count', default=0,
+                        help='Limit output to stdout')
 buildTypeGrp.add_argument('--ccache', dest='enableCCache', action='store_true',
                         help='Enable the ccache build mechanism (default: false)')
 buildTypeGrp.add_argument('--ccache-clean', dest='cleanCCache', action='store_true',
@@ -177,6 +177,8 @@ SUPPORTED = br_platform.platform_supported()
 get_build_config(args)
 
 checkconfig(args)
+
+init_logging(filename=args['logFile'], console=args['quietBuild'])
 
 br_config.gen_target(args, catalog)
 
