@@ -27,6 +27,10 @@ def _get_cmdline_config(args, catalog):
     # configure the output directory    
     argStr += ' -o %s' % args['imageDest']
 
+    # Enable sysroot only mode
+    if args['sysrootOnly']:
+        argStr += ' --sysroot'
+
     br_set_var('BR2_ROOTFS_POST_SCRIPT_ARGS', argStr)
 
     ## Setup the DL directory

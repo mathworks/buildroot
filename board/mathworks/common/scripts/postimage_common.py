@@ -2,10 +2,10 @@
 # syntax <build_board.py> <output_dir> <platform> <board_name> [<image name>]
 # executed out of main buildroot source directory
 # available environment variables
-#	BR2_CONFIG: path to .config file
-#	HOST_DIR, STAGING_DIR, TARGET_DIR
-#	BINARIES_DIR: images dir
-#	BASE_DIR: base output directory
+#    BR2_CONFIG: path to .config file
+#    HOST_DIR, STAGING_DIR, TARGET_DIR
+#    BINARIES_DIR: images dir
+#    BASE_DIR: base output directory
 import sys, os, shutil, glob, imp, argparse, distutils.dir_util
 
 import parse_catalog
@@ -16,6 +16,12 @@ from helper_func import *
 ########################################
 # Helper Functions
 ########################################
+def _gen_sysroot(outputDir):
+    sysroot_file = "%s/sysroot.tar.bz" % outputDir
+    print_msg("Generating sysroot: %s " % sysroot_file, level=3, fg=2, bold=True)
+    fileList = " ".join(build_relative_file_list(ENV['STAGING_DIR'], ENV['STAGING_DIR']))
+    subproc("tar -cjf %s %s" % (sysroot_file,fileList), cwd=ENV['STAGING_DIR'])
+
 def _gen_sdcard(image, catalog, outputDir):
     
     print ""
@@ -101,6 +107,9 @@ parser.add_argument('-e', '--environ', dest='setEnvrion', action="store_true",
                         help='Set Buildroot Environment variables based on BR2_OUTPUT_DIR')
 parser.add_argument('-o', '--output', dest='outputDir',
                         help='Output directory for image files(default: BR2_OUTPUT_DIR/images)')
+parser.add_argument('--sysroot', dest='sysrootOnly', action="store_true",
+                        help='Generate the sysroot tarball instead of an image file')
+
 
 
 # Move the output dir to the end of the list
@@ -143,9 +152,9 @@ import br_platform
 br_platform.platform_update_catalog(catalog)
 
 if catalog['buildMode'] == BuildMode.NORMAL:
-    for image in catalog['imageList']:
-        _gen_sdcard(image, catalog, outputDir)
-
-
-
+    if args['sysrootOnly']:
+        _gen_sysroot(outputDir)
+    else:
+        for image in catalog['imageList']:
+            _gen_sdcard(image, catalog, outputDir)
 

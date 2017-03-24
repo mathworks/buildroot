@@ -134,6 +134,8 @@ buildTypeGrp.add_argument('--ccache-clean', dest='cleanCCache', action='store_tr
                         help='Clean the ccache cache (default: false)')
 buildTypeGrp.add_argument('--brconfig', dest='brconfig', action='append', default=[],
                         help='Specify buildroot variables in the form <VARNAM>=<VALUE>')
+buildTypeGrp.add_argument('--sysroot', dest='sysrootOnly', action="store_true",
+                        help='Generate the sysroot tarball instead of an image file')
 
 
 buildType=buildTypeGrp.add_mutually_exclusive_group(required=False)
