@@ -31,6 +31,16 @@ before_script:
         - triggers
         - tags
 
+# Global sysroot template
+# Used by all sysroot jobs
+.sysroot_job_template: &sysroot_job_template
+    <<: *global_job_template  
+    stage: sysroot
+    artifacts:
+        paths:
+            - output/$CONFIG_JOB_BOARD*/images/sysroot.tar.bz
+        expire_in: 2 days
+
 # Global setup/teardown template
 # Used by all setup/teardown jobs
 .setup_job_template: &setup_job_template
@@ -52,7 +62,7 @@ before_script:
             - output/$CONFIG_JOB_BOARD*/images/$CONFIG_JOB_BOARD*.zip
             - output/$CONFIG_JOB_BOARD*/images/$CONFIG_JOB_BOARD*.gz
             - output/$CONFIG_JOB_BOARD*/legal-info/licenses.txt
-        expire_in: 1 month
+        expire_in: 2 days
 
 # Global source job template
 # Used by all source jobs
@@ -70,6 +80,7 @@ stages:
     - sources_common
     - sources_custom
     - build
+    - sysroot
     - upload_logs
     - teardown
 
@@ -79,31 +90,31 @@ stages:
 
 # Prep and teardown jobs
 setup:
-    <<: *global_job_template
+    <<: *setup_job_template
     stage: setup
 
 teardown:
-    <<: *global_job_template
+    <<: *setup_job_template
     stage: teardown
     when: always
 
 # Download the sources for all supported platforms
 # Perform the download for one platform first, then copy the common bits
 # To the others to save time
-common_sources_job:
+sources_common:
     <<: *global_job_template  
     stage: sources_common
     variables:
         GIT_STRATEGY: fetch
 
-upload_logs_job:
+upload_logs:
     <<: *global_job_template
     stage: upload_logs
     when: always
     artifacts:
         paths:        
             - logs/
-        expire_in: 1 month
+        expire_in: 2 weeks
     script:
         - echo "Capturing Pipeline logs"    
 
@@ -111,20 +122,42 @@ upload_logs_job:
 # Source Jobs (per-platform)
 ########################
 
-source_zynq_job:
+source_zynq:
     <<: *source_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynq
         CONFIG_JOB_BOARD: zed
 
-source_socfpga_job:
+source_socfpga:
     <<: *source_job_template
     variables:
         CONFIG_JOB_PLATFORM: socfpga
         CONFIG_JOB_BOARD: sockit
 
-source_zynqmp_job:
+source_zynqmp:
     <<: *source_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynqmp
+        CONFIG_JOB_BOARD: zcu102
+
+########################
+# Sysroot Jobs (per-platform)
+########################
+
+sysroot_zynq:
+    <<: *sysroot_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynq
+        CONFIG_JOB_BOARD: zed
+
+sysroot_socfpga:
+    <<: *sysroot_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: socfpga
+        CONFIG_JOB_BOARD: sockit
+
+sysroot_zynqmp:
+    <<: *sysroot_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynqmp
         CONFIG_JOB_BOARD: zcu102
@@ -133,19 +166,37 @@ source_zynqmp_job:
 # Build Jobs (per-board)
 ########################
 
-build_zed_job:
+build_zed:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynq
         CONFIG_JOB_BOARD: zed
 
-build_sockit_job:
+build_zc706:
+    <<: *build_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynq
+        CONFIG_JOB_BOARD: zc706
+
+build_zc702:
+    <<: *build_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynq
+        CONFIG_JOB_BOARD: zc702
+
+build_sockit:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: socfpga
         CONFIG_JOB_BOARD: sockit
 
-build_zcu102_job:
+build_alteracycv:
+    <<: *build_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: socfpga
+        CONFIG_JOB_BOARD: alteracycv
+
+build_zcu102:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynqmp

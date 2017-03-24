@@ -11,6 +11,15 @@ platform_variable() {
 	echo $varValue
 }
 
+board_variable() {
+	local suffix=$1
+	local boardName=${CONFIG_JOB_BOARD^^}
+	local varName=CONFIG_${boardName}_${suffix}
+	local varValue=${!varName}
+	echo $varValue
+}
+
+
 ##############################
 # Resolve all buildroot source variables
 #############################
@@ -20,7 +29,7 @@ resolve_br_vars() {
 	local linuxVer=$(platform_variable LINUX_VER)
 
 	local ubootURL=$(platform_variable UBOOT_URL)
-	local ubootVer=$(platform_variable UBOOT_VER)	
+	local ubootVer=$(platform_variable UBOOT_VER)
 
 	local brvars=""
 	if [ "$linuxURL" != "" ]; then
@@ -47,9 +56,28 @@ run_build_command() {
 	shift
 	local extraargs=$@
 	local brvars=$(resolve_br_vars)
+	platform_variable
+	local skipPlatform=$(platform_variable SKIP)
+	local skipBoard=$(board_variable SKIP)
+	
+	if [ "$skipPlatform" != "" ] && [ "$skipPlatform" != "0" ] && [ "$CONFIG_PLATFORM_NOSKIP" == "" ]; then
+		echo "Skipping platform $CONFIG_JOB_PLATFORM"
+		return 0
+	fi
+
+	if [ "$skipBoard" != "" ] && [ "$skipBoard" != "0" ] && [ "$CONFIG_BOARD_NOSKIP" == "" ]; then
+		echo "Skipping platform $CONFIG_JOB_BOARD"
+		return 0
+	fi
+
 	set -x
 	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BR2_DL_DIR/$CONFIG_JOB_PLATFORM -b $CONFIG_JOB_BOARD -p $CONFIG_JOB_PLATFORM --ccache -l logs/${CI_BUILD_NAME}.log $brvars $extraargs
+	rc=$?
 	set +x
+	if [ "$rc" != "0" ]; then
+		echo "build error: $rc"
+		exit $rc
+	fi
 }
 
 prep_git_credentials() {
@@ -80,20 +108,14 @@ prep_git_credentials() {
 prep_git_credentials
 
 case "${CI_BUILD_STAGE}" in
-	setup)
-		if [ "$CONFIG_SETUP_SCRIPT" != ""]; then
-			$CONFIG_SETUP_SCRIPT
-		fi
-		;;
-	teardown)
-		if [ "$CONFIG_SETUP_SCRIPT" != ""]; then
-			$CONFIG_SETUP_SCRIPT
-		fi
-		;;
 	sources_common)
 	  	echo "Preparing Common Sources"
+		# Use an arbitrary board
 		CONFIG_JOB_PLATFORM=zynq
 		CONFIG_JOB_BOARD=zed
+		# Never skip this stage
+		CONFIG_PLATFORM_NOSKIP="true"
+		CONFIG_BOARD_NOSKIP="true"
 		run_build_command source --ccache-clean
 		rm -rf $CONFIG_BR2_DL_DIR/zynq/linux-*
 		rm -rf $CONFIG_BR2_DL_DIR/zynq/uboot-*
@@ -102,12 +124,20 @@ case "${CI_BUILD_STAGE}" in
 		rm -rf ${CI_PROJECT_DIR}/output/*/build
 		;;
 	sources_custom)
-		echo "Preparing $CONFIG_JOB_PLATFORM Sources"	
+		# Never skip this stage due to board
+		CONFIG_BOARD_NOSKIP="true"
+		echo "Preparing $CONFIG_JOB_PLATFORM Sources"
 		run_build_command source -u
 		;;
 	build)
 		echo "Building $CONFIG_JOB_BOARD/$CONFIG_JOB_PLATFORM"
 		run_build_command "all legal-info" -u -q
+		;;
+	sysroot)
+		# Never skip this stage due to board
+		CONFIG_BOARD_NOSKIP="true"
+		echo "Packaging $CONFIG_JOB_PLATFORM Sysroot"
+		run_build_command all -u --sysroot
 		;;
 	*)
 		echo "No automation defined for ${CI_BUILD_STAGE}"
