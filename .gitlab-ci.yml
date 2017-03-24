@@ -31,6 +31,17 @@ before_script:
         - triggers
         - tags
 
+# Global setup/teardown template
+# Used by all setup/teardown jobs
+.setup_job_template: &setup_job_template
+    <<: *global_job_template  
+    script:
+        - '
+            if [ "$CONFIG_SETUP_SCRIPT" != "" ]; then
+                $CONFIG_SETUP_SCRIPT;
+            fi
+        '
+
 # Global build job template
 # Used by all build jobs
 .build_job_template: &build_job_template
@@ -55,15 +66,26 @@ before_script:
 ########################
 
 stages:
-    - prep
+    - setup
     - sources_common
     - sources_custom
     - build
     - upload_logs
+    - teardown
 
 ########################
 # Jobs
 ########################
+
+# Prep and teardown jobs
+setup:
+    <<: *global_job_template
+    stage: setup
+
+teardown:
+    <<: *global_job_template
+    stage: teardown
+    when: always
 
 # Download the sources for all supported platforms
 # Perform the download for one platform first, then copy the common bits

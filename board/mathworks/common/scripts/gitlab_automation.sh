@@ -80,6 +80,16 @@ prep_git_credentials() {
 prep_git_credentials
 
 case "${CI_BUILD_STAGE}" in
+	setup)
+		if [ "$CONFIG_SETUP_SCRIPT" != ""]; then
+			$CONFIG_SETUP_SCRIPT
+		fi
+		;;
+	teardown)
+		if [ "$CONFIG_SETUP_SCRIPT" != ""]; then
+			$CONFIG_SETUP_SCRIPT
+		fi
+		;;
 	sources_common)
 	  	echo "Preparing Common Sources"
 		CI_JOB_PLATFORM=zynq
