@@ -1,6 +1,7 @@
 / {
 	fpga_axi: fpga-axi@0 {
 		compatible = "simple-bus";
+		interrupt-parent = <&intc>;
 		#address-cells = <0x1>;
 		#size-cells = <0x1>;
 		ranges;
