@@ -1,88 +1,16 @@
-/{
-	chosen {
-		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk cma=128M coherent_pool=16M";
-		linux,stdout-path = "/amba@0/uart@E0001000";
+#include "zynq-mw-cma.dtsi"
+#include "xilinx-mw-axistream-iio-common.dtsi"
+
+&axi4stream_mm2s {
+	reg = <0x40020000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0 0x1d 0x4>;
+	};
+};
+&axi4stream_s2mm {
+	reg = <0x40030000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0 0x1e 0x4>;
 	};
 };
 
-&fpga_axi {
-	axi4stream_mm2s:axidma@40020000 {
-		#dma-cells = <0x1>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		interrupt-parent = <&intc>;
-		compatible = "xlnx,axi-dma-1.00.a";
-		reg = <0x40020000 0xffff>;
-		xlnx,include-sg = <0x1>;
-		xlnx,halt-mode = "reset-always";
-		xlnx,addrwidth = <0x20>;
-		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
-		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_mm2s_aclk";
-		dma-channel@40020000  {
-			reg = <0x0>;
-			compatible = "xlnx,axi-dma-mm2s-channel";
-			interrupts = <0x0 0x1d 0x4>;
-			dma-channels = <0x1>;
-			xlnx,datawidth = <0x20>;
-			xlnx,no-coalesce;
-		};
-	};
-	axi4stream_s2mm:axidma@40030000 {
-		#dma-cells = <0x1>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		interrupt-parent = <&intc>;
-		compatible = "xlnx,axi-dma-1.00.a";
-		reg = <0x40030000 0xffff>;
-		xlnx,include-sg = <0x1>;
-		xlnx,halt-mode = "reset-always";
-		xlnx,addrwidth = <0x20>;
-		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
-		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_s2mm_aclk";
-		dma-channel@40030030 {
-			reg = <0x0>;
-			compatible = "xlnx,axi-dma-s2mm-channel";
-			interrupts = <0x0 0x1e 0x4>;
-			dma-channels = <0x1>;			
-			xlnx,datawidth = <0x20>;
-			xlnx,no-coalesce;
-		};
-	};
-};
-	
-&mwipcore0 {
-	compatible = "mathworks,mwipcore-v3.00";
-	#address-cells = <1>;
-	#size-cells = <0>;
-	stream-channel@0 {			
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x0>;
-		compatible = "mathworks,axi4stream-mm2s-channel-v1.00";
-		dma-names = "mm2s";
-		dmas = <&axi4stream_mm2s 0>;
-		mathworks,dev-name = "mm2s0";
-
-		data-channel@0 {
-			compatible = "mathworks,iio-data-channel-v1.00";
-			mathworks,data-format = "u32/32>>0";
-			reg = <0x0>;
-		};
-	};
-	stream-channel@1 {
-		reg = <0x1>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "mathworks,axi4stream-s2mm-channel-v1.00";
-		dma-names = "s2mm";
-		dmas = <&axi4stream_s2mm 0>;
-		mathworks,dev-name = "s2mm0";
-		mathworks,sample-cnt-reg = <0x8>;
-
-		data-channel@0 {
-			compatible = "mathworks,iio-data-channel-v1.00";
-			mathworks,data-format = "u32/32>>0";
-			reg = <0x0>;
-		};
-	};
-};

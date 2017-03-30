@@ -10,10 +10,164 @@ import subprocess
 import os
 import re
 import shutil
+import shlex
+import logging
+import select
+
+########################################
+# GLOBALS
+########################################
+SYS_LOGGER = None
+_SUBPROC_LOGGER = None
+
+########################################
+# Logging Utilities
+########################################
+
+########################
+# SubProcLogger
+#
+# Helper class to emit stdout/stderr to logger object
+########################
+class _SubProcLogger(object):
+    """
+    Helper class to log subprocess call output to a log file
+    
+    Inspired by https://gist.github.com/bgreenlee/1402841
+    """
+    def __init__(self, logger, log_level=logging.INFO):
+        self.logger = logger
+        self.log_level_stdout = log_level
+        self.log_level_stderr = logging.ERROR
+        self.proc = None
+
+    def getArgs(self, args):
+        if isinstance(args, str):
+            args = shlex.split(args)
+        return args
+
+    def strArgs(self, args):
+        if not isinstance(args, str):
+            args = " ".join(args)
+        return args
+
+    def check_io(self):
+        log_level = {self.proc.stdout: self.log_level_stdout,
+                     self.proc.stderr: self.log_level_stderr}
+        ready_to_read = select.select([self.proc.stdout, self.proc.stderr], [], [], 1000)[0]
+
+        for io in ready_to_read:
+            line = io.readline()
+            if line:
+                self.logger.log(log_level[io], line[:-1])
+
+    def call(self, args, cwd=None, shell=False):
+         # Support strings or lists as args
+        args = self.getArgs(args)
+        self.proc = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
+        
+        # Keep checking until the process exits
+        while self.proc.poll() is None:
+            self.check_io()
+
+        # Get any trailing output
+        self.check_io()
+        
+        if self.proc.returncode != 0:
+            raise subprocess.CalledProcessError(self.proc.returncode, self.strArgs(args), None)
+
+########################
+# Level Formatter
+#
+# Customize message format based on level
+########################
+class _LevelFormatter(object):
+    """
+    Vary the format based on the log level
+    """
+    def __init__(self, formatters, default_formatter):
+        self.formatters = formatters
+        self.default_formatter = default_formatter
+
+    def format(self, record):
+        formatter = self.formatters.get(record.levelno, self.default_formatter)
+        return formatter.format(record)
+
+########################
+# Context Filter
+#
+# Filter messages based on supress level
+########################
+class _ContextFilter(logging.Filter):
+    """
+    Filter the messages based on supress level
+        0: Supress no messages
+        1: Supress messages that do not announce a build stage
+        2: Supress all messages
+    """
+    def __init__(self, supress):
+        self.supress = supress
+
+    def filter(self, record):
+        if self.supress == 0:
+            return True
+        if self.supress == 2:
+            return False
+        if ">>>" in record.getMessage():
+            return True
+
+
+########################
+# Exception Handler
+#
+# Send exceptions to log
+########################
+def _handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    SYS_LOGGER.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+########################
+# Exception Handler
+#
+# Send exceptions to log
+########################
+def init_logging(level=logging.DEBUG, filename=None, filemode='w', console=None, loggerName=''):
+    
+    global SYS_LOGGER
+    global _SUBPROC_LOGGER
+
+    SYS_LOGGER=logging.getLogger(loggerName)
+    SYS_LOGGER.setLevel(level)
+
+    if not console is None:
+        consoleH = logging.StreamHandler()
+        consoleH.setLevel(level)
+        consoleH.setFormatter(logging.Formatter('%(message)s'))
+        consoleH.addFilter(_ContextFilter(console))
+        SYS_LOGGER.addHandler(consoleH)
+
+    if not filename is None:
+        fh = logging.FileHandler(filename, mode=filemode)
+        fh.setLevel(level)
+        fh.setFormatter(_LevelFormatter({
+                logging.ERROR : logging.Formatter('%(levelname)s:%(name)s: %(message)s'),
+                logging.CRITICAL: logging.Formatter('%(levelname)s:%(name)s: %(message)s')},
+            logging.Formatter('%(message)s')))
+        SYS_LOGGER.addHandler(fh)
+ 
+    _SUBPROC_LOGGER = _SubProcLogger(SYS_LOGGER, log_level=level)
+    sys.excepthook = _handle_exception
 
 ########################################
 # Helper Functions
 ########################################
+
+########################
+# Colorize Prompt
+########################
 def _get_color(val, bg=False):
     if bg:
         color = _BCOLORS['BG'] + str(val) + 'm'
@@ -38,15 +192,6 @@ def build_relative_file_list(inDir, toDir):
         fList[idx] = fList[idx].replace(toDir,"")
 
     return fList
-########################
-# Create a ramdisk
-########################
-def create_uramdisk(cpio_img, uimage, name=""):
-    MKIMAGE_BIN = ENV['HOST_DIR'] + "/usr/bin/mkimage"
-    print_msg("Creating uramdisk %s" % (uimage))
-    argStr = '%s -n "%s" -A arm -T ramdisk -C gzip -d %s %s' % (MKIMAGE_BIN, name, cpio_img, uimage)
-    print argStr
-    subprocess.call(argStr.split())
 
 ########################
 # Genimage
@@ -73,7 +218,7 @@ def run_genimage(cfgFile, ioPath, rootPath=""):
                     ioPath,
                     cfgFile)
     print argStr           
-    subprocess.call( argStr.split(), cwd=ENV['IMAGE_DIR'] )
+    subproc(argStr, cwd=ENV['IMAGE_DIR'] )
     rm(genimgDir)
 
 def generate_fat_genimg_cfg(fileList, cfgFile, imgFile, size="250M"):
@@ -143,7 +288,7 @@ def cpp_expand(infile, outfile, include_dirs=[], extraPreFlags="", extraPostFlag
     args = ["cpp"]
     args.extend(dtc_cpp_flags)
     args.extend(["-o", outfile, infile])
-    subprocess.call(args, cwd=outdir)
+    subproc(args, cwd=outdir)
 
 ########################
 # Printing Functions
@@ -180,7 +325,7 @@ def sudocmd(cmd, cwd=None, env=None):
         newcmd.extend(cmd)
         cmd = newcmd
     cmd.insert(0,"sudo")
-    subprocess.call(cmd, cwd=cwd)
+    subproc(cmd, cwd=cwd)
 
 ########################
 # rm utility
@@ -222,12 +367,44 @@ def get_cfg_var(var):
     line = re.sub("\"","", line)
     return line
 
+
+########################
+# Buildroot config helpers
+########################
+def br_add_includeDir(incdir):
+    global BRCONFIG_cfgIncludeDirs    
+
+    BRCONFIG_cfgIncludeDirs.append(incdir)
+
+def br_add_include(incfile, addPath=True):
+    global BRCONFIG_cfgDataList
+
+    BRCONFIG_cfgDataList.append('#include "%s"\n' % incfile)
+    if addPath:
+        br_add_includeDir(os.path.dirname(incfile))
+
+def br_set_var(var, value, quoted=True):
+    global BRCONFIG_cfgDataList
+
+    if (value is None) or (value.lower() == 'n'):
+        argStr = "# %s is not set\n" % var
+    else:
+        if value.lower() == 'y':
+            quoted = False
+
+        if quoted:
+            argStr = '%s="%s"\n' % (var, value)
+        else:
+            argStr = '%s=%s\n' % (var, value)
+
+    BRCONFIG_cfgDataList.append(argStr)
+
 ########################
 # Get version info
 ########################
 
 def _git_verinfo(git_dir):
-    git_hash = subprocess.check_output(['git','log', '-n', '1', '--pretty="%H"'], cwd=git_dir)
+    git_hash = subproc_output('git log -n 1 --pretty="%H"', cwd=git_dir)
     git_hash = re.sub("\n", "", git_hash)
     git_hash = re.sub('"',"", git_hash)
     return git_hash
@@ -311,23 +488,22 @@ def load_env(var, default=""):
     return var
 
 #######################
-# Subprocess logger
+# Subprocess With Error Checking
 #######################
-def subproc_log(cmdStr, logfile=None, cwd=None, verbose=True):
-    if cwd is None:
-        cwd = os.getcwd()
-    if (logfile is None) and (verbose == False):
-        logfile = "/dev/null"
+def subproc(args, cwd=None, shell=False):
 
-    if (logfile is None):
-        subprocess.call( cmdStr.split(), cwd=cwd)
-    else:
-        if verbose == False:
-            with open(logfile, 'w') as f:
-                subprocess.call( cmdStr.split(), cwd=cwd, stdout=f, stderr=subprocess.STDOUT)    
-        else:            
-            cmdStr += " | tee %s" % logfile
-            subprocess.call( cmdStr.split(), cwd=cwd)
+   _SUBPROC_LOGGER.call(args, cwd=cwd, shell=shell)
+
+#######################
+# Subprocess With Output
+#######################
+def subproc_output(args, cwd=None, stderr=None, shell=False, universal_newlines=False):
+
+    # Support strings or lists as args
+    if isinstance(args, basestring):
+        args = shlex.split(args)
+
+    return subprocess.check_output( args, cwd=cwd, stderr=stderr, shell=shell, universal_newlines=universal_newlines)
 
 ########################
 # Load buildroot env
@@ -396,4 +572,7 @@ COMMON_DIR = os.path.dirname(COMMON_SCRIPTS)
 MW_DIR = os.path.dirname(COMMON_DIR)
 BR_ROOT = os.path.dirname(os.path.dirname(MW_DIR))
 
+BRCONFIG_cfgDataList = []
+BRCONFIG_cfgIncludeDirs = []
 
+init_logging()

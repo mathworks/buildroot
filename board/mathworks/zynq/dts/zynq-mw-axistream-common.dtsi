@@ -1,45 +1,21 @@
-/{
-	chosen {
-		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk cma=128M coherent_pool=16M";
-		linux,stdout-path = "/amba@0/uart@E0001000";
+#include "zynq-mw-cma.dtsi"
+#include "xilinx-mw-axistream-dma.dtsi"
+
+&axi4stream_mm2s {
+	reg = <0x40020000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0 0x1d 0x4>;
 	};
 };
-
-&fpga_axi {
-	axi4stream:axidma@40020000 {
-		#address-cells = <0x1>;
-		#size-cells = <0x1>;
-		#dma-cells = <0x1>;
-		axistream-connected = <0x2>;
-		axistream-control-connected = <0x2>;
-		compatible = "xlnx,axi-adi-dma";
-		interrupt-parent = <&intc>;
-		reg = <0x40020000 0xffff>;
-		xlnx,dlytmr-resolution = <0x7d>;
-		xlnx,family = "zynq";
-		xlnx,include-sg = <0x1>;
-		xlnx,instance = "axi_dma_0";
-		xlnx,sg-include-desc-queue = <0x0>;
-		xlnx,sg-include-stscntrl-strm = <0x0>;
-		xlnx,sg-length-width = <0xe>;
-		xlnx,sg-use-stsapp-length = <0x1>;
-		dma-channel@40020000 {
-			compatible = "xlnx,axi-dma-mm2s-channel";
-			interrupts = <0x0 0x1d 0x4>;
-			xlnx,datawidth = <0x20>;
-			xlnx,include-dre = <0x0>;
-		};
-		dma-channel@40020030 {
-			compatible = "xlnx,axi-dma-s2mm-channel";
-			interrupts = <0x0 0x1e 0x4>;
-			xlnx,datawidth = <0x20>;
-			xlnx,include-dre = <0x0>;
-		};
+&axi4stream_s2mm {
+	reg = <0x40030000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0 0x1e 0x4>;
 	};
 };
 
 &mwipcore0 {
-	dmas = <&axi4stream 0 
-                &axi4stream 1>;
+	dmas = <&axi4stream_mm2s 0 
+                &axi4stream_s2mm 0>;
 	dma-names = "mm2s", "s2mm";
 };

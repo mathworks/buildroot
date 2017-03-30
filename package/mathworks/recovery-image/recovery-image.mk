@@ -14,6 +14,10 @@ else ifeq ($(BR2_PACKAGE_RECOVERY_IMAGE_USE_BRDPLT),y)
 RECOVERY_IMAGE_BUILD_SPEC = -b $(call qstrip,$(BR2_PACKAGE_RECOVERY_IMAGE_BOARD)) -p $(call qstrip,$(BR2_PACKAGE_RECOVERY_IMAGE_PLATFORM))
 endif
 
+ifeq ($(BR2_CCACHE),y)
+RECOVERY_IMAGE_BUILD_SPEC += --ccache
+endif
+
 RECOVERY_IMAGE_FILE = $(call qstrip,$(BR2_PACKAGE_RECOVERY_IMAGE_FILE))
 RECOVERY_IMAGE_BUILD_SCRIPT = board/mathworks/common/scripts/build.py
 
@@ -26,7 +30,7 @@ define RECOVERY_IMAGE_BUILD_CMDS
 endef
 
 define RECOVERY_IMAGE_INSTALL_IMAGES_CMDS
-	cp -f $(@D)/images/$(RECOVERY_IMAGE_FILE) $(BINARIES_DIR)/
+	cp -f $(@D)/images/rootfs.cpio.uboot $(BINARIES_DIR)/$(RECOVERY_IMAGE_FILE)
 endef
 
 $(eval $(generic-package))

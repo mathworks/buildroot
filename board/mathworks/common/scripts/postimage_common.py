@@ -2,10 +2,10 @@
 # syntax <build_board.py> <output_dir> <platform> <board_name> [<image name>]
 # executed out of main buildroot source directory
 # available environment variables
-#	BR2_CONFIG: path to .config file
-#	HOST_DIR, STAGING_DIR, TARGET_DIR
-#	BINARIES_DIR: images dir
-#	BASE_DIR: base output directory
+#    BR2_CONFIG: path to .config file
+#    HOST_DIR, STAGING_DIR, TARGET_DIR
+#    BINARIES_DIR: images dir
+#    BASE_DIR: base output directory
 import sys, os, shutil, glob, imp, argparse, distutils.dir_util
 
 import parse_catalog
@@ -16,18 +16,11 @@ from helper_func import *
 ########################################
 # Helper Functions
 ########################################
-def _gen_recovery(catalog, outputDir):
-    print ""
-    print_msg("Starting on recovery files %s" % (outputDir), level=3, fg=2, bold=True)
-    ##############
-    # Create the output dir if needed
-    ##############
-    if not os.path.isdir(outputDir):
-        os.makedirs(outputDir)
-
-    CPIO_IMG = ENV['IMAGE_DIR'] + "/rootfs.cpio.gz"
-    UIMAGE= outputDir + "/uramdisk_recovery.image.gz"
-    create_uramdisk(CPIO_IMG, UIMAGE)
+def _gen_sysroot(outputDir):
+    sysroot_file = "%s/sysroot.tar.bz" % outputDir
+    print_msg("Generating sysroot: %s " % sysroot_file, level=3, fg=2, bold=True)
+    fileList = " ".join(build_relative_file_list(ENV['STAGING_DIR'], ENV['STAGING_DIR']))
+    subproc("tar -cjf %s %s" % (sysroot_file,fileList), cwd=ENV['STAGING_DIR'])
 
 def _gen_sdcard(image, catalog, outputDir):
     
@@ -70,7 +63,7 @@ def _gen_sdcard(image, catalog, outputDir):
     ##############
     # Generate DTBs
     ##############
-    gen_dtb.generate_dtbs(PLATFORM_NAME, BOARD_NAME, image)
+    gen_dtb.generate_dtbs(catalog, image)
     # Copy the default DTB to devicetree.dtb
     print_msg("Setting %s as default dtb" %(defaultApp['name']))
     br_platform.set_default_dtb(defaultApp)
@@ -114,10 +107,15 @@ parser.add_argument('-e', '--environ', dest='setEnvrion', action="store_true",
                         help='Set Buildroot Environment variables based on BR2_OUTPUT_DIR')
 parser.add_argument('-o', '--output', dest='outputDir',
                         help='Output directory for image files(default: BR2_OUTPUT_DIR/images)')
+parser.add_argument('--sysroot', dest='sysrootOnly', action="store_true",
+                        help='Generate the sysroot tarball instead of an image file')
+
 
 
 # Move the output dir to the end of the list
 args = vars(parser.parse_args())
+
+init_logging(console=0)
 
 if (args['catalogFile'] is None and 
     ((args['platformName'] is None) or (args['boardName'] is None))):
@@ -142,21 +140,21 @@ outputDir = os.path.realpath(args['outputDir'])
 # read in the tree
 catalog = parse_catalog.read_catalog(CATALOG_FILE, args['imageList'])
 # catalog may have provided some info
-PLATFORM_NAME = catalog['platformName']
+PLATFORM_NAME = catalog['platformInfo']['platformName']
 BOARD_NAME = catalog['boardName']
 PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + PLATFORM_NAME
 
 # load the platform functions
-PLATFORM_MODULE = PLATFORM_DIR + "/scripts/postimage_common.py"
+PLATFORM_MODULE = catalog['platformInfo']['platformDir'] + "/scripts/platform_support.py"
 m = imp.load_source('br_platform', PLATFORM_MODULE)
 import br_platform
 
-if catalog['buildMode'] == BuildMode.RECOVERY:
-    _gen_recovery(catalog, outputDir)
-else:
-    for image in catalog['imageList']:
-        _gen_sdcard(image, catalog, outputDir)
+br_platform.platform_update_catalog(catalog)
 
-
-
+if catalog['buildMode'] == BuildMode.NORMAL:
+    if args['sysrootOnly']:
+        _gen_sysroot(outputDir)
+    else:
+        for image in catalog['imageList']:
+            _gen_sdcard(image, catalog, outputDir)
 

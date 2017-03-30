@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, shutil, glob, imp, argparse, subprocess, datetime
+import sys, os, shutil, glob, imp, argparse, datetime
 
 import parse_catalog
 import helper_func
@@ -15,14 +15,14 @@ import br_config
 ###################
 def checkconfig(args):
     # common checking
-    if not args['toolchain'] in br_platform.supported['toolchain']:
+    if not args['toolchain'] in SUPPORTED['toolchain']:
         errStr = "Toolchain '%s' is not supported for platform '%s'" % (args['toolchain'], args['platformName'])
-        errStr = errStr + "\n\tSupported toolchains: %s" % br_platform.supported['toolchain']
+        errStr = errStr + "\n\tSupported toolchains: %s" % SUPPORTED['toolchain']
         raise RuntimeError(errStr)
         
-    if not args['rtos'] in br_platform.supported['rtos']:
+    if not args['rtos'] in SUPPORTED['rtos']:
         errStr = "RTOS '%s' is not supported for platform '%s'" % (args['toolchain'], args['platformName'])
-        errStr = errStr + "\n\tSupported RTOS: %s" % br_platform.supported['rtos']
+        errStr = errStr + "\n\tSupported RTOS: %s" % SUPPORTED['rtos']
         raise RuntimeError(errStr)
 
     # platform specific checking
@@ -34,10 +34,10 @@ def checkconfig(args):
 def get_build_config(args):
     # Use the platform defaults to populate the values
     if args['toolchain'] is None:
-        args['toolchain'] = br_platform.supported['toolchain'][0]
+        args['toolchain'] = SUPPORTED['toolchain'][0]
 
     if args['rtos'] is None:
-        args['rtos'] = br_platform.supported['rtos'][0]
+        args['rtos'] = SUPPORTED['rtos'][0]
 
     if args['outputDir'] is None:
         if args['buildMode'] == BuildMode.RECOVERY:
@@ -49,7 +49,7 @@ def get_build_config(args):
         args['outputDir'] = os.path.realpath(args['outputDir'])
 
     if args['logFile'] is None:
-        logFile = 'build_%s.log' % datetime.datetime.now().strftime("%b_%d_%Y_%H%M%S")
+        logFile = 'build.log'
         args['logFile'] = os.path.join(args['outputDir'], logFile)
     else:
         args['logFile'] = os.path.realpath(args['logFile'])
@@ -77,8 +77,7 @@ def get_build_config(args):
 def build_target(args, catalog):
     # Clean if required
     if not args['updateBuild']:
-        argStr = "make clean"   
-        subprocess.call( argStr.split(), cwd=args['outputDir'])
+        subproc("make clean", cwd=args['outputDir'])
 
     if (args['cleanCCache'] and args['enableCCache']):
         cacheDir = get_cfg_var('BR2_CCACHE_DIR').replace("$(HOME)", os.environ['HOME'])
@@ -86,7 +85,8 @@ def build_target(args, catalog):
 
     # Call the makefile
     argStr = "make %s" % args['makeTarget']
-    subproc_log(argStr, logfile=args['logFile'], cwd=args['outputDir'], verbose=(not args['quietBuild']))
+    #subproc_log(argStr, logfile=args['logFile'], cwd=args['outputDir'], verbose=(not args['quietBuild']))
+    subproc(argStr, cwd=args['outputDir'])
 
 ########################################
 # Main
@@ -121,17 +121,22 @@ buildTypeGrp.add_argument('-o', '--output', dest='outputDir', metavar='OUTPUT_DI
 buildTypeGrp.add_argument('--cleandl', dest='cleanDL', action='store_true',
                         help='Clean the download directory before building (default: false)')
 buildTypeGrp.add_argument('--target', dest='makeTarget', metavar='MAKE_TARGET', type=str,
-                        default="all", help='Make target (default: all)')
+                        default="all legal-info", help='Make target (default: all legal-info)')
 buildTypeGrp.add_argument('--dl', dest='dlDir', metavar='ML_DIR', type=str,
                         help='Buildroot download directory (default: dl/<platform>)')
 buildTypeGrp.add_argument('-l', '--logfile', dest='logFile', metavar='LOG_FILE', type=str,
-                        help='File to log the build output(default: build_DD_MM_YYYY.log)')
-buildTypeGrp.add_argument('-q', '--quiet', dest='quietBuild', action='store_true',
-                        help='Do not print build output to stdout')
+                        help='File to log the build output(default: build.log)')
+buildTypeGrp.add_argument('-q', '--quiet', dest='quietBuild', action='count', default=0,
+                        help='Limit output to stdout')
 buildTypeGrp.add_argument('--ccache', dest='enableCCache', action='store_true',
                         help='Enable the ccache build mechanism (default: false)')
 buildTypeGrp.add_argument('--ccache-clean', dest='cleanCCache', action='store_true',
                         help='Clean the ccache cache (default: false)')
+buildTypeGrp.add_argument('--brconfig', dest='brconfig', action='append', default=[],
+                        help='Specify buildroot variables in the form <VARNAM>=<VALUE>')
+buildTypeGrp.add_argument('--sysroot', dest='sysrootOnly', action="store_true",
+                        help='Generate the sysroot tarball instead of an image file')
+
 
 buildType=buildTypeGrp.add_mutually_exclusive_group(required=False)
 buildType.add_argument('-u', '--update', dest='updateBuild', action='store_true',
@@ -159,22 +164,27 @@ if args['catalogFile'] is None:
 # read in the tree
 catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'])
 # catalog may have provided some info
-args['platformName'] = catalog['platformName'].lower()
+args['platformName'] = catalog['platformInfo']['platformName'].lower()
 args['boardName'] = catalog['boardName'].lower()
 args['buildMode'] = catalog['buildMode']
 
 # load the platform functions
-PLATFORM_MODULE = catalog['platformDir'] + "/scripts/build_common.py"
+PLATFORM_MODULE = catalog['platformInfo']['platformDir'] + "/scripts/platform_support.py"
 m = imp.load_source('br_platform', PLATFORM_MODULE)
 import br_platform
+
+br_platform.platform_update_catalog(catalog)
+SUPPORTED = br_platform.platform_supported()
 
 get_build_config(args)
 
 checkconfig(args)
 
+init_logging(filename=args['logFile'], console=args['quietBuild'])
+
 br_config.gen_target(args, catalog)
 
-br_config.clean_defconfig()
+br_config.clean_defconfig(args, catalog)
 
 build_target(args, catalog)
 

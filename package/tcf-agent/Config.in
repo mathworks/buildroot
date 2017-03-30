@@ -1,12 +1,35 @@
 config BR2_PACKAGE_TCF_AGENT
 	bool "Eclipse Target Communication Framework (TCF) Agent"
+	depends on BR2_aarch64 || BR2_arm || BR2_x86_64
+	help
+	  Eclipse Target Communication Framework provides a
+	  mechansim to remotely debug applications running on the
+	  target from the Eclipse IDE.
+	  
+	  http://www.eclipse.org/tcf/
+
+if BR2_PACKAGE_TCF_AGENT
+
+config BR2_PACKAGE_TCF_AGENT_MACHINE
+	string
+	default "a64"		 if BR2_aarch64
+	default "arm"		if BR2_arm
+	default "x86_64"	 if BR2_x86_64
+
+config BR2_PACKAGE_TCF_AGENT_USESSL
+	bool "Use SSL in the TCF Agent Build"
+	default y
+	select BR2_PACKAGE_OPENSSL
+	help
+	  Enable SSL for the TCF Agent Build
+
+config BR2_PACKAGE_TCF_AGENT_USEUUID
+	bool "Use UUIDs in the TCF Agent Build"
+	default y
 	select BR2_PACKAGE_UTIL_LINUX_LIBUUID
 	select BR2_PACKAGE_UTIL_LINUX
-    select BR2_PACKAGE_OPENSSL
 	help
-      Eclipse Target Communication Framework provides a
-      mechansim to remotely debug applications running on the
-      target from the Eclipse IDE.
-      
-      http://www.eclipse.org/tcf/
+	  Enable UUIDs for the TCF Agent Build
+
+endif #BR2_PACKAGE_TCF_AGENT
 

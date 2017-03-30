@@ -1,0 +1,34 @@
+#!/bin/sh
+
+source /etc/bootvars.conf
+
+source $(which _mw_getbootdev)
+
+NEW_IMG=$1
+
+if [ ! -e ${_SD_DEV} ]; then
+    echo "ERROR: Could not find ${_SD_DEV}"
+    exit 1
+fi
+
+# Format the SD device
+umount ${_SD_ROOT}
+echo "# Wiping ${_SD_DEV}"
+sfdisk --delete ${_SD_DEV}
+echo "# Formatting ${_SD_DEV}"
+echo ",,b;" | sfdisk ${_SD_DEV}
+mkfs -t fat ${_SD_PART}
+
+echo "# Updating ${_SD_DEV}"
+# Remount the SD device
+/etc/init.d/S09sdcard_mount start
+unzip $NEW_IMG -d ${_SD_ROOT}
+
+# Preserve the network settings
+_mw_backup_network
+
+# Reboot into the new image
+sync
+reboot
+
+
