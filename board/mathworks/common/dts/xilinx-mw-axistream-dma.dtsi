@@ -10,7 +10,7 @@
 		xlnx,addrwidth = <0x20>;
 		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
 		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_mm2s_aclk";
-		dma-channel@40020000  {
+		dma-channel@0  {
 			reg = <0x0>;
 			compatible = "xlnx,axi-dma-mm2s-channel";
 			interrupts = <0x0 0x1d 0x4>;
@@ -30,7 +30,7 @@
 		xlnx,addrwidth = <0x20>;
 		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
 		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_s2mm_aclk";
-		dma-channel@40030030 {
+		dma-channel@0 {
 			reg = <0x0>;
 			compatible = "xlnx,axi-dma-s2mm-channel";
 			interrupts = <0x0 0x1e 0x4>;
