@@ -71,7 +71,9 @@ run_build_command() {
 	fi
 
 	set -x
-	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BR2_DL_DIR/$CONFIG_JOB_PLATFORM -b $CONFIG_JOB_BOARD -p $CONFIG_JOB_PLATFORM --ccache -l logs/${CI_BUILD_NAME}.log $brvars $extraargs
+	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BR2_DL_DIR/$CONFIG_JOB_PLATFORM \
+		-b $CONFIG_JOB_BOARD -p $CONFIG_JOB_PLATFORM --ccache -l logs/${CI_BUILD_NAME}.log \
+		-d images/ $brvars $extraargs
 	rc=$?
 	set +x
 	if [ "$rc" != "0" ]; then
@@ -131,13 +133,13 @@ case "${CI_BUILD_STAGE}" in
 		;;
 	build)
 		echo "Building $CONFIG_JOB_BOARD/$CONFIG_JOB_PLATFORM"
-		run_build_command "all legal-info" -u -q
+		run_build_command "all" -u -q
 		;;
 	sysroot)
 		# Never skip this stage due to board
 		CONFIG_BOARD_NOSKIP="true"
 		echo "Packaging $CONFIG_JOB_PLATFORM Sysroot"
-		run_build_command all -u --sysroot
+		run_build_command "legal-info all" -u --sysroot
 		;;
 	*)
 		echo "No automation defined for ${CI_BUILD_STAGE}"

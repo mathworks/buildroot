@@ -38,7 +38,8 @@ before_script:
     stage: sysroot
     artifacts:
         paths:
-            - output/$CONFIG_JOB_BOARD*/images/sysroot.tar.bz
+            - images/sysroot_$CONFIG_JOB_BOARD*.tar.bz
+            - images/licenses_$CONFIG_JOB_BOARD*.txt
         expire_in: 2 days
 
 # Global setup/teardown template
@@ -59,9 +60,8 @@ before_script:
     stage: build
     artifacts:
         paths:
-            - output/$CONFIG_JOB_BOARD*/images/$CONFIG_JOB_BOARD*.zip
-            - output/$CONFIG_JOB_BOARD*/images/$CONFIG_JOB_BOARD*.gz
-            - output/$CONFIG_JOB_BOARD*/legal-info/licenses.txt
+            - images/$CONFIG_JOB_BOARD*.zip
+            - images/$CONFIG_JOB_BOARD*.gz
         expire_in: 2 days
 
 # Global source job template
