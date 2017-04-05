@@ -1,0 +1,33 @@
+#!/bin/sh
+##################################
+# Reboot zynqmp ES1/ES2 systems
+#
+# See AR# 68514
+##################################
+
+source /etc/bootvars.conf
+
+PM_NODE="/sys/kernel/debug/zynqmp_pm/power"
+ES1_RESET="reset_assert 1114 2"
+ES2_RESET="system_shutdown 1 2"
+STD_RESET="/bin/busybox reboot"
+
+# If there is no PM in debugfs, default to the standard method
+if [ ! -e "$PM_NODE" ]; then
+	_SYS_ZYNQMP_SILICON=""
+fi
+
+case "$_SYS_ZYNQMP_SILICON" in
+	"ES1")
+		sync
+		echo $ES1_RESET > $PM_NODE
+		;;
+	"ES2")
+		sync
+		echo $ES2_RESET > $PM_NODE
+		;;
+	*)
+		$STD_RESET
+		;;
+esac
+
