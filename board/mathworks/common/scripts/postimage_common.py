@@ -7,7 +7,7 @@
 #    BINARIES_DIR: images dir
 #    BASE_DIR: base output directory
 import sys, os, shutil, glob, imp, argparse, distutils.dir_util
-import csv
+import csv, time
 
 import parse_catalog
 import gen_dtb
@@ -25,7 +25,7 @@ def _gen_legalinfo(catalog, outputDir):
     licenseFmt = "\t%s: %s file\n"
 
     buildDate = time.strftime("%F")
-    licDstFile = "%s/licenses_%s_%s.txt" % (outputDir, catalog['boardName'], buildData)
+    licDstFile = "%s/licenses_%s_%s.txt" % (outputDir, catalog['boardName'], buildDate)
 
     if not os.path.exists(manifest):
         return
@@ -50,8 +50,9 @@ def _gen_legalinfo(catalog, outputDir):
                         licDst.writelines(lines)
                     licDst.write("\n\n")
 
-def _gen_sysroot(outputDir):
-    sysroot_file = "%s/sysroot.tar.bz" % outputDir
+def _gen_sysroot(catalog, outputDir):
+    buildDate = time.strftime("%F")
+    sysroot_file = "%s/sysroot_%s_%s.tar.bz" % (outputDir, catalog['boardName'], buildDate)
     print_msg("Generating sysroot: %s " % sysroot_file, level=3, fg=2, bold=True)
     fileList = " ".join(build_relative_file_list(ENV['STAGING_DIR'], ENV['STAGING_DIR']))
     subproc("tar -cjf %s %s" % (sysroot_file,fileList), cwd=ENV['STAGING_DIR'])
@@ -183,7 +184,7 @@ br_platform.platform_update_catalog(catalog)
 if catalog['buildMode'] == BuildMode.NORMAL:
     _gen_legalinfo(catalog, outputDir)
     if args['sysrootOnly']:
-        _gen_sysroot(outputDir)
+        _gen_sysroot(catalog, outputDir)
     else:
         for image in catalog['imageList']:
             _gen_sdcard(image, catalog, outputDir)
