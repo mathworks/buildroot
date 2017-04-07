@@ -178,6 +178,8 @@ SUPPORTED = br_platform.platform_supported()
 
 get_build_config(args)
 
+mkdir(args['outputDir'])
+
 checkconfig(args)
 
 init_logging(filename=args['logFile'], console=args['quietBuild'])
