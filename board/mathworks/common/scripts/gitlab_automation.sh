@@ -121,14 +121,16 @@ case "${CI_BUILD_STAGE}" in
 		run_build_command source --ccache-clean
 		rm -rf $CONFIG_BR2_DL_DIR/zynq/linux-*
 		rm -rf $CONFIG_BR2_DL_DIR/zynq/uboot-*
-		cp -R $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/socfpga
-		cp -R $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/zynqmp
+		cp -rf $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/socfpga
+		cp -rf $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/zynqmp
 		rm -rf ${CI_PROJECT_DIR}/output/*/build
 		;;
 	sources_custom)
 		# Never skip this stage due to board
 		CONFIG_BOARD_NOSKIP="true"
 		echo "Preparing $CONFIG_JOB_PLATFORM Sources"
+		rm -rf ${CONFIG_BR2_DL_DIR}/${CONFIG_JOB_PLATFORM}/linux-*
+		rm -rf ${CONFIG_BR2_DL_DIR}/${CONFIG_JOB_PLATFORM}/uboot-*
 		run_build_command source -u
 		;;
 	build)
