@@ -7,6 +7,7 @@
 #    BINARIES_DIR: images dir
 #    BASE_DIR: base output directory
 import sys, os, shutil, glob, imp, argparse, distutils.dir_util
+import csv, time
 
 import parse_catalog
 import gen_dtb
@@ -16,8 +17,42 @@ from helper_func import *
 ########################################
 # Helper Functions
 ########################################
-def _gen_sysroot(outputDir):
-    sysroot_file = "%s/sysroot.tar.bz" % outputDir
+def _gen_legalinfo(catalog, outputDir):
+    
+    legalDir = "%s/legal-info" % ENV['BASE_DIR']
+    manifest = "%s/manifest.csv" % legalDir
+    licenseHeader = "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"
+    licenseFmt = "\t%s: %s file\n"
+
+    buildDate = time.strftime("%F")
+    licDstFile = "%s/licenses_%s_%s.txt" % (outputDir, catalog['boardName'], buildDate)
+
+    if not os.path.exists(manifest):
+        return
+
+    print_msg("Creating combined license file %s " % (licDstFile),
+        level=3, fg=2, bold=True)
+
+    with open(licDstFile, 'w') as licDst:
+        with open(manifest, 'rb') as csvFile:
+            manifestReader = csv.DictReader(csvFile)
+            for licInfo in manifestReader:
+                licSrcs = licInfo['LICENSE FILES'].split()
+                pkgNameVer = "%s-%s" % (licInfo['PACKAGE'], licInfo['VERSION'])
+                for lic in licSrcs:
+                    licDst.write(licenseHeader)
+                    licDst.write(licenseFmt %
+                        (pkgNameVer, lic))
+                    licDst.write(licenseHeader)
+                    licSrcFile = "%s/licenses/%s/%s" % (legalDir, pkgNameVer, lic)
+                    with open(licSrcFile) as licSrc:
+                        lines = licSrc.readlines()
+                        licDst.writelines(lines)
+                    licDst.write("\n\n")
+
+def _gen_sysroot(catalog, outputDir):
+    buildDate = time.strftime("%F")
+    sysroot_file = "%s/sysroot_%s_%s.tar.bz" % (outputDir, catalog['boardName'], buildDate)
     print_msg("Generating sysroot: %s " % sysroot_file, level=3, fg=2, bold=True)
     fileList = " ".join(build_relative_file_list(ENV['STAGING_DIR'], ENV['STAGING_DIR']))
     subproc("tar -cjf %s %s" % (sysroot_file,fileList), cwd=ENV['STAGING_DIR'])
@@ -75,13 +110,6 @@ def _gen_sdcard(image, catalog, outputDir):
         print_msg("Setting %s as default bitstream" %(defaultApp['name']))
         br_platform.set_default_bitsream(defaultApp)
 
-
-    ##############
-    # Create the output dir if needed
-    ##############
-    if not os.path.isdir(outputDir):
-        os.makedirs(outputDir)
-
     ##############
     # Call the platform-specific function
     ##############
@@ -136,6 +164,8 @@ if args['outputDir'] is None:
     args['outputDir'] = ENV['IMAGE_DIR']
 
 outputDir = os.path.realpath(args['outputDir'])
+# Create the output dir if needed
+mkdir(outputDir)
 
 # read in the tree
 catalog = parse_catalog.read_catalog(CATALOG_FILE, args['imageList'])
@@ -152,8 +182,9 @@ import br_platform
 br_platform.platform_update_catalog(catalog)
 
 if catalog['buildMode'] == BuildMode.NORMAL:
+    _gen_legalinfo(catalog, outputDir)
     if args['sysrootOnly']:
-        _gen_sysroot(outputDir)
+        _gen_sysroot(catalog, outputDir)
     else:
         for image in catalog['imageList']:
             _gen_sdcard(image, catalog, outputDir)
