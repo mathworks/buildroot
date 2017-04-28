@@ -52,10 +52,20 @@ def _gen_legalinfo(catalog, outputDir):
 
 def _gen_sysroot(catalog, outputDir):
     buildDate = time.strftime("%F")
-    sysroot_file = "%s/sysroot_%s_%s.tar.bz" % (outputDir, catalog['boardName'], buildDate)
+    sysroot_file = "%s/sysroot_%s_%s.tar.gz" % (outputDir, catalog['boardName'], buildDate)
+    sysroot_rsync = "%s/sysroot" % (ENV['BASE_DIR'])
+
     print_msg("Generating sysroot: %s " % sysroot_file, level=3, fg=2, bold=True)
-    fileList = " ".join(build_relative_file_list(ENV['STAGING_DIR'], ENV['STAGING_DIR']))
-    subproc("tar -cjf %s %s" % (sysroot_file,fileList), cwd=ENV['STAGING_DIR'])
+    #rsync the files to remove symlinks
+    rm(sysroot_rsync)
+    subproc("rsync -arL %s %s" % (ENV['STAGING_DIR'], sysroot_rsync))
+
+    # tar the sysroot
+    sysroot_root = os.path.join(sysroot_rsync, os.path.basename(os.path.abspath(ENV['STAGING_DIR'])))
+    fileList = " ".join(build_relative_file_list(sysroot_root, sysroot_root))
+    subproc("tar -czf %s %s" % (sysroot_file,fileList), cwd=sysroot_root)
+
+    rm(sysroot_rsync)
 
 def _gen_sdcard(image, catalog, outputDir):
     
