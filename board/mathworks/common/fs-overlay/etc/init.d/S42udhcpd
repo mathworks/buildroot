@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Start the udhcpd server....
+#
+
+source /etc/bootvars.conf
+
+if [ "${_SYS_NETWORK_DISABLE}" == "true" ]; then
+    echo -n "udhcpd disabled..."
+    exit 0
+fi
+
+mkdir -p /var/lib/misc
+
+case "$1" in
+  start)
+ 	echo "Starting udhcpd..."
+	touch /var/lib/misc/udhcpd.leases
+	/usr/sbin/udhcpd /etc/udhcpd.conf
+	;;
+  stop)
+	echo "Stopping udhcpd..."
+	pkill /usr/sbin/udhcpd
+	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
