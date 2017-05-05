@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Start the usb ethernet....
+#
+
+source /etc/bootvars.conf
+
+if [ "${_SYS_NETWORK_DISABLE}" == "true" ]; then
+    echo -n "USB ethernet disabled..."
+    exit 0
+fi
+
+case "$1" in
+  start)
+ 	echo "Starting USB Ethernet..."
+	/sbin/modprobe -q g_ether
+	;;
+  stop)
+	echo "Stopping USB Ethernet..."
+	/sbin/rmmod g_ether 2>/dev/null
+	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
