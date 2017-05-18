@@ -14,9 +14,17 @@ fi
 
 SD_KEYDIR=${BACKUP_DIR}/sshkeys
 
-echo "Restoring network configuration..."  
-cp -f ${BACKUP_DIR}/hostname ${_SD_ROOT}/hostname
-cp -f ${BACKUP_DIR}/interfaces ${_SD_ROOT}/interfaces
+echo "Restoring network configuration..."
+
+
+for i in $(seq 1 $_NETWORK_FILES_NELEM); do
+	file=$(get_elem $i $_NETWORK_SRC_FILES)
+
+	if [ -f ${BACKUP_DIR}/${file} ]; then
+		cp -f ${BACKUP_DIR}/${file} ${_SD_ROOT}/${file}
+	fi
+done
+
 cp -r $SD_KEYDIR ${_SD_ROOT}
 
 sync

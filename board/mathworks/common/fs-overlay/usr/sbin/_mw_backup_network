@@ -26,13 +26,24 @@ mkdir -p $SD_KEYDIR
 
 echo "Backing up network configuration..."  
 
+for i in $(seq 1 $_NETWORK_FILES_NELEM); do
+	file=$(get_elem $i $_NETWORK_SRC_FILES)
+	sysfile=$(get_elem $i $_NETWORK_DST_FILES)
+
+	if [ "$SRC" == "system" ]; then		
+		srcpath=$sysfile
+	else
+		srcpath=${SRC}/${file}
+	fi
+
+	if [ -f $srcpath ]; then
+		cp -f $srcpath ${BACKUP_DIR}/${file}
+	fi
+done
+
 if [ "$SRC" == "system" ]; then
-    cp -f /etc/hostname ${BACKUP_DIR}/hostname
-    cp -f /etc/network/interfaces ${BACKUP_DIR}/interfaces
     cp $ETC_KEYDIR/ssh_host_*key* $SD_KEYDIR/
 else
-    cp -f ${SRC}/hostname ${BACKUP_DIR}/hostname
-    cp -f ${SRC}/interfaces ${BACKUP_DIR}/interfaces
     cp ${SRC}/sshkeys/ssh_host_*key* $SD_KEYDIR/
 fi
 
