@@ -1,0 +1,7 @@
+#ifndef __XLNX_MW_AXISTREAM_DMA__
+#define __XLNX_MW_AXISTREAM_DMA__
+
+#define XLNX_MM2S_DATAWIDTH <0x20>
+#define XLNX_S2MM_DATAWIDTH <0x20>
+
+#endif /* __XLNX_MW_AXISTREAM_DMA__ */
