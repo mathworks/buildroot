@@ -1,18 +1,8 @@
-/dts-v1/;
-
-#include "zynq-zed.dtsi"
+#include "zynq-zed.dts"
 #include "zynq-mw-common.dtsi"
+#include "zynq-mw-axilite-common.dtsi"
 
-/ {
-	chosen {
-		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
-		linux,stdout-path = "/amba@0/uart@E0001000";
-	};
-};
-&fpga_axi {
-		mwipcore0: mwipcore@400D0000 {
-			compatible = "mathworks,mwipcore-v2.00";
-			reg = <0x400D0000 0xffff>;
-		};
+&mwipcore0 {
+	reg = <0x400D0000 0xffff>;
 };
 

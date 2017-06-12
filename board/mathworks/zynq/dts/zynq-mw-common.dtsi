@@ -1,3 +1,4 @@
+/* Create the common FPGA AXI bus and clock */
 / {
 	fpga_axi: fpga-axi@0 {
 		compatible = "simple-bus";
@@ -13,5 +14,13 @@
 		clock-div = <2>;
 		clock-mult = <1>;
 		clock-output-names = "clk0";
+	};
+};
+
+
+/* Setup the default boot args for ramdisk and earlycon */
+/ {
+	chosen {
+		bootargs = "earlycon root=/dev/ram rw";
 	};
 };
