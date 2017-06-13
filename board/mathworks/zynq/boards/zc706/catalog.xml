@@ -18,8 +18,8 @@
         <app name="axistream_iio">
             <dts file="axistream_iio.dts"/>
         </app>
-	<app name="axistream_iio_JESD204B">
-            <dts file="axistream_iio_JESD204B.dts"/>
+	<app name="axistream_JESD204B_iio">
+            <dts file="axistream_JESD204B_iio.dts"/>
         </app>
     </image>
 </board>
