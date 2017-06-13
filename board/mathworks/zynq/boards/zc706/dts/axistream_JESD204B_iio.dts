@@ -1,5 +1,5 @@
 #include "base.dtsi"
-#include "zynq-mw-axistream-iio-common.dtsi"
+#include "zynq-mw-axistream-iio-common-s2mm.dtsi"
 
 &i2c0{
 	i2cswitch@74 {
