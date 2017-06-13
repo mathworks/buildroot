@@ -17,6 +17,8 @@
 		interrupt-parent = <&intc>;
 		interrupts = <0 29 0x4>;
 		reg = <0x41600000 0x10000>;
+		clocks = <&core_clkwiz 0>;
+		clock-names = "pclk";
 
 		#size-cells = <0>;
 		#address-cells = <1>;
@@ -36,8 +38,9 @@
 					compatible = "adv7511-media";
 					reg = <0x39>;
 					powerdown-gpio = <&pca9534 4 GPIO_ACTIVE_HIGH>;
-					edid-addr = <0x50>;
-					pktmem-addr = <0x60>;
+					edid-addr = <0x3F>;
+					pktmem-addr = <0x38>;
+					cec-addr = <0x3C>;
 
 					video-input {
 						input-id = <2>;
@@ -55,6 +58,7 @@
 						output-color-space = <0>;
 						up-conversion = <0>;
 						csc-enable = <1>;
+						csc-locked;
 						csc-scaling-factor = <2>;
 						csc-coefficients {
 							a1 = <0x0B37>;

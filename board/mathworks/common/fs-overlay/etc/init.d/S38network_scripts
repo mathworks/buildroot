@@ -15,17 +15,15 @@ else
     WARN_NOTFOUND=true
 fi
 
-if [ -f ${_SD_ROOT}/hostname ]; then
-    echo "+++ Configuring device hostname"
-    $UPDATE -f ${_SD_ROOT}/hostname /etc/hostname
-elif  [ "$WARN_NOTFOUND" == "true" ]; then
-    echo "### hostname file not found in the SD card. Using default settings in /etc/hostname..."
-fi
+for i in $(seq 1 $_NETWORK_FILES_NELEM); do
+	src=${_SD_ROOT}/$(get_elem $i $_NETWORK_SRC_FILES)
+	dst=$(get_elem $i $_NETWORK_DST_FILES)
+	warn=$(get_elem $i $_NETWORK_REQ_FILES)
+	if [ -f $src ]; then
+    	echo "+++ Configuring $dst"
+	    $UPDATE -f $src $dst
+	elif  [ "$WARN_NOTFOUND" == "true" ] && [ "$warn" == "true" ]; then
+    	echo "### $src file not found in the SD card. Using default settings in $dst..."
+	fi
+done
 
-
-if [ -f ${_SD_ROOT}/interfaces ]; then
-    echo "+++ Configuring network interfaces"
-    $UPDATE -f ${_SD_ROOT}/interfaces /etc/network/interfaces
-elif [ "$WARN_NOTFOUND" == "true" ]; then
-    echo "### interfaces file not found in the SD card. Using default settings in /etc/network/interfaces..."
-fi
