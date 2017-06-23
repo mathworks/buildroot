@@ -26,6 +26,6 @@ BR2_TARGET_UBOOT_CUSTOM_GIT=y
 BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-uboot.git"
 BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_psp_axi4stream_R17.1.0"
 BR2_PACKAGE_XILINX_BOOTLOADER=y
-BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH="/mathworks/hub/share/apps/HDLTools/SDK/2016.2-mw-0/Lin/bin/bootgen"
+BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH="/opt/Xilinx/SDK/2016.2-mw-0/Lin/bin/bootgen"
 #endif
 
