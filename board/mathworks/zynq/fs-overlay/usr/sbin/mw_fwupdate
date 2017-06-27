@@ -11,8 +11,22 @@ if [ ! -e ${_SD_DEV} ]; then
     exit 1
 fi
 
+if [ ! -e ${NEW_IMG} ]; then
+    echo "ERROR: Could not find ${NEW_IMG}"
+    exit 1
+fi
+
+TMP_IMG=${_TMPDIR}/_mw_firmware_update.zip
+cp -f $NEW_IMG $TMP_IMG
+cd ${_TMPDIR}
+
 # Format the SD device
 umount ${_SD_ROOT}
+rc=$?
+if [ "$rc" != 0 ]; then
+    echo "ERROR: Could not unmount ${_SD_ROOT}"
+    exit $rc
+fi
 echo "# Wiping ${_SD_DEV}"
 sfdisk --delete ${_SD_DEV}
 echo "# Formatting ${_SD_DEV}"
@@ -22,7 +36,7 @@ mkfs -t fat ${_SD_PART}
 echo "# Updating ${_SD_DEV}"
 # Remount the SD device
 /etc/init.d/S09sdcard_mount start
-unzip $NEW_IMG -d ${_SD_ROOT}
+unzip $TMP_IMG -d ${_SD_ROOT}
 
 # Preserve the network settings
 _mw_backup_network

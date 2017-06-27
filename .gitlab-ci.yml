@@ -166,6 +166,12 @@ sysroot_zynqmp:
 # Build Jobs (per-board)
 ########################
 
+build_zybo:
+    <<: *build_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynq
+        CONFIG_JOB_BOARD: zybo
+
 build_zed:
     <<: *build_job_template
     variables:

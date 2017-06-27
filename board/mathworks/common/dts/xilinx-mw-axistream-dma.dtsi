@@ -1,3 +1,6 @@
+
+#include "xilinx-mw-axistream-dma.h"
+
 &fpga_axi {
 	axi4stream_mm2s:axidma@0 {
 		#dma-cells = <0x1>;
@@ -15,7 +18,7 @@
 			compatible = "xlnx,axi-dma-mm2s-channel";
 			interrupts = <0x0 0x1d 0x4>;
 			dma-channels = <0x1>;
-			xlnx,datawidth = <0x20>;
+			xlnx,datawidth = XLNX_MM2S_DATAWIDTH;
 			xlnx,no-coalesce;
 		};
 	};
@@ -35,7 +38,7 @@
 			compatible = "xlnx,axi-dma-s2mm-channel";
 			interrupts = <0x0 0x1e 0x4>;
 			dma-channels = <0x1>;			
-			xlnx,datawidth = <0x20>;
+			xlnx,datawidth = XLNX_S2MM_DATAWIDTH;
 			xlnx,no-coalesce;
 		};
 	};

@@ -9,6 +9,7 @@ TCF_AGENT_SITE = https://git.eclipse.org/r/tcf/org.eclipse.tcf.agent
 TCF_AGENT_LICENSE = EPLv1.0
 TCF_AGENT_LICENSE_FILES = agent/about.html
 TCF_AGENT_SUBDIR = agent
+TCF_AGENT_INSTALL_STAGING = YES
 
 TCF_AGENT_CONF_OPTS=-DTCF_MACHINE:STRING=$(BR2_PACKAGE_TCF_AGENT_MACHINE)
 
@@ -25,8 +26,18 @@ else
 TCF_AGENT_DEPENDENCIES += util-linux
 endif
 
+define TCF_AGENT_INSTALL_STAGING_CMDS
+    $(INSTALL) -D -m 0755 $(@D)/$(TCF_AGENT_SUBDIR)/libtcf-agent.so* $(STAGING_DIR)/usr/lib
+    $(INSTALL) -D -m 0644 $(@D)/$(TCF_AGENT_SUBDIR)/tcf/config.h $(STAGING_DIR)/usr/include/tcf/config.h
+	mkdir -p $(STAGING_DIR)/usr/include/tcf/framework
+    $(INSTALL) -D -m 0644 $(@D)/$(TCF_AGENT_SUBDIR)/tcf/framework/*.h $(STAGING_DIR)/usr/include/tcf/framework
+	mkdir -p $(STAGING_DIR)/usr/include/tcf/services
+    $(INSTALL) -D -m 0644 $(@D)/$(TCF_AGENT_SUBDIR)/tcf/services/*.h $(STAGING_DIR)/usr/include/tcf/services
+endef
+
 define TCF_AGENT_INSTALL_TARGET_CMDS
-    $(INSTALL) -D -m 0755 $(@D)/agent/agent $(TARGET_DIR)/usr/sbin/tcf-agent
+    $(INSTALL) -D -m 0755 $(@D)/$(TCF_AGENT_SUBDIR)/agent $(TARGET_DIR)/usr/sbin/tcf-agent
+    $(INSTALL) -D -m 0755 $(@D)/$(TCF_AGENT_SUBDIR)/libtcf-agent.so* $(TARGET_DIR)/usr/lib
 endef
 
 define TCF_AGENT_INSTALL_INIT_SYSV

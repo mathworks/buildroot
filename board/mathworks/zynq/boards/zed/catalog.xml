@@ -18,5 +18,8 @@
         <app name="axistream_iio">
             <dts file="axistream_iio.dts"/>
         </app>
+        <app name="axistream_iio_64">
+            <dts file="axistream_iio_64.dts"/>
+        </app>
     </image>
 </board>
