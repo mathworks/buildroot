@@ -1,0 +1,14 @@
+<board name="adrv9361" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <dtsi dir="../../dts"/>
+        <fsbl dir="ccfmc_lvds_handoff"/>
+    </default>
+    <image name="zynqsdr">
+        <app name="fmc">
+            <dts file="fmc.dts"/>
+            <bit file="ccfmc_lvds.bit"/>
+        </app>
+    </image>
+</board>

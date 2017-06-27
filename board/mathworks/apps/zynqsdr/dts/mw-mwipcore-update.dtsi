@@ -1,0 +1,4 @@
+
+&mwipcore0 {
+	compatible = "mathworks,mwipcore-v3.00";
+};
