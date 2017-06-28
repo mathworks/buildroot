@@ -2,7 +2,7 @@
     <default>
         <app name="default">
         </app>
-        <fsbl dir="handoff_jesd"/>
+        <fsbl dir="handoff_no_HDL_DUT_jesd"/>
 	<kernel_config file = "jesd204b_defconfig"/>
     </default>
     <image name="zynq7000ec">
@@ -22,6 +22,10 @@
 	<app name="axistream_JESD204B_iio">
             <dts file="axistream_JESD204B_iio.dts"/>
 	    <bit file ="system_top.bit"/>	    
+        </app>
+	<app name="no_HDL_DUT_JESD204B">
+            <dts file="no_HDL_DUT_JESD204B.dts"/>
+	    <bit file ="JESD204B_top.bit"/>	    
         </app>
     </image>
 </board>
