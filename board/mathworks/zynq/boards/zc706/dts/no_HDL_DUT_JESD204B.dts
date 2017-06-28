@@ -1,5 +1,5 @@
 #include "base.dtsi"
-#include "zynq-zc706-adv7511.dtsi"
+#include "zynq-zc706-adv7511-custom.dtsi"
 
 &i2c0{
 	i2cswitch@74 {
@@ -7,6 +7,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x74>;
+
 
 		i2c@5 { /* HPC IIC */
 			#address-cells = <1>;
