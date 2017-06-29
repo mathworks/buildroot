@@ -1,37 +1,31 @@
-#include "base.dtsi"
-#include "zynq-zc706-adv7511-custom.dtsi"
+/dts-v1/;
 
-&i2c0{
-	i2cswitch@74 {
-		compatible = "nxp,pca9548";
+/include/ "zynq-zc706.dtsi"
+/include/ "zynq-zc706-adv7511-custom2.dtsi"
+
+
+&i2c_mux {
+	i2c@5 { /* HPC IIC */
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0x74>;
+		reg = <5>;
 
+		eeprom@50 {
+			compatible = "at24,24c02";
+			reg = <0x50>;
+		};
 
-		i2c@5 { /* HPC IIC */
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <5>;
+		eeprom@54 {
+			compatible = "at24,24c02";
+			reg = <0x54>;
+		};
 
-			eeprom@50 {
-				compatible = "at24,24c02";
-				reg = <0x50>;
-			};
-
-			eeprom@54 {
-				compatible = "at24,24c02";
-				reg = <0x54>;
-			};
-
-			ad7291@2f {
-				compatible = "adi,ad7291";
-				reg = <0x2f>;
-			};
+		ad7291@2f {
+			compatible = "adi,ad7291";
+			reg = <0x2f>;
 		};
 	};
 };
-
 
 
 &fpga_axi {
