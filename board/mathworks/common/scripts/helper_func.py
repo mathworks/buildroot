@@ -575,4 +575,4 @@ BR_ROOT = os.path.dirname(os.path.dirname(MW_DIR))
 BRCONFIG_cfgDataList = []
 BRCONFIG_cfgIncludeDirs = []
 
-init_logging()
+#init_logging()
