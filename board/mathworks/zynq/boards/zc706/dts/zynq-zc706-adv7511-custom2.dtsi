@@ -117,7 +117,7 @@
 			compatible = "xlnx,axi-vdma-1.00.a";
 			reg = <0x43000000 0x1000>;
 			xlnx,num-fstores = <0x3>;
-			status = "disabled";
+			status = "okay";
 			dma-channel@43000000 {
 				compatible = "xlnx,axi-vdma-mm2s-channel";
 				status = "disabled";
@@ -133,7 +133,7 @@
 			reg = <0x79000000 0x10000>;
 			#clock-cells = <0>;
 			clocks = <&clkc 16>;
-			status = "disabled";
+			status = "okay";
 		};
 
 		axi_hdmi@70e00000 {
@@ -143,12 +143,12 @@
 			dma-names = "video";
 			clocks = <&hdmi_clock>;
 			adi,is-rgb;
-			status = "disabled";
+			status = "okay";
 
 			port {
 				axi_hdmi_out: endpoint {
 					remote-endpoint = <&adv7511_in>;
-					status = "disabled";
+					status = "okay";
 				};
 			};
 		};
@@ -157,7 +157,7 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <12288000>;
-			status = "disabled";
+			status = "okay";
 		};
 
 		axi_spdif_tx_0: axi-spdif-tx@0x75c00000 {
@@ -169,7 +169,7 @@
 			clock-names = "axi", "ref";
 
 			#sound-dai-cells = <0>;
-			status = "disabled";
+			status = "okay";
 		};
 
 		adv7511_hdmi_snd {
@@ -179,7 +179,7 @@
 				"Speaker", "Speaker";
 			simple-audio-card,routing =
 				"Speaker", "TMDS";
-			status = "disabled";
+			status = "okay";
 
 			simple-audio-card,dai-link@0 {
 				format = "spdif";
@@ -187,11 +187,11 @@
 					sound-dai = <&axi_spdif_tx_0>;
 					frame-master;
 					bitclock-master;
-					status = "disabled";
+					status = "okay";
 				};
 				codec {
 					sound-dai = <&adv7511>;
-					status = "disabled";
+					status = "okay";
 				};
 			};
 		};
