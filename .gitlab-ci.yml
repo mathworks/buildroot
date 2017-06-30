@@ -38,8 +38,8 @@ before_script:
     stage: sysroot
     artifacts:
         paths:
-            - images/sysroot_$CONFIG_JOB_BOARD*.tar.gz
-            - images/licenses_$CONFIG_JOB_BOARD*.txt
+            - images/$CONFIG_JOB_PLATFORM/sysroot_$CONFIG_JOB_BOARD*.tar.gz
+            - images/$CONFIG_JOB_PLATFORM/licenses_$CONFIG_JOB_BOARD*.txt
         expire_in: 2 days
 
 # Global setup/teardown template
@@ -60,8 +60,8 @@ before_script:
     stage: build
     artifacts:
         paths:
-            - images/$CONFIG_JOB_BOARD*.zip
-            - images/$CONFIG_JOB_BOARD*.gz
+            - images/$CONFIG_JOB_PROJECT/*.zip
+            - images/$CONFIG_JOB_PROJECT/*.gz
         expire_in: 2 days
 
 # Global source job template
@@ -78,7 +78,6 @@ before_script:
 stages:
     - setup
     - sources_common
-    - sources_custom
     - build
     - sysroot
     - upload_logs
@@ -116,29 +115,7 @@ upload_logs:
             - logs/
         expire_in: 2 weeks
     script:
-        - echo "Capturing Pipeline logs"    
-
-########################
-# Source Jobs (per-platform)
-########################
-
-source_zynq:
-    <<: *source_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zed
-
-source_socfpga:
-    <<: *source_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: socfpga
-        CONFIG_JOB_BOARD: sockit
-
-source_zynqmp:
-    <<: *source_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynqmp
-        CONFIG_JOB_BOARD: zcu102
+        - echo "Capturing Pipeline logs"
 
 ########################
 # Sysroot Jobs (per-platform)
@@ -163,48 +140,30 @@ sysroot_zynqmp:
         CONFIG_JOB_BOARD: zcu102
 
 ########################
-# Build Jobs (per-board)
+# Build Jobs (platform/project)
 ########################
 
-build_zybo:
+build_zynq:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zybo
+        CONFIG_JOB_PROJECT: zynq
 
-build_zed:
-    <<: *build_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zed
-
-build_zc706:
-    <<: *build_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zc706
-
-build_zc702:
-    <<: *build_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zc702
-
-build_sockit:
+build_socfpga:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: socfpga
-        CONFIG_JOB_BOARD: sockit
-
-build_alteracycv:
-    <<: *build_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: socfpga
-        CONFIG_JOB_BOARD: alteracycv
+        CONFIG_JOB_PROJECT: socfpga
 
 build_zcu102:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynqmp
-        CONFIG_JOB_BOARD: zcu102
+        CONFIG_JOB_PROJECT: zynqmp
+
+build_zynqsdr:
+    <<: *build_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynqmp
+        CONFIG_JOB_PROJECT: apps/zynqsdr
 
