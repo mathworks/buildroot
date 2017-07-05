@@ -6,3 +6,48 @@
 		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk rootwait";		
 	};
 };
+
+
+
+/ {
+	fpga_axi: fpga-axi@0 {	
+
+		
+
+		axi_vdma_0: axivdma@43000000 {
+			status = "disabled";
+		
+			dma-channel@43000000 {
+				status = "disabled";
+			};
+		};
+
+		hdmi_clock: axi-clkgen@79000000 {
+			status = "disabled";
+		};
+
+		axi_hdmi@70e00000 {
+			status = "disabled";
+			port {
+				axi_hdmi_out: endpoint {
+				status = "disabled";
+				};
+			};
+		};
+
+		audio_clock: audio_clock {
+			status = "disabled";
+		};
+
+		axi_spdif_tx_0: axi-spdif-tx@0x75c00000 {
+			status = "disabled";	
+		};
+
+		adv7511_hdmi_snd {
+			status = "disabled";
+			simple-audio-card,dai-link@0 {
+				status = "disabled";
+			};
+		};
+	};
+};
