@@ -429,14 +429,11 @@ def verinfo(pkg):
 
 def gen_verinfo_file(tgt_file):
     
-    br_hash = _git_verinfo(BR_ROOT)
-    linux_hash = verinfo('linux')
-    uboot_hash = verinfo('uboot')
-    f = open(tgt_file, 'w')
-    f.write("Buildroot: %s\n" % (br_hash))    
-    f.write("Linux: %s\n" % (linux_hash))
-    f.write("U-boot: %s\n" % (uboot_hash))
-    f.close()
+    with open(tgt_file, 'w') as f:
+        f.write("Buildroot: %s\n" % (_git_verinfo(BR_ROOT)))
+        f.write("Linux: %s\n" % (verinfo('linux')))
+        if get_cfg_var('BR2_TARGET_UBOOT') == 'y':
+            f.write("U-boot: %s\n" % (verinfo('uboot')))
 
 ########################
 # Locate source directory
