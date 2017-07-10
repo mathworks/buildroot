@@ -3,8 +3,8 @@
 ###########################################
 #include "arm_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/mfornero/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="xilinx-for-next"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_psp_zynqdaq2_R17.1.0"
 BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x8000"
 #endif
