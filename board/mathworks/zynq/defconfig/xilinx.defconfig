@@ -3,7 +3,6 @@
 ###########################################
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM=y
 
-BR2_TOOLCHAIN_EXTERNAL_PATH="/mathworks/hub/share/apps/HDLTools/SDK/2016.2-mw-0/Lin/gnu/arm/lin/"
 
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-xilinx-linux-gnueabi"
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
