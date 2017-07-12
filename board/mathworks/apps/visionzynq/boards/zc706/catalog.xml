@@ -1,0 +1,13 @@
+<board name="zc706" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <fsbl dir="handoff"/>
+        <dtsi dir="../../dts"/>
+    </default>
+    <image name="visionzynq">
+        <app name="visionzynq">
+            <dts file="visionzynq.dts"/>
+        </app>
+    </image>
+</board>

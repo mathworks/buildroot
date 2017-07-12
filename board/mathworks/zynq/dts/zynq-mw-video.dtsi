@@ -11,7 +11,7 @@
 	};
 
 
-	imageon_i2c: i2c@41600000 {
+	hdmicam_i2c: i2c@41600000 {
 		compatible = "xlnx,axi-iic-1.01.b", "xlnx,xps-iic-2.00.a";
 		interrupt-parent = <&intc>;
 		interrupts = <0 29 0x4>;
@@ -24,4 +24,4 @@
 	};
 };
 
-#include "zynq-mw-imageon-common.dtsi"
+#include "zynq-mw-hdmicam-common.dtsi"
