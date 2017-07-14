@@ -6,7 +6,7 @@
 		device_type = "memory";
 		reg = <0x00000000 0x40000000>;
 	};
-
+	
 	chosen {
 		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 rw earlyprintk rootfstype=ext4 rootwait";
 		linux,stdout-path = "/amba@0/uart@E0001000";
@@ -23,23 +23,23 @@
 		device_type = "ethernet-phy";
 		reg = <0x0>;
 		marvell,reg-init=<3 16 0xff00 0x1e 3 17 0xfff0 0x0a>;
-
 	};
 };
-	
 
+&sdhci1 {
+	status = "okay";
+	/* SD1 is onnected to a non-removable eMMC flash device */
+	non-removable;
+};
+
+&uart1 {
+	status = "okay";
+};
 
 &usb0 {
 	status = "okay";
-	usb-phy = <&usb_phy0>;
-	
-	usb_phy0: phy0 {
-		compatible = "ulpi-phy";
-		#phy-cells = <0>;
-		reg = <0xe0002000 0x1000>;
-		view-port = <0x0170>;
-		drv-vbus;
-	};	
+	dr_mode = "host";
+	xlnx,phy-reset-gpio = <&gpio0 7 0>;	
 };
 
 &qspi {
@@ -47,7 +47,7 @@
 	is-dual = <0>;
 	num-cs = <1>;
 	flash@0 {
-		compatible = "n25q128a11";
+		compatible = "spansion,s25fl128s", "micron,m25p80", "jedec,spi-nor";
 		reg = <0x0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
