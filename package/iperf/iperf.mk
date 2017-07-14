@@ -12,7 +12,9 @@ IPERF_LICENSE_FILES = COPYING
 IPERF_AUTORECONF = YES
 
 IPERF_CONF_ENV = \
-	ac_cv_func_malloc_0_nonnull=yes
+	ac_cv_func_malloc_0_nonnull=yes \
+	ac_cv_type_bool=no \
+	ac_cv_sizeof_bool=0
 
 IPERF_CONF_OPTS = \
 	--disable-web100
