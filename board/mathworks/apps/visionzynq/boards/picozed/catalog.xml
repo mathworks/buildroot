@@ -1,0 +1,13 @@
+<board name="picozed" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <fsbl dir="fsbl.elf"/>
+        <dtsi dir="../../dts"/>
+    </default>
+    <image name="visionzynq">
+        <app name="visionzynq">
+            <dts file="visionzynq.dts"/>
+        </app>
+    </image>
+</board>
