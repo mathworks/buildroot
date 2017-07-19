@@ -1,0 +1,6 @@
+#include "base.dtsi"
+#include "zc706-adi.dtsi"
+
+#include "mw-mwipcore-update.dtsi"
+#include "mw-fmcomms2-common.dtsi"
+

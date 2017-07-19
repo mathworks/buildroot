@@ -1,0 +1,14 @@
+<board name="zc706" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <dtsi dir="../../dts"/>
+        <fsbl dir="handoff"/>
+    </default>
+    <image name="zynqsdr">
+        <app name="fmcomms2">
+            <dts file="fmcomms2.dts"/>
+            <bit file="fmcomms2.bit"/>
+        </app>
+    </image>
+</board>

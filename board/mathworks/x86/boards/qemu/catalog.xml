@@ -1,0 +1,12 @@
+<board name="qemu" platform="x86">
+    <default>
+        <app name="default">
+        </app>
+        <handoff dir="handoff"/>
+    </default>
+    <image name="qemu">
+        <app name="qemu">
+			<dts file="mw_mm_overlay.dts"/>
+        </app>
+    </image>
+</board>

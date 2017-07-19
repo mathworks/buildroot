@@ -1,0 +1,16 @@
+&mwipcore0 {
+	compatible = "mathworks,mwipcore-v3.00";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	mmrd-channel@0 {
+		reg = <0x0>;
+		compatible = "mathworks,mm-read-channel-v1.00";
+		mathworks,dev-name = "mmrd0";
+	};
+	mmwr-channel@1 {
+		reg = <0x1>;
+		compatible = "mathworks,mm-write-channel-v1.00";
+		mathworks,dev-name = "mmwr0";
+	};
+};

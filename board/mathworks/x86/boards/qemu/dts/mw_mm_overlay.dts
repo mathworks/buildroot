@@ -1,0 +1,48 @@
+/dts-v1/;
+/{
+	
+	fragment@0 {
+		target-path = "/system/bridge@0xC0000000";
+	    /* suppress DTC warning */
+	    #address-cells = <2>;
+		#size-cells = <1>;
+
+		__overlay__ {
+		    /* suppress DTC warning */
+		    #address-cells = <2>;
+			#size-cells = <1>;
+				
+			axi_intc:axi_intc@0 {
+				compatible = "xlnx,xps-intc-1.00.a";
+				reg = <0x0 0x0 0x20>;
+				interrupts = <0x0 0x1>;
+				interrupt-controller;
+				#interrupt-cells = <0x1>;
+				xlnx,num-intr-inputs = <32>;
+				xlnx,kind-of-intr = <0xFFFFFFFF>;
+			};
+						
+			dmac2vdma@1000 {
+				compatible = "mathworks,mwgeneric-v1.00";
+				reg = <0x0 0x1000 0x2000>;
+				mwgen,ipname = "mw,dmac_to_vdma";
+				mwgen,devname = "dmac2vdma";
+				mwgen,ipinst = "dmac_to_vdma";
+				mwgen,ipver = "1.00";
+				interrupts = <0x0>, <0x1>;
+				interrupt-parent = <&axi_intc>;
+			};
+			
+			dmac2vdma@3000 {
+				compatible = "mathworks,mwgeneric-v1.00";
+				reg = <0x0 0x3000 0x1000>;
+				mwgen,ipname = "mw,dmac_to_vdma";
+				mwgen,devname = "dmac2vdma";
+				mwgen,ipinst = "dmac_to_vdma";
+				mwgen,ipver = "1.00";
+				interrupts = <0x2>;
+				interrupt-parent = <&axi_intc>;
+			};
+		};
+	};
+};

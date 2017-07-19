@@ -7,14 +7,26 @@ platform_variable() {
 	local suffix=$1
 	local platName=${CONFIG_JOB_PLATFORM^^}
 	local varName=CONFIG_${platName}_${suffix}
+	varName=$(echo $varName | tr -cd [:alnum:]_)
+	local varValue=${!varName}
+	echo $varValue
+}
+
+project_variable() {
+	local suffix=$1
+	local projName=${CONFIG_JOB_PROJECT^^}
+	local varName=CONFIG_${projName}_${suffix}
+	varName=$(echo $varName | tr -cd [:alnum:]_)
 	local varValue=${!varName}
 	echo $varValue
 }
 
 board_variable() {
-	local suffix=$1
-	local boardName=${CONFIG_JOB_BOARD^^}
+	local board=$1
+	local suffix=$2
+	local boardName=${board^^}
 	local varName=CONFIG_${boardName}_${suffix}
+	varName=$(echo $varName | tr -cd [:alnum:]_)
 	local varValue=${!varName}
 	echo $varValue
 }
@@ -52,34 +64,60 @@ resolve_br_vars() {
 # Execute the build command
 #############################
 run_build_command() {
-	local target=$1
-	shift
+	local build_spec=$1
+	local target=$2
+	shift 2
 	local extraargs=$@
 	local brvars=$(resolve_br_vars)
-	platform_variable
 	local skipPlatform=$(platform_variable SKIP)
-	local skipBoard=$(board_variable SKIP)
-	
+
 	if [ "$skipPlatform" != "" ] && [ "$skipPlatform" != "0" ] && [ "$CONFIG_PLATFORM_NOSKIP" == "" ]; then
 		echo "Skipping platform $CONFIG_JOB_PLATFORM"
 		return 0
 	fi
 
-	if [ "$skipBoard" != "" ] && [ "$skipBoard" != "0" ] && [ "$CONFIG_BOARD_NOSKIP" == "" ]; then
-		echo "Skipping platform $CONFIG_JOB_BOARD"
-		return 0
-	fi
-
-	set -x
 	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BR2_DL_DIR/$CONFIG_JOB_PLATFORM \
-		-b $CONFIG_JOB_BOARD -p $CONFIG_JOB_PLATFORM --ccache -l logs/${CI_BUILD_NAME}.log \
-		-d images/ $brvars $extraargs
+			$build_spec --ccache -l logs/${CI_BUILD_NAME}.log \
+			-d images/${CONFIG_JOB_PROJECT}/ $brvars $extraargs
 	rc=$?
 	set +x
 	if [ "$rc" != "0" ]; then
 		echo "build error: $rc"
 		exit $rc
 	fi
+}
+
+##############################
+# Build the catalog files
+#############################
+build_catalogs() {
+	local target=$1
+	shift
+	local extraargs=$@
+	local skipProject=$(project_variable SKIP_PROJECT)
+	local skipBoard=""
+	local board=""
+	local catalog=""
+	
+	if [ "$skipProject" != "" ] && [ "$skipProject" != "0" ]; then
+		echo "Skipping project $CONFIG_JOB_PROJECT"
+		return 0
+	fi
+
+	for bd in board/mathworks/${CONFIG_JOB_PROJECT}/boards/*; do
+		board=$(basename $bd)
+		catalog=${bd}/catalog.xml
+		if [ ! -e $catalog ]; then
+			continue
+		fi
+		skipBoard=$(board_variable $board SKIP)
+		if [ "$skipBoard" != "" ] && [ "$skipBoard" != "0" ]; then
+			echo "Skipping board $board"
+			continue
+		fi
+		echo "Building $board"
+		run_build_command "-c $catalog" "$target" $extraargs
+	done
 }
 
 prep_git_credentials() {
@@ -113,35 +151,24 @@ case "${CI_BUILD_STAGE}" in
 	sources_common)
 	  	echo "Preparing Common Sources"
 		# Use an arbitrary board
+		catalog_file=board/mathworks/zynq/boards/zed/catalog.xml	
 		CONFIG_JOB_PLATFORM=zynq
-		CONFIG_JOB_BOARD=zed
-		# Never skip this stage
 		CONFIG_PLATFORM_NOSKIP="true"
-		CONFIG_BOARD_NOSKIP="true"
-		run_build_command source --ccache-clean
+		run_build_command "-c $catalog_file" source --ccache-clean
 		rm -rf $CONFIG_BR2_DL_DIR/zynq/linux-*
 		rm -rf $CONFIG_BR2_DL_DIR/zynq/uboot-*
 		cp -rf $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/socfpga
 		cp -rf $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/zynqmp
 		rm -rf ${CI_PROJECT_DIR}/output/*/build
 		;;
-	sources_custom)
-		# Never skip this stage due to board
-		CONFIG_BOARD_NOSKIP="true"
-		echo "Preparing $CONFIG_JOB_PLATFORM Sources"
-		rm -rf ${CONFIG_BR2_DL_DIR}/${CONFIG_JOB_PLATFORM}/linux-*
-		rm -rf ${CONFIG_BR2_DL_DIR}/${CONFIG_JOB_PLATFORM}/uboot-*
-		run_build_command source -u
-		;;
 	build)
-		echo "Building $CONFIG_JOB_BOARD/$CONFIG_JOB_PLATFORM"
-		run_build_command "all" -u -q
+		echo "Building $CONFIG_JOB_PROJECT"
+		build_catalogs "all" -u -q
 		;;
 	sysroot)
-		# Never skip this stage due to board
-		CONFIG_BOARD_NOSKIP="true"
 		echo "Packaging $CONFIG_JOB_PLATFORM Sysroot"
-		run_build_command "legal-info all" -u --sysroot
+		CONFIG_JOB_PROJECT=$CONFIG_JOB_PLATFORM
+		run_build_command "-b $CONFIG_JOB_BOARD -p $CONFIG_JOB_PLATFORM" "legal-info all" -u --sysroot
 		;;
 	*)
 		echo "No automation defined for ${CI_BUILD_STAGE}"
