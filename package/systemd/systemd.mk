@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-SYSTEMD_VERSION = 232
+SYSTEMD_VERSION = 233
 SYSTEMD_SITE = $(call github,systemd,systemd,v$(SYSTEMD_VERSION))
-SYSTEMD_LICENSE = LGPLv2.1+, GPLv2+ (udev), Public Domain (few source files, see README)
+SYSTEMD_LICENSE = LGPL-2.1+, GPL-2.0+ (udev), Public Domain (few source files, see README)
 SYSTEMD_LICENSE_FILES = LICENSE.GPL2 LICENSE.LGPL2.1 README
 SYSTEMD_INSTALL_STAGING = YES
 SYSTEMD_DEPENDENCIES = \
@@ -19,6 +19,11 @@ SYSTEMD_DEPENDENCIES = \
 SYSTEMD_PROVIDES = udev
 SYSTEMD_AUTORECONF = YES
 
+SYSTEMD_PATCH = \
+	https://github.com/systemd/systemd/commit/a924f43f30f9c4acaf70618dd2a055f8b0f166be.patch \
+	https://github.com/systemd/systemd/commit/db848813bae4d28c524b3b6a7dad135e426659ce.patch \
+	https://github.com/systemd/systemd/commit/88795538726a5bbfd9efc13d441cb05e1d7fc139.patch
+
 # Make sure that systemd will always be built after busybox so that we have
 # a consistent init setup between two builds
 ifeq ($(BR2_PACKAGE_BUSYBOX),y)
@@ -30,7 +35,6 @@ SYSTEMD_CONF_OPTS += \
 	--enable-blkid \
 	--enable-static=no \
 	--disable-manpages \
-	--disable-pam \
 	--disable-ima \
 	--disable-libcryptsetup \
 	--disable-efi \
@@ -43,10 +47,16 @@ SYSTEMD_CONF_OPTS += \
 
 SYSTEMD_CFLAGS = $(TARGET_CFLAGS) -fno-lto
 
-# Override path to kmod, used in kmod-static-nodes.service
+# Override paths to a few utilities needed at runtime, to
+# avoid finding those we would install in $(HOST_DIR).
 SYSTEMD_CONF_ENV = \
 	CFLAGS="$(SYSTEMD_CFLAGS)" \
-	ac_cv_path_KMOD=/usr/bin/kmod
+	ac_cv_path_KILL=/usr/bin/kill \
+	ac_cv_path_KMOD=/usr/bin/kmod \
+	ac_cv_path_KEXEC=/usr/sbin/kexec \
+	ac_cv_path_SULOGIN=/usr/sbin/sulogin \
+	ac_cv_path_MOUNT_PATH=/usr/bin/mount \
+	ac_cv_path_UMOUNT_PATH=/usr/bin/umount
 
 define SYSTEMD_RUN_INTLTOOLIZE
 	cd $(@D) && $(HOST_DIR)/usr/bin/intltoolize --force --automake
@@ -88,12 +98,6 @@ else
 SYSTEMD_CONF_OPTS += --disable-xkbcommon
 endif
 
-ifeq ($(BR2_PACKAGE_SYSTEMD_KDBUS),y)
-SYSTEMD_CONF_OPTS += --enable-kdbus
-else
-SYSTEMD_CONF_OPTS += --disable-kdbus
-endif
-
 ifeq ($(BR2_PACKAGE_BZIP2),y)
 SYSTEMD_DEPENDENCIES += bzip2
 SYSTEMD_CONF_OPTS += --enable-bzip2
@@ -106,6 +110,13 @@ SYSTEMD_DEPENDENCIES += lz4
 SYSTEMD_CONF_OPTS += --enable-lz4
 else
 SYSTEMD_CONF_OPTS += --disable-lz4
+endif
+
+ifeq ($(BR2_PACKAGE_LINUX_PAM),y)
+SYSTEMD_DEPENDENCIES += linux-pam
+SYSTEMD_CONF_OPTS += --enable-pam
+else
+SYSTEMD_CONF_OPTS += --disable-pam
 endif
 
 ifeq ($(BR2_PACKAGE_XZ),y)
@@ -132,7 +143,7 @@ endif
 ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
 SYSTEMD_DEPENDENCIES += libgcrypt
 SYSTEMD_CONF_OPTS += \
-	--enable-gcrypt	\
+	--enable-gcrypt \
 	--with-libgcrypt-prefix=$(STAGING_DIR)/usr \
 	--with-libgpg-error-prefix=$(STAGING_DIR)/usr
 else
@@ -179,8 +190,14 @@ endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_QUOTACHECK),y)
 SYSTEMD_CONF_OPTS += --enable-quotacheck
+SYSTEMD_CONF_ENV += \
+	ac_cv_path_QUOTAON=/usr/sbin/quotaon \
+	ac_cv_path_QUOTACHECK=/usr/sbin/quotacheck
 else
 SYSTEMD_CONF_OPTS += --disable-quotacheck
+SYSTEMD_CONF_ENV += \
+	ac_cv_path_QUOTAON=/.missing \
+	ac_cv_path_QUOTACHECK=/.missing
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_TMPFILES),y)
