@@ -8,11 +8,11 @@
 #        - dl/
 
 variables:
-    CONFIG_BR2_DL_DIR: "buildroot-ci/dl"
+    CONFIG_BUILDROOT_DL_ROOT: "buildroot-ci/dl"
     GIT_STRATEGY: none
 
 before_script:
-    - export CONFIG_BR2_DL_DIR=$HOME/$CONFIG_BR2_DL_DIR
+    - export CONFIG_BUILDROOT_DL_ROOT=$HOME/$CONFIG_BUILDROOT_DL_ROOT
     - export
 
 ########################
@@ -155,7 +155,7 @@ build_socfpga:
         CONFIG_JOB_PLATFORM: socfpga
         CONFIG_JOB_PROJECT: socfpga
 
-build_zcu102:
+build_zynqmp:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynqmp
@@ -164,6 +164,6 @@ build_zcu102:
 build_zynqsdr:
     <<: *build_job_template
     variables:
-        CONFIG_JOB_PLATFORM: zynqmp
+        CONFIG_JOB_PLATFORM: zynq
         CONFIG_JOB_PROJECT: apps/zynqsdr
 

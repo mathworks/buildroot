@@ -31,32 +31,45 @@ board_variable() {
 	echo $varValue
 }
 
+get_br2_variables() {
+	local mask=$1
+	if [ "$mask" != "" ]; then
+		mask="_${mask^^}"
+	fi
+	for br2 in ${!CONFIG_*}; do
+		# Check if it matches the mode
+		if [ ${br2%%${mask}_BR2_*} == "CONFIG" ]; then
+			echo "--brconfig ${br2#CONFIG${mask}_}=${!br2}"; 
+		fi
+	done
+}
+
+append_br_vars() {
+	local mask=$1
+	shift
+	local brvars=$@
+	local new_brvars=$(get_br2_variables $mask)
+	if [ "$new_brvars" != "" ]; then
+		brvars="$brvars $new_brvars"
+	fi
+	echo $brvars
+}
 
 ##############################
 # Resolve all buildroot source variables
 #############################
 resolve_br_vars() {
 
-	local linuxURL=$(platform_variable LINUX_URL)
-	local linuxVer=$(platform_variable LINUX_VER)
-
-	local ubootURL=$(platform_variable UBOOT_URL)
-	local ubootVer=$(platform_variable UBOOT_VER)
-
-	local brvars=""
-	if [ "$linuxURL" != "" ]; then
-		brvars="$brvars --brconfig BR2_LINUX_KERNEL_CUSTOM_REPO_URL=${linuxURL}"
-	fi
-	if [ "$linuxVer" != "" ]; then
-		brvars="$brvars --brconfig BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION=${linuxVer}"
-	fi
-	if [ "$ubootURL" != "" ]; then
-		brvars="$brvars --brconfig BR2_TARGET_UBOOT_CUSTOM_REPO_URL=${ubootURL}"
-	fi
-	if [ "$ubootVer" != "" ]; then
-		brvars="$brvars --brconfig BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION=${ubootVer}"
-	fi
-
+	brvars=$(get_br2_variables)
+	if [ "${CONFIG_JOB_PLATFORM}" != "" ]; then
+		brvars=$(append_br_vars ${CONFIG_JOB_PLATFORM} $brvars)
+	fi;
+	if [ "${CONFIG_JOB_PROJECT}" != "" ]; then
+		brvars=$(append_br_vars ${CONFIG_JOB_PROJECT} $brvars)
+	fi;
+	if [ "${CONFIG_JOB_PROJECT}" != "" ] && [ "${CONFIG_JOB_PLATFORM}" != "" ]; then
+		brvars=$(append_br_vars ${CONFIG_JOB_PLATFORM}_${CONFIG_JOB_PROJECT} $brvars)
+	fi;
 	echo $brvars
 }
 
@@ -76,7 +89,7 @@ run_build_command() {
 		return 0
 	fi
 
-	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BR2_DL_DIR/$CONFIG_JOB_PLATFORM \
+	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BUILDROOT_DL_ROOT/$CONFIG_JOB_PLATFORM \
 			$build_spec --ccache -l logs/${CI_BUILD_NAME}.log \
 			-d images/${CONFIG_JOB_PROJECT}/ $brvars $extraargs
 	rc=$?
@@ -103,7 +116,7 @@ build_catalogs() {
 		echo "Skipping project $CONFIG_JOB_PROJECT"
 		return 0
 	fi
-
+	
 	for bd in board/mathworks/${CONFIG_JOB_PROJECT}/boards/*; do
 		board=$(basename $bd)
 		catalog=${bd}/catalog.xml
@@ -115,8 +128,9 @@ build_catalogs() {
 			echo "Skipping board $board"
 			continue
 		fi
+		board_brvars=$(get_br2_variables $board)
 		echo "Building $board"
-		run_build_command "-c $catalog" "$target" $extraargs
+		run_build_command "-c $catalog" "$target" $board_brvars $extraargs
 	done
 }
 
@@ -155,10 +169,10 @@ case "${CI_BUILD_STAGE}" in
 		CONFIG_JOB_PLATFORM=zynq
 		CONFIG_PLATFORM_NOSKIP="true"
 		run_build_command "-c $catalog_file" source --ccache-clean
-		rm -rf $CONFIG_BR2_DL_DIR/zynq/linux-*
-		rm -rf $CONFIG_BR2_DL_DIR/zynq/uboot-*
-		cp -rf $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/socfpga
-		cp -rf $CONFIG_BR2_DL_DIR/zynq $CONFIG_BR2_DL_DIR/zynqmp
+		rm -rf $CONFIG_BUILDROOT_DL_ROOT/zynq/linux-*
+		rm -rf $CONFIG_BUILDROOT_DL_ROOT/zynq/uboot-*
+		cp -rf $CONFIG_BUILDROOT_DL_ROOT/zynq $CONFIG_BUILDROOT_DL_ROOT/socfpga
+		cp -rf $CONFIG_BUILDROOT_DL_ROOT/zynq $CONFIG_BUILDROOT_DL_ROOT/zynqmp
 		rm -rf ${CI_PROJECT_DIR}/output/*/build
 		;;
 	build)
