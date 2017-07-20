@@ -90,7 +90,7 @@ run_build_command() {
 	fi
 
 	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BUILDROOT_DL_ROOT/$CONFIG_JOB_PLATFORM \
-			$build_spec --ccache -l logs/${CI_BUILD_NAME}.log \
+			$build_spec --ccache -l logs/${CI_JOB_NAME}.log \
 			-d images/${CONFIG_JOB_PROJECT}/ $brvars $extraargs
 	rc=$?
 	set +x
@@ -134,6 +134,9 @@ build_catalogs() {
 	done
 }
 
+##############################
+# Prep the git credentials
+#############################
 prep_git_credentials() {
 	local cred_file=""
 	local gitConfig=""
@@ -157,11 +160,33 @@ prep_git_credentials() {
 }
 
 ##############################
+# Deploy
+#############################
+run_deploy_command() {
+    if [ "${CONFIG_DEPLOY_URL_ROOT}" != "" ] && [ "$CONFIG_DEPLOY_PATH_ROOT" != "" ]; then
+        if [ -d ${CONFIG_DEPLOY_PATH_ROOT} ]; then
+            deploy_path=${CONFIG_DEPLOY_PATH_ROOT}/${CI_ENVIRONMENT_NAME}
+            ${CONFIG_GITLAB_CMD} mkdir -p $deploy_path
+            for d in images logs; do
+                ${CONFIG_GITLAB_CMD} rm -rf ${deploy_path}/$d
+                echo "Copying $d to $deploy_path"
+                ${CONFIG_GITLAB_CMD} cp -r $d ${deploy_path}/
+                rc=$?
+                if [ $rc != 0 ]; then
+                    echo "Deploying $d failed"
+                    exit $rc
+                fi
+            done
+        fi
+    fi
+}
+
+##############################
 # Main Script
 #############################
 prep_git_credentials
 
-case "${CI_BUILD_STAGE}" in
+case "${CI_JOB_STAGE}" in
 	sources_common)
 	  	echo "Preparing Common Sources"
 		# Use an arbitrary board
@@ -184,8 +209,12 @@ case "${CI_BUILD_STAGE}" in
 		CONFIG_JOB_PROJECT=$CONFIG_JOB_PLATFORM
 		run_build_command "-b $CONFIG_JOB_BOARD -p $CONFIG_JOB_PLATFORM" "legal-info all" -u --sysroot
 		;;
+    deploy)
+        echo "Deploying to $CI_ENVIRONMENT_NAME"
+        run_deploy_command
+        ;;
 	*)
-		echo "No automation defined for ${CI_BUILD_STAGE}"
+		echo "No automation defined for ${CI_JOB_STAGE}"
 		exit 1
 		;;
 esac
