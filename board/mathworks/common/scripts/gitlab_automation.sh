@@ -89,15 +89,21 @@ run_build_command() {
 		return 0
 	fi
 
+    set -x
 	${CI_PROJECT_DIR}/build.py --target "$target" --dl $CONFIG_BUILDROOT_DL_ROOT/$CONFIG_JOB_PLATFORM \
-			$build_spec --ccache -l logs/${CI_JOB_NAME}.log \
+			$build_spec --ccache -l logs/${CI_JOB_NAME}.log.tmp \
 			-d images/${CONFIG_JOB_PROJECT}/ $brvars $extraargs
 	rc=$?
 	set +x
+
+    cat logs/${CI_JOB_NAME}.log.tmp >> logs/${CI_JOB_NAME}.log
+
 	if [ "$rc" != "0" ]; then
 		echo "build error: $rc"
 		exit $rc
 	fi
+
+
 }
 
 ##############################
