@@ -55,10 +55,16 @@ def _gen_sysroot(catalog, outputDir):
     sysroot_file = "%s/sysroot_%s_%s.tar.gz" % (outputDir, catalog['boardName'], buildDate)
     sysroot_rsync = "%s/sysroot" % (ENV['BASE_DIR'])
 
+    # Filter out the <tuple>/<tuple>/... directories symlinked within the root
+    arch=get_cfg_var('BR2_ARCH')
+    prefix=get_cfg_var('BR2_TOOLCHAIN_EXTERNAL_PREFIX')
+    prefix=prefix.replace("$(ARCH)", arch)
+    exclude="--exclude \"/**/%s/%s/\"" % (prefix,prefix)
+
     print_msg("Generating sysroot: %s " % sysroot_file, level=3, fg=2, bold=True)
     #rsync the files to remove symlinks
     rm(sysroot_rsync)
-    subproc("rsync -arL %s %s" % (ENV['STAGING_DIR'], sysroot_rsync))
+    subproc("rsync -arL %s %s %s" % (exclude, ENV['STAGING_DIR'], sysroot_rsync))
 
     # tar the sysroot
     sysroot_root = os.path.join(sysroot_rsync, os.path.basename(os.path.abspath(ENV['STAGING_DIR'])))
