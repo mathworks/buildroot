@@ -1,3 +1,4 @@
+/* Create the common FPGA AXI bus and clock */
 / {
 	fpga_axi: fpga-axi@0 {
 		compatible = "simple-bus";
@@ -15,3 +16,4 @@
 		clock-output-names = "clk0";
 	};
 };
+
