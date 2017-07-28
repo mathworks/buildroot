@@ -4,6 +4,7 @@
         </app>
         <fsbl dir="handoff"/>
         <dtsi dir="../../dts"/>
+        <br2_config file="../../defconfig/vzcommon.defconfig"/>
     </default>
     <image name="visionzynq">
         <app name="visionzynq">
