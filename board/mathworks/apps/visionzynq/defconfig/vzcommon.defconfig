@@ -1,5 +1,5 @@
 ###########################################
 # Linux 4.4
 ###########################################
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="http://insidelabs-git.mathworks.com/jchevali/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
 BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_vision_R17.1.0"
