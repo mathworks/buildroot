@@ -10,5 +10,8 @@
             <dts file="fmc.dts"/>
             <bit file="ccfmc_lvds.bit"/>
         </app>
+        <app name="fmc_axis">
+            <dts file="fmc_axis.dts"/>
+        </app>
     </image>
 </board>

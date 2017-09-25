@@ -10,5 +10,8 @@
             <dts file="fmcomms2.dts"/>
             <bit file="fmcomms2.bit"/>
         </app>
+        <app name="fmcomms2_axis">
+            <dts file="fmcomms2_axis.dts"/>
+        </app>
     </image>
 </board>
