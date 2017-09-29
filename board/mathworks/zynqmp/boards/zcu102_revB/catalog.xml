@@ -1,4 +1,4 @@
-<board name="zcu102" platform="zynqmp">
+<board name="zcu102_revB" platform="zynqmp">
     <default>
         <app name="default">
         </app>
