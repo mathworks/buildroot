@@ -8,7 +8,7 @@
 };
 
 &fpga_axi {
-	/delete-node/ mwipcore@43C00000;
+	/delete-node/ mwipcore@43c00000;
 };
 
 #include "zynq-mw-axilite-common.dtsi"

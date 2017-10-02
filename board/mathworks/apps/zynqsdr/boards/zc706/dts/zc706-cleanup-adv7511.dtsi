@@ -4,8 +4,10 @@
 /delete-node/ &hdmi_clock;
 /delete-node/ &axi_spdif_tx_0;
 /delete-node/ &audio_clock;
+/ { 
+	/delete-node/ adv7511_hdmi_snd;
+};
 &fpga_axi {
 	/delete-node/ axi_hdmi@70e00000;
-	/delete-node/ adv7511_hdmi_snd;
 };
 
