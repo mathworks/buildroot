@@ -17,7 +17,6 @@
 	};
 };
 
-
 /* Setup the default boot args for ramdisk and earlycon */
 / {
 	chosen {
