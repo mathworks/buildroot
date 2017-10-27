@@ -16,6 +16,17 @@ config BR2_PACKAGE_UBOOT_ALTERA_QUARTUS_HANDOFF_DIR
 	  This can be an absolute path, or relative to the buildroot
 	  root directory.
 
+config BR2_PACKAGE_UBOOT_ALTERA_GENERATE_ARRIA10_UBOOT
+	bool "Generate DTS and bootloader for Arria 10 SoC"
+	default n
+	help
+	  Generate the U-boot based on the Quartus U-boot directory.
+	  
+	  If selected, buildroot will generate U-boot files using the SoC
+	  EDS tools. The handoff directory should contain only the output
+	  of the Quartus hps_isw_handoff folder.
+	  
+
 config BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP
 	bool "Generate BSP Files"
 	default y

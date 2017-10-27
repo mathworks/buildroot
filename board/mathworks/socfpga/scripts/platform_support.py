@@ -142,7 +142,9 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     # Copy over the u-boot script
     ##############
-    scriptSrc = "%s/boot/u-boot-scr.txt" % (_PLATFORM_DIR) 
+    boardDir = os.path.dirname(os.path.realpath(defaultApp['bit']))
+    print_msg("Generating %s" % boardDir)
+    scriptSrc = "%s/u-boot-scr.txt" % (boardDir)
     if os.path.exists(scriptSrc):
         # Copy to image dir
         shutil.copy(scriptSrc, "%s/u-boot-scr.txt" % (ENV['IMAGE_DIR']) )    
