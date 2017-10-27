@@ -1,0 +1,4 @@
+setenv rbfcoreimage socfpga.core.rbf;
+setenv fdtimage socfpga.dtb;
+setenv mmcroot /dev/mmcblk0p3;
+run bootcmd;
