@@ -40,7 +40,7 @@ def _generate_a2_img(catalog):
 
     cfgFile = "%s/boot.a2.cfg" % ENV['IMAGE_DIR']
     if catalog['boardName'] == "arria10":
-        spl = "%s/uboot_w_dtb-mkpimage.bin" % (ENV['IMAGE_DIR'])
+        spl = "%s/uboot-altera/bsp/uboot_w_dtb-mkpimage.bin" % (ENV['BUILD_DIR'])
     else:
         spl = "%s/u-boot-spl.bin.crc" % (ENV['IMAGE_DIR'])
 
@@ -138,7 +138,7 @@ def build_sdimage(outputDir, image, catalog):
         if not app['bit'] is None:
             appBit = "%s/socfpga_%s.rbf" % (ENV['SD_DIR'], app['name'])
             shutil.copy(app['bit'], appBit)
-
+ 
     ##############
     # Copy over the u-boot script
     ##############
@@ -159,7 +159,13 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     if catalog['boardName'] != "arria10":
         shutil.copy("%s/u-boot.img" % (ENV['IMAGE_DIR']), "%s/u-boot.img" % (ENV['SD_DIR']))
-    
+    else:
+        print_msg("For Arria 10 SoC copying socfpga.periph.rbf and socfpga.core.rbf from %s" % boardDir)
+        periphRbfFile = "%s/socfpga.periph.rbf" % (boardDir)
+        coreRbfFile = "%s/socfpga.core.rbf" % (boardDir)
+        shutil.copyfile(periphRbfFile, "%s/socfpga.periph.rbf" % (ENV['SD_DIR']))
+        shutil.copyfile(coreRbfFile, "%s/socfpga.core.rbf" % (ENV['SD_DIR']))    
+
     ##############
     # Call the Altera Script
     ##############
