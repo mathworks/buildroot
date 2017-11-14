@@ -1,0 +1,5 @@
+###########################################
+# ZC706 Options
+###########################################
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="xilinx_zynqmp_zcu102_revB"
+BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR="board/xilinx/zynqmp/zynqmp-zcu102-revB"
