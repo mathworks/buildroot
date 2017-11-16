@@ -1,0 +1,95 @@
+From 0eac34d73d4b93714592eaf50cc8ee5d03fd4149 Mon Sep 17 00:00:00 2001
+From: Matt Fornero <matt.fornero@mathworks.com>
+Date: Wed, 15 Nov 2017 08:42:29 -0800
+Subject: [PATCH] local: Expose non-standard buffer attributes
+
+Scan through the buffer/ directory for non-standard attributes and
+expose them as device attributes.
+
+Standard attributes that are skipped (accessed via other APIs):
+* enable
+* length
+* watermark
+
+Signed-off-by: Matt Fornero <matt.fornero@mathworks.com>
+---
+ local.c | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+
+diff --git a/local.c b/local.c
+index 8cefd27..a51a1b6 100644
+--- a/local.c
++++ b/local.c
+@@ -109,6 +109,12 @@ static const char * const device_attrs_blacklist[] = {
+ 	"uevent",
+ };
+ 
++static const char * const buffer_attrs_reserved[] = {
++	"length",
++	"watermark",
++	"enable",
++};
++
+ static int ioctl_nointr(int fd, unsigned long request, void *data)
+ {
+ 	int ret;
+@@ -1488,6 +1494,22 @@ static int detect_and_move_global_attrs(struct iio_device *dev)
+ 	return 0;
+ }
+ 
++static int add_buffer_attr(void *d, const char *path)
++{
++	struct iio_device *dev = (struct iio_device *) d;
++	char buf[1024];
++	const char *name = strrchr(path, '/') + 1;
++	int i;	
++
++	for (i = 0; i < ARRAY_SIZE(buffer_attrs_reserved); i++)
++		if (!strcmp(buffer_attrs_reserved[i], name))
++			return 0;
++
++	iio_snprintf(buf, sizeof(buf), "buffer/%s", name);
++
++	return add_attr_to_device(dev, buf);
++}
++
+ static int add_attr_or_channel_helper(struct iio_device *dev,
+ 		const char *path, bool dir_is_scan_elements)
+ {
+@@ -1583,6 +1605,22 @@ static int add_scan_elements(struct iio_device *dev, const char *devpath)
+ 	return 0;
+ }
+ 
++static int add_buffer_attributes(struct iio_device *dev, const char *devpath)
++{
++	struct stat st;
++	char buf[1024];
++
++	iio_snprintf(buf, sizeof(buf), "%s/buffer", devpath);
++
++	if (!stat(buf, &st) && S_ISDIR(st.st_mode)) {
++		int ret = foreach_in_dir(dev, buf, false, add_buffer_attr);
++		if (ret < 0)
++			return ret;
++	}
++
++	return 0;
++}
++
+ static int create_device(void *d, const char *path)
+ {
+ 	uint32_t *mask = NULL;
+@@ -1615,6 +1653,10 @@ static int create_device(void *d, const char *path)
+ 	if (ret < 0)
+ 		goto err_free_device;
+ 
++	ret = add_buffer_attributes(dev, path);
++	if (ret < 0)
++		goto err_free_device;
++	
+ 	ret = add_scan_elements(dev, path);
+ 	if (ret < 0)
+ 		goto err_free_scan_elements;
+-- 
+1.8.3.1
+
