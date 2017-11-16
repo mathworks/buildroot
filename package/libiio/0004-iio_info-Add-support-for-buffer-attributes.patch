@@ -1,0 +1,46 @@
+From 95b2e3548238973394dd1157199d90a1fb64d8ba Mon Sep 17 00:00:00 2001
+From: Matt Fornero <matt.fornero@mathworks.com>
+Date: Thu, 30 Nov 2017 14:38:58 -0500
+Subject: [PATCH 4/5] iio_info: Add support for buffer attributes
+
+Signed-off-by: Matt Fornero <matt.fornero@mathworks.com>
+---
+ tests/iio_info.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/tests/iio_info.c b/tests/iio_info.c
+index acae052..b8b6629 100644
+--- a/tests/iio_info.c
++++ b/tests/iio_info.c
+@@ -393,6 +393,28 @@ int main(int argc, char **argv)
+ 			}
+ 		}
+ 
++		nb_attrs = iio_device_get_buffer_attrs_count(dev);
++		if (nb_attrs) {
++			printf("\t\t%u buffer-specific attributes found:\n",
++					nb_attrs);
++			for (j = 0; j < nb_attrs; j++) {
++				const char *attr = iio_device_get_buffer_attr(dev, j);
++				char buf[1024];
++				ret = (int) iio_device_buffer_attr_read(dev,
++						attr, buf, sizeof(buf));
++
++				printf("\t\t\t\tattr %2u: %s ",
++						j, attr);
++
++				if (ret > 0) {
++					printf("value: %s\n", buf);
++				} else {
++					iio_strerror(-ret, buf, sizeof(buf));
++					printf("ERROR: %s (%i)\n", buf, ret);
++				}
++			}
++		}
++
+ 		nb_attrs = iio_device_get_debug_attrs_count(dev);
+ 		if (nb_attrs) {
+ 			printf("\t\t%u debug attributes found:\n", nb_attrs);
+-- 
+1.8.3.1
+
