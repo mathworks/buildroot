@@ -97,6 +97,7 @@ run_build_command() {
 	set +x
 
     cat logs/${CI_JOB_NAME}.log.tmp >> logs/${CI_JOB_NAME}.log
+	rm -f logs/${CI_JOB_NAME}.log.tmp
 
 	if [ "$rc" != "0" ]; then
 		echo "build error: $rc"
