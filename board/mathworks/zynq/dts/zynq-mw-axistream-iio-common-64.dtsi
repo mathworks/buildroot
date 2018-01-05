@@ -1,4 +1,4 @@
-#include "xilinx-mw-axistream-iio-common.h"
+#include "mw-axistream-iio-common.h"
 #include "xilinx-mw-axistream-dma.h"
 
 #undef MW_MM2S_DATAFMT
