@@ -1,3 +1,4 @@
-#include "xilinx-mw-axistream-dma.dtsi"
+#include "adi-mw-axistream-dma.dtsi"
 #include "mw-axistream-iio-common.dtsi"
+
 
