@@ -1,0 +1,15 @@
+#include "mw-axistream-iio-common.h"
+#include "xilinx-mw-axistream-dma.h"
+
+#undef MW_MM2S_DATAFMT
+#undef MW_S2MM_DATAFMT
+#undef XLNX_MM2S_DATAWIDTH
+#undef XLNX_S2MM_DATAWIDTH
+
+#define MW_MM2S_DATAFMT "u64/64>>0"
+#define MW_S2MM_DATAFMT "u64/64>>0"
+#define XLNX_MM2S_DATAWIDTH <0x40>
+#define XLNX_S2MM_DATAWIDTH <0x40>
+
+#include "zynqmp-mw-axistream-iio-common.dtsi"
+
