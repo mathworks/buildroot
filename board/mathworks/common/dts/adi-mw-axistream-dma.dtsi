@@ -15,12 +15,10 @@
 
 				axi4stream_mm2s_channel: dma-channel@0 {
 					reg = <0>;
-					adi,length-width = <24>;
 					adi,source-bus-width = ADI_MM2S_AXIM_DATAWIDTH;
 					adi,source-bus-type = ADI_AXI_DMAC_TYPE_AXI_MM;
 					adi,destination-bus-width = ADI_MM2S_AXIS_DATAWIDTH;
 					adi,destination-bus-type = ADI_AXI_DMAC_TYPE_AXI_STREAM;
-					adi,cyclic;
 				};
 			};
 		};
@@ -38,7 +36,6 @@
 
 				axi4stream_s2mm_channel: dma-channel@0 {
 					reg = <0>;
-					adi,length-width = <24>;
 					adi,source-bus-width = ADI_S2MM_AXIS_DATAWIDTH;
 					adi,source-bus-type = ADI_AXI_DMAC_TYPE_AXI_STREAM;
 					adi,destination-bus-width = ADI_S2MM_AXIM_DATAWIDTH;
