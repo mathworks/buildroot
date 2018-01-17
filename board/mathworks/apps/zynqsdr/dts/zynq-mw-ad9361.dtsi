@@ -12,7 +12,7 @@
 };
 
 #include "zynq-mw-axilite-common.dtsi"
-#include "mw-mwipcore-update.dtsi"
+#include "mw-aximm-common.dtsi"
 #include "zynq-mw-cma.dtsi"
 
 &mwipcore0 {
