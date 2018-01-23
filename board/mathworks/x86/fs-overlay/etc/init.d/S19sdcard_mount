@@ -7,7 +7,11 @@ source /etc/bootvars.conf
 
 source /etc/init.d/start_only.sh
 
-# Do nothing at this point
+if [ ! -d ${_SD_ROOT} ]; then
+	mkdir -p ${_SD_ROOT}
+fi
+
+mount -a
 
 
 

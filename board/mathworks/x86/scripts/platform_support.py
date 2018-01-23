@@ -7,6 +7,8 @@ from helper_func import *
 # Build the SD disk iamge
 ##############
 def _make_sdimage(outputDir, image, catalog):
+    gen_sd_fat_cfg()
+
     buildDate = time.strftime("%F")
     tmpImg = "%s/hdd.img" % ENV['IMAGE_DIR']
     imageFile = "%s/%s_hdd_%s_%s.img" % (
@@ -42,9 +44,9 @@ def set_default_bitsream(defaultApp):
 # Build the SD card image
 ##############
 def build_sdimage(outputDir, image, catalog):
-    
+
     ##############
-    # Call the Altera Script
+    # Call the Genimage Script
     ##############
     _make_sdimage(outputDir, image, catalog)
 
