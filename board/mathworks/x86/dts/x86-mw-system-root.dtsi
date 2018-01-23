@@ -1,0 +1,12 @@
+/dts-v1/;
+/{
+	#address-cells = <2>;
+	#size-cells = <1>;
+    
+    pcie_root: system {
+    	#address-cells = <2>;
+		#size-cells = <1>;
+		ranges;
+		compatible = "simple-bus";
+	};
+};

@@ -1,0 +1,60 @@
+/{
+	
+	fragment@0 {
+		target-path = "/system/bridge@0xC0000000";
+	    /* suppress DTC warning */
+	    #address-cells = <2>;
+		#size-cells = <1>;
+
+		__overlay__ {
+		    /* suppress DTC warning */
+		    #address-cells = <2>;
+			#size-cells = <1>;
+			
+			pcie_fpga: pcie_fpga@0 {
+				compatible = "simple-bus";
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+				ranges = <0x0 0x0 0x0 0x10000000>;
+
+				intc:axi_intc@1000000 {
+					compatible = "xlnx,xps-intc-1.00.a";
+					reg = <0x01000000 0x20>;
+					interrupts = <0x0 0x1>;
+					interrupt-controller;
+					#interrupt-cells = <0x1>;
+					xlnx,num-intr-inputs = <32>;
+					xlnx,kind-of-intr = <0xFFFFFFFC>;
+				};
+				fpga_axi: fpga-axi@0 {
+					compatible = "simple-bus";
+					interrupt-parent = <&intc>;
+					#address-cells = <0x1>;
+					#size-cells = <0x1>;
+					ranges;
+				};
+			};
+
+			pcie_axi_aclk_out: pcie_axi_aclk_out@0 {
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <125000000>;
+			};
+		
+			pcie_axi_ctl_aclk_out: pcie_axi_ctl_aclk_out@0 {
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <125000000>;
+			};
+
+			core_clkwiz: clockwiz0 {
+				compatible = "fixed-factor-clock";
+				clocks = <&pcie_axi_aclk_out 0>;
+				#clock-cells = <1>;
+				clock-div = <20>;
+				clock-mult = <8>;
+				clock-output-names = "clk0";
+			};
+		};
+	};
+};
