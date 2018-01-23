@@ -48,7 +48,7 @@ def generate_dtbs(catalog, image):
         args = [DTC]
         for inc in include_dirs:
             args.extend(["-i", inc])
-        strArgs = "-I dts -O dtb -o %s %s" % (dtb_file, tmpFile)
+        strArgs = "-@ -I dts -O dtb -o %s %s" % (dtb_file, tmpFile)
         args.extend(strArgs.split())
         subproc(args, cwd=ENV['SD_DIR'])
 
