@@ -15,7 +15,7 @@ fi
 case "$1" in
   start)
     printf "Starting $NAME: "
-    start-stop-daemon -S -q -x $DAEMON -- -g
+    start-stop-daemon -S -q -x $DAEMON -- -g -N
     [ $? = 0 ] && echo "OK" || echo "FAIL"
     ;;
   stop)
