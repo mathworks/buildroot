@@ -65,6 +65,10 @@
 		reg = <0x43c50000 0x10000>;
 	};
 
+	mwipcore_frame_buffer@40500000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0x40500000 0x10000>;
+	};
 
 	hdmicam_i2c: i2c@41600000 {
 		compatible = "xlnx,axi-iic-1.01.b", "xlnx,xps-iic-2.00.a";
@@ -79,5 +83,19 @@
 	};
 };
 
-#include "zynq-mw-hdmicam-common.dtsi"
+/ {
+    reserved-memory {
+    
+        axim_mem: region@14000000 {
+            reg = <0x14000000 0x4000000>;
+            no-map;
+        };
+        
+        vdma_mem: region@18000000 {
+            reg = <0x18000000 0x4000000>;
+            no-map;
+        };
+    };
+};
 
+#include "zynq-mw-hdmicam-common.dtsi"
