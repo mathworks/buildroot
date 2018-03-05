@@ -13,5 +13,14 @@
         <app name="fmc_axis">
             <dts file="fmc_axis.dts"/>
         </app>
+        <app name="fmc_axis64">
+            <dts file="fmc_axis64.dts"/>
+        </app>
+        <app name="fmc_axis_XIL_DMA">
+            <dts file="fmc_axis_XIL_DMA.dts"/>
+        </app>
+         <app name="fmc_axis64_XIL_DMA">
+            <dts file="fmc_axis64_XIL_DMA.dts"/>
+        </app>
     </image>
 </board>
