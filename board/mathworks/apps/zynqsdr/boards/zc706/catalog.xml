@@ -13,5 +13,14 @@
         <app name="fmcomms2_axis">
             <dts file="fmcomms2_axis.dts"/>
         </app>
+        <app name="fmcomms2_axis64">
+            <dts file="fmcomms2_axis64.dts"/>
+        </app>
+        <app name="fmcomms2_axis_XIL_DMA">
+            <dts file="fmcomms2_axis_XIL_DMA.dts"/>
+        </app>
+        <app name="fmcomms2_axis64_XIL_DMA">
+            <dts file="fmcomms2_axis_XIL_DMA.dts"/>
+        </app>
     </image>
 </board>
