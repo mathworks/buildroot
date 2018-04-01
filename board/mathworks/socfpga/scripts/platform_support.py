@@ -153,6 +153,8 @@ def build_sdimage(outputDir, image, catalog):
         subproc(argStr, cwd=ENV['IMAGE_DIR'])
         # move to sd card
         shutil.move("%s/u-boot.scr" % (ENV['IMAGE_DIR']), "%s/u-boot.scr" % (ENV['SD_DIR']))
+    else:
+        print_msg("DAREN: no u-boot-scr.txt copied over")
 
     ##############
     # Copy over u-boot (SPL will load u-boot.img)
@@ -160,11 +162,16 @@ def build_sdimage(outputDir, image, catalog):
     if catalog['boardName'] != "arria10":
         shutil.copy("%s/u-boot.img" % (ENV['IMAGE_DIR']), "%s/u-boot.img" % (ENV['SD_DIR']))
     else:
-        print_msg("For Arria 10 SoC copying socfpga.periph.rbf and socfpga.core.rbf from %s" % boardDir)
-        periphRbfFile = "%s/socfpga.periph.rbf" % (boardDir)
-        coreRbfFile = "%s/socfpga.core.rbf" % (boardDir)
-        shutil.copyfile(periphRbfFile, "%s/socfpga.periph.rbf" % (ENV['SD_DIR']))
-        shutil.copyfile(coreRbfFile, "%s/socfpga.core.rbf" % (ENV['SD_DIR']))    
+        #print_msg("For Arria 10 SoC copying socfpga.periph.rbf and socfpga.core.rbf from %s" % boardDir)
+        #periphRbfFile = "%s/socfpga.periph.rbf" % (boardDir)
+        #coreRbfFile = "%s/socfpga.core.rbf" % (boardDir)
+        #shutil.copyfile(periphRbfFile, "%s/socfpga.periph.rbf" % (ENV['SD_DIR']))
+        #shutil.copyfile(coreRbfFile, "%s/socfpga.core.rbf" % (ENV['SD_DIR']))    
+        print_msg("DAREN: For Arria 10 SoC copying socfpga.periph.rbf and socfpga.core.rbf from %s" % boardDir)
+        periphRbfFile = "%s/socfpga.core.rbf" % (boardDir)
+        #coreRbfFile = "%s/socfpga.core.rbf" % (boardDir)
+        shutil.copyfile(periphRbfFile, "%s/socfpga.core.rbf" % (ENV['SD_DIR']))
+        #shutil.copyfile(coreRbfFile, "%s/socfpga.core.rbf" % (ENV['SD_DIR']))    
 
     ##############
     # Call the Altera Script
