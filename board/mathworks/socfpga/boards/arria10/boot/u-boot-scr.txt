@@ -1,3 +1,4 @@
 setenv mmcroot /dev/mmcblk0p3;
 setenv fdtimage socfpga.dtb
+saveenv
 run mmcload;run set_initswstate; run mmcboot;
