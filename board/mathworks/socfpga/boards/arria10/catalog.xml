@@ -7,8 +7,7 @@
     <image name="alterasocec">
         <app name="axilite">
             <dts file="axilite.dts"/>
-            <bit file="socfpga.periph.rbf"/>
-            <bit file="socfpga.core.rbf"/>
+            <bit file="socfpga.core.rbf"/>            
         </app>
     </image>
 </board>
