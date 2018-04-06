@@ -343,7 +343,12 @@ def rm(fileDir):
 def mkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
-
+        
+########################
+# pathexists utility
+########################
+def pathexists(path):
+    return os.path.exists(path)
 
 ########################
 # Grep utility
