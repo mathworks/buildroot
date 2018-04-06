@@ -101,6 +101,8 @@ platformGrp.add_argument('-p', '--platform', dest='platformName', metavar='PLATF
                         help='The platform (e.g. zynq or alterasoc)')
 platformGrp.add_argument('-b', '--board', dest='boardName', metavar='BOARD_NAME', type=str,
                         help='The board name (e.g. zed)')
+platformGrp.add_argument('-v', '--variant', dest='boardVariant', metavar='BOARD_VARIANT', type=str,
+                        help='The board variant (e.g. for PicoZed: 7010, 7015, 7020, or 7030)')
 
 tgtGrp = parser.add_argument_group('Target Specification')
 tgtGrp.add_argument('-t', '--toolchain', dest='toolchain', metavar='TOOLCHAIN', type=str,
@@ -160,6 +162,14 @@ if args['catalogFile'] is None:
     args['platformName'] = args['platformName'].lower()
     args['boardName'] = args['boardName'].lower()
     args['catalogFile'] = "%s/%s/boards/%s/catalog.xml" % (MW_DIR, args['platformName'],args['boardName'])
+    if not pathexists(args['catalogFile']):
+        if args['boardVariant'] is None:
+            errStr = "A BOARD_VARIANT is required for BOARD_NAME=%s\n" % args['boardName']
+            errStr += parser.format_usage()
+            raise SyntaxError(errStr)
+        else:
+            args['catalogFile'] = "%s/%s/boards/%s/%s/catalog.xml" % (MW_DIR, args['platformName'],args['boardName'],args['boardVariant'])
+        
 
 # read in the tree
 catalog = parse_catalog.read_catalog(args['catalogFile'], args['imageList'])

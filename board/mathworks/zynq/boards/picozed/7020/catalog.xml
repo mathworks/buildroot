@@ -4,7 +4,7 @@
         </app>
         <fsbl dir="handoff"/>
     </default>
-    <image name="7z030-zynq7000ec">
+    <image name="7z020-zynq7000ec">
         <app name="axilite">
             <dts file="axilite.dts"/>	  
             <bit file="axilite.bit"/>
