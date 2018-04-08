@@ -2,7 +2,7 @@
 <emif>
    <system>
       <config value="17.0" name="VERSION"/>
-      <config value="Monday October,02,2017-05:42:16 PM EDT" name="TIME_AND_DATE"/>
+      <config value="Thursday April,05,2018-03:20:18 PM EDT" name="TIME_AND_DATE"/>
    </system>
    <SDRAM>
       <config name="CONFIG_HPS_SDR_SERRCNT" value="8"/>
