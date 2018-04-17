@@ -2,8 +2,8 @@
 
 //#include "socfpga_arria10_socdk_sdmmc.dts"
 #include "socfpga_arria10_socdk_adrv9371.dts"
-
 /*
+
 &eccmgr {
 	sdmmca-ecc@ff8c2c00 {
 		compatible = "altr,socfpga-sdmmc-ecc";
