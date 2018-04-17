@@ -1,8 +1,8 @@
 <hps>
   <system>
-    <config name='VERSION' value='16.1' />
+    <config name='VERSION' value='17.0' />
     <config name='DEVICE_FAMILY' value='Arria 10' />
-    <config name='TIME_AND_DATE' value='Monday March, 26, 2018 - 12:45:28 PM EDT' />
+    <config name='TIME_AND_DATE' value='Tuesday April, 17, 2018 - 01:11:10 PM EDT' />
     <config name='DMA_Enable' value='No No No No No No No No' />
     <config name='eosc1_clk_hz' value='25000000.0' />
     <config name='emac0_clk_hz' value='250000000' />
@@ -202,8 +202,8 @@
     <config name='i_clk_mgr_perpllgrp.cntr9clk.cnt' value='900' />
   </csr>
   <csr />
-  <!-- This section was added by Quartus Prime Version 16.1.0 Build 196 10/24/2016 SJ Standard Edition -->
-  <!-- Generated on Mon Mar 26 12:55:04 2018 -->
+  <!-- This section was added by Quartus Prime Version 17.0.0 Build 595 04/25/2017 SJ Standard Edition -->
+  <!-- Generated on Tue Apr 17 13:19:55 2018 -->
   <csr>
     <!-- OSC_CLK_1_HPS -->
     <config name='i_io48_pin_mux_dedicated_io_grp.configuration_dedicated_io_1.rtrim'        value='1' />

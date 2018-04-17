@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <emif>
    <system>
-      <config value="16.1" name="VERSION"/>
-      <config value="Monday March,26,2018-12:45:25 PM EDT" name="TIME_AND_DATE"/>
+      <config value="17.0" name="VERSION"/>
+      <config value="Tuesday April,17,2018-01:11:08 PM EDT" name="TIME_AND_DATE"/>
    </system>
    <SDRAM>
       <config name="CONFIG_HPS_SDR_SERRCNT" value="8"/>
