@@ -43,7 +43,10 @@ def get_build_config(args):
         if args['buildMode'] == BuildMode.RECOVERY:
             pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['platformName'], args['boardName'], args['toolchain'])
         else:
-            pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['boardName'], args['rtos'], args['toolchain'])
+            if args['boardVariant'] is None:
+                pathStr = "%s/output/%s_%s_%s" % (os.getcwd(), args['boardName'], args['rtos'], args['toolchain'])
+            else:
+                pathStr = "%s/output/%s_%s_%s_%s" % (os.getcwd(), args['boardName'], args['boardVariant'], args['rtos'], args['toolchain'])
         args['outputDir'] = os.path.realpath(pathStr)
     else:
         args['outputDir'] = os.path.realpath(args['outputDir'])
