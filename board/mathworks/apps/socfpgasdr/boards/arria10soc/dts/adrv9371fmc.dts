@@ -2,6 +2,8 @@
 
 //#include "socfpga_arria10_socdk_sdmmc.dts"
 #include "socfpga_arria10_socdk_adrv9371.dts"
+
+/*
 &eccmgr {
 	sdmmca-ecc@ff8c2c00 {
 		compatible = "altr,socfpga-sdmmc-ecc";
@@ -14,7 +16,7 @@
 	};
 };
 
-/*
+
 //add these later after you modify the Qsys project?
 #include "socfpga-mw-fpga-bridge.dtsi"
 #include "socfpga-mw-mwipcore.dtsi"
