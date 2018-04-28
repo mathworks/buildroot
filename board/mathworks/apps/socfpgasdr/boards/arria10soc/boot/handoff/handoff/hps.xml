@@ -17,8 +17,8 @@
     <config name='cb_intosc_ls_clk_hz' value='60000000' />
   </system>
   <fpga_interfaces>
-    <config name='F2H_AXI_SLAVE' used='false' />
-    <config name='H2F_AXI_MASTER' used='false' />
+    <config name='F2H_AXI_SLAVE' used='true' />
+    <config name='H2F_AXI_MASTER' used='true' />
     <config name='LWH2F_AXI_MASTER' used='true' />
     <config name='F2SDRAM0_AXI_SLAVE' used='true' />
     <config name='F2SDRAM1_AXI_SLAVE' used='false' />
