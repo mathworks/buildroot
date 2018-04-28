@@ -2,6 +2,20 @@
 
 //#include "socfpga_arria10_socdk_sdmmc.dts"
 #include "socfpga_arria10_socdk_adrv9371.dts"
+#include "socfpga-mw-fpga-bridge.dtsi"
+#include "socfpga-mw-mwipcore.dtsi"
+
+#include "mw-aximm-common.dtsi" //experimental
+/ {
+    	chosen {
+		bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p3 rw rootwait earlyprintk";
+	};
+};
+
+/delete-node/ &fpga2sdram0;
+
+
+
 /*
 
 &eccmgr {
