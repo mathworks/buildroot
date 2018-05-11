@@ -154,7 +154,7 @@ def build_sdimage(outputDir, image, catalog):
         # move to sd card
         shutil.move("%s/u-boot.scr" % (ENV['IMAGE_DIR']), "%s/u-boot.scr" % (ENV['SD_DIR']))
     else:
-        print_msg("DAREN: no u-boot-scr.txt copied over")
+        print_msg("WARNING: No u-boot-scr.txt copied over!")
 
     ##############
     # Copy over u-boot (SPL will load u-boot.img)
@@ -164,9 +164,9 @@ def build_sdimage(outputDir, image, catalog):
     else:
         print_msg("For Arria 10 SoC copying socfpga.periph.rbf and socfpga.core.rbf from %s" % boardDir)
         periphRbfFile = "%s/socfpga.periph.rbf" % (boardDir)
-        coreRbfFile = "%s/socfpga.core.rbf" % (boardDir)
+        coreRbfFile = "%s/adrv9371fmc.rbf" % (boardDir)
         shutil.copyfile(periphRbfFile, "%s/socfpga.periph.rbf" % (ENV['SD_DIR']))
-        shutil.copyfile(coreRbfFile, "%s/socfpga.core.rbf" % (ENV['SD_DIR'])) 
+        shutil.copyfile(coreRbfFile, "%s/adrv9371fmc.rbf" % (ENV['SD_DIR'])) 
 
         
     ##############
