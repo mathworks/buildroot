@@ -9,6 +9,7 @@
         <app name="adrv9371fmc">
             <dts file="adrv9371fmc.dts"/>
             <bit file="adrv9371fmc.rbf"/>
+            <bit file="socfpga.periph.rbf"/>
         </app>        
     </image>
 </board>
