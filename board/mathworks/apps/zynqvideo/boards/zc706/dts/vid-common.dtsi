@@ -1,0 +1,9 @@
+#include "zynq-mw-vid-common.dtsi"
+
+&hdmitx{
+    mwgen,vidinjust = "even";
+};
+
+&i2c0{			
+    status = "okay";
+};

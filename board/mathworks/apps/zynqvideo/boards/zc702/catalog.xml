@@ -1,0 +1,20 @@
+<board name="zc702" platform="zynq">
+    <default>
+        <app name="default">
+            <dts file="axilite.dts"/>
+            <fsbl file="axilite_fsbl.elf"/>
+            <bit file="axilite.bit"/>
+        </app>
+        <dtsi dir="../../dts"/>
+    </default>
+    <image name="videopsp">
+        <app name="hdmi">
+            <dts file="vid-hdmi.dts"/>
+            <bit file="vid-hdmi.bit"/>
+        </app>
+        <app name="vita">
+            <dts file="vid-vita.dts"/>
+            <bit file="vid-vita.bit"/>
+        </app>
+    </image>
+</board>

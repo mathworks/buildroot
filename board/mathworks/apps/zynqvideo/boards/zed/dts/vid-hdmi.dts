@@ -1,0 +1,4 @@
+#include "base.dtsi"
+#include "vid-common.dtsi"
+#include "vid-imageon.dtsi"
+#include "zynq-mw-vid-hdmi.dtsi"

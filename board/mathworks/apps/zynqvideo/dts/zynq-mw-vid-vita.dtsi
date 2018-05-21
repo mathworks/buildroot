@@ -1,0 +1,41 @@
+#include "zynq-mw-vid-imageon.dtsi"
+
+&fpga_axi{   	
+	
+    vitaspi@42020000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x42020000 0xffff>;
+		mwgen,ipname = "avnet,onsemi_vita_spi";
+		mwgen,devname = "vitarxspi";
+		mwgen,ipinst = "onsemi_vita_spi";
+		mwgen,ipver = "3.1";
+	};
+
+	vitacam@42030000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x42030000 0xffff>;
+		mwgen,ipname = "avnet,onsemi_vita_cam";
+		mwgen,devname = "vitarxcam";
+		mwgen,ipinst = "onsemi_vita_cam";
+		mwgen,ipver = "3.1";
+	};
+	
+	vitacfa@42040000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x42040000 0xffff>;
+		mwgen,ipname = "mathworks,mw_cfa";
+		mwgen,devname = "vitacfa";
+		mwgen,ipinst = "vita_cfa";
+		mwgen,ipver = "1.0";
+	};
+
+	gpio@43020000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0x43020000 0xffff>;
+		mwgen,ipname = "xlnx,axi_gpio";
+		mwgen,devname = "axigpio";
+		mwgen,ipinst = "axi_gpio_0";
+		mwgen,ipver = "1.12.a";
+	};
+};
+
