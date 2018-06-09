@@ -1,0 +1,15 @@
+<board name="arria10" platform="socfpga">
+    <default>
+        <app name="default">
+        </app>
+        <dtsi dir="../../dts"/>
+        <fsbl dir="handoff"/>
+    </default>
+    <image name="socfpgasdr">
+        <app name="adrv9371fmc">
+            <dts file="adrv9371fmc.dts"/>
+            <bit file="adrv9371fmc.rbf"/>
+            <bit file="socfpga.periph.rbf"/>
+        </app>        
+    </image>
+</board>
