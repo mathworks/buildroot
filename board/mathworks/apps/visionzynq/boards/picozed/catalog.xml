@@ -4,7 +4,6 @@
         </app>
         <fsbl dir="fsbl.elf"/>
         <dtsi dir="../../dts"/>
-        <br2_config file="../../defconfig/vzcommon.defconfig"/>
     </default>
     <image name="visionzynq">
         <app name="visionzynq">
