@@ -10,8 +10,8 @@
 		#dma-cells = <0x1>;
 		compatible = "adi,axi-dmac-1.00.a";
 		reg = <0x40400000 0x10000>;
-                interrupts = <0x0 30 0x4>;
-		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
+        interrupts = <0x0 30 0x4>;
+		clocks = <&core_clkwiz 0>;
        
          adi,channels {
     	    #address-cells = <0x1>;
@@ -23,6 +23,7 @@
                 adi,source-bus-type = <1>;
                 adi,destination-bus-width = <64>;
                 adi,destination-bus-type = <0>;
+                adi,length-width = <24>;
     		};
         };
     };
@@ -45,8 +46,8 @@
 	mwipcore_framecapture@43c40000 {
 		compatible = "mathworks,mwipcore-v3.00";
 		reg = <0x43c40000 0x10000>;
-                #address-cells = <0x1>;
-                #size-cells = <0x0>;
+        #address-cells = <0x1>;
+        #size-cells = <0x0>;
 
             stream-channel@0 {
                 reg = <0x1>;
@@ -54,7 +55,7 @@
                 #size-cells = <0x0>;
                 compatible = "mathworks,axi4stream-s2mm-channel-v1.00";
                 dma-names = "s2mm";
-		dmas = <&axidma 0>; 
+		        dmas = <&axidma 0>; 
                 mathworks,dev-name = "s2mm0";
                 mathworks,sample-cnt-reg = <0x8>;
 
