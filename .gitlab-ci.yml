@@ -29,6 +29,7 @@ before_script:
     only:
         - /.*-ci$/
         - next
+        - iiosdr
         - triggers
         - tags
 
@@ -147,12 +148,16 @@ upload_logs:
 
 sysroot_zynq:
     <<: *sysroot_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: zynq
         CONFIG_JOB_BOARD: zed
 
 sysroot_socfpga:
     <<: *sysroot_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: socfpga
         CONFIG_JOB_BOARD: sockit
@@ -169,12 +174,16 @@ sysroot_zynqmp:
 
 build_zynq:
     <<: *build_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: zynq
         CONFIG_JOB_PROJECT: zynq
 
 build_socfpga:
     <<: *build_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: socfpga
         CONFIG_JOB_PROJECT: socfpga
