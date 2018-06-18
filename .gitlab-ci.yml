@@ -168,6 +168,13 @@ sysroot_zynqmp:
         CONFIG_JOB_PLATFORM: zynqmp
         CONFIG_JOB_BOARD: zcu102
 
+sysroot_zynqsdr:
+    <<: *sysroot_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynq
+        CONFIG_JOB_BOARD: zed
+        CONFIG_JOB_PROJECT: apps/zynqsdr
+
 ########################
 # Build Jobs (platform/project)
 ########################
