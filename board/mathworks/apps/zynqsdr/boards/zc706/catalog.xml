@@ -6,6 +6,10 @@
         <fsbl dir="handoff"/>
     </default>
     <image name="zynqsdr">
+        <app name="fmcomms5">
+            <dts file="fmcomms5.dts"/>
+            <bit file="fmcomms5.bit"/>
+        </app>
         <app name="fmcomms2">
             <dts file="fmcomms2.dts"/>
             <bit file="fmcomms2.bit"/>
