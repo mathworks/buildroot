@@ -5,7 +5,7 @@ from helper_func import *
 
 supported = dict()
 # List of valid toolchains
-supported['toolchain'] = ["xilinx", "linaro"]
+supported['toolchain'] = ["linaro", "xilinx"]
 # List of valid OSes
 supported['rtos'] = ["linux", "xenomai"]
 
