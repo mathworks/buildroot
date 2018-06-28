@@ -1,4 +1,4 @@
-#include "zynq-adi-mw-axistream-iio-common.dtsi"
+#include "zynq-mw-axistream-iio-common.dtsi"
 
 &axi4stream_mm2s {
 	reg = <0x40020000 0x10000>;
