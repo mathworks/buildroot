@@ -1,0 +1,11 @@
+###########################################
+# Enable IIO Dummy Driver for IIO testing
+###########################################
+CONFIG_IIO_CONFIGFS=y
+CONFIG_IIO_SW_DEVICE=y
+CONFIG_IIO_SW_TRIGGER=y
+CONFIG_IIO_HRTIMER_TRIGGER=y
+CONFIG_IIO_SYSFS_TRIGGER=y
+CONFIG_IIO_INTERRUPT_TRIGGER=y
+CONFIG_IIO_SIMPLE_DUMMY=y
+CONFIG_IIO_SIMPLE_DUMMY_BUFFER=y
