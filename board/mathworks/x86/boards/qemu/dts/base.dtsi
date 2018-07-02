@@ -1,0 +1,6 @@
+/dts-v1/;
+/plugin/;
+
+#include "x86-mw-common.dtsi"
+#include "x86-mw-axilite-common.dtsi"
+#include "mw-aximm-common.dtsi"
