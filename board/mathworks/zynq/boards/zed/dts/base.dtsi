@@ -1,6 +1,7 @@
 #include "zynq-zed.dts"
 #include "zynq-mw-common.dtsi"
 #include "zynq-mw-axilite-common.dtsi"
+#include "mw-aximm-common.dtsi"
 &mwipcore0 {
 	reg = <0x400D0000 0xffff>;
 };
