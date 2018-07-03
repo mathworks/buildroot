@@ -45,7 +45,6 @@ before_script:
     stage: sysroot
     artifacts:
         paths:
-            - images/$CONFIG_JOB_PLATFORM/sysroot_$CONFIG_JOB_BOARD*.tar.gz
             - images/$CONFIG_JOB_PLATFORM/licenses_$CONFIG_JOB_BOARD*.txt
         expire_in: 2 days
 
