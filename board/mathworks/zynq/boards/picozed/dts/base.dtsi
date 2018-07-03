@@ -11,5 +11,7 @@
 };
 
 #include "zynq-mw-axilite-common.dtsi"
+#include "mw-aximm-common.dtsi"
+
 
 

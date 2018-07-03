@@ -1,0 +1,10 @@
+#include "zynq-zc706-adv7511-ad9361-fmcomms5-ext-lo-adf5355.dts"
+#include "zc706-cleanup-adv7511.dtsi"
+
+/ {
+        chosen {
+                /delete-property/ linux,stdout-path;
+                bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+                stdout-path = "/amba@0/uart@E0001000";
+        };
+};

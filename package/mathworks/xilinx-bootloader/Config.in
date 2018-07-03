@@ -58,7 +58,7 @@ if BR2_PACKAGE_XILINX_BOOTLOADER_FSBL_SDK
 
 config BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH
 	string "Xilinx bootgen path"
-	default "/opt/Xilinx/SDK/2016.4/bin/bootgen"
+	default "/opt/Xilinx/SDK/2017.4/bin/bootgen"
 	help
 	  Path to the Xilinx bootgen tool
 
