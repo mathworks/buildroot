@@ -1,17 +1,7 @@
-/dts-v1/;
-
-#include "zynq-zed.dtsi"
+#include "zynq-zed.dts"
 #include "zynq-mw-common.dtsi"
 
-/ {
-	chosen {
-		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
-		linux,stdout-path = "/amba@0/uart@E0001000";
-	};
-};
-
-#include "zynq-mw-axilite-common.dtsi"
-
+#include "mw-aximm-common.dtsi"
 &mwipcore0 {
 	reg = <0x400D0000 0xffff>;
 };

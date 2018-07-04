@@ -1,0 +1,4 @@
+setenv mmcroot /dev/mmcblk0p3;
+if test -e mmc 0:1 ${fdtimage}; then echo using ${fdtimage}; else echo using default image; setenv fdtimage socfpga.dtb; saveenv; fi
+if test -e mmc 0:1 ${rbfcoreimage}; then echo using ${rbfcoreimage}; else echo using default bit-stream;  setenv rbfcoreimage socfpga.core.rbf; saveenv; run core_rbf_prog; fi
+run mmcload;run set_initswstate; run mmcboot;

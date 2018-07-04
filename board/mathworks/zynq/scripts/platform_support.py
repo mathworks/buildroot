@@ -69,6 +69,13 @@ def build_sdimage(outputDir, image, catalog):
     _copy_boot(catalog)
 
     ##############
+    # Create the hostname file
+    ##############
+    f = open(ENV['SD_DIR'] + "/hostname", 'w')
+    f.write("buildroot-%s\n" % (catalog['boardName']))
+    f.close()
+
+    ##############
     # Zip the SD Card Directory
     ##############
     buildDate = time.strftime("%F")
@@ -84,7 +91,7 @@ def build_sdimage(outputDir, image, catalog):
 def platform_supported():
     supported = dict()
     # List of valid toolchains
-    supported['toolchain'] = ["xilinx", "linaro"]
+    supported['toolchain'] = ["linaro", "xilinx"]
     # List of valid OSes
     supported['rtos'] = ["linux", "xenomai"]
     return supported

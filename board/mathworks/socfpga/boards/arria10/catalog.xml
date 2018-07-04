@@ -1,0 +1,14 @@
+<board name="arria10" platform="socfpga">
+    <default>
+        <app name="default">
+        </app>
+        <handoff dir="handoff"/>
+    </default>
+    <image name="alterasocec">
+        <app name="axilite">
+            <dts file="axilite.dts"/>
+            <bit file="socfpga.periph.rbf"/>
+            <bit file="socfpga.core.rbf"/>
+        </app>
+    </image>
+</board>

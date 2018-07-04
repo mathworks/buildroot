@@ -1,0 +1,37 @@
+From b1e70abe03d862ab41bcdca3226ae310f7715b2b Mon Sep 17 00:00:00 2001
+From: Matt Fornero <matt.fornero@mathworks.com>
+Date: Wed, 19 Jul 2017 20:45:59 -0400
+Subject: [PATCH] libxml2-config-cmake.in: Fully resolve library dir
+
+In the case where CMAKE_LIBRARY_ARCHITECTURE is set, but lib/<arch> is
+simply a symlink to lib/, the detected libxml2 root directory will be
+incorrect.
+
+Because of the ordering of the search path in find_package, lib/<arch>
+will be detected before lib/, even if both exist.
+
+Before mapping based on the install location of the config.cmake file,
+first fully resolve the path.
+
+Signed-off-by: Matt Fornero <matt.fornero@mathworks.com>
+---
+ libxml2-config.cmake.in | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libxml2-config.cmake.in b/libxml2-config.cmake.in
+index 6b16fc2..6f3dcbc 100644
+--- a/libxml2-config.cmake.in
++++ b/libxml2-config.cmake.in
+@@ -14,7 +14,8 @@
+ #   LIBXML2_VERSION_STRING    - version number as a string (ex: "2.3.4")
+ #   LIBXML2_MODULES           - whether libxml2 as dso support
+ 
+-get_filename_component(_libxml2_rootdir ${CMAKE_CURRENT_LIST_DIR}/../../../ ABSOLUTE)
++get_filename_component(_cmake_current_ldir ${CMAKE_CURRENT_LIST_DIR} REALPATH)
++get_filename_component(_libxml2_rootdir ${_cmake_current_ldir}/../../../ ABSOLUTE)
+ 
+ set(LIBXML2_VERSION_MAJOR  @LIBXML_MAJOR_VERSION@)
+ set(LIBXML2_VERSION_MINOR  @LIBXML_MINOR_VERSION@)
+-- 
+1.8.3.1
+

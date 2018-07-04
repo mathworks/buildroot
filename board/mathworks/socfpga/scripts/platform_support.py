@@ -33,13 +33,17 @@ def _generate_a2_cfgFile(spl, cfgFile):
 
     f.close()
 
-def _generate_a2_img():
+def _generate_a2_img(catalog):
     imgFile = os.path.realpath("%s/boot.a2" % ENV['IMAGE_DIR'])
     rm(imgFile)
     print_msg("Generating a2 image: %s" % imgFile)
 
     cfgFile = "%s/boot.a2.cfg" % ENV['IMAGE_DIR']
-    spl = "%s/u-boot-spl.bin.crc" % (ENV['IMAGE_DIR'])
+    if catalog['boardName'] == "arria10":
+        spl = "%s/uboot-altera/bsp/uboot_w_dtb-mkpimage.bin" % (ENV['BUILD_DIR'])
+    else:
+        spl = "%s/u-boot-spl.bin.crc" % (ENV['IMAGE_DIR'])
+
     _generate_a2_cfgFile(spl, cfgFile)
 
     run_genimage(cfgFile, ENV['IMAGE_DIR'])
@@ -87,7 +91,7 @@ def _make_sdimage(outputDir, image, catalog):
     # Generate the SD FAT partition config file
     gen_sd_fat_cfg()
     # Generate the A2 parition
-    _generate_a2_img()
+    _generate_a2_img(catalog)
 
     print_msg("Generating target image: %s" % imageFile)
     run_genimage(catalog['defaultInfo']['genimage'], ENV['IMAGE_DIR'], None)
@@ -134,11 +138,13 @@ def build_sdimage(outputDir, image, catalog):
         if not app['bit'] is None:
             appBit = "%s/socfpga_%s.rbf" % (ENV['SD_DIR'], app['name'])
             shutil.copy(app['bit'], appBit)
-
+ 
     ##############
     # Copy over the u-boot script
     ##############
-    scriptSrc = "%s/boot/u-boot-scr.txt" % (_PLATFORM_DIR) 
+    boardDir = os.path.dirname(os.path.realpath(defaultApp['bit']))
+    print_msg("Generating %s" % boardDir)
+    scriptSrc = "%s/u-boot-scr.txt" % (boardDir)
     if os.path.exists(scriptSrc):
         # Copy to image dir
         shutil.copy(scriptSrc, "%s/u-boot-scr.txt" % (ENV['IMAGE_DIR']) )    
@@ -151,8 +157,15 @@ def build_sdimage(outputDir, image, catalog):
     ##############
     # Copy over u-boot (SPL will load u-boot.img)
     ##############
-    shutil.copy("%s/u-boot.img" % (ENV['IMAGE_DIR']), "%s/u-boot.img" % (ENV['SD_DIR']))
-    
+    if catalog['boardName'] != "arria10":
+        shutil.copy("%s/u-boot.img" % (ENV['IMAGE_DIR']), "%s/u-boot.img" % (ENV['SD_DIR']))
+    else:
+        print_msg("For Arria 10 SoC copying socfpga.periph.rbf and socfpga.core.rbf from %s" % boardDir)
+        periphRbfFile = "%s/socfpga.periph.rbf" % (boardDir)
+        coreRbfFile = "%s/socfpga.core.rbf" % (boardDir)
+        shutil.copyfile(periphRbfFile, "%s/socfpga.periph.rbf" % (ENV['SD_DIR']))
+        shutil.copyfile(coreRbfFile, "%s/socfpga.core.rbf" % (ENV['SD_DIR']))    
+
     ##############
     # Call the Altera Script
     ##############
@@ -182,21 +195,26 @@ def platform_gen_target(args, catalog):
 
     # Validate the handoff directory
     handoffDir = "%s/handoff" % catalog['defaultInfo']['fsbl']
-    if os.path.isdir(handoffDir):
-        if not os.path.isdir("%s/generated" % catalog['defaultInfo']['fsbl']):
-            errStr = "The handoff directory (%s) does not contain both handoff and generated folders\n" % catalog['defaultInfo']['fsbl']
-            errStr += "When supplying both the handoff files and the BSP, they must be placed in 'handoff'"
-            errStr += " and 'generated' subfolders respectively\n"
-            raise RuntimeError(errStr)
-        br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", None)
-    else:
-        handoffDir = catalog['defaultInfo']['fsbl']
+    # Force BSP generation for Arria 10
+    if catalog['boardName'] == "arria10":
         br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", "y")
+    else:
+        if os.path.isdir(handoffDir):
+            if not os.path.isdir("%s/generated" % catalog['defaultInfo']['fsbl']):
+                errStr = "The handoff directory (%s) does not contain both handoff and generated folders\n" % catalog['defaultInfo']['fsbl']
+                errStr += "When supplying both the handoff files and the BSP, they must be placed in 'handoff'"
+                errStr += " and 'generated' subfolders respectively\n"
+                raise RuntimeError(errStr)
+            br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", None)
+        else:
+            handoffDir = catalog['defaultInfo']['fsbl']
+            br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", "y")
+
+
     if not os.path.isfile("%s/hps.xml" % handoffDir):
         errStr = "The handoff directory (%s) does not contain the hps.xml file\n" % handoffDir
         errStr += "Please ensure this folder contains the contents of the hps_isw_software directory\n"
         raise RuntimeError(errStr)
-
     return
 
 def platform_update_catalog(catalog):

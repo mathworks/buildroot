@@ -80,7 +80,7 @@ allowing more-specific settings files to override settings from more-general
 settings files. The hierarchy, from least-specific to most-specific is:
 * [MathWorks common][mw-common-defconfig]
 * Platform: ([Zynq][zynq-platform-defconfig]) | ([Altera SoC][socfpga-platform-defconfig])
-* Toolchain: ([Xilinx][xilinx-toolchain-defconfig]) | ([Linaro][linaro-toolchain-defconfig]) | ([Altera EDS][eds-toolchain-defconfig])
+* Toolchain: ([Linaro][linaro-toolchain-defconfig]) | ([Xilinx][xilinx-toolchain-defconfig]) | ([Altera EDS][eds-toolchain-defconfig])
 * OS: ([Linux][linux-os-defconfig]) | ([Xenomai][xenomai-os-defconfig])
 * Board: The _defconfig_ file located in the board directory
     * E.g. [ZedBoard][zedboard-board-defconfig]
@@ -96,8 +96,8 @@ settings files. The hierarchy, from least-specific to most-specific is:
 [1]:catalog.md
 [mw-common-defconfig]:../common/defconfig/common.defconfig
 [zynq-platform-defconfig]:../zynq/defconfig/common.defconfig
-[xilinx-toolchain-defconfig]:../zynq/defconfig/xilinx.defconfig
 [linaro-toolchain-defconfig]:../zynq/defconfig/linaro.defconfig
+[xilinx-toolchain-defconfig]:../zynq/defconfig/xilinx.defconfig
 [zedboard-board-defconfig]:../zynq/boards/zed/defconfig
 [linux-os-defconfig]:../zynq/defconfig/linux.defconfig
 [xenomai-os-defconfig]:../zynq/defconfig/xenomai.defconfig

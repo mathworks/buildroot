@@ -1,0 +1,21 @@
+/* Setup the default boot args for ramdisk and earlycon */
+/ {
+	chosen {
+		/delete-property/ linux,stdout-path;
+		bootargs = "earlycon root=/dev/ram rw";		
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&fpga_axi {
+	/delete-node/ mwipcore@43c00000;
+};
+
+#include "zynq-mw-axilite-common.dtsi"
+#include "mw-aximm-common.dtsi"
+#include "zynq-mw-cma.dtsi"
+
+&mwipcore0 {
+	reg = <0x43C00000 0x10000>;
+};
+

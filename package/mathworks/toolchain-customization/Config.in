@@ -1,15 +1,22 @@
 menu "Toolchain Customization"
 
-config BR2_PACKAGE_TOOLCHAIN_CUSTOMIZATION_NEEDS_PREFIX_SYMLINK
-    bool
-
-config BR2_PACKAGE_TOOLCHAIN_CUSTOMIZATION_PREFIX_SYMLINK
-	bool "Symlink /lib/<tuple>"
-    select BR2_PACKAGE_TOOLCHAIN_CUSTOMIZATION_NEEDS_PREFIX_SYMLINK
-    depends on BR2_TOOLCHAIN_EXTERNAL_CUSTOM
+config BR2_PACKAGE_TOOLCHAIN_CUSTOMIZATION_COPY_ARCH_LD
+	bool "Copy arch-specific ld-*.so.*"
+	depends on BR2_TOOLCHAIN_EXTERNAL_CUSTOM
 	help
-	  Select this option if your external toolchain needs a symlink
-	  from {/usr}/lib to {/usr}/lib/<tuple>. This may be required if
-	  your toolchain is based on one from Linaro.
+	  Select this option if your external toolchain needs to copy an
+	  arch specific ld-*.so.* file
+
+if BR2_PACKAGE_TOOLCHAIN_CUSTOMIZATION_COPY_ARCH_LD
+
+config BR2_PACKAGE_TOOLCHAIN_CUSTOMIZATION_ARCH_LD
+	string "Arch-specific ld-*.so.*"
+	default ""
+	depends on BR2_TOOLCHAIN_EXTERNAL_CUSTOM
+	help
+	  Select this option if your external toolchain needs to copy an
+	  arch specific ld-*.so.* file
+
+endif #BR2_PACKAGE_TOOLCHAIN_CUSTOMIZATION_COPY_ARCH_LD
 
 endmenu

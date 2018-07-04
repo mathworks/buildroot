@@ -1,0 +1,31 @@
+<board name="zcu102" platform="zynqmp">
+    <default>
+        <app name="default">
+        </app>
+		<fsbl file="fsbl.elf"/>
+        <pmufw file="pmufw.elf"/>		
+        <!--				
+		<fsbl dir="handoff"/>
+        <pmufw file="pmufw.bin"/>
+		-->
+        <dtsi dir="../../dts"/>
+    </default>
+    <image name="zynqsdr">
+        <app name="fmcomms2">
+            <dts file="fmcomms2.dts"/>
+            <bit file="fmcomms2.bit"/>
+        </app>
+        <app name="fmcomms2_axis">
+            <dts file="fmcomms2_axis.dts"/>
+        </app>
+        <app name="fmcomms2_axis64">
+            <dts file="fmcomms2_axis64.dts"/>
+        </app>
+        <app name="fmcomms2_axis_XIL_DMA">
+            <dts file="fmcomms2_axis_XIL_DMA.dts"/>
+        </app>
+        <app name="fmcomms2_axis64_XIL_DMA">
+            <dts file="fmcomms2_axis64_XIL_DMA.dts"/>
+        </app>
+    </image>
+</board>

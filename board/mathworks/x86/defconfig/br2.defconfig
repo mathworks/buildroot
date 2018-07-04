@@ -1,0 +1,6 @@
+###########################################
+# Linaro Toolchain Options
+###########################################
+BR2_TOOLCHAIN_BUILDROOT=y
+BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
+BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_9=y

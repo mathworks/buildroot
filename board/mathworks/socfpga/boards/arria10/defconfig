@@ -1,0 +1,15 @@
+###########################################
+# Arria 10 SoC Dev Kit Options
+###########################################
+# BSP custom commands for Arria 10
+BR2_PACKAGE_UBOOT_ALTERA_GENERATE_ARRIA10_UBOOT=y
+BR2_TARGET_UBOOT_BOARDNAME="socfpga_cyclone5"
+BR2_PACKAGE_UBOOT_ALTERA_BSP_OPTIONS=" --set uboot.rbf_filename socfpga.periph.rbf "
+# Custom UBOOT configuration for Arria 10
+#BR2_TARGET_UBOOT_FORMAT_CUSTOM=y
+#BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME="uboot_w_dtb-mkpimage.bin"
+#BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG=y
+#BR2_TARGET_UBOOT_BOARD_DEFCONFIG="socfpga_arria10"
+#BR2_TARGET_UBOOT_FORMAT_DTB_BIN=y
+#BR2_TARGET_UBOOT_FORMAT_DTB_IMG=y
+

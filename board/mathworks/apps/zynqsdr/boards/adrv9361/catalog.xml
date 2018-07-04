@@ -1,0 +1,26 @@
+<board name="adrv9361" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <dtsi dir="../../dts"/>
+        <fsbl dir="ccfmc_lvds_handoff"/>
+    </default>
+    <image name="zynqsdr">
+        <app name="fmc">
+            <dts file="fmc.dts"/>
+            <bit file="ccfmc_lvds.bit"/>
+        </app>
+        <app name="fmc_axis">
+            <dts file="fmc_axis.dts"/>
+        </app>
+        <app name="fmc_axis64">
+            <dts file="fmc_axis64.dts"/>
+        </app>
+        <app name="fmc_axis_XIL_DMA">
+            <dts file="fmc_axis_XIL_DMA.dts"/>
+        </app>
+         <app name="fmc_axis64_XIL_DMA">
+            <dts file="fmc_axis64_XIL_DMA.dts"/>
+        </app>
+    </image>
+</board>

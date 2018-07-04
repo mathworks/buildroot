@@ -8,11 +8,11 @@
 #        - dl/
 
 variables:
-    CONFIG_BR2_DL_DIR: "buildroot-ci/dl"
+    CONFIG_BUILDROOT_DL_ROOT: "buildroot-ci/dl"
     GIT_STRATEGY: none
 
 before_script:
-    - export CONFIG_BR2_DL_DIR=$HOME/$CONFIG_BR2_DL_DIR
+    - export CONFIG_BUILDROOT_DL_ROOT=$HOME/$CONFIG_BUILDROOT_DL_ROOT
     - export
 
 ########################
@@ -23,13 +23,20 @@ before_script:
 # Used by all jobs
 .global_job_template: &global_job_template
     script:
-        - ./board/mathworks/common/scripts/gitlab_automation.sh    
+        - ./board/mathworks/common/scripts/gitlab_automation.sh
+    tags: 
+        - HAS_DEPLOY_CMD
     only:
         - /.*-ci$/
         - next
-        - master
+        - iiosdr
         - triggers
         - tags
+
+# Deployment Jobs
+.deploy_job_template: &deploy_job_template
+    <<: *global_job_template
+    stage: deploy
 
 # Global sysroot template
 # Used by all sysroot jobs
@@ -38,8 +45,8 @@ before_script:
     stage: sysroot
     artifacts:
         paths:
-            - images/sysroot_$CONFIG_JOB_BOARD*.tar.gz
-            - images/licenses_$CONFIG_JOB_BOARD*.txt
+            - images/$CONFIG_JOB_PLATFORM/sysroot_$CONFIG_JOB_BOARD*.tar.gz
+            - images/$CONFIG_JOB_PLATFORM/licenses_$CONFIG_JOB_BOARD*.txt
         expire_in: 2 days
 
 # Global setup/teardown template
@@ -60,8 +67,8 @@ before_script:
     stage: build
     artifacts:
         paths:
-            - images/$CONFIG_JOB_BOARD*.zip
-            - images/$CONFIG_JOB_BOARD*.gz
+            - images/$CONFIG_JOB_PROJECT/*.zip
+            - images/$CONFIG_JOB_PROJECT/*.gz
         expire_in: 2 days
 
 # Global source job template
@@ -78,15 +85,32 @@ before_script:
 stages:
     - setup
     - sources_common
-    - sources_custom
     - build
     - sysroot
     - upload_logs
+    - deploy
     - teardown
 
 ########################
-# Jobs
+# Common Jobs
 ########################
+
+# Deployment Jobs
+deploy_review:
+    <<: *deploy_job_template
+    environment:
+        name: review/$CI_COMMIT_REF_NAME
+        url: $CONFIG_DEPLOY_URL_ROOT/$CI_ENVIRONMENT_NAME/
+
+deploy_staging:
+    <<: *deploy_job_template
+    environment:
+        name: staging/$CI_COMMIT_REF_NAME
+        url: $CONFIG_DEPLOY_URL_ROOT/$CI_ENVIRONMENT_NAME/
+    when: manual
+    only:
+        - next
+        - tags
 
 # Prep and teardown jobs
 setup:
@@ -116,29 +140,7 @@ upload_logs:
             - logs/
         expire_in: 2 weeks
     script:
-        - echo "Capturing Pipeline logs"    
-
-########################
-# Source Jobs (per-platform)
-########################
-
-source_zynq:
-    <<: *source_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zed
-
-source_socfpga:
-    <<: *source_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: socfpga
-        CONFIG_JOB_BOARD: sockit
-
-source_zynqmp:
-    <<: *source_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynqmp
-        CONFIG_JOB_BOARD: zcu102
+        - echo "Capturing Pipeline logs"
 
 ########################
 # Sysroot Jobs (per-platform)
@@ -146,12 +148,16 @@ source_zynqmp:
 
 sysroot_zynq:
     <<: *sysroot_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: zynq
         CONFIG_JOB_BOARD: zed
 
 sysroot_socfpga:
     <<: *sysroot_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: socfpga
         CONFIG_JOB_BOARD: sockit
@@ -162,49 +168,42 @@ sysroot_zynqmp:
         CONFIG_JOB_PLATFORM: zynqmp
         CONFIG_JOB_BOARD: zcu102
 
-########################
-# Build Jobs (per-board)
-########################
-
-build_zybo:
-    <<: *build_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zybo
-
-build_zed:
-    <<: *build_job_template
+sysroot_zynqsdr:
+    <<: *sysroot_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynq
         CONFIG_JOB_BOARD: zed
+        CONFIG_JOB_PROJECT: apps/zynqsdr
 
-build_zc706:
+########################
+# Build Jobs (platform/project)
+########################
+
+build_zynq:
     <<: *build_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zc706
+        CONFIG_JOB_PROJECT: zynq
 
-build_zc702:
+build_socfpga:
     <<: *build_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: zynq
-        CONFIG_JOB_BOARD: zc702
-
-build_sockit:
-    <<: *build_job_template
+    except:
+        - iiosdr
     variables:
         CONFIG_JOB_PLATFORM: socfpga
-        CONFIG_JOB_BOARD: sockit
+        CONFIG_JOB_PROJECT: socfpga
 
-build_alteracycv:
-    <<: *build_job_template
-    variables:
-        CONFIG_JOB_PLATFORM: socfpga
-        CONFIG_JOB_BOARD: alteracycv
-
-build_zcu102:
+build_zynqmp:
     <<: *build_job_template
     variables:
         CONFIG_JOB_PLATFORM: zynqmp
-        CONFIG_JOB_BOARD: zcu102
+        CONFIG_JOB_PROJECT: zynqmp
+
+build_zynqsdr:
+    <<: *build_job_template
+    variables:
+        CONFIG_JOB_PLATFORM: zynq
+        CONFIG_JOB_PROJECT: apps/zynqsdr
 

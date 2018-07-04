@@ -80,16 +80,19 @@ _git checkout -q "'${cset}'"
 # %cD is RFC2822, so it's fully qualified, with TZ and all.
 date="$( _git log -1 --pretty=format:%cD )"
 
+# Capture the git hash
+_git log -n 1 --pretty="%H" > .br2_version
+
 # There might be submodules, so fetch them.
 if [ ${recurse} -eq 1 ]; then
     _git submodule update --init --recursive
 fi
 
-# Capture the git hash
-_git log -n 1 --pretty="%H" > .br2_version
-
-# We do not need the .git dir; we keep other .git files, in case they
+# We do not want the .git dir; we keep other .git files, in case they
 # are the only files in their directory.
+# The .git dir would generate non reproducible tarballs as it depends on
+# the state of the remote server. It also would generate large tarballs
+# (gigabytes for some linux trees) when a full clone took place.
 rm -rf .git
 
 popd >/dev/null
@@ -97,6 +100,8 @@ popd >/dev/null
 # Generate the archive, sort with the C locale so that it is reproducible
 find "${basename}" -not -type d >"${basename}.list"
 LC_ALL=C sort <"${basename}.list" >"${basename}.list.sorted"
-tar cf - --numeric-owner --owner=0 --group=0 --mtime="${date}" \
+# Create GNU-format tarballs, since that's the format of the tarballs on
+# sources.buildroot.org and used in the *.hash files
+tar cf - --numeric-owner --owner=0 --group=0 --mtime="${date}" --format=gnu \
          -T "${basename}.list.sorted" >"${output}.tar"
 gzip -n <"${output}.tar" >"${output}"

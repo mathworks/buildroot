@@ -1,0 +1,7 @@
+config BR2_PACKAGE_FRU_TOOLS
+        bool "fru-tools"
+        help
+          Tool to dump and program FRU EEPROMs
+
+          https://github.com/analogdevicesinc/fru_tools
+

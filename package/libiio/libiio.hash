@@ -1,2 +1,3 @@
-# From https://github.com/analogdevicesinc/libiio/archive/v0.9/
-sha256	b6184876d192fbfd51e3a0a29736fa1be2dbaf07370cf861797076f40a85f823	libiio-0.9.tar.gz
+# Locally calculated
+sha256 a729f8ff48137ad271a3e2951f322b35c1bf2ec075b488d75c8bd071c693fd19 libiio-0.15.tar.gz
+

@@ -1,4 +1,4 @@
-#include "zynqmp-zcu102-revB.dts"
+#include "zynqmp-zcu102-rev1.0.dts"
 
 / {
 	chosen {
@@ -7,4 +7,4 @@
 };
 #include "zynqmp-mw-fpga-bridge-common.dtsi"
 #include "zynqmp-mw-common.dtsi"
-
+#include "mw-aximm-common.dtsi"
