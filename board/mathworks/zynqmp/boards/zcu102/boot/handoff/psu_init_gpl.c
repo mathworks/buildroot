@@ -216,6 +216,34 @@ unsigned long psu_pll_init_data(void)
     * RPLL FRAC CFG
     */
     /*
+    * SYSMON CLOCK PRESET TO RPLL AGAIN TO AVOID GLITCH WHEN NEXT IOPLL WILL B
+    * E PUT IN BYPASS MODE
+    */
+    /*
+    * Register : AMS_REF_CTRL @ 0XFF5E0108
+
+    * 6 bit divider
+    *  PSU_CRL_APB_AMS_REF_CTRL_DIVISOR1                           1
+
+    * 6 bit divider
+    *  PSU_CRL_APB_AMS_REF_CTRL_DIVISOR0                           35
+
+    * 000 = RPLL; 010 = IOPLL; 011 = DPLL; (This signal may only be toggled af
+    * ter 4 cycles of the old clock and 4 cycles of the new clock. This is not
+    *  usually an issue, but designers must be aware.)
+    *  PSU_CRL_APB_AMS_REF_CTRL_SRCSEL                             0
+
+    * Clock active signal. Switch to 0 to disable the clock
+    *  PSU_CRL_APB_AMS_REF_CTRL_CLKACT                             1
+
+    * This register controls this reference clock
+    * (OFFSET, MASK, VALUE)      (0XFF5E0108, 0x013F3F07U ,0x01012300U)
+    */
+	PSU_Mask_Write(CRL_APB_AMS_REF_CTRL_OFFSET,
+		0x013F3F07U, 0x01012300U);
+/*##################################################################### */
+
+    /*
     * IOPLL INIT
     */
     /*
@@ -3048,7 +3076,7 @@ unsigned long psu_ddr_init_data(void)
     * L. For configurations with MEMC_FREQ_RATIO=2, program this to (tXMPDLL/2
     * ) and round it up to the next integer value. Present only in designs con
     * figured to support DDR4. Unit: Multiples of 32 clocks.
-    *  PSU_DDRC_DRAMTMG11_POST_MPSM_GAP_X32                        0x70
+    *  PSU_DDRC_DRAMTMG11_POST_MPSM_GAP_X32                        0x10
 
     * tMPX_LH: This is the minimum CS_n Low hold time to CKE rising edge. For
     * configurations with MEMC_FREQ_RATIO=2, program this to RoundUp(tMPX_LH/2
@@ -3068,9 +3096,9 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDRC_DRAMTMG11_T_CKMPE                                  0xe
 
     * SDRAM Timing Register 11
-    * (OFFSET, MASK, VALUE)      (0XFD07012C, 0x7F1F031FU ,0x7007010EU)
+    * (OFFSET, MASK, VALUE)      (0XFD07012C, 0x7F1F031FU ,0x1007010EU)
     */
-	PSU_Mask_Write(DDRC_DRAMTMG11_OFFSET, 0x7F1F031FU, 0x7007010EU);
+	PSU_Mask_Write(DDRC_DRAMTMG11_OFFSET, 0x7F1F031FU, 0x1007010EU);
 /*##################################################################### */
 
     /*
@@ -3394,7 +3422,7 @@ unsigned long psu_ddr_init_data(void)
     *  higher to reduce the frequency of update requests, which can have a sma
     * ll impact on the latency of the first read request when the uMCTL2 is id
     * le. Unit: 1024 clocks
-    *  PSU_DDRC_DFIUPD1_DFI_T_CTRLUPD_INTERVAL_MIN_X1024           0x41
+    *  PSU_DDRC_DFIUPD1_DFI_T_CTRLUPD_INTERVAL_MIN_X1024           0xc8
 
     * This is the maximum amount of time between uMCTL2 initiated DFI update r
     * equests. This timer resets with each update request; when the timer expi
@@ -3406,12 +3434,12 @@ unsigned long psu_ddr_init_data(void)
     * Note: Value programmed for DFIUPD1.dfi_t_ctrlupd_interval_max_x1024 must
     *  be greater than DFIUPD1.dfi_t_ctrlupd_interval_min_x1024. Unit: 1024 cl
     * ocks
-    *  PSU_DDRC_DFIUPD1_DFI_T_CTRLUPD_INTERVAL_MAX_X1024           0xe1
+    *  PSU_DDRC_DFIUPD1_DFI_T_CTRLUPD_INTERVAL_MAX_X1024           0xff
 
     * DFI Update Register 1
-    * (OFFSET, MASK, VALUE)      (0XFD0701A4, 0x00FF00FFU ,0x004100E1U)
+    * (OFFSET, MASK, VALUE)      (0XFD0701A4, 0x00FF00FFU ,0x00C800FFU)
     */
-	PSU_Mask_Write(DDRC_DFIUPD1_OFFSET, 0x00FF00FFU, 0x004100E1U);
+	PSU_Mask_Write(DDRC_DFIUPD1_OFFSET, 0x00FF00FFU, 0x00C800FFU);
 /*##################################################################### */
 
     /*
@@ -3449,12 +3477,12 @@ unsigned long psu_ddr_init_data(void)
     *  interface and when the associated dfi_wrdata_cs signal is asserted. Thi
     * s corresponds to the DFI timing parameter tphy_wrcslat. Refer to PHY spe
     * cification for correct value.
-    *  PSU_DDRC_DFITMG2_DFI_TPHY_WRCSLAT                           0x6
+    *  PSU_DDRC_DFITMG2_DFI_TPHY_WRCSLAT                           0x9
 
     * DFI Timing Register 2
-    * (OFFSET, MASK, VALUE)      (0XFD0701B4, 0x00003F3FU ,0x00000906U)
+    * (OFFSET, MASK, VALUE)      (0XFD0701B4, 0x00003F3FU ,0x00000909U)
     */
-	PSU_Mask_Write(DDRC_DFITMG2_OFFSET, 0x00003F3FU, 0x00000906U);
+	PSU_Mask_Write(DDRC_DFITMG2_OFFSET, 0x00003F3FU, 0x00000909U);
 /*##################################################################### */
 
     /*
@@ -5657,36 +5685,36 @@ unsigned long psu_ddr_init_data(void)
     * Register : PTR0 @ 0XFD080040
 
     * PLL Power-Down Time
-    *  PSU_DDR_PHY_PTR0_TPLLPD                                     0x56
+    *  PSU_DDR_PHY_PTR0_TPLLPD                                     0x216
 
     * PLL Gear Shift Time
-    *  PSU_DDR_PHY_PTR0_TPLLGS                                     0x2156
+    *  PSU_DDR_PHY_PTR0_TPLLGS                                     0x856
 
     * PHY Reset Time
     *  PSU_DDR_PHY_PTR0_TPHYRST                                    0x10
 
     * PHY Timing Register 0
-    * (OFFSET, MASK, VALUE)      (0XFD080040, 0xFFFFFFFFU ,0x0AC85590U)
+    * (OFFSET, MASK, VALUE)      (0XFD080040, 0xFFFFFFFFU ,0x42C21590U)
     */
-	PSU_Mask_Write(DDR_PHY_PTR0_OFFSET, 0xFFFFFFFFU, 0x0AC85590U);
+	PSU_Mask_Write(DDR_PHY_PTR0_OFFSET, 0xFFFFFFFFU, 0x42C21590U);
 /*##################################################################### */
 
     /*
     * Register : PTR1 @ 0XFD080044
 
     * PLL Lock Time
-    *  PSU_DDR_PHY_PTR1_TPLLLOCK                                   0x4154
+    *  PSU_DDR_PHY_PTR1_TPLLLOCK                                   0xd055
 
     * Reserved. Returns zeroes on reads.
     *  PSU_DDR_PHY_PTR1_RESERVED_15_13                             0x0
 
     * PLL Reset Time
-    *  PSU_DDR_PHY_PTR1_TPLLRST                                    0xb00
+    *  PSU_DDR_PHY_PTR1_TPLLRST                                    0x12c0
 
     * PHY Timing Register 1
-    * (OFFSET, MASK, VALUE)      (0XFD080044, 0xFFFFFFFFU ,0x41540B00U)
+    * (OFFSET, MASK, VALUE)      (0XFD080044, 0xFFFFFFFFU ,0xD05512C0U)
     */
-	PSU_Mask_Write(DDR_PHY_PTR1_OFFSET, 0xFFFFFFFFU, 0x41540B00U);
+	PSU_Mask_Write(DDR_PHY_PTR1_OFFSET, 0xFFFFFFFFU, 0xD05512C0U);
 /*##################################################################### */
 
     /*
@@ -5806,6 +5834,30 @@ unsigned long psu_ddr_init_data(void)
     * (OFFSET, MASK, VALUE)      (0XFD080090, 0xFFFFFFFFU ,0x02A04161U)
     */
 	PSU_Mask_Write(DDR_PHY_DSGCR_OFFSET, 0xFFFFFFFFU, 0x02A04161U);
+/*##################################################################### */
+
+    /*
+    * Register : GPR0 @ 0XFD0800C0
+
+    * General Purpose Register 0
+    *  PSU_DDR_PHY_GPR0_GPR0                                       0x0
+
+    * General Purpose Register 0
+    * (OFFSET, MASK, VALUE)      (0XFD0800C0, 0xFFFFFFFFU ,0x00000000U)
+    */
+	PSU_Mask_Write(DDR_PHY_GPR0_OFFSET, 0xFFFFFFFFU, 0x00000000U);
+/*##################################################################### */
+
+    /*
+    * Register : GPR1 @ 0XFD0800C4
+
+    * General Purpose Register 1
+    *  PSU_DDR_PHY_GPR1_GPR1                                       0xda
+
+    * General Purpose Register 1
+    * (OFFSET, MASK, VALUE)      (0XFD0800C4, 0xFFFFFFFFU ,0x000000DAU)
+    */
+	PSU_Mask_Write(DDR_PHY_GPR1_OFFSET, 0xFFFFFFFFU, 0x000000DAU);
 /*##################################################################### */
 
     /*
@@ -5939,7 +5991,7 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DTPR2_RESERVED_23_20                            0x0
 
     * CKE minimum pulse width
-    *  PSU_DDR_PHY_DTPR2_TCKE                                      0x7
+    *  PSU_DDR_PHY_DTPR2_TCKE                                      0xf
 
     * Reserved. Return zeroes on reads.
     *  PSU_DDR_PHY_DTPR2_RESERVED_15_10                            0x0
@@ -5948,9 +6000,9 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DTPR2_TXS                                       0x300
 
     * DRAM Timing Parameters Register 2
-    * (OFFSET, MASK, VALUE)      (0XFD080118, 0xFFFFFFFFU ,0x00070300U)
+    * (OFFSET, MASK, VALUE)      (0XFD080118, 0xFFFFFFFFU ,0x000F0300U)
     */
-	PSU_Mask_Write(DDR_PHY_DTPR2_OFFSET, 0xFFFFFFFFU, 0x00070300U);
+	PSU_Mask_Write(DDR_PHY_DTPR2_OFFSET, 0xFFFFFFFFU, 0x000F0300U);
 /*##################################################################### */
 
     /*
@@ -7542,6 +7594,111 @@ unsigned long psu_ddr_init_data(void)
 /*##################################################################### */
 
     /*
+    * Register : DX0GCR1 @ 0XFD080704
+
+    * Enables the PDR mode for DQ[7:0]
+    *  PSU_DDR_PHY_DX0GCR1_DXPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX0GCR1_RESERVED_15                             0x0
+
+    * Select the delayed or non-delayed read data strobe #
+    *  PSU_DDR_PHY_DX0GCR1_QSNSEL                                  0x1
+
+    * Select the delayed or non-delayed read data strobe
+    *  PSU_DDR_PHY_DX0GCR1_QSSEL                                   0x1
+
+    * Enables Read Data Strobe in a byte lane
+    *  PSU_DDR_PHY_DX0GCR1_OEEN                                    0x1
+
+    * Enables PDR in a byte lane
+    *  PSU_DDR_PHY_DX0GCR1_PDREN                                   0x1
+
+    * Enables ODT/TE in a byte lane
+    *  PSU_DDR_PHY_DX0GCR1_TEEN                                    0x1
+
+    * Enables Write Data strobe in a byte lane
+    *  PSU_DDR_PHY_DX0GCR1_DSEN                                    0x1
+
+    * Enables DM pin in a byte lane
+    *  PSU_DDR_PHY_DX0GCR1_DMEN                                    0x1
+
+    * Enables DQ corresponding to each bit in a byte
+    *  PSU_DDR_PHY_DX0GCR1_DQEN                                    0xff
+
+    * DATX8 n General Configuration Register 1
+    * (OFFSET, MASK, VALUE)      (0XFD080704, 0xFFFFFFFFU ,0x00007FFFU)
+    */
+	PSU_Mask_Write(DDR_PHY_DX0GCR1_OFFSET, 0xFFFFFFFFU, 0x00007FFFU);
+/*##################################################################### */
+
+    /*
+    * Register : DX0GCR3 @ 0XFD08070C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX0GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX0GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX0GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX0GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX0GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX0GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX0GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX0GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX0GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX0GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX0GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX0GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX0GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX0GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX0GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX0GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX0GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX0GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX0GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD08070C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX0GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
+/*##################################################################### */
+
+    /*
     * Register : DX0GCR4 @ 0XFD080710
 
     * Byte lane VREF IOM (Used only by D4MU IOs)
@@ -7711,6 +7868,111 @@ unsigned long psu_ddr_init_data(void)
     * (OFFSET, MASK, VALUE)      (0XFD080800, 0xFFFFFFFFU ,0x40800604U)
     */
 	PSU_Mask_Write(DDR_PHY_DX1GCR0_OFFSET, 0xFFFFFFFFU, 0x40800604U);
+/*##################################################################### */
+
+    /*
+    * Register : DX1GCR1 @ 0XFD080804
+
+    * Enables the PDR mode for DQ[7:0]
+    *  PSU_DDR_PHY_DX1GCR1_DXPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX1GCR1_RESERVED_15                             0x0
+
+    * Select the delayed or non-delayed read data strobe #
+    *  PSU_DDR_PHY_DX1GCR1_QSNSEL                                  0x1
+
+    * Select the delayed or non-delayed read data strobe
+    *  PSU_DDR_PHY_DX1GCR1_QSSEL                                   0x1
+
+    * Enables Read Data Strobe in a byte lane
+    *  PSU_DDR_PHY_DX1GCR1_OEEN                                    0x1
+
+    * Enables PDR in a byte lane
+    *  PSU_DDR_PHY_DX1GCR1_PDREN                                   0x1
+
+    * Enables ODT/TE in a byte lane
+    *  PSU_DDR_PHY_DX1GCR1_TEEN                                    0x1
+
+    * Enables Write Data strobe in a byte lane
+    *  PSU_DDR_PHY_DX1GCR1_DSEN                                    0x1
+
+    * Enables DM pin in a byte lane
+    *  PSU_DDR_PHY_DX1GCR1_DMEN                                    0x1
+
+    * Enables DQ corresponding to each bit in a byte
+    *  PSU_DDR_PHY_DX1GCR1_DQEN                                    0xff
+
+    * DATX8 n General Configuration Register 1
+    * (OFFSET, MASK, VALUE)      (0XFD080804, 0xFFFFFFFFU ,0x00007FFFU)
+    */
+	PSU_Mask_Write(DDR_PHY_DX1GCR1_OFFSET, 0xFFFFFFFFU, 0x00007FFFU);
+/*##################################################################### */
+
+    /*
+    * Register : DX1GCR3 @ 0XFD08080C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX1GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX1GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX1GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX1GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX1GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX1GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX1GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX1GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX1GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX1GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX1GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX1GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX1GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX1GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX1GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX1GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX1GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX1GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX1GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD08080C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX1GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
 /*##################################################################### */
 
     /*
@@ -7925,6 +8187,72 @@ unsigned long psu_ddr_init_data(void)
 /*##################################################################### */
 
     /*
+    * Register : DX2GCR3 @ 0XFD08090C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX2GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX2GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX2GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX2GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX2GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX2GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX2GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX2GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX2GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX2GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX2GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX2GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX2GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX2GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX2GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX2GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX2GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX2GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX2GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD08090C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX2GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
+/*##################################################################### */
+
+    /*
     * Register : DX2GCR4 @ 0XFD080910
 
     * Byte lane VREF IOM (Used only by D4MU IOs)
@@ -8133,6 +8461,72 @@ unsigned long psu_ddr_init_data(void)
     * (OFFSET, MASK, VALUE)      (0XFD080A04, 0xFFFFFFFFU ,0x00007FFFU)
     */
 	PSU_Mask_Write(DDR_PHY_DX3GCR1_OFFSET, 0xFFFFFFFFU, 0x00007FFFU);
+/*##################################################################### */
+
+    /*
+    * Register : DX3GCR3 @ 0XFD080A0C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX3GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX3GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX3GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX3GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX3GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX3GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX3GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX3GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX3GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX3GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX3GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX3GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX3GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX3GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX3GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX3GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX3GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX3GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX3GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD080A0C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX3GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
 /*##################################################################### */
 
     /*
@@ -8347,6 +8741,87 @@ unsigned long psu_ddr_init_data(void)
 /*##################################################################### */
 
     /*
+    * Register : DX4GCR2 @ 0XFD080B08
+
+    * Enables the OE mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX4GCR2_DXOEMODE                                0x0
+
+    * Enables the TE (ODT) mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX4GCR2_DXTEMODE                                0x0
+
+    * DATX8 n General Configuration Register 2
+    * (OFFSET, MASK, VALUE)      (0XFD080B08, 0xFFFFFFFFU ,0x00000000U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX4GCR2_OFFSET, 0xFFFFFFFFU, 0x00000000U);
+/*##################################################################### */
+
+    /*
+    * Register : DX4GCR3 @ 0XFD080B0C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX4GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX4GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX4GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX4GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX4GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX4GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX4GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX4GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX4GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX4GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX4GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX4GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX4GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX4GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX4GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX4GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX4GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX4GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX4GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD080B0C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX4GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
+/*##################################################################### */
+
+    /*
     * Register : DX4GCR4 @ 0XFD080B10
 
     * Byte lane VREF IOM (Used only by D4MU IOs)
@@ -8380,15 +8855,15 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX4GCR4_RESERVED_7_6                            0x0
 
     * VREF Enable control for DQ IO (Single Ended) buffers of a byte lane.
-    *  PSU_DDR_PHY_DX4GCR4_DXREFIEN                                0xf
+    *  PSU_DDR_PHY_DX4GCR4_DXREFIEN                                0x1
 
     * VRMON control for DQ IO (Single Ended) buffers of a byte lane.
     *  PSU_DDR_PHY_DX4GCR4_DXREFIMON                               0x0
 
     * DATX8 n General Configuration Register 4
-    * (OFFSET, MASK, VALUE)      (0XFD080B10, 0xFFFFFFFFU ,0x0E00B03CU)
+    * (OFFSET, MASK, VALUE)      (0XFD080B10, 0xFFFFFFFFU ,0x0E00B004U)
     */
-	PSU_Mask_Write(DDR_PHY_DX4GCR4_OFFSET, 0xFFFFFFFFU, 0x0E00B03CU);
+	PSU_Mask_Write(DDR_PHY_DX4GCR4_OFFSET, 0xFFFFFFFFU, 0x0E00B004U);
 /*##################################################################### */
 
     /*
@@ -8555,6 +9030,87 @@ unsigned long psu_ddr_init_data(void)
     * (OFFSET, MASK, VALUE)      (0XFD080C04, 0xFFFFFFFFU ,0x00007FFFU)
     */
 	PSU_Mask_Write(DDR_PHY_DX5GCR1_OFFSET, 0xFFFFFFFFU, 0x00007FFFU);
+/*##################################################################### */
+
+    /*
+    * Register : DX5GCR2 @ 0XFD080C08
+
+    * Enables the OE mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX5GCR2_DXOEMODE                                0x0
+
+    * Enables the TE (ODT) mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX5GCR2_DXTEMODE                                0x0
+
+    * DATX8 n General Configuration Register 2
+    * (OFFSET, MASK, VALUE)      (0XFD080C08, 0xFFFFFFFFU ,0x00000000U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX5GCR2_OFFSET, 0xFFFFFFFFU, 0x00000000U);
+/*##################################################################### */
+
+    /*
+    * Register : DX5GCR3 @ 0XFD080C0C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX5GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX5GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX5GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX5GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX5GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX5GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX5GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX5GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX5GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX5GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX5GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX5GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX5GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX5GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX5GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX5GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX5GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX5GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX5GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD080C0C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX5GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
 /*##################################################################### */
 
     /*
@@ -8769,6 +9325,87 @@ unsigned long psu_ddr_init_data(void)
 /*##################################################################### */
 
     /*
+    * Register : DX6GCR2 @ 0XFD080D08
+
+    * Enables the OE mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX6GCR2_DXOEMODE                                0x0
+
+    * Enables the TE (ODT) mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX6GCR2_DXTEMODE                                0x0
+
+    * DATX8 n General Configuration Register 2
+    * (OFFSET, MASK, VALUE)      (0XFD080D08, 0xFFFFFFFFU ,0x00000000U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX6GCR2_OFFSET, 0xFFFFFFFFU, 0x00000000U);
+/*##################################################################### */
+
+    /*
+    * Register : DX6GCR3 @ 0XFD080D0C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX6GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX6GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX6GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX6GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX6GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX6GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX6GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX6GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX6GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX6GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX6GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX6GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX6GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX6GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX6GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX6GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX6GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX6GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX6GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD080D0C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX6GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
+/*##################################################################### */
+
+    /*
     * Register : DX6GCR4 @ 0XFD080D10
 
     * Byte lane VREF IOM (Used only by D4MU IOs)
@@ -8802,15 +9439,15 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX6GCR4_RESERVED_7_6                            0x0
 
     * VREF Enable control for DQ IO (Single Ended) buffers of a byte lane.
-    *  PSU_DDR_PHY_DX6GCR4_DXREFIEN                                0xf
+    *  PSU_DDR_PHY_DX6GCR4_DXREFIEN                                0x1
 
     * VRMON control for DQ IO (Single Ended) buffers of a byte lane.
     *  PSU_DDR_PHY_DX6GCR4_DXREFIMON                               0x0
 
     * DATX8 n General Configuration Register 4
-    * (OFFSET, MASK, VALUE)      (0XFD080D10, 0xFFFFFFFFU ,0x0E00B03CU)
+    * (OFFSET, MASK, VALUE)      (0XFD080D10, 0xFFFFFFFFU ,0x0E00B004U)
     */
-	PSU_Mask_Write(DDR_PHY_DX6GCR4_OFFSET, 0xFFFFFFFFU, 0x0E00B03CU);
+	PSU_Mask_Write(DDR_PHY_DX6GCR4_OFFSET, 0xFFFFFFFFU, 0x0E00B004U);
 /*##################################################################### */
 
     /*
@@ -8980,6 +9617,87 @@ unsigned long psu_ddr_init_data(void)
 /*##################################################################### */
 
     /*
+    * Register : DX7GCR2 @ 0XFD080E08
+
+    * Enables the OE mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX7GCR2_DXOEMODE                                0x0
+
+    * Enables the TE (ODT) mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX7GCR2_DXTEMODE                                0x0
+
+    * DATX8 n General Configuration Register 2
+    * (OFFSET, MASK, VALUE)      (0XFD080E08, 0xFFFFFFFFU ,0x00000000U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX7GCR2_OFFSET, 0xFFFFFFFFU, 0x00000000U);
+/*##################################################################### */
+
+    /*
+    * Register : DX7GCR3 @ 0XFD080E0C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX7GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX7GCR3_RDBVT                                   0x1
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX7GCR3_WDBVT                                   0x1
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX7GCR3_RGLVT                                   0x1
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX7GCR3_RDLVT                                   0x1
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX7GCR3_WDLVT                                   0x1
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX7GCR3_WLLVT                                   0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX7GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX7GCR3_DSNOEMODE                               0x0
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX7GCR3_DSNTEMODE                               0x0
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX7GCR3_DSNPDRMODE                              0x0
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX7GCR3_DMOEMODE                                0x0
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX7GCR3_DMTEMODE                                0x0
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX7GCR3_DMPDRMODE                               0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX7GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX7GCR3_DSOEMODE                                0x0
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX7GCR3_DSTEMODE                                0x0
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX7GCR3_DSPDRMODE                               0x2
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX7GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD080E0C, 0xFFFFFFFFU ,0x3F000008U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX7GCR3_OFFSET, 0xFFFFFFFFU, 0x3F000008U);
+/*##################################################################### */
+
+    /*
     * Register : DX7GCR4 @ 0XFD080E10
 
     * Byte lane VREF IOM (Used only by D4MU IOs)
@@ -9113,10 +9831,10 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX8GCR0_RESERVED_19_14                          0x0
 
     * DQSNSE Power Down Receiver
-    *  PSU_DDR_PHY_DX8GCR0_DQSNSEPDR                               0x0
+    *  PSU_DDR_PHY_DX8GCR0_DQSNSEPDR                               0x1
 
     * DQSSE Power Down Receiver
-    *  PSU_DDR_PHY_DX8GCR0_DQSSEPDR                                0x0
+    *  PSU_DDR_PHY_DX8GCR0_DQSSEPDR                                0x1
 
     * RTT On Additive Latency
     *  PSU_DDR_PHY_DX8GCR0_RTTOAL                                  0x0
@@ -9128,7 +9846,7 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX8GCR0_CPDRSHFT                                0x0
 
     * DQSR Power Down
-    *  PSU_DDR_PHY_DX8GCR0_DQSRPD                                  0x0
+    *  PSU_DDR_PHY_DX8GCR0_DQSRPD                                  0x1
 
     * DQSG Power Down Receiver
     *  PSU_DDR_PHY_DX8GCR0_DQSGPDR                                 0x1
@@ -9140,22 +9858,22 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX8GCR0_DQSGODT                                 0x0
 
     * DQSG Output Enable
-    *  PSU_DDR_PHY_DX8GCR0_DQSGOE                                  0x1
+    *  PSU_DDR_PHY_DX8GCR0_DQSGOE                                  0x0
 
     * Reserved. Return zeroes on reads.
     *  PSU_DDR_PHY_DX8GCR0_RESERVED_1_0                            0x0
 
     * DATX8 n General Configuration Register 0
-    * (OFFSET, MASK, VALUE)      (0XFD080F00, 0xFFFFFFFFU ,0x40800624U)
+    * (OFFSET, MASK, VALUE)      (0XFD080F00, 0xFFFFFFFFU ,0x40803660U)
     */
-	PSU_Mask_Write(DDR_PHY_DX8GCR0_OFFSET, 0xFFFFFFFFU, 0x40800624U);
+	PSU_Mask_Write(DDR_PHY_DX8GCR0_OFFSET, 0xFFFFFFFFU, 0x40803660U);
 /*##################################################################### */
 
     /*
     * Register : DX8GCR1 @ 0XFD080F04
 
     * Enables the PDR mode for DQ[7:0]
-    *  PSU_DDR_PHY_DX8GCR1_DXPDRMODE                               0x0
+    *  PSU_DDR_PHY_DX8GCR1_DXPDRMODE                               0x5555
 
     * Reserved. Returns zeroes on reads.
     *  PSU_DDR_PHY_DX8GCR1_RESERVED_15                             0x0
@@ -9167,27 +9885,108 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX8GCR1_QSSEL                                   0x1
 
     * Enables Read Data Strobe in a byte lane
-    *  PSU_DDR_PHY_DX8GCR1_OEEN                                    0x1
+    *  PSU_DDR_PHY_DX8GCR1_OEEN                                    0x0
 
     * Enables PDR in a byte lane
-    *  PSU_DDR_PHY_DX8GCR1_PDREN                                   0x1
+    *  PSU_DDR_PHY_DX8GCR1_PDREN                                   0x0
 
     * Enables ODT/TE in a byte lane
-    *  PSU_DDR_PHY_DX8GCR1_TEEN                                    0x1
+    *  PSU_DDR_PHY_DX8GCR1_TEEN                                    0x0
 
     * Enables Write Data strobe in a byte lane
-    *  PSU_DDR_PHY_DX8GCR1_DSEN                                    0x1
+    *  PSU_DDR_PHY_DX8GCR1_DSEN                                    0x0
 
     * Enables DM pin in a byte lane
-    *  PSU_DDR_PHY_DX8GCR1_DMEN                                    0x1
+    *  PSU_DDR_PHY_DX8GCR1_DMEN                                    0x0
 
     * Enables DQ corresponding to each bit in a byte
     *  PSU_DDR_PHY_DX8GCR1_DQEN                                    0x0
 
     * DATX8 n General Configuration Register 1
-    * (OFFSET, MASK, VALUE)      (0XFD080F04, 0xFFFFFFFFU ,0x00007F00U)
+    * (OFFSET, MASK, VALUE)      (0XFD080F04, 0xFFFFFFFFU ,0x55556000U)
     */
-	PSU_Mask_Write(DDR_PHY_DX8GCR1_OFFSET, 0xFFFFFFFFU, 0x00007F00U);
+	PSU_Mask_Write(DDR_PHY_DX8GCR1_OFFSET, 0xFFFFFFFFU, 0x55556000U);
+/*##################################################################### */
+
+    /*
+    * Register : DX8GCR2 @ 0XFD080F08
+
+    * Enables the OE mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX8GCR2_DXOEMODE                                0xaaaa
+
+    * Enables the TE (ODT) mode values for DQ[7:0]
+    *  PSU_DDR_PHY_DX8GCR2_DXTEMODE                                0xaaaa
+
+    * DATX8 n General Configuration Register 2
+    * (OFFSET, MASK, VALUE)      (0XFD080F08, 0xFFFFFFFFU ,0xAAAAAAAAU)
+    */
+	PSU_Mask_Write(DDR_PHY_DX8GCR2_OFFSET, 0xFFFFFFFFU, 0xAAAAAAAAU);
+/*##################################################################### */
+
+    /*
+    * Register : DX8GCR3 @ 0XFD080F0C
+
+    * Reserved. Returns zeros on reads.
+    *  PSU_DDR_PHY_DX8GCR3_RESERVED_31_30                          0x0
+
+    * Read Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX8GCR3_RDBVT                                   0x0
+
+    * Write Data BDL VT Compensation
+    *  PSU_DDR_PHY_DX8GCR3_WDBVT                                   0x0
+
+    * Read DQS Gating LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX8GCR3_RGLVT                                   0x0
+
+    * Read DQS LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX8GCR3_RDLVT                                   0x0
+
+    * Write DQ LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX8GCR3_WDLVT                                   0x0
+
+    * Write Leveling LCDL Delay VT Compensation
+    *  PSU_DDR_PHY_DX8GCR3_WLLVT                                   0x0
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX8GCR3_RESERVED_23_22                          0x0
+
+    * Enables the OE mode for DQs
+    *  PSU_DDR_PHY_DX8GCR3_DSNOEMODE                               0x2
+
+    * Enables the TE mode for DQS
+    *  PSU_DDR_PHY_DX8GCR3_DSNTEMODE                               0x2
+
+    * Enables the PDR mode for DQS
+    *  PSU_DDR_PHY_DX8GCR3_DSNPDRMODE                              0x1
+
+    * Enables the OE mode values for DM.
+    *  PSU_DDR_PHY_DX8GCR3_DMOEMODE                                0x2
+
+    * Enables the TE mode values for DM.
+    *  PSU_DDR_PHY_DX8GCR3_DMTEMODE                                0x2
+
+    * Enables the PDR mode values for DM.
+    *  PSU_DDR_PHY_DX8GCR3_DMPDRMODE                               0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX8GCR3_RESERVED_9_8                            0x0
+
+    * Enables the OE mode values for DQS.
+    *  PSU_DDR_PHY_DX8GCR3_DSOEMODE                                0x2
+
+    * Enables the TE mode values for DQS.
+    *  PSU_DDR_PHY_DX8GCR3_DSTEMODE                                0x2
+
+    * Enables the PDR mode values for DQS.
+    *  PSU_DDR_PHY_DX8GCR3_DSPDRMODE                               0x1
+
+    * Reserved. Returns zeroes on reads.
+    *  PSU_DDR_PHY_DX8GCR3_RESERVED_1_0                            0x0
+
+    * DATX8 n General Configuration Register 3
+    * (OFFSET, MASK, VALUE)      (0XFD080F0C, 0xFFFFFFFFU ,0x0029A4A4U)
+    */
+	PSU_Mask_Write(DDR_PHY_DX8GCR3_OFFSET, 0xFFFFFFFFU, 0x0029A4A4U);
 /*##################################################################### */
 
     /*
@@ -9203,7 +10002,7 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX8GCR4_DXREFEEN                                0x3
 
     * Byte Lane Single-End VREF Enable
-    *  PSU_DDR_PHY_DX8GCR4_DXREFSEN                                0x1
+    *  PSU_DDR_PHY_DX8GCR4_DXREFSEN                                0x0
 
     * Reserved. Returns zeros on reads.
     *  PSU_DDR_PHY_DX8GCR4_RESERVED_24                             0x0
@@ -9224,15 +10023,15 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX8GCR4_RESERVED_7_6                            0x0
 
     * VREF Enable control for DQ IO (Single Ended) buffers of a byte lane.
-    *  PSU_DDR_PHY_DX8GCR4_DXREFIEN                                0xf
+    *  PSU_DDR_PHY_DX8GCR4_DXREFIEN                                0x0
 
     * VRMON control for DQ IO (Single Ended) buffers of a byte lane.
     *  PSU_DDR_PHY_DX8GCR4_DXREFIMON                               0x0
 
     * DATX8 n General Configuration Register 4
-    * (OFFSET, MASK, VALUE)      (0XFD080F10, 0xFFFFFFFFU ,0x0E00B03CU)
+    * (OFFSET, MASK, VALUE)      (0XFD080F10, 0xFFFFFFFFU ,0x0C00B000U)
     */
-	PSU_Mask_Write(DDR_PHY_DX8GCR4_OFFSET, 0xFFFFFFFFU, 0x0E00B03CU);
+	PSU_Mask_Write(DDR_PHY_DX8GCR4_OFFSET, 0xFFFFFFFFU, 0x0C00B000U);
 /*##################################################################### */
 
     /*
@@ -10324,13 +11123,13 @@ unsigned long psu_ddr_init_data(void)
     *  PSU_DDR_PHY_DX8SL4OSC_RESERVED_31_30                        0x0
 
     * Enable Clock Gating for DX ddr_clk
-    *  PSU_DDR_PHY_DX8SL4OSC_GATEDXRDCLK                           0x2
+    *  PSU_DDR_PHY_DX8SL4OSC_GATEDXRDCLK                           0x1
 
     * Enable Clock Gating for DX ctl_rd_clk
-    *  PSU_DDR_PHY_DX8SL4OSC_GATEDXDDRCLK                          0x2
+    *  PSU_DDR_PHY_DX8SL4OSC_GATEDXDDRCLK                          0x1
 
     * Enable Clock Gating for DX ctl_clk
-    *  PSU_DDR_PHY_DX8SL4OSC_GATEDXCTLCLK                          0x2
+    *  PSU_DDR_PHY_DX8SL4OSC_GATEDXCTLCLK                          0x1
 
     * Selects the level to which clocks will be stalled when clock gating is e
     * nabled.
@@ -10380,9 +11179,9 @@ unsigned long psu_ddr_init_data(void)
 
     * DATX8 0-1 Oscillator, Delay Line Test, PHY FIFO and High Speed Reset, Lo
     * opback, and Gated Clock Control Register
-    * (OFFSET, MASK, VALUE)      (0XFD081500, 0xFFFFFFFFU ,0x2A019FFEU)
+    * (OFFSET, MASK, VALUE)      (0XFD081500, 0xFFFFFFFFU ,0x15019FFEU)
     */
-	PSU_Mask_Write(DDR_PHY_DX8SL4OSC_OFFSET, 0xFFFFFFFFU, 0x2A019FFEU);
+	PSU_Mask_Write(DDR_PHY_DX8SL4OSC_OFFSET, 0xFFFFFFFFU, 0x15019FFEU);
 /*##################################################################### */
 
     /*
@@ -10672,96 +11471,11 @@ unsigned long psu_ddr_init_data(void)
 		0xFFFFFFFFU, 0x012643C4U);
 /*##################################################################### */
 
-    /*
-    * PHY_PIR
-    */
-    /*
-    * Register : PIR @ 0XFD080004
 
-    * Reserved. Return zeroes on reads.
-    *  PSU_DDR_PHY_PIR_RESERVED_31                                 0x0
-
-    * Impedance Calibration Bypass
-    *  PSU_DDR_PHY_PIR_ZCALBYP                                     0x0
-
-    * Digital Delay Line (DDL) Calibration Pause
-    *  PSU_DDR_PHY_PIR_DCALPSE                                     0x0
-
-    * Reserved. Return zeroes on reads.
-    *  PSU_DDR_PHY_PIR_RESERVED_28_21                              0x0
-
-    * Write DQS2DQ Training
-    *  PSU_DDR_PHY_PIR_DQS2DQ                                      0x0
-
-    * RDIMM Initialization
-    *  PSU_DDR_PHY_PIR_RDIMMINIT                                   0x0
-
-    * Controller DRAM Initialization
-    *  PSU_DDR_PHY_PIR_CTLDINIT                                    0x1
-
-    * VREF Training
-    *  PSU_DDR_PHY_PIR_VREF                                        0x0
-
-    * Static Read Training
-    *  PSU_DDR_PHY_PIR_SRD                                         0x0
-
-    * Write Data Eye Training
-    *  PSU_DDR_PHY_PIR_WREYE                                       0x0
-
-    * Read Data Eye Training
-    *  PSU_DDR_PHY_PIR_RDEYE                                       0x0
-
-    * Write Data Bit Deskew
-    *  PSU_DDR_PHY_PIR_WRDSKW                                      0x0
-
-    * Read Data Bit Deskew
-    *  PSU_DDR_PHY_PIR_RDDSKW                                      0x0
-
-    * Write Leveling Adjust
-    *  PSU_DDR_PHY_PIR_WLADJ                                       0x0
-
-    * Read DQS Gate Training
-    *  PSU_DDR_PHY_PIR_QSGATE                                      0x0
-
-    * Write Leveling
-    *  PSU_DDR_PHY_PIR_WL                                          0x0
-
-    * DRAM Initialization
-    *  PSU_DDR_PHY_PIR_DRAMINIT                                    0x0
-
-    * DRAM Reset (DDR3/DDR4/LPDDR4 Only)
-    *  PSU_DDR_PHY_PIR_DRAMRST                                     0x0
-
-    * PHY Reset
-    *  PSU_DDR_PHY_PIR_PHYRST                                      0x1
-
-    * Digital Delay Line (DDL) Calibration
-    *  PSU_DDR_PHY_PIR_DCAL                                        0x1
-
-    * PLL Initialiazation
-    *  PSU_DDR_PHY_PIR_PLLINIT                                     0x1
-
-    * Reserved. Return zeroes on reads.
-    *  PSU_DDR_PHY_PIR_RESERVED_3                                  0x0
-
-    * CA Training
-    *  PSU_DDR_PHY_PIR_CA                                          0x0
-
-    * Impedance Calibration
-    *  PSU_DDR_PHY_PIR_ZCAL                                        0x1
-
-    * Initialization Trigger
-    *  PSU_DDR_PHY_PIR_INIT                                        0x1
-
-    * PHY Initialization Register
-    * (OFFSET, MASK, VALUE)      (0XFD080004, 0xFFFFFFFFU ,0x00040073U)
-    */
-	PSU_Mask_Write(DDR_PHY_PIR_OFFSET, 0xFFFFFFFFU, 0x00040073U);
-/*##################################################################### */
-
-    /*
-    * DDR QOS CONTROLLER
-    */
+	return 1;
+}
+unsigned long psu_ddr_qos_init_data(void)
+{
 
 	return 1;
 }
@@ -11856,139 +12570,6 @@ unsigned long psu_mio_init_data(void)
     * (OFFSET, MASK, VALUE)      (0XFF180084, 0x000000FEU ,0x00000008U)
     */
 	PSU_Mask_Write(IOU_SLCR_MIO_PIN_33_OFFSET, 0x000000FEU, 0x00000008U);
-/*##################################################################### */
-
-    /*
-    * Register : MIO_PIN_34 @ 0XFF180088
-
-    * Level 0 Mux Select 0= Level 1 Mux Output 1= gem0, Input, gem0_rgmii_rxd[
-    * 1]- (RX RGMII data)
-    *  PSU_IOU_SLCR_MIO_PIN_34_L0_SEL                              0
-
-    * Level 1 Mux Select 0= Level 2 Mux Output 1= pcie, Input, pcie_reset_n- (
-    * PCIE Reset signal)
-    *  PSU_IOU_SLCR_MIO_PIN_34_L1_SEL                              0
-
-    * Level 2 Mux Select 0= Level 3 Mux Output 1= pmu, Output, pmu_gpo[2]- (PM
-    * U GPI) 2= test_scan, Input, test_scan_in[34]- (Test Scan Port) = test_sc
-    * an, Output, test_scan_out[34]- (Test Scan Port) 3= dpaux, Input, dp_aux_
-    * data_in- (Dp Aux Data) = dpaux, Output, dp_aux_data_out- (Dp Aux Data)
-    *  PSU_IOU_SLCR_MIO_PIN_34_L2_SEL                              1
-
-    * Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[8]- (GPIO bank 1) 0= g
-    * pio1, Output, gpio_1_pin_out[8]- (GPIO bank 1) 1= can0, Input, can0_phy_
-    * rx- (Can RX signal) 2= i2c0, Input, i2c0_scl_input- (SCL signal) 2= i2c0
-    * , Output, i2c0_scl_out- (SCL signal) 3= swdt0, Input, swdt0_clk_in- (Wat
-    * ch Dog Timer Input clock) 4= spi1, Output, spi1_n_ss_out[1]- (SPI Master
-    *  Selects) 5= ttc2, Input, ttc2_clk_in- (TTC Clock) 6= ua0, Input, ua0_rx
-    * d- (UART receiver serial input) 7= trace, Output, tracedq[12]- (Trace Po
-    * rt Databus)
-    *  PSU_IOU_SLCR_MIO_PIN_34_L3_SEL                              0
-
-    * Configures MIO Pin 34 peripheral interface mapping
-    * (OFFSET, MASK, VALUE)      (0XFF180088, 0x000000FEU ,0x00000008U)
-    */
-	PSU_Mask_Write(IOU_SLCR_MIO_PIN_34_OFFSET, 0x000000FEU, 0x00000008U);
-/*##################################################################### */
-
-    /*
-    * Register : MIO_PIN_35 @ 0XFF18008C
-
-    * Level 0 Mux Select 0= Level 1 Mux Output 1= gem0, Input, gem0_rgmii_rxd[
-    * 2]- (RX RGMII data)
-    *  PSU_IOU_SLCR_MIO_PIN_35_L0_SEL                              0
-
-    * Level 1 Mux Select 0= Level 2 Mux Output 1= pcie, Input, pcie_reset_n- (
-    * PCIE Reset signal)
-    *  PSU_IOU_SLCR_MIO_PIN_35_L1_SEL                              0
-
-    * Level 2 Mux Select 0= Level 3 Mux Output 1= pmu, Output, pmu_gpo[3]- (PM
-    * U GPI) 2= test_scan, Input, test_scan_in[35]- (Test Scan Port) = test_sc
-    * an, Output, test_scan_out[35]- (Test Scan Port) 3= dpaux, Input, dp_hot_
-    * plug_detect- (Dp Aux Hot Plug)
-    *  PSU_IOU_SLCR_MIO_PIN_35_L2_SEL                              1
-
-    * Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[9]- (GPIO bank 1) 0= g
-    * pio1, Output, gpio_1_pin_out[9]- (GPIO bank 1) 1= can0, Output, can0_phy
-    * _tx- (Can TX signal) 2= i2c0, Input, i2c0_sda_input- (SDA signal) 2= i2c
-    * 0, Output, i2c0_sda_out- (SDA signal) 3= swdt0, Output, swdt0_rst_out- (
-    * Watch Dog Timer Output clock) 4= spi1, Input, spi1_n_ss_in- (SPI Master
-    * Selects) 4= spi1, Output, spi1_n_ss_out[0]- (SPI Master Selects) 5= ttc2
-    * , Output, ttc2_wave_out- (TTC Waveform Clock) 6= ua0, Output, ua0_txd- (
-    * UART transmitter serial output) 7= trace, Output, tracedq[13]- (Trace Po
-    * rt Databus)
-    *  PSU_IOU_SLCR_MIO_PIN_35_L3_SEL                              0
-
-    * Configures MIO Pin 35 peripheral interface mapping
-    * (OFFSET, MASK, VALUE)      (0XFF18008C, 0x000000FEU ,0x00000008U)
-    */
-	PSU_Mask_Write(IOU_SLCR_MIO_PIN_35_OFFSET, 0x000000FEU, 0x00000008U);
-/*##################################################################### */
-
-    /*
-    * Register : MIO_PIN_36 @ 0XFF180090
-
-    * Level 0 Mux Select 0= Level 1 Mux Output 1= gem0, Input, gem0_rgmii_rxd[
-    * 3]- (RX RGMII data)
-    *  PSU_IOU_SLCR_MIO_PIN_36_L0_SEL                              0
-
-    * Level 1 Mux Select 0= Level 2 Mux Output 1= pcie, Input, pcie_reset_n- (
-    * PCIE Reset signal)
-    *  PSU_IOU_SLCR_MIO_PIN_36_L1_SEL                              0
-
-    * Level 2 Mux Select 0= Level 3 Mux Output 1= pmu, Output, pmu_gpo[4]- (PM
-    * U GPI) 2= test_scan, Input, test_scan_in[36]- (Test Scan Port) = test_sc
-    * an, Output, test_scan_out[36]- (Test Scan Port) 3= dpaux, Input, dp_aux_
-    * data_in- (Dp Aux Data) = dpaux, Output, dp_aux_data_out- (Dp Aux Data)
-    *  PSU_IOU_SLCR_MIO_PIN_36_L2_SEL                              1
-
-    * Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[10]- (GPIO bank 1) 0=
-    * gpio1, Output, gpio_1_pin_out[10]- (GPIO bank 1) 1= can1, Output, can1_p
-    * hy_tx- (Can TX signal) 2= i2c1, Input, i2c1_scl_input- (SCL signal) 2= i
-    * 2c1, Output, i2c1_scl_out- (SCL signal) 3= swdt1, Input, swdt1_clk_in- (
-    * Watch Dog Timer Input clock) 4= spi1, Input, spi1_mi- (MISO signal) 4= s
-    * pi1, Output, spi1_so- (MISO signal) 5= ttc1, Input, ttc1_clk_in- (TTC Cl
-    * ock) 6= ua1, Output, ua1_txd- (UART transmitter serial output) 7= trace,
-    *  Output, tracedq[14]- (Trace Port Databus)
-    *  PSU_IOU_SLCR_MIO_PIN_36_L3_SEL                              0
-
-    * Configures MIO Pin 36 peripheral interface mapping
-    * (OFFSET, MASK, VALUE)      (0XFF180090, 0x000000FEU ,0x00000008U)
-    */
-	PSU_Mask_Write(IOU_SLCR_MIO_PIN_36_OFFSET, 0x000000FEU, 0x00000008U);
-/*##################################################################### */
-
-    /*
-    * Register : MIO_PIN_37 @ 0XFF180094
-
-    * Level 0 Mux Select 0= Level 1 Mux Output 1= gem0, Input, gem0_rgmii_rx_c
-    * tl- (RX RGMII control )
-    *  PSU_IOU_SLCR_MIO_PIN_37_L0_SEL                              0
-
-    * Level 1 Mux Select 0= Level 2 Mux Output 1= pcie, Input, pcie_reset_n- (
-    * PCIE Reset signal)
-    *  PSU_IOU_SLCR_MIO_PIN_37_L1_SEL                              0
-
-    * Level 2 Mux Select 0= Level 3 Mux Output 1= pmu, Output, pmu_gpo[5]- (PM
-    * U GPI) 2= test_scan, Input, test_scan_in[37]- (Test Scan Port) = test_sc
-    * an, Output, test_scan_out[37]- (Test Scan Port) 3= dpaux, Input, dp_hot_
-    * plug_detect- (Dp Aux Hot Plug)
-    *  PSU_IOU_SLCR_MIO_PIN_37_L2_SEL                              1
-
-    * Level 3 Mux Select 0= gpio1, Input, gpio_1_pin_in[11]- (GPIO bank 1) 0=
-    * gpio1, Output, gpio_1_pin_out[11]- (GPIO bank 1) 1= can1, Input, can1_ph
-    * y_rx- (Can RX signal) 2= i2c1, Input, i2c1_sda_input- (SDA signal) 2= i2
-    * c1, Output, i2c1_sda_out- (SDA signal) 3= swdt1, Output, swdt1_rst_out-
-    * (Watch Dog Timer Output clock) 4= spi1, Output, spi1_mo- (MOSI signal) 4
-    * = spi1, Input, spi1_si- (MOSI signal) 5= ttc1, Output, ttc1_wave_out- (T
-    * TC Waveform Clock) 6= ua1, Input, ua1_rxd- (UART receiver serial input)
-    * 7= trace, Output, tracedq[15]- (Trace Port Databus)
-    *  PSU_IOU_SLCR_MIO_PIN_37_L3_SEL                              0
-
-    * Configures MIO Pin 37 peripheral interface mapping
-    * (OFFSET, MASK, VALUE)      (0XFF180094, 0x000000FEU ,0x00000008U)
-    */
-	PSU_Mask_Write(IOU_SLCR_MIO_PIN_37_OFFSET, 0x000000FEU, 0x00000008U);
 /*##################################################################### */
 
     /*
@@ -15141,6 +15722,39 @@ unsigned long psu_mio_init_data(void)
 
 	return 1;
 }
+unsigned long psu_peripherals_pre_init_data(void)
+{
+    /*
+    * SYSMON CLOCK PRESET TO IOPLL AT 1500 MHZ FROM PBR TO MAKE AMS CLOCK UNDE
+    * R RANGE
+    */
+    /*
+    * Register : AMS_REF_CTRL @ 0XFF5E0108
+
+    * 6 bit divider
+    *  PSU_CRL_APB_AMS_REF_CTRL_DIVISOR1                           1
+
+    * 6 bit divider
+    *  PSU_CRL_APB_AMS_REF_CTRL_DIVISOR0                           35
+
+    * 000 = RPLL; 010 = IOPLL; 011 = DPLL; (This signal may only be toggled af
+    * ter 4 cycles of the old clock and 4 cycles of the new clock. This is not
+    *  usually an issue, but designers must be aware.)
+    *  PSU_CRL_APB_AMS_REF_CTRL_SRCSEL                             2
+
+    * Clock active signal. Switch to 0 to disable the clock
+    *  PSU_CRL_APB_AMS_REF_CTRL_CLKACT                             1
+
+    * This register controls this reference clock
+    * (OFFSET, MASK, VALUE)      (0XFF5E0108, 0x013F3F07U ,0x01012302U)
+    */
+	PSU_Mask_Write(CRL_APB_AMS_REF_CTRL_OFFSET,
+		0x013F3F07U, 0x01012302U);
+/*##################################################################### */
+
+
+	return 1;
+}
 unsigned long psu_peripherals_init_data(void)
 {
     /*
@@ -15304,7 +15918,7 @@ unsigned long psu_peripherals_init_data(void)
     * NAND
     */
     /*
-    * USB
+    * USB RESET
     */
     /*
     * Register : RST_LPD_TOP @ 0XFF5E023C
@@ -15312,16 +15926,10 @@ unsigned long psu_peripherals_init_data(void)
     * USB 0 reset for control registers
     *  PSU_CRL_APB_RST_LPD_TOP_USB0_APB_RESET                      0
 
-    * USB 0 sleep circuit reset
-    *  PSU_CRL_APB_RST_LPD_TOP_USB0_HIBERRESET                     0
-
-    * USB 0 reset
-    *  PSU_CRL_APB_RST_LPD_TOP_USB0_CORERESET                      0
-
     * Software control register for the LPD block.
-    * (OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00000540U ,0x00000000U)
+    * (OFFSET, MASK, VALUE)      (0XFF5E023C, 0x00000400U ,0x00000000U)
     */
-	PSU_Mask_Write(CRL_APB_RST_LPD_TOP_OFFSET, 0x00000540U, 0x00000000U);
+	PSU_Mask_Write(CRL_APB_RST_LPD_TOP_OFFSET, 0x00000400U, 0x00000000U);
 /*##################################################################### */
 
     /*
@@ -15361,6 +15969,10 @@ unsigned long psu_peripherals_init_data(void)
     *  01 - Embedded Slot for One Device 10 - Shared Bus Slot 11 - Reserved
     *  PSU_IOU_SLCR_SD_CONFIG_REG2_SD1_SLOTTYPE                    0
 
+    * 8-bit Support for Embedded Device 1: The Core supports 8-bit Interface 0
+    * : Supports only 4-bit SD Interface
+    *  PSU_IOU_SLCR_SD_CONFIG_REG2_SD1_8BIT                        1
+
     * 1.8V Support 1: 1.8V supported 0: 1.8V not supported support
     *  PSU_IOU_SLCR_SD_CONFIG_REG2_SD1_1P8V                        1
 
@@ -15371,10 +15983,10 @@ unsigned long psu_peripherals_init_data(void)
     *  PSU_IOU_SLCR_SD_CONFIG_REG2_SD1_3P3V                        1
 
     * SD Config Register 2
-    * (OFFSET, MASK, VALUE)      (0XFF180320, 0x33800000U ,0x02800000U)
+    * (OFFSET, MASK, VALUE)      (0XFF180320, 0x33840000U ,0x02840000U)
     */
 	PSU_Mask_Write(IOU_SLCR_SD_CONFIG_REG2_OFFSET,
-		0x33800000U, 0x02800000U);
+		0x33840000U, 0x02840000U);
 /*##################################################################### */
 
     /*
@@ -16047,40 +16659,6 @@ unsigned long psu_peripherals_init_data(void)
 
 /*##################################################################### */
 
-    /*
-    * MASK_DATA_0_LSW LOW BANK [15:0]
-    */
-    /*
-    * MASK_DATA_0_MSW LOW BANK [25:16]
-    */
-    /*
-    * MASK_DATA_1_LSW LOW BANK [41:26]
-    */
-    /*
-    * Register : MASK_DATA_1_LSW @ 0XFF0A0008
-
-    * Operation is the same as MASK_DATA_0_LSW[MASK_0_LSW]
-    *  PSU_GPIO_MASK_DATA_1_LSW_MASK_1_LSW                         0xffdf
-
-    * Operation is the same as MASK_DATA_0_LSW[DATA_0_LSW]
-    *  PSU_GPIO_MASK_DATA_1_LSW_DATA_1_LSW                         0x20
-
-    * Maskable Output Data (GPIO Bank1, MIO, Lower 16bits)
-    * (OFFSET, MASK, VALUE)      (0XFF0A0008, 0xFFFFFFFFU ,0xFFDF0020U)
-    */
-	PSU_Mask_Write(GPIO_MASK_DATA_1_LSW_OFFSET,
-		0xFFFFFFFFU, 0xFFDF0020U);
-/*##################################################################### */
-
-    /*
-    * MASK_DATA_1_MSW HIGH BANK [51:42]
-    */
-    /*
-    * MASK_DATA_1_LSW HIGH BANK [67:52]
-    */
-    /*
-    * MASK_DATA_1_LSW HIGH BANK [77:68]
-    */
 
 	return 1;
 }
@@ -20750,10 +21328,14 @@ unsigned long psu_resetout_init_data(void)
     * d.; EP=0x0001; RP=0x0001
     *  PSU_PCIE_ATTRIB_ATTR_35_ATTR_LINK_CAP_ASPM_SUPPORT          0x0
 
+    * Data Link Layer Link Active status notification is supported. This is op
+    * tional for Upstream ports.; EP=0x0000; RP=0x0000
+    *  PSU_PCIE_ATTRIB_ATTR_35_ATTR_LINK_CAP_DLL_LINK_ACTIVE_REPORTING_CAP 1
+
     * ATTR_35
-    * (OFFSET, MASK, VALUE)      (0XFD48008C, 0x00003000U ,0x00000000U)
+    * (OFFSET, MASK, VALUE)      (0XFD48008C, 0x0000B000U ,0x00008000U)
     */
-	PSU_Mask_Write(PCIE_ATTRIB_ATTR_35_OFFSET, 0x00003000U, 0x00000000U);
+	PSU_Mask_Write(PCIE_ATTRIB_ATTR_35_OFFSET, 0x0000B000U, 0x00008000U);
 /*##################################################################### */
 
     /*
@@ -20771,6 +21353,43 @@ unsigned long psu_resetout_init_data(void)
 	PSU_Mask_Write(CRF_APB_RST_FPD_TOP_OFFSET, 0x00020000U, 0x00000000U);
 /*##################################################################### */
 
+    /*
+    * PCIE GPIO RESET
+    */
+    /*
+    * MASK_DATA_0_LSW LOW BANK [15:0]
+    */
+    /*
+    * MASK_DATA_0_MSW LOW BANK [25:16]
+    */
+    /*
+    * MASK_DATA_1_LSW LOW BANK [41:26]
+    */
+    /*
+    * Register : MASK_DATA_1_LSW @ 0XFF0A0008
+
+    * Operation is the same as MASK_DATA_0_LSW[MASK_0_LSW]
+    *  PSU_GPIO_MASK_DATA_1_LSW_MASK_1_LSW                         0xffdf
+
+    * Operation is the same as MASK_DATA_0_LSW[DATA_0_LSW]
+    *  PSU_GPIO_MASK_DATA_1_LSW_DATA_1_LSW                         0x20
+
+    * Maskable Output Data (GPIO Bank1, MIO, Lower 16bits)
+    * (OFFSET, MASK, VALUE)      (0XFF0A0008, 0xFFFFFFFFU ,0xFFDF0020U)
+    */
+	PSU_Mask_Write(GPIO_MASK_DATA_1_LSW_OFFSET,
+		0xFFFFFFFFU, 0xFFDF0020U);
+/*##################################################################### */
+
+    /*
+    * MASK_DATA_1_MSW HIGH BANK [51:42]
+    */
+    /*
+    * MASK_DATA_1_LSW HIGH BANK [67:52]
+    */
+    /*
+    * MASK_DATA_1_LSW HIGH BANK [77:68]
+    */
     /*
     * CHECK PLL LOCK FOR LANE0
     */
@@ -21282,6 +21901,39 @@ unsigned long psu_ddr_phybringup_data(void)
 
 	unsigned int regval = 0;
 
+	unsigned int pll_retry = 10;
+
+	unsigned int pll_locked = 0;
+
+
+	while ((pll_retry > 0) && (!pll_locked)) {
+
+		Xil_Out32(0xFD080004, 0x00040010);/*PIR*/
+		Xil_Out32(0xFD080004, 0x00040011);/*PIR*/
+
+	while ((Xil_In32(0xFD080030) & 0x1) != 1) {
+	/*****TODO*****/
+
+	/*TIMEOUT poll mechanism need to be inserted in this block*/
+
+	}
+
+
+		pll_locked = (Xil_In32(0xFD080030) & 0x80000000)
+		>> 31;/*PGSR0*/
+		pll_locked &= (Xil_In32(0xFD0807E0) & 0x10000)
+		>> 16;/*DX0GSR0*/
+		pll_locked &= (Xil_In32(0xFD0809E0) & 0x10000)
+		>> 16;/*DX2GSR0*/
+		pll_locked &= (Xil_In32(0xFD080BE0) & 0x10000)
+		>> 16;/*DX4GSR0*/
+		pll_locked &= (Xil_In32(0xFD080DE0) & 0x10000)
+		>> 16;/*DX6GSR0*/
+		pll_retry--;
+	}
+	Xil_Out32(0xFD0800C0, Xil_In32(0xFD0800C0) |
+		(pll_retry << 16));/*GPR0*/
+	Xil_Out32(0xFD080004U, 0x00040063U);
 	/* PHY BRINGUP SEQ */
 	while ((Xil_In32(0xFD080030U) & 0x0000000FU) != 0x0000000FU) {
 	/*****TODO*****/
@@ -21300,45 +21952,6 @@ unsigned long psu_ddr_phybringup_data(void)
 	}
 
 
-	prog_reg(0xFD070010U, 0x00000008U, 0x00000003U, 0x00000001U);
-	prog_reg(0xFD0701B0U, 0x00000001U, 0x00000000U, 0x00000001U);
-	prog_reg(0xFD070010U, 0x00000030U, 0x00000004U, 0x00000001U);
-	prog_reg(0xFD070010U, 0x00000001U, 0x00000000U, 0x00000000U);
-	prog_reg(0xFD070010U, 0x0000F000U, 0x0000000CU, 0x00000006U);
-	prog_reg(0xFD070014U, 0x0003FFFFU, 0x00000000U, 0x00000819U);
-	prog_reg(0xFD070010U, 0x80000000U, 0x0000001FU, 0x00000001U);
-	while ((Xil_In32(0xFD070018) & 0x1) == 1) {
-	/*****TODO*****/
-
-	/*TIMEOUT poll mechanism need to be inserted in this block*/
-
-	}
-
-	prog_reg(0xFD070010U, 0x00000030U, 0x00000004U, 0x00000001U);
-	prog_reg(0xFD070010U, 0x00000001U, 0x00000000U, 0x00000000U);
-	prog_reg(0xFD070010U, 0x0000F000U, 0x0000000CU, 0x00000006U);
-	prog_reg(0xFD070014U, 0x0003FFFFU, 0x00000000U, 0x00000899U);
-	prog_reg(0xFD070010U, 0x80000000U, 0x0000001FU, 0x00000001U);
-	while ((Xil_In32(0xFD070018) & 0x1) == 1) {
-	/*****TODO*****/
-
-	/*TIMEOUT poll mechanism need to be inserted in this block*/
-
-	}
-
-	prog_reg(0xFD070010U, 0x00000030U, 0x00000004U, 0x00000001U);
-	prog_reg(0xFD070010U, 0x00000001U, 0x00000000U, 0x00000000U);
-	prog_reg(0xFD070010U, 0x0000F000U, 0x0000000CU, 0x00000006U);
-	prog_reg(0xFD070014U, 0x0003FFFFU, 0x00000000U, 0x00000819U);
-	prog_reg(0xFD070010U, 0x80000000U, 0x0000001FU, 0x00000001U);
-	while ((Xil_In32(0xFD070018) & 0x1) == 1) {
-	/*****TODO*****/
-
-	/*TIMEOUT poll mechanism need to be inserted in this block*/
-
-	}
-
-	prog_reg(0xFD070010U, 0x00000008U, 0x00000003U, 0x00000000U);
 	Xil_Out32(0xFD0701B0U, 0x00000001U);
 	Xil_Out32(0xFD070320U, 0x00000001U);
 	while ((Xil_In32(0xFD070004U) & 0x0000000FU) != 0x00000001U) {
@@ -21419,8 +22032,8 @@ return 1;
 
 /**
  *  * Register: CRF_APB_DPLL_CTRL
- *   */
-#define CRF_APB_DPLL_CTRL    ( ( CRF_APB_BASEADDR ) + 0X0000002C )
+ */
+#define CRF_APB_DPLL_CTRL    ((CRF_APB_BASEADDR) + 0X0000002C)
 
 
 #define CRF_APB_DPLL_CTRL_DIV2_SHIFT   16
@@ -21437,8 +22050,8 @@ return 1;
 
 /**
  *  * Register: CRF_APB_DPLL_CFG
- *   */
-#define CRF_APB_DPLL_CFG    ( ( CRF_APB_BASEADDR ) + 0X00000030 )
+ */
+#define CRF_APB_DPLL_CFG    ((CRF_APB_BASEADDR) + 0X00000030)
 
 #define CRF_APB_DPLL_CFG_LOCK_DLY_SHIFT   25
 #define CRF_APB_DPLL_CFG_LOCK_DLY_WIDTH   7
@@ -21458,7 +22071,7 @@ return 1;
 /**
  * Register: CRF_APB_PLL_STATUS
  */
-#define CRF_APB_PLL_STATUS    ( ( CRF_APB_BASEADDR ) + 0X00000044 )
+#define CRF_APB_PLL_STATUS    ((CRF_APB_BASEADDR) + 0X00000044)
 
 
 static int mask_pollOnValue(u32 add, u32 mask, u32 value)
@@ -21502,76 +22115,86 @@ static u32 mask_read(u32 add, u32 mask)
 static void dpll_prog(int ddr_pll_fbdiv, int d_lock_dly, int d_lock_cnt,
 	int d_lfhf, int d_cp, int d_res) {
 
-  unsigned int pll_ctrl_regval;
-  unsigned int pll_status_regval;
+	unsigned int pll_ctrl_regval;
+	unsigned int pll_status_regval;
 
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_DIV2_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (1 << CRF_APB_DPLL_CTRL_DIV2_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_DIV2_MASK);
+	pll_ctrl_regval = pll_ctrl_regval | (1 << CRF_APB_DPLL_CTRL_DIV2_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
 
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_LOCK_DLY_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (d_lock_dly << CRF_APB_DPLL_CFG_LOCK_DLY_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_LOCK_DLY_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(d_lock_dly << CRF_APB_DPLL_CFG_LOCK_DLY_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
 
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_LOCK_CNT_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (d_lock_cnt << CRF_APB_DPLL_CFG_LOCK_CNT_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_LOCK_CNT_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(d_lock_cnt << CRF_APB_DPLL_CFG_LOCK_CNT_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
 
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_LFHF_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (d_lfhf << CRF_APB_DPLL_CFG_LFHF_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_LFHF_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(d_lfhf << CRF_APB_DPLL_CFG_LFHF_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
 
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_CP_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (d_cp << CRF_APB_DPLL_CFG_CP_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_CP_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(d_cp << CRF_APB_DPLL_CFG_CP_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
 
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_RES_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (d_res << CRF_APB_DPLL_CFG_RES_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CFG);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CFG_RES_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(d_res << CRF_APB_DPLL_CFG_RES_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CFG, pll_ctrl_regval);
 
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_FBDIV_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (ddr_pll_fbdiv << CRF_APB_DPLL_CTRL_FBDIV_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
- 
-  //Setting PLL BYPASS
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_BYPASS_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (1 << CRF_APB_DPLL_CTRL_BYPASS_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
- 
-  //Setting PLL RESET
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_RESET_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (1 << CRF_APB_DPLL_CTRL_RESET_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
- 
-  //Clearing PLL RESET
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_RESET_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (0 << CRF_APB_DPLL_CTRL_RESET_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
- 
-  //Checking PLL lock
-  pll_status_regval = 0x00000000;
-  while((pll_status_regval & CRF_APB_PLL_STATUS_DPLL_LOCK_MASK) != CRF_APB_PLL_STATUS_DPLL_LOCK_MASK) {
-    pll_status_regval = Xil_In32(CRF_APB_PLL_STATUS);
-  }
-  
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_FBDIV_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(ddr_pll_fbdiv << CRF_APB_DPLL_CTRL_FBDIV_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
+
+	/*Setting PLL BYPASS*/
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_BYPASS_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(1 << CRF_APB_DPLL_CTRL_BYPASS_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
+
+	/*Setting PLL RESET*/
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_RESET_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(1 << CRF_APB_DPLL_CTRL_RESET_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
+
+	/*Clearing PLL RESET*/
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_RESET_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(0 << CRF_APB_DPLL_CTRL_RESET_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
+
+	/*Checking PLL lock*/
+	pll_status_regval = 0x00000000;
+	while ((pll_status_regval & CRF_APB_PLL_STATUS_DPLL_LOCK_MASK) !=
+		CRF_APB_PLL_STATUS_DPLL_LOCK_MASK)
+		pll_status_regval = Xil_In32(CRF_APB_PLL_STATUS);
 
 
- 
-  //Clearing PLL BYPASS
-  pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
-  pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_BYPASS_MASK);
-  pll_ctrl_regval = pll_ctrl_regval | (0 << CRF_APB_DPLL_CTRL_BYPASS_SHIFT);
-  Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
+
+
+	/*Clearing PLL BYPASS*/
+	pll_ctrl_regval = Xil_In32(CRF_APB_DPLL_CTRL);
+	pll_ctrl_regval = pll_ctrl_regval & (~CRF_APB_DPLL_CTRL_BYPASS_MASK);
+	pll_ctrl_regval = pll_ctrl_regval |
+		(0 << CRF_APB_DPLL_CTRL_BYPASS_SHIFT);
+	Xil_Out32(CRF_APB_DPLL_CTRL, pll_ctrl_regval);
 
 }
 
@@ -21586,173 +22209,186 @@ static void dpll_prog(int ddr_pll_fbdiv, int d_lock_dly, int d_lock_cnt,
 static int serdes_enb_coarse_saturation(void)
 {
   /*Enable PLL Coarse Code saturation Logic*/
-  Xil_Out32(0xFD402094, 0x00000010);
-  Xil_Out32(0xFD406094, 0x00000010);
-  Xil_Out32(0xFD40A094, 0x00000010);
-  Xil_Out32(0xFD40E094, 0x00000010);
-  return 1;
+	Xil_Out32(0xFD402094, 0x00000010);
+	Xil_Out32(0xFD406094, 0x00000010);
+	Xil_Out32(0xFD40A094, 0x00000010);
+	Xil_Out32(0xFD40E094, 0x00000010);
+		return 1;
 }
 
-int serdes_fixcal_code() {
-  int MaskStatus = 1;
+int serdes_fixcal_code(void)
+{
+	int MaskStatus = 1;
 
-  //The valid codes are from 0x26 to 0x3C. There are 23 valid codes in total.
-  unsigned int match_pmos_code[23]; //Each element of array stands for count of occurence of valid code.
-  unsigned int match_nmos_code[23]; //Each element of array stands for count of occurence of valid code.
-                                    //The valid codes are from 0xC to 0x12. There are 7 valid codes in total.
-  unsigned int match_ical_code[7]; //Each element of array stands for count of occurence of valid code.
-                                   //The valid codes are from 0x6 to 0xC. There are 7 valid codes in total.
-  unsigned int match_rcal_code[7]; //Each element of array stands for count of occurence of valid code.
+  unsigned int rdata = 0;
+  
+	/*The valid codes are from 0x26 to 0x3C.
+	*There are 23 valid codes in total.
+	*/
+ /*Each element of array stands for count of occurence of valid code.*/
+	unsigned int match_pmos_code[23];
+	/*Each element of array stands for count of occurence of valid code.*/
+	/*The valid codes are from 0xC to 0x12.
+	*There are 7 valid codes in total.
+	*/
+	unsigned int match_nmos_code[23];
+	/*Each element of array stands for count of occurence of valid code.*/
+	/*The valid codes are from 0x6 to 0xC.
+	* There are 7 valid codes in total.
+	*/
+	unsigned int match_ical_code[7];
+	/*Each element of array stands for count of occurence of valid code.*/
+	unsigned int match_rcal_code[7];
 
-  unsigned int p_code = 0;
-  unsigned int n_code = 0;
-  unsigned int i_code = 0;
-  unsigned int r_code = 0;
-  unsigned int repeat_count = 0;
-  unsigned int L3_TM_CALIB_DIG20 = 0;
-  unsigned int L3_TM_CALIB_DIG19 = 0;
-  unsigned int L3_TM_CALIB_DIG18 = 0;
-  unsigned int L3_TM_CALIB_DIG16 = 0;
-  unsigned int L3_TM_CALIB_DIG15 = 0;
-  unsigned int L3_TM_CALIB_DIG14 = 0;
+	unsigned int p_code = 0;
+	unsigned int n_code = 0;
+	unsigned int i_code = 0;
+	unsigned int r_code = 0;
+	unsigned int repeat_count = 0;
+	unsigned int L3_TM_CALIB_DIG20 = 0;
+	unsigned int L3_TM_CALIB_DIG19 = 0;
+	unsigned int L3_TM_CALIB_DIG18 = 0;
+	unsigned int L3_TM_CALIB_DIG16 = 0;
+	unsigned int L3_TM_CALIB_DIG15 = 0;
+	unsigned int L3_TM_CALIB_DIG14 = 0;
 
+	int i = 0;
 
-  int i = 0;
-  for (i = 0; i < 23; i++)
-  {
-    match_pmos_code[i] = 0;
-    match_nmos_code[i] = 0;
-  }
-  for (i = 0; i < 7; i++)
-  {
-    match_ical_code[i] = 0;
-    match_rcal_code[i] = 0;
-  }
+  rdata = Xil_In32(0XFD40289C);
+  rdata = rdata & ~0x03; 
+  rdata = rdata | 0x1; 
+  Xil_Out32(0XFD40289C, rdata);
+  // check supply good status before starting AFE sequencing
+  int count = 0; 
+  do
+  { 
+    if (count == PSU_MASK_POLL_TIME)
+      break;
+    rdata = Xil_In32(0xFD402B1C); 
+    count++;
+  }while((rdata&0x0000000E) !=0x0000000E);
 
-
-  do {
-    //Clear ICM_CFG value
-    Xil_Out32(0xFD410010, 0x00000000);
-    Xil_Out32(0xFD410014, 0x00000000);
-
-    //Set ICM_CFG value
-    //This will trigger recalibration of all stages
-    Xil_Out32(0xFD410010, 0x00000001);
-    Xil_Out32(0xFD410014, 0x00000000);
-
-    //is calibration done? polling on L3_CALIB_DONE_STATUS
-    MaskStatus = mask_poll(0xFD40EF14, 0x2);
-    if (MaskStatus == 0)
-    {
-      //failure here is because of calibration done timeout
-      xil_printf("#SERDES initialization timed out\n\r");
-      return MaskStatus;
-    }
-
-    p_code = mask_read(0xFD40EF18, 0xFFFFFFFF); //PMOS code
-    n_code = mask_read(0xFD40EF1C, 0xFFFFFFFF); //NMOS code
-                                                //m_code = mask_read(0xFD40EF20, 0xFFFFFFFF); //MPHY code
-    i_code = mask_read(0xFD40EF24, 0xFFFFFFFF); //ICAL code
-    r_code = mask_read(0xFD40EF28, 0xFFFFFFFF); //RX code
-                                                //u_code = mask_read(0xFD40EF2C, 0xFFFFFFFF); //USB2 code
-
-    //xil_printf("#SERDES initialization VALUES NMOS = 0x%x, PMOS = 0x%x, ICAL = 0x%x, RCAL = 0x%x\n\r", p_code, n_code, i_code, r_code);
-
-    if ((p_code >= 0x26) && (p_code <= 0x3C)) //PMOS code in acceptable range
-    {
-      match_pmos_code[p_code - 0x26] += 1;
-    }
-
-    if ((n_code >= 0x26) && (n_code <= 0x3C)) //NMOS code in acceptable range
-    {
-      match_nmos_code[n_code - 0x26] += 1;
-    }
-
-    if ((i_code >= 0xC) && (i_code <= 0x12)) //PMOS code in acceptable range
-    {
-      match_ical_code[i_code - 0xC] += 1;
-    }
-
-    if ((r_code >= 0x6) && (r_code <= 0xC)) //NMOS code in acceptable range
-    {
-      match_rcal_code[r_code - 0x6] += 1;
-    }
+	for (i = 0; i < 23; i++) {
+		match_pmos_code[i] = 0;
+		match_nmos_code[i] = 0;
+	}
+	for (i = 0; i < 7; i++) {
+		match_ical_code[i] = 0;
+		match_rcal_code[i] = 0;
+	}
 
 
-  } while (repeat_count++ < 10);
+	do {
+	/*Clear ICM_CFG value*/
+		Xil_Out32(0xFD410010, 0x00000000);
+		Xil_Out32(0xFD410014, 0x00000000);
 
-  //find the valid code which resulted in maximum times in 10 iterations
-  for (i = 0; i < 23; i++)
-  {
-    if (match_pmos_code[i] >= match_pmos_code[0])
-    {
-      match_pmos_code[0] = match_pmos_code[i];
-      p_code = 0x26 + i;
-    }
-    if (match_nmos_code[i] >= match_nmos_code[0])
-    {
-      match_nmos_code[0] = match_nmos_code[i];
-      n_code = 0x26 + i;
-    }
-  }
+	/*Set ICM_CFG value*/
+	/*This will trigger recalibration of all stages*/
+	Xil_Out32(0xFD410010, 0x00000001);
+	Xil_Out32(0xFD410014, 0x00000000);
 
-  for (i = 0; i < 7; i++)
-  {
-    if (match_ical_code[i] >= match_ical_code[0])
-    {
-      match_ical_code[0] = match_ical_code[i];
-      i_code = 0xC + i;
-    }
-    if (match_rcal_code[i] >= match_rcal_code[0])
-    {
-      match_rcal_code[0] = match_rcal_code[i];
-      r_code = 0x6 + i;
-    }
-  }
-  //xil_printf("#SERDES initialization PASSED NMOS = 0x%x, PMOS = 0x%x, ICAL = 0x%x, RCAL = 0x%x\n\r", p_code, n_code, i_code, r_code);
-  //L3_TM_CALIB_DIG20[3] PSW MSB Override
-  //L3_TM_CALIB_DIG20[2:0]	PSW Code [4:2]
-  L3_TM_CALIB_DIG20 = mask_read(0xFD40EC50, 0xFFFFFFF0); //read DIG20
-  L3_TM_CALIB_DIG20 = L3_TM_CALIB_DIG20 | 0x8 | ((p_code >> 2) & 0x7);
+	/*is calibration done? polling on L3_CALIB_DONE_STATUS*/
+	MaskStatus = mask_poll(0xFD40EF14, 0x2);
+	if (MaskStatus == 0) {
+		/*failure here is because of calibration done timeout*/
+		xil_printf("#SERDES initialization timed out\n\r");
+		return MaskStatus;
+	}
 
+	p_code = mask_read(0xFD40EF18, 0xFFFFFFFF);/*PMOS code*/
+	n_code = mask_read(0xFD40EF1C, 0xFFFFFFFF);/*NMOS code*/
+	/*m_code = mask_read(0xFD40EF20, 0xFFFFFFFF)*/;/*MPHY code*/
+	i_code = mask_read(0xFD40EF24, 0xFFFFFFFF);/*ICAL code*/
+	r_code = mask_read(0xFD40EF28, 0xFFFFFFFF);/*RX code*/
+	/*u_code = mask_read(0xFD40EF2C, 0xFFFFFFFF)*/;/*USB2 code*/
 
-  //L3_TM_CALIB_DIG19[7:6]	PSW Code [1:0]
-  //L3_TM_CALIB_DIG19[5]	PSW Override
-  //L3_TM_CALIB_DIG19[2]	NSW MSB Override
-  //L3_TM_CALIB_DIG19[1:0]	NSW Code [4:3]
-  L3_TM_CALIB_DIG19 = mask_read(0xFD40EC4C, 0xFFFFFF18); //read DIG19
-  L3_TM_CALIB_DIG19 = L3_TM_CALIB_DIG19 | ((p_code & 0x3) << 6) | 0x20 | 0x4 | ((n_code >> 3) & 0x3);
+	/*PMOS code in acceptable range*/
+	if ((p_code >= 0x26) && (p_code <= 0x3C))
+		match_pmos_code[p_code - 0x26] += 1;
 
-  //L3_TM_CALIB_DIG18[7:5]	NSW Code [2:0]
-  //L3_TM_CALIB_DIG18[4]	NSW Override
-  L3_TM_CALIB_DIG18 = mask_read(0xFD40EC48, 0xFFFFFF0F); //read DIG18
-  L3_TM_CALIB_DIG18 = L3_TM_CALIB_DIG18 | ((n_code & 0x7) << 5) | 0x10;
+	/*NMOS code in acceptable range*/
+	if ((n_code >= 0x26) && (n_code <= 0x3C))
+		match_nmos_code[n_code - 0x26] += 1;
+
+	/*PMOS code in acceptable range*/
+	if ((i_code >= 0xC) && (i_code <= 0x12))
+		match_ical_code[i_code - 0xC] += 1;
+
+	/*NMOS code in acceptable range*/
+	if ((r_code >= 0x6) && (r_code <= 0xC))
+		match_rcal_code[r_code - 0x6] += 1;
 
 
-  //L3_TM_CALIB_DIG16[2:0]	RX Code [3:1]
-  L3_TM_CALIB_DIG16 = mask_read(0xFD40EC40, 0xFFFFFFF8); //read DIG16
-  L3_TM_CALIB_DIG16 = L3_TM_CALIB_DIG16 | ((r_code >> 1) & 0x7);
+	} while (repeat_count++ < 10);
 
-  //L3_TM_CALIB_DIG15[7]	RX Code [0]
-  //L3_TM_CALIB_DIG15[6]	RX CODE Override
-  //L3_TM_CALIB_DIG15[3]	ICAL MSB Override
-  //L3_TM_CALIB_DIG15[2:0]	ICAL Code [3:1]
-  L3_TM_CALIB_DIG15 = mask_read(0xFD40EC3C, 0xFFFFFF30); //read DIG15
-  L3_TM_CALIB_DIG15 = L3_TM_CALIB_DIG15 | ((r_code & 0x1) << 7) | 0x40 | 0x8 | ((i_code >> 1) & 0x7);
+	/*find the valid code which resulted in maximum times in 10 iterations*/
+	for (i = 0; i < 23; i++) {
+		if (match_pmos_code[i] >= match_pmos_code[0]) {
+			match_pmos_code[0] = match_pmos_code[i];
+			p_code = 0x26 + i;
+		}
+	if (match_nmos_code[i] >= match_nmos_code[0]) {
+		match_nmos_code[0] = match_nmos_code[i];
+		n_code = 0x26 + i;
+		}
+	}
 
-  //L3_TM_CALIB_DIG14[7]	ICAL Code [0]
-  //L3_TM_CALIB_DIG14[6]	ICAL Override
-  L3_TM_CALIB_DIG14 = mask_read(0xFD40EC38, 0xFFFFFF3F); //read DIG14
-  L3_TM_CALIB_DIG14 = L3_TM_CALIB_DIG14 | ((i_code & 0x1) << 7) | 0x40;
+	for (i = 0; i < 7; i++) {
+		if (match_ical_code[i] >= match_ical_code[0]) {
+			match_ical_code[0] = match_ical_code[i];
+			i_code = 0xC + i;
+		}
+		if (match_rcal_code[i] >= match_rcal_code[0]) {
+			match_rcal_code[0] = match_rcal_code[i];
+			r_code = 0x6 + i;
+		}
+	}
+	/*L3_TM_CALIB_DIG20[3] PSW MSB Override*/
+	/*L3_TM_CALIB_DIG20[2:0]	PSW Code [4:2]*/
+	L3_TM_CALIB_DIG20 = mask_read(0xFD40EC50, 0xFFFFFFF0);/*read DIG20*/
+	L3_TM_CALIB_DIG20 = L3_TM_CALIB_DIG20 | 0x8 | ((p_code >> 2) & 0x7);
 
-  //Forces the calibration values
-  Xil_Out32(0xFD40EC50, L3_TM_CALIB_DIG20);
-  Xil_Out32(0xFD40EC4C, L3_TM_CALIB_DIG19);
-  Xil_Out32(0xFD40EC48, L3_TM_CALIB_DIG18);
-  Xil_Out32(0xFD40EC40, L3_TM_CALIB_DIG16);
-  Xil_Out32(0xFD40EC3C, L3_TM_CALIB_DIG15);
-  Xil_Out32(0xFD40EC38, L3_TM_CALIB_DIG14);
-  return MaskStatus;
+
+	/*L3_TM_CALIB_DIG19[7:6]	PSW Code [1:0]*/
+	/*L3_TM_CALIB_DIG19[5]	PSW Override*/
+	/*L3_TM_CALIB_DIG19[2]	NSW MSB Override*/
+	/*L3_TM_CALIB_DIG19[1:0]	NSW Code [4:3]*/
+	L3_TM_CALIB_DIG19 = mask_read(0xFD40EC4C, 0xFFFFFF18);/*read DIG19*/
+	L3_TM_CALIB_DIG19 = L3_TM_CALIB_DIG19 | ((p_code & 0x3) << 6)
+		| 0x20 | 0x4 | ((n_code >> 3) & 0x3);
+
+	/*L3_TM_CALIB_DIG18[7:5]	NSW Code [2:0]*/
+	/*L3_TM_CALIB_DIG18[4]	NSW Override*/
+	L3_TM_CALIB_DIG18 = mask_read(0xFD40EC48, 0xFFFFFF0F);/*read DIG18*/
+	L3_TM_CALIB_DIG18 = L3_TM_CALIB_DIG18 | ((n_code & 0x7) << 5) | 0x10;
+
+
+	/*L3_TM_CALIB_DIG16[2:0]	RX Code [3:1]*/
+	L3_TM_CALIB_DIG16 = mask_read(0xFD40EC40, 0xFFFFFFF8);/*read DIG16*/
+	L3_TM_CALIB_DIG16 = L3_TM_CALIB_DIG16 | ((r_code >> 1) & 0x7);
+
+	/*L3_TM_CALIB_DIG15[7]	RX Code [0]*/
+	/*L3_TM_CALIB_DIG15[6]	RX CODE Override*/
+	/*L3_TM_CALIB_DIG15[3]	ICAL MSB Override*/
+	/*L3_TM_CALIB_DIG15[2:0]	ICAL Code [3:1]*/
+	L3_TM_CALIB_DIG15 = mask_read(0xFD40EC3C, 0xFFFFFF30);/*read DIG15*/
+	L3_TM_CALIB_DIG15 = L3_TM_CALIB_DIG15 | ((r_code & 0x1) << 7)
+	| 0x40 | 0x8 | ((i_code >> 1) & 0x7);
+
+	/*L3_TM_CALIB_DIG14[7]	ICAL Code [0]*/
+	/*L3_TM_CALIB_DIG14[6]	ICAL Override*/
+	L3_TM_CALIB_DIG14 = mask_read(0xFD40EC38, 0xFFFFFF3F);/*read DIG14*/
+	L3_TM_CALIB_DIG14 = L3_TM_CALIB_DIG14 | ((i_code & 0x1) << 7) | 0x40;
+
+	/*Forces the calibration values*/
+	Xil_Out32(0xFD40EC50, L3_TM_CALIB_DIG20);
+	Xil_Out32(0xFD40EC4C, L3_TM_CALIB_DIG19);
+	Xil_Out32(0xFD40EC48, L3_TM_CALIB_DIG18);
+	Xil_Out32(0xFD40EC40, L3_TM_CALIB_DIG16);
+	Xil_Out32(0xFD40EC3C, L3_TM_CALIB_DIG15);
+	Xil_Out32(0xFD40EC38, L3_TM_CALIB_DIG14);
+	return MaskStatus;
 
 }
 static int init_serdes(void)
@@ -21773,17 +22409,8 @@ static int init_serdes(void)
 
 static void init_peripheral(void)
 {
-    /* Making DPDMA as secure */
-	unsigned int tmp_regval;
-
-	tmp_regval = Xil_In32(0xFD690040);
-	tmp_regval &= ~0x00000001;
-	Xil_Out32(0xFD690040, tmp_regval);
-
-    /* Making PCIe as secure */
-	tmp_regval = Xil_In32(0xFD690030);
-	tmp_regval &= ~0x00000001;
-	Xil_Out32(0xFD690030, tmp_regval);
+/*SMMU_REG Interrrupt Enable: Followig register need to be written all the time to properly catch SMMU messages.*/
+	PSU_Mask_Write(0xFD5F0018, 0x8000001FU, 0x8000001FU);
 }
 
 static int psu_init_xppu_aper_ram(void)
@@ -21794,6 +22421,7 @@ static int psu_init_xppu_aper_ram(void)
 
 int psu_lpd_protection(void)
 {
+	psu_init_xppu_aper_ram();
 	return 0;
 }
 
@@ -21835,13 +22463,13 @@ int psu_protection(void)
 	return 0;
 }
 
-
 int
 psu_init(void)
 {
 	int status = 1;
 
 	status &= psu_mio_init_data();
+	status &=  psu_peripherals_pre_init_data();
 	status &=   psu_pll_init_data();
 	status &=   psu_clock_init_data();
 	status &=  psu_ddr_init_data();
@@ -21852,6 +22480,7 @@ psu_init(void)
 
 	status &=  psu_peripherals_powerdwn_data();
 	status &=    psu_afi_config();
+	psu_ddr_qos_init_data();
 
 	if (status == 0)
 		return 1;
