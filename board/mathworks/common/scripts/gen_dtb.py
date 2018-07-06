@@ -13,8 +13,7 @@ def generate_dtbs(catalog, image):
     DTC = ENV['HOST_DIR'] +"/usr/bin/dtc"
     LINUX_DTS = [LINUX_DIR + "/" + dtsi for dtsi in catalog['platformInfo']['kernelDTSDir']]
     DTS_FILE = "devicetree.dts"
-
-    # Determine the toolchain name for CPP
+   # Determine the toolchain name for CPP
     TC_PREFIX = get_cfg_var("BR2_TOOLCHAIN_EXTERNAL_PREFIX")
     # drop the $(ARCH) string
     TC_PREFIX = re.sub("\$\(ARCH\)", "arm", TC_PREFIX)
@@ -28,6 +27,7 @@ def generate_dtbs(catalog, image):
                 "%s/dts" % (BOARD_DIR)]
     INCLUDE_DIRS.extend(image['dtsIncDirs'])
     INCLUDE_DIRS.extend(LINUX_DTS)
+    INCLUDE_DIRS.extend([LINUX_DIR + "/include"])
 
     for app in image['appList']:
         print_msg("Generating %s dtb" % (app['name']))
@@ -39,8 +39,7 @@ def generate_dtbs(catalog, image):
 
         include_dirs = list(INCLUDE_DIRS)
         include_dirs.append(dts_dir)
-        
-        # Expand the DTS file
+       # Expand the DTS file
         tmpFile = "%s/%s.tmp.dts" % (ENV['SD_DIR'], app['name'])
         cpp_expand(app_dts_path, tmpFile, include_dirs, extraPostFlags="-D__DTS__")
 
