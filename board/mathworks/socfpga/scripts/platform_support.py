@@ -164,7 +164,10 @@ def build_sdimage(outputDir, image, catalog):
     else:
         print_msg("For Arria 10 SoC copying socfpga.periph.rbf and socfpga.core.rbf from %s" % boardDir)
         periphRbfFile = "%s/socfpga.periph.rbf" % (boardDir)
-        coreRbfFile = "%s/adrv9371fmc.rbf" % (boardDir)
+        if image['imageName'] == 'socfpgasdr':
+            coreRbfFile = "%s/adrv9371fmc.rbf" % (boardDir)
+        else:
+            coreRbfFile = "%s/socfpga.core.rbf" % (boardDir)        
         shutil.copyfile(periphRbfFile, "%s/socfpga.periph.rbf" % (ENV['SD_DIR']))
         shutil.copyfile(coreRbfFile, "%s/adrv9371fmc.rbf" % (ENV['SD_DIR'])) 
 
