@@ -213,7 +213,9 @@ case "${CI_JOB_STAGE}" in
 		;;
 	sysroot)
 		echo "Packaging $CONFIG_JOB_PLATFORM Sysroot"
-		CONFIG_JOB_PROJECT=$CONFIG_JOB_PLATFORM
+		if [[ -z "$CONFIG_JOB_PROJECT" ]]; then
+			CONFIG_JOB_PROJECT=$CONFIG_JOB_PLATFORM
+		fi
 		run_build_command "-b $CONFIG_JOB_BOARD -p $CONFIG_JOB_PLATFORM" "legal-info all" -u --sysroot
 		;;
     deploy)
