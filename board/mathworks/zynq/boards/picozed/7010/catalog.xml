@@ -1,4 +1,4 @@
-<board name="picozed" platform="zynq">
+<board name="picozed" variant="7010" platform="zynq">
     <default>
         <app name="default">
         </app>
