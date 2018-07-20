@@ -1,0 +1,16 @@
+<board name="picozed" variant="7010" platform="zynq">
+    <default>
+        <app name="default">
+			<dts file="axilite.dts"/>
+            <bit file="axilite.bit"/>
+        </app>
+        <dtsi dir="../../../dts"/>
+        <fsbl dir="handoff"/>
+    </default>
+    <image name="7z010-zynqvideopsp">
+        <app name="hdmi">
+            <dts file="../dts/vid-hdmi.dts"/>
+            <bit file="vid-hdmi.bit"/>
+        </app>
+    </image>
+</board>

@@ -4,6 +4,46 @@
     mwgen,vidinjust = "right";
 };
 
-&i2c0{			
-    status = "okay";
+&adv7511 {
+	compatible = "mwadi,mwadv7511";
+	reg = <0x39>;
+
+	adi,input-id = <0x00>;
+	adi,input-style = <0x01>;
+	adi,bit-justification = <0x01>;
+	adi,input-color-depth = <0x3>;
+	adi,sync-pulse = <0x03>;
+	adi,up-conversion = <0x00>;
+	adi,timing-generation-sequence = <0x00>;
+	adi,vsync-polarity = <0x02>;
+	adi,hsync-polarity = <0x02>;
+	adi,tdms-clock-inversion;
+	adi,clock-delay = <0x03>;
+};
+
+&i2c0{
+	status = "okay";
+	
+	i2cswitch@74 {
+
+		i2c@5 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <5>;
+			fmc1_eeprom: eeprom@50 {
+				compatible = "at,24c02";
+				reg = <0x50>;
+			};
+		};
+
+		i2c@6 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <6>;
+			fmc2_eeprom: eeprom@50 {
+				compatible = "at,24c02";
+				reg = <0x50>;
+			};
+		};
+	};
 };

@@ -4,7 +4,7 @@
             compatible = "mathworks,mwgeneric-v1.00";
             reg = <0x1>;    
             mwgen,type = "nomem";            
-	        mwgen,devname = "fmceeprom";        
+	        mwgen,devname = "fmceeprom";
             i2c-controller = <&fmc_eeprom>;
             
         }; 
@@ -25,6 +25,7 @@
 		compatible = "xlnx,axi-iic-1.02.a", "xlnx,xps-iic-2.00.a";
 		interrupt-parent = <&intc>;
 		interrupts = <0 59 4>;
+		clocks = <&clkc 15>;
 		reg = <0x41600000 0x10000>;
 		#address-cells = <1>;
 		#size-cells = <0>;

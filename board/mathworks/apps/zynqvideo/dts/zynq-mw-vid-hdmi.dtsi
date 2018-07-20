@@ -7,7 +7,7 @@
 		mwgen,ipname = "adi,axi_hdmi_rx";
 		mwgen,devname = "hdmirx";
 		mwgen,ipinst = "axi_hdmi_rx";
-		mwgen,ipver = "4.00.c";
+		mwgen,ipver = "1.0";
         i2c-controller = <&adv7611>;
 	};
 
@@ -17,7 +17,7 @@
 		mwgen,ipname = "mw,dmac_to_vdma";
 		mwgen,devname = "dmac2vdma";
 		mwgen,ipinst = "dmac_to_vdma";
-		mwgen,ipver = "1.00";
+		mwgen,ipver = "1.0";
 	};
 };
 

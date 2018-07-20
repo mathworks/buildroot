@@ -1,20 +1,16 @@
 <board name="zed" platform="zynq">
     <default>
         <app name="default">
-            <dts file="axilite.dts"/>
-            <fsbl file="axilite_fsbl.elf"/>
+			<dts file="axilite.dts"/>
             <bit file="axilite.bit"/>
         </app>
         <dtsi dir="../../dts"/>
+        <fsbl dir="handoff"/>
     </default>
-    <image name="videopsp">
+    <image name="zynqvideopsp">
         <app name="hdmi">
             <dts file="vid-hdmi.dts"/>
             <bit file="vid-hdmi.bit"/>
-        </app>
-        <app name="vita">
-            <dts file="vid-vita.dts"/>
-            <bit file="vid-vita.bit"/>
         </app>
     </image>
 </board>

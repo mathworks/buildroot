@@ -7,6 +7,16 @@
 &i2c0{			
     status = "okay";
 
+	/*adv7511: adv7511@39 {
+		compatible = "adi,adv7511";
+		reg = <0x39>;
+		adi,input-depth = <8>;
+		adi,input-colorspace = "yuv422";
+		adi,input-clock = "1x";
+		adi,input-style = <1>;
+		adi,input-justification = "right";
+	};*/
+	
 	adv7511: adv7511@39 {
 		compatible = "mwadi,mwadv7511";
 		reg = <0x39>;

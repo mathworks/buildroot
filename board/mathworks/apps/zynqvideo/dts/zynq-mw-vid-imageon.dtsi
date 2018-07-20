@@ -18,7 +18,7 @@
     status = "okay";
 
 	imageon_i2c_switch: i2cswitch@70 {
-			compatible = "nxp,pca9546";
+			compatible = "nxp,pca9548";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x70>;            
