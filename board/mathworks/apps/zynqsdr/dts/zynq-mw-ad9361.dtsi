@@ -9,6 +9,10 @@
 
 &fpga_axi {
 	/delete-node/ mwipcore@43c00000;
+    cf_ad9361_dac_core_0: cf-ad9361-dds-core-lpc@79024000 {
+        /* Mute DDS by default */
+        adi,axi-dds-default-scale = <0>;
+    };
 };
 
 #include "zynq-mw-axilite-common.dtsi"
