@@ -2,6 +2,7 @@
 
 &hdmitx{
     mwgen,vidinjust = "even";
+	mwgen,vidinformat = "4:4:4";
 };
 
 &adv7511 {

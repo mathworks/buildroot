@@ -2,6 +2,7 @@
 
 &hdmitx{
     mwgen,vidinjust = "right";
+	mwgen,vidinformat = "4:2:2,separate";
 };
 
 &adv7511 {

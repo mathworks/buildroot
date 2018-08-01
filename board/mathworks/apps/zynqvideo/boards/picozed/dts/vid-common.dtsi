@@ -2,7 +2,7 @@
 
 &hdmitx{
     mwgen,vidinjust = "left";
-	mwgen,vidembedsync;
+	mwgen,vidinformat = "4:2:2,embedded";
 };
 	
 &i2c0{			
