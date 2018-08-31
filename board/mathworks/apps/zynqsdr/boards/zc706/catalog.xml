@@ -22,5 +22,9 @@
         <app name="fmcomms2_axis64_XIL_DMA">
             <dts file="fmcomms2_axis_XIL_DMA.dts"/>
         </app>
+        <app name="fmcomms5">
+            <dts file="fmcomms5.dts"/>
+            <bit file="fmcomms5.bit"/>
+        </app>
     </image>
 </board>
