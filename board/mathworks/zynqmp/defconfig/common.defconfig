@@ -3,8 +3,8 @@
 ###########################################
 #include "aarch64_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/darenlee/linux-xlnx.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="wip_xlnx_mw_v4.14"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_psp_rfsoc_R18.1.0"
 BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x8000"
 #endif
