@@ -1,2 +1,2 @@
-#define MW_DATAWIDTH_SELECT 64
+#define MW_DATAWIDTH_SELECT 128
 #include "zynq-mw-axistream-iio-common.dtsi"
