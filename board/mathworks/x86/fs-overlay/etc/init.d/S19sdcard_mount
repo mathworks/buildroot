@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# Load modules for cold-plugged devices
+#
+
+source /etc/bootvars.conf
+
+source /etc/init.d/start_only.sh
+
+if [ ! -d ${_SD_ROOT} ]; then
+	mkdir -p ${_SD_ROOT}
+fi
+
+mount -a
+
+
+
+
+
+

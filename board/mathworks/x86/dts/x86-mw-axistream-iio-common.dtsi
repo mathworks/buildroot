@@ -1,0 +1,15 @@
+#include "xilinx-mw-axistream-iio-common.dtsi"
+
+&axi4stream_mm2s {
+	reg = <0x01010000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0>;
+	};
+};
+&axi4stream_s2mm {
+	reg = <0x01020000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x1>;
+	};
+};
+

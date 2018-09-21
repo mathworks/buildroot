@@ -7,6 +7,8 @@ source /etc/bootvars.conf
 
 source /etc/init.d/start_only.sh
 
+# Do nothing at this point
+
 
 
 
