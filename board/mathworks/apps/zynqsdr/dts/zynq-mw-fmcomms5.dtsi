@@ -1,0 +1,21 @@
+/* Setup the default boot args for ramdisk and earlycon */
+/ {
+        chosen {
+                /delete-property/ linux,stdout-path;
+                bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+                stdout-path = "/amba@0/uart@E0001000";
+        };
+};
+
+&fpga_axi {
+    cf_ad9361_dac_core_0: cf-ad9361-dds-core-lpc@79024000 {
+        /* Mute DDS by default */
+        adi,axi-dds-default-scale = <0>;
+    };
+
+    cf_ad9361_dac_core_1: cf-ad9361-dds-core-B@79044000 {
+        /* Mute DDS by default */
+        adi,axi-dds-default-scale = <0>;
+    };
+};
+
