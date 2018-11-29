@@ -4,7 +4,7 @@
 #include "arm_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
 BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/altera-linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_psp_a10sdr_R18.1.0"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_psp_a10sdr_R18.2.8"
 # BR2_LINUX_KERNEL_UIMAGE is not set
 BR2_LINUX_KERNEL_ZIMAGE=y
 #endif
