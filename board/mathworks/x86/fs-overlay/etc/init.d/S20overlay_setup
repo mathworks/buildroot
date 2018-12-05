@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Load modules for cold-plugged devices
+#
+
+source /etc/bootvars.conf
+
+source /etc/init.d/start_only.sh
+
+FIRMWARE_ROOT=/lib/firmware
+OVERLAY_FS=/sys/class/fpga_overlay/fpga_overlay0
+
+BRIDGE_ROOT_DTB="pcie-axi-bridge-root.dtb"
+XIL_FPGA_DTBO="xilinx-pcie-axi-bridge.dtbo"
+
+cp ${_SD_ROOT}/${_FPGA_OVERLAY_SYSTEM_DTB} ${FIRMWARE_ROOT}/${BRIDGE_ROOT_DTB}
+cp ${_SD_ROOT}/${_FPGA_OVERLAY_BRIDGE_DTBO} ${FIRMWARE_ROOT}/${XIL_FPGA_DTBO}
+
+
+# Check if we need to reprobe
+PCI_DEV=$(dmesg | grep -e "Direct firmware load .* failed" | tail -n 1)
+if [ ! -d ${OVERLAY_FS} ]; then
+	echo "FPGA Overlay device not found, attempting to re-probe"
+	if [ "$PCI_DEV" != "" ]; then
+		PCI_ID=$(echo -n "${PCI_DEV}" | sed -e "s/.*\(0000[^ ]*\):.*/\1/")
+		echo $PCI_ID > /sys/bus/pci/drivers_probe
+	fi
+fi
+
+
+

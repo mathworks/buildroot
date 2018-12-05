@@ -91,7 +91,7 @@ def build_sdimage(outputDir, image, catalog):
 def platform_supported():
     supported = dict()
     # List of valid toolchains
-    supported['toolchain'] = ["xilinx", "linaro"]
+    supported['toolchain'] = ["linaro", "xilinx"]
     # List of valid OSes
     supported['rtos'] = ["linux", "xenomai"]
     return supported

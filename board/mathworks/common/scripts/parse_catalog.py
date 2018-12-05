@@ -28,7 +28,7 @@ def _find_file(baseDir,filePath, tag=""):
         if tag == "dts":
             baseDir = baseDir + "/dts"
         elif tag == "fsbl" or tag == "bit" or tag == "pmufw" or tag == "handoff":
-            baseDir = baseDir + "/boot"                
+            baseDir = baseDir + "/boot"
         else:
             baseDir = baseDir
         filePath = os.path.realpath(baseDir + "/" + filePath)
@@ -46,8 +46,11 @@ def _search_file(baseDir, fileSrc, tag="", noneOkay=False):
         # Next search relative to the board xml file
         filePath = _find_file(_CATALOG_DIR,fileSrc)
         if filePath is None:
-            # Last search in the board directory
+            # Next search in the board directory
             filePath = _find_file(_defaults['boardInfo']['dir'],fileSrc, tag=tag)
+            if filePath is None and _defaults['boardInfo']['variant'] is not None:
+                # Last search in the board variant directory (if variant exists)
+                filePath = _find_file(_defaults['boardInfo']['dir']+"/"+_defaults['boardInfo']['variant'],fileSrc, tag=tag)
     
     if (filePath is None) and (not noneOkay):                
         raise IOError("Cannot find %s file: %s" %(tag, fileSrc))
@@ -187,6 +190,8 @@ def _load_board_info(boardNode):
     if boardInfo['dir'] is None:
         raise IOError("Cannot find specified board directory: %s" % (boardDir))
 
+    boardInfo['variant'] = _BOARD_VARIANT
+
     return boardInfo
 
 ###############
@@ -275,6 +280,7 @@ def read_catalog(catalogFile, imageNames=["all"]):
     global _PLATFORM_NAME
     global _PLATFORM_DIR
     global _BOARD_NAME
+    global _BOARD_VARIANT
 
     # Determine the board dir
     _CATALOG_DIR = os.path.dirname(os.path.realpath(catalogFile))
@@ -285,8 +291,9 @@ def read_catalog(catalogFile, imageNames=["all"]):
     # Now capture some info
     _PLATFORM_NAME = root.get('platform')
     _BOARD_NAME = root.get('name')
+    _BOARD_VARIANT = root.get('variant')
     _PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + _PLATFORM_NAME
-
+    
     # determine the group configuration
     if imageNames == ["all"]:
         allImages = True
@@ -315,6 +322,7 @@ def read_catalog(catalogFile, imageNames=["all"]):
     # Create the catalog
     catalog = dict()
     catalog['boardName'] = _BOARD_NAME
+    catalog['boardVariant'] = _BOARD_VARIANT
     catalog['catalogDir'] = _CATALOG_DIR
     catalog['defaultInfo'] = _defaults
     catalog['imageList'] = imageList

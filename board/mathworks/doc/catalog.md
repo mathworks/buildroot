@@ -39,6 +39,7 @@ The board node has the following attributes:
 | --- | --- |
 | name | The board name (e.g. zed, zc706, etc) | 
 | platform | The platform name (e.g. zynq, socfpga) |
+| variant | (optional) The board variant (e.g. for picozed: 7020, 7030, etc) |
 
 __name__: The name can specify a board supported in tree (in which case the various
 source files supplied in tree will be available for use) or specify a completely new board.
