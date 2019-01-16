@@ -2,3 +2,4 @@
 # Linux Options
 ###########################################
 BR2_LINUX_KERNEL_DEFCONFIG="mw_zynq"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(shell printenv BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES) board/mathworks/zynq/kernel-frags/iio_dummy.frag"
