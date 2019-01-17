@@ -1,15 +1,20 @@
 /* Setup the default boot args for ramdisk and earlycon */
 / {
-	chosen {
-		/delete-property/ linux,stdout-path;
-		bootargs = "earlycon root=/dev/ram rw";		
-		stdout-path = "serial0:115200n8";
-	};
+        chosen {
+                /delete-property/ linux,stdout-path;
+                bootargs = "earlycon root=/dev/ram rw";		
+                stdout-path = "serial0:115200n8";
+        };
 };
 
 &fpga_axi {
 	/delete-node/ mwipcore@43c00000;
     cf_ad9361_dac_core_0: cf-ad9361-dds-core-lpc@79024000 {
+        /* Mute DDS by default */
+        adi,axi-dds-default-scale = <0>;
+    };
+
+    cf_ad9361_dac_core_1: cf-ad9361-dds-core-B@79044000 {
         /* Mute DDS by default */
         adi,axi-dds-default-scale = <0>;
     };
