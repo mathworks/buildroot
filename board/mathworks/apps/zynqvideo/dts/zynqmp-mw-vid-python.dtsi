@@ -1,0 +1,68 @@
+#include "zynqmp-mw-vid-imageon.dtsi"
+
+/{
+	i2c_misc {
+		camgpio {
+			compatible = "mathworks,mwgeneric-v1.00";       
+			reg = <0x0>;    
+			mwgen,type = "nomem";            
+			mwgen,devname = "camgpio";            
+			i2c-controller = <&camgpio_i2c>;
+		};
+	};
+};
+
+&imageon_i2c_switch{
+	
+	fmci2c@4 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <4>;
+		
+		camgpio_i2c: camgpio@24 {
+			compatible = "mwnxp,mwpca9654";
+			reg = <0x24>;
+		};
+	};
+};
+
+&fpga_axi{   	
+	
+    pythonspi@A2020000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0xA2020000 0xffff>;
+		mwgen,ipname = "avnet,onsemi_vita_spi";
+		mwgen,devname = "pythonrxspi";
+		mwgen,ipinst = "onsemi_vita_spi";
+		mwgen,ipver = "3.3";
+	};
+
+	pythoncam@A2030000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0xA2030000 0xffff>;
+		mwgen,ipname = "avnet,onsemi_vita_cam";
+		mwgen,devname = "pythonrxcam";
+		mwgen,ipinst = "onsemi_vita_cam";
+		mwgen,ipver = "3.3";
+	};
+	
+	pythoncfa@A2040000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0xA2040000 0xffff>;
+		mwgen,ipname = "mathworks,mw_cfa";
+		mwgen,devname = "pythoncfa";
+		mwgen,ipinst = "vita_cfa";
+		mwgen,ipver = "2.0";
+	};
+
+	gpio@A3020000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0xA3020000 0xffff>;
+		mwgen,ipname = "xlnx,axi_gpio";
+		mwgen,devname = "axigpio";
+		mwgen,ipinst = "axi_gpio_0";
+		mwgen,ipver = "1.12.a";
+	};
+	
+};
+

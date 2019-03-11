@@ -1,7 +1,7 @@
 /{
 	core_clkwiz: clockwiz0 {
 		compatible = "fixed-factor-clock";
-		clocks = <&clkc 15>;
+		clocks = <&clkc 71>;
 		#clock-cells = <1>;
 		clock-div = <2>;
 		clock-mult = <1>;

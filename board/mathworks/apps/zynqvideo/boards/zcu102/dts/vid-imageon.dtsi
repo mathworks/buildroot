@@ -1,0 +1,41 @@
+/{
+    i2c_misc {
+        fmceeprom {
+            compatible = "mathworks,mwgeneric-v1.00";
+            reg = <0x1>;    
+            mwgen,type = "nomem";            
+	        mwgen,devname = "fmceeprom";        
+            i2c-controller = <&fmc_eeprom>;
+            
+        }; 
+    };
+};
+
+&i2c1{
+	i2cswitch@75 {
+		i2c@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+			fmc_eeprom: eeprom@50 {
+				compatible = "at,24c02";
+				reg = <0x50>;
+			};
+		};
+	};
+};
+
+&fpga_axi{   			
+	imageon_i2c: i2c@A1600000 {
+		compatible = "xlnx,axi-iic-1.02.a", "xlnx,xps-iic-2.00.a";
+		interrupt-parent = <&gic>;
+		interrupts = <0 96 4>;
+		clocks = <&clkc 71>;
+		reg = <0xA1600000 0x10000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+	};
+};
+
+#define fmc_adv7511 adv7511

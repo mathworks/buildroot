@@ -28,7 +28,7 @@
 				#size-cells = <0>;
 				reg = <1>;
 				
-				fmcadv7511@39 {
+				fmc_adv7511: fmcadv7511@39 {
 					compatible = "mwadi,mwadv7511";
 					reg = <0x39>;
 				};
