@@ -1,0 +1,2 @@
+#define MW_DATAWIDTH_SELECT 64
+#include "socfpga-mw-axistream-iio-common.dtsi"

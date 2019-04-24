@@ -1,4 +1,3 @@
-
 #include "adi-mw-axistream-dma.h"
 
 &fpga_axi {
@@ -6,7 +5,7 @@
 			compatible = "adi,axi-dmac-1.00.a";
 			reg = <0x40020000 0xffff>;
 			#dma-cells = <1>;
-			interrupts = <0 0x1d 0>;
+			interrupts = <0 MW_DMA_MM2S_IRQ 0x4>;
 			clocks = <&core_clkwiz 0>;
 
 			adi,channels {
@@ -15,9 +14,9 @@
 
 				axi4stream_mm2s_channel: dma-channel@0 {
 					reg = <0>;
-					adi,source-bus-width = ADI_MM2S_AXIM_DATAWIDTH;
+					adi,source-bus-width = ADI_AXI_MM_DATAWIDTH;
 					adi,source-bus-type = ADI_AXI_DMAC_TYPE_AXI_MM;
-					adi,destination-bus-width = ADI_MM2S_AXIS_DATAWIDTH;
+					adi,destination-bus-width = ADI_MM2S_DATAWIDTH;
 					adi,destination-bus-type = ADI_AXI_DMAC_TYPE_AXI_STREAM;
 				};
 			};
@@ -27,7 +26,7 @@
 			compatible = "adi,axi-dmac-1.00.a";
 			reg = <0x40030000 0xffff>;
 			#dma-cells = <1>;
-			interrupts = <0 0x1e 0>;
+			interrupts = <0 MW_DMA_S2MM_IRQ 0x4>;
 			clocks = <&core_clkwiz 0>;
 	
 			adi,channels {
@@ -36,9 +35,9 @@
 
 				axi4stream_s2mm_channel: dma-channel@0 {
 					reg = <0>;
-					adi,source-bus-width = ADI_S2MM_AXIS_DATAWIDTH;
+					adi,source-bus-width = ADI_S2MM_DATAWIDTH;
 					adi,source-bus-type = ADI_AXI_DMAC_TYPE_AXI_STREAM;
-					adi,destination-bus-width = ADI_S2MM_AXIM_DATAWIDTH;
+					adi,destination-bus-width = ADI_AXI_MM_DATAWIDTH;
 					adi,destination-bus-type = ADI_AXI_DMAC_TYPE_AXI_MM;
 				};
 			};

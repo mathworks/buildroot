@@ -63,7 +63,7 @@ define UBOOT_ALTERA_GENERATE_BSP
     $(SOCEDS_COMMANDSHELL) bsp-create-settings \
       --type uboot --bsp-dir $(@D)/bsp \
       --settings $(@D)/bsp/settings.bsp \
-      --preloader-settings-dir $(UBOOT_ALTERA_QUARTUS_HANDOFF_SRC)/handoff \
+      --preloader-settings-dir $(UBOOT_ALTERA_QUARTUS_HANDOFF_SRC) \
       $(UBOOT_ALTERA_BSP_OPTIONS)
     $(SOCEDS_COMMANDSHELL) make -j32 -C $(@D)/bsp clean
     $(SOCEDS_COMMANDSHELL) make -j32 -C $(@D)/bsp

@@ -196,20 +196,16 @@ def platform_gen_target(args, catalog):
     # Validate the handoff directory
     handoffDir = "%s/handoff" % catalog['defaultInfo']['fsbl']
     # Force BSP generation for Arria 10
-    if catalog['boardName'] == "arria10":
-        br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", "y")
+    if os.path.isdir(handoffDir) and catalog['boardName'] != "arria10":
+        if not os.path.isdir("%s/generated" % catalog['defaultInfo']['fsbl']):
+            errStr = "The handoff directory (%s) does not contain both handoff and generated folders\n" % catalog['defaultInfo']['fsbl']
+            errStr += "When supplying both the handoff files and the BSP, they must be placed in 'handoff'"
+            errStr += " and 'generated' subfolders respectively\n"
+            raise RuntimeError(errStr)
+        br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", None)
     else:
-        if os.path.isdir(handoffDir):
-            if not os.path.isdir("%s/generated" % catalog['defaultInfo']['fsbl']):
-                errStr = "The handoff directory (%s) does not contain both handoff and generated folders\n" % catalog['defaultInfo']['fsbl']
-                errStr += "When supplying both the handoff files and the BSP, they must be placed in 'handoff'"
-                errStr += " and 'generated' subfolders respectively\n"
-                raise RuntimeError(errStr)
-            br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", None)
-        else:
-            handoffDir = catalog['defaultInfo']['fsbl']
-            br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", "y")
-
+        handoffDir = catalog['defaultInfo']['fsbl']
+        br_set_var("BR2_PACKAGE_UBOOT_ALTERA_GENERATE_BSP", "y")
 
     if not os.path.isfile("%s/hps.xml" % handoffDir):
         errStr = "The handoff directory (%s) does not contain the hps.xml file\n" % handoffDir

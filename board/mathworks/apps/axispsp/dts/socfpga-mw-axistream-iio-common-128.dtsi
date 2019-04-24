@@ -1,0 +1,3 @@
+#define MW_DATAWIDTH_SELECT 128
+#define MW_AXI_MM_DATAWIDTH_SELECT 128
+#include "socfpga-mw-axistream-iio-common.dtsi"

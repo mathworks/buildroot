@@ -5,6 +5,15 @@
 			compatible = "altr,socfpga-fpga2sdram-bridge";
 		};
 
+		core_clkwiz: iopll {
+			compatible = "fixed-factor-clock";
+			clocks = <&fpga_ref_clk>;
+			#clock-cells = <1>;
+			clock-div = <2>;
+			clock-mult = <1>;
+			clock-output-names = "clk0";
+		};
+
 		base_fpga: base_fpga_region {
 
 			compatible = "fpga-region", "simple-bus";

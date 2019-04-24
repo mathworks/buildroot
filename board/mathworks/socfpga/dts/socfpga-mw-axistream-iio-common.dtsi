@@ -1,0 +1,10 @@
+#include "socfpga-mw-cma.dtsi"
+#include "socfpga-mw-axistream-iio-common.h"
+
+&axi4stream_mm2s {
+	reg = <0x00020000 0x1000>;
+};
+
+&axi4stream_s2mm {
+	reg = <0x00030000 0x1000>;
+};

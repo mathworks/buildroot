@@ -1,0 +1,2 @@
+#include "base.dtsi"
+#include "socfpga-mw-axistream-iio-common.dtsi"
