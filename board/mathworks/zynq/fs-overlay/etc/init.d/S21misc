@@ -1,12 +1,12 @@
 #!/bin/sh
 #
-# Increase iio_max_block_size to 64M
+# Increase iio_max_block_size to 128M
 #
 
 case "$1" in
 	start|"")
 		echo -n "Starting miscellaneous setup: "
-		MAX_BS=`fw_printenv -n iio_max_block_size || echo 67108864`
+		MAX_BS=`fw_printenv -n iio_max_block_size 2> /dev/null || echo 134217728`
 		echo ${MAX_BS} > /sys/module/industrialio_buffer_dma/parameters/max_block_size
 		[ $? = 0 ] && echo "OK" || echo "FAIL"
 		;;

@@ -1,6 +1,0 @@
-#include "zynqmp-mw-vid-common.dtsi"
-
-&hdmitx{
-    mwgen,vidinjust = "left";
-	mwgen,vidinformat = "4:2:2,embedded";
-};
