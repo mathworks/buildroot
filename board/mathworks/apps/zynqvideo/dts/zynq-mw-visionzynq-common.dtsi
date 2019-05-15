@@ -91,14 +91,14 @@
 };
 
 / {
-    reserved-memory {
+    memory_reserved: reserved-memory {
     
         axim_mem: region@14000000 {
             reg = <0x14000000 0x4000000>;
             no-map;
         };
         
-        vdma_mem: region@18000000 {
+        framebuffer_vdma_mem: region@18000000 {
             reg = <0x18000000 0x4000000>;
             no-map;
         };

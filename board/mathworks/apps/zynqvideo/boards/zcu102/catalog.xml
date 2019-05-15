@@ -11,5 +11,8 @@
             <dts file="visionzynq.dts"/>
             <bit file="visionzynq.bit"/>
         </app>
+		<app name="visionzynq_ps">
+            <dts file="visionzynq_ps.dts"/>
+        </app>
     </image>
 </board>
