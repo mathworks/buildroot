@@ -1,0 +1,26 @@
+<board name="e310" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <dtsi dir="../../dts"/>
+        <fsbl dir="handoff"/>
+    </default>
+    <image name="zynqsdr">
+        <app name="e31x">
+            <dts file="e31x.dts"/>
+            <bit file="e31x.bit"/>
+        </app>
+        <app name="e31x_axis">
+            <dts file="e31x_axis.dts"/>
+        </app>
+         <app name="e31x_axis64">
+            <dts file="e31x_axis64.dts"/>
+        </app>
+        <app name="e31x_axis_XIL_DMA">
+            <dts file="e31x_axis_XIL_DMA.dts"/>
+        </app>
+        <app name="e31x_axis64_XIL_DMA">
+            <dts file="e31x_axis64_XIL_DMA.dts"/>
+        </app>
+    </image>
+</board>

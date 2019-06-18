@@ -1,0 +1,10 @@
+###########################################
+# E310 Options
+###########################################
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="zynq_e310"
+BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR="board/xilinx/zynq/zynq-e310"
+###########################################
+# Linux Options
+###########################################
+BR2_LINUX_KERNEL_DEFCONFIG="zynq_e310"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(shell printenv BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES) board/mathworks/zynq/kernel-frags/iio_dummy.frag"
