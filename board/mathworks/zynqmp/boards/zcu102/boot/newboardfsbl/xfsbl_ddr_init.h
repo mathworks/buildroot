@@ -119,7 +119,7 @@ extern "C" {
 #ifndef DDR_PHY_DX8SLBPLLCR0_OFFSET
 #define DDR_PHY_DX8SLBPLLCR0_OFFSET		0XFD0817C4
 #endif
-/* Added by Abhishek */
+/* Moved from xparameters.h */
 #define XPAR_PSU_DDRC_0_DDR4_ADDR_MAPPING 0
 #define XPAR_PSU_DDRC_0_DDR_FREQ_MHZ 1066.560059
 #define XPAR_PSU_DDRC_0_VIDEO_BUFFER_SIZE 0
