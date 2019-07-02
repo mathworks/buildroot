@@ -119,7 +119,30 @@ extern "C" {
 #ifndef DDR_PHY_DX8SLBPLLCR0_OFFSET
 #define DDR_PHY_DX8SLBPLLCR0_OFFSET		0XFD0817C4
 #endif
+/* Added by Abhishek */
+#define XPAR_PSU_DDRC_0_DDR4_ADDR_MAPPING 0
+#define XPAR_PSU_DDRC_0_DDR_FREQ_MHZ 1066.560059
+#define XPAR_PSU_DDRC_0_VIDEO_BUFFER_SIZE 0
+#define XPAR_PSU_DDRC_0_BRC_MAPPING 0
 
+#define Xil_poll_timeout(IO_func, ADDR, VALUE, COND, TIMEOUT_US) \
+ ( {	  \
+	u64 timeout = TIMEOUT_US/100;    \
+	if(TIMEOUT_US%100!=0)	\
+		timeout++;   \
+	for(;;) { \
+		VALUE = IO_func(ADDR); \
+		if(COND) \
+			break; \
+		else {    \
+			usleep(100);  \
+			timeout--; \
+			if(timeout==0) \
+			break;  \
+		}  \
+	}    \
+	(timeout>0) ? 0 : -1;  \
+ }  )
 
 /************************** Variable Definitions *****************************/
 u32 XFsbl_DdrInit(void);
