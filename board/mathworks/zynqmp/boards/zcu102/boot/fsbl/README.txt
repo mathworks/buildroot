@@ -1,5 +1,5 @@
  Copyright 2019 The Mathworks, Inc.
- This folder contains required files to build the fsbl for new zcu102v1.1 board.
+ This folder contains required files to build the fsbl for new ZCU102 v1.1 board using Vivado/SDK version 2017.4.
  
  Below are the steps to rebuild the fsbl to support the new board.
 
