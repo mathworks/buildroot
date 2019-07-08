@@ -4,7 +4,7 @@
  Below are the steps to rebuild the fsbl to support the new board.
 
  1. Once you have created the fsbl application projct in Vivado, Modify the psu_init.c file.
-	i. Comment the function call psu_ddr_init_data() in psu_init function, in the psu_init.c file to disable the ddr initialization during psu init.
+	i. Comment the function call psu_ddr_phybringup_data() in psu_init function, in the psu_init.c file to disable the ddr phy bringup during psu init.
 
  2. Copy the two files, xfsbl_ddr_init.c and xfsbl_ddr_init.h from this folder and paste it inside the "src" directory of the fsbl application project.
 
