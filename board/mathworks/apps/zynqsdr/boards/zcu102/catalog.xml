@@ -11,12 +11,12 @@
         <dtsi dir="../../dts"/>
     </default>
     <image name="zynqsdr">
-        <app name="fmcomms2">
-            <dts file="fmcomms2.dts"/>
-            <bit file="fmcomms2.bit"/>
-        </app>
         <app name="fmcomms2_axis">
             <dts file="fmcomms2_axis.dts"/>
+            <bit file="fmcomms2.bit"/>
+        </app>
+        <app name="fmcomms2">
+            <dts file="fmcomms2.dts"/>
         </app>
         <app name="fmcomms2_axis64">
             <dts file="fmcomms2_axis64.dts"/>
