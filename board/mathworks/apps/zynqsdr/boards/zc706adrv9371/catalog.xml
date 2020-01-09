@@ -1,0 +1,15 @@
+<board name="zc706" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <dtsi dir="../../dts"/>
+        <fsbl dir="handoff"/>
+	<kernel_config file = "kernel_config"/>
+    </default>
+    <image name="zynqsdr">
+        <app name="zc706_adrv9371">
+            <dts file="adrv9371.dts"/>
+            <bit file="adrv9371.bit"/>
+        </app>      
+    </image>
+</board>

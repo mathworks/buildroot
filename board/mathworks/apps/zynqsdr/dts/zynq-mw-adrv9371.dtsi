@@ -1,0 +1,38 @@
+/* Setup the default boot args for ramdisk and earlycon */
+/ {
+	chosen {
+		/delete-property/ linux,stdout-path;
+		bootargs = "earlycon root=/dev/ram rw";		
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+/* &fpga_axi {
+	/delete-node/ mwipcore@45000000;
+   /* cf_ad9361_dac_core_0: cf-ad9361-dds-core-lpc@79024000 { */
+        /* Mute DDS by default */
+    /*cf_ad9371_dac_core_0: cf-ad9371-dds-core-lpc@79024000 { */
+       /* adi,axi-dds-default-scale = <0>; */
+   /* };  */
+/*};*/
+
+
+/*#include "zynq-mw-axilite-common.dtsi"
+#include "mw-aximm-common.dtsi"
+#include "zynq-mw-cma.dtsi"
+#include "zynq-mw-ad9361-bypass-user-logic.dtsi"
+*/
+#include "zynq-mw-cma.dtsi"
+/ {
+		InsideFPG: InsideFPG_ip@45000000 {
+			clock-names = "IPCORE_CLK AXI4_Lite_ACLK";
+			clocks = <&misc_clk_0>, <&misc_clk_0>;
+			compatible = "xlnx,InsideFPG-ip-1.0";
+			reg = <0x45000000 0x10000>;
+		};
+		misc_clk_0: misc_clk_0 {
+			#clock-cells = <0>;
+			clock-frequency = <100000000>;
+			compatible = "fixed-clock";
+		};
+};

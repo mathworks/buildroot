@@ -1,0 +1,3 @@
+#include "zynq-zc706-adv7511-ad9361-fmcomms5.dts"
+#include "zc706-cleanup-adv7511.dtsi"
+#include "zynq-mw-fmcomms5.dtsi"
