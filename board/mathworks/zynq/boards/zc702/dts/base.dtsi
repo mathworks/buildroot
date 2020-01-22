@@ -1,7 +1,6 @@
 #include "zynq-zc702.dts"
 #include "zynq-mw-common.dtsi"
 #include "zynq-mw-axilite-common.dtsi"
-#include "mw-aximm-common.dtsi"
 
 
 
