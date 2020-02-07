@@ -20,5 +20,6 @@
         <app name="axistream_64">
             <dts file="axistream_64.dts"/>
         </app>
+	<sdcard dir="sdcard"/>
     </image>
 </board>
