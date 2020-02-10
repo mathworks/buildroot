@@ -1,5 +1,5 @@
 config BR2_PACKAGE_LTTNG_MODULES_RFSOC
-	bool "lttng-modules"
+	bool "lttng-modules-rfsoc"
 	depends on BR2_LINUX_KERNEL
 	help
 	  Linux kernel modules for the LTTng 2.x kernel tracing
