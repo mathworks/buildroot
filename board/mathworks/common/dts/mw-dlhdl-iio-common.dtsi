@@ -1,7 +1,6 @@
 #include "mw-axistream-iio-common.h"
 &mwipcore_ddr0 {
 	compatible = "mathworks,mwipcore-v3.00";
-	//reg = <0x040010000 0x10000>;
 	#address-cells = <1>;
 	#size-cells = <0>;
 	mmwr-channel@1 {
@@ -49,7 +48,6 @@
 
 &mwipcore_dl0 {
 	compatible = "mathworks,mwipcore-v3.00";
-	//reg = <0x44A00000 0x10000>;
 	#address-cells = <0x1>;
 	#size-cells = <0x0>;
 	linux,phandle = <0x41>;
