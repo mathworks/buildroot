@@ -1,0 +1,21 @@
+/* Include the default DT from the kernel */ 
+#include "socfpga_arria10_socdk_sdmmc.dts" 
+
+ 
+/* MAX V system controller 50 MHz FPGA reference clock */ 
+/{ 
+	ext_clocks { 
+		maxv_clk_50m: maxv_clk_50m { 
+			#clock-cells = <0>; 
+			compatible = "fixed-clock"; 
+			clock-frequency = <50000000>; 
+		}; 
+
+		fpga_clk_133m: fpga_clk_133m { 
+			#clock-cells = <0>; 
+			compatible = "fixed-clock"; 
+			clock-frequency = <133000000>; 
+		}; 
+	}; 
+};  
+

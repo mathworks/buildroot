@@ -1,0 +1,16 @@
+/{ 
+ 	reserved-memory { 
+ 		#address-cells = <1>; 
+ 		#size-cells = <1>; 
+ 		ranges; 
+
+ 		/* global autoconfigured region for contiguous allocations */ 
+		linux_cma: linux,cma { 
+			compatible = "shared-dma-pool"; 
+			reusable; 
+			size = <0x10000000>; 
+			linux,cma-default; 
+		}; 
+	}; 
+}; 
+
