@@ -3,4 +3,3 @@
 
 #define fpga_ref_clk fpga_clk_133m
 
-/delete-node/ &mwipcore0;

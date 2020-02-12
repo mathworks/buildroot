@@ -56,3 +56,4 @@
 	interrupts = <0x0 MW_DMA_S2MM_IRQ_SELECT 0x4>;
 }; 
 
+/delete-node/ &mwipcore0;

@@ -49,5 +49,5 @@
 		interrupts = <0x0 90 0x4>;
 	};
 };
-
+/delete-node/ &mwipcore0;
 

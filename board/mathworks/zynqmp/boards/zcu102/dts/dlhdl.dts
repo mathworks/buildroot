@@ -1,5 +1,4 @@
 #include "base.dtsi"
 #include "zynqmp-mw-dlhdl-iio-common.dtsi"
 
-/delete-node/ &mwipcore0;
 
