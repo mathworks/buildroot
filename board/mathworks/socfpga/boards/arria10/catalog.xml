@@ -10,5 +10,8 @@
             <bit file="socfpga.periph.rbf"/>
             <bit file="socfpga.core.rbf"/>
         </app>
+        <app name="dlhdl">
+            <dts file="dlhdl.dts"/>
+        </app>
     </image>
 </board>

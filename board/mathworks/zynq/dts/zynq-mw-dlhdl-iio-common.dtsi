@@ -1,0 +1,46 @@
+&fpga_axi {
+		mwipcore_ddr0: mwipcore_ddr@0 {
+			compatible = "mathworks,mwipcore-v2.00";
+			reg = <0x40010000 0x10000>;
+		};
+};
+
+&fpga_axi {
+		mwipcore_dl0: mwipcore_dl@0 {
+			compatible = "mathworks,mwipcore-v2.00";
+			reg = <0x44A00000 0x10000>;
+		};
+};
+
+#include "mw-axistream-iio-common.h"
+#include "xilinx-mw-axistream-dma.h"
+
+#undef MW_MM2S_DATAFMT
+#undef MW_S2MM_DATAFMT
+#undef XLNX_MM2S_DATAWIDTH
+#undef XLNX_S2MM_DATAWIDTH
+
+#define MW_MM2S_DATAFMT "u32/32>>0"
+#define MW_S2MM_DATAFMT "u32/32>>0"
+#define XLNX_MM2S_DATAWIDTH <0x40>
+#define XLNX_S2MM_DATAWIDTH <0x40>
+
+
+#include "zynq-mw-cma.dtsi"
+#include "xilinx-mw-dlhdl-iio-common.dtsi"
+
+
+&axi4stream_mm2s {
+	reg = <0x40020000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0 0x1d 0x4>;
+	};
+};
+&axi4stream_s2mm {
+	reg = <0x40030000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0 0x1e 0x4>;
+	};
+};
+
+/delete-node/ &mwipcore0;

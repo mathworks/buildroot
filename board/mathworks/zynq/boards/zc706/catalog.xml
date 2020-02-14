@@ -21,5 +21,8 @@
         <app name="axistream_iio_64">
             <dts file="axistream_iio_64.dts"/>
         </app>
+        <app name="dlhdl">
+            <dts file="dlhdl.dts"/>
+        </app>
     </image>
 </board>

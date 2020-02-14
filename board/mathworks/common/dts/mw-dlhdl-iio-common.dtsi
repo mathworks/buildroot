@@ -1,0 +1,67 @@
+#include "mw-axistream-iio-common.h"
+&mwipcore_ddr0 {
+	compatible = "mathworks,mwipcore-v3.00";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	mmwr-channel@1 {
+		compatible = "mathworks,mm-write-channel-v1.00";
+		mathworks,dev-name = "mmwr0";
+		reg = <0x1>;
+	};
+	stream-channel@0 {			
+	#address-cells = <1>;
+	#size-cells = <0>;
+		reg = <0x0>;
+		compatible = "mathworks,axi4stream-mm2s-channel-v1.00";
+		dma-names = "mm2s";
+		dmas = <&axi4stream_mm2s 0>;
+		mathworks,dev-name = "mm2s0";
+
+		data-channel@0 {
+			compatible = "mathworks,iio-data-channel-v1.00";
+			mathworks,data-format = MW_MM2S_DATAFMT;
+			reg = <0x0>;
+		};
+	};
+	mmrd-channel@0 {
+		compatible = "mathworks,mm-read-channel-v1.00";
+		mathworks,dev-name = "mmrd0";
+		reg = <0x0>;
+	};
+	stream-channel@1 {
+		reg = <0x1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "mathworks,axi4stream-s2mm-channel-v1.00";
+		dma-names = "s2mm";
+		dmas = <&axi4stream_s2mm 0>;
+		mathworks,dev-name = "s2mm0";
+		mathworks,sample-cnt-reg = <0x40>;
+
+		data-channel@0 {
+			compatible = "mathworks,iio-data-channel-v1.00";
+			mathworks,data-format = MW_S2MM_DATAFMT;
+			reg = <0x0>;
+		};
+	};
+};
+
+&mwipcore_dl0 {
+	compatible = "mathworks,mwipcore-v3.00";
+	#address-cells = <0x1>;
+	#size-cells = <0x0>;
+	linux,phandle = <0x41>;
+	phandle = <0x41>;
+
+	mmrd-channel@0 {
+		reg = <0x0>;
+		compatible = "mathworks,mm-read-channel-v1.00";
+		mathworks,dev-name = "mmrd0";
+	};
+
+	mmwr-channel@1 {
+		reg = <0x1>;
+		compatible = "mathworks,mm-write-channel-v1.00";
+		mathworks,dev-name = "mmwr0";
+	};
+};
