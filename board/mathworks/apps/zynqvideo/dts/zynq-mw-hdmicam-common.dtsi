@@ -28,7 +28,7 @@
 };
 
 &hdmicam_i2c {
-	mux@70 {
+	hdmicam_i2c_mux: mux@70 {
 		compatible = "nxp,pca9548";
 		reg = <0x70>;
 		reset-gpio = <&gpio0 87 1>;

@@ -8,11 +8,11 @@
     </default>
     <image name="zynqvideopsp">
 		<app name="visionzynq">
-            <dts file="visionzynq.dts"/>
+            <dts file="visionzynq-hdmiin-base.dts"/>
             <bit file="visionzynq.bit"/>
         </app>
 		<app name="visionzynq_ps">
-            <dts file="visionzynq_ps.dts"/>
+            <dts file="visionzynq-hdmiin-ps.dts"/>
         </app>
     </image>
 </board>

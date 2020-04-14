@@ -1,0 +1,20 @@
+<board name="zed" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <dtsi dir="../../dts"/>
+		<fsbl dir="handoff"/>
+    </default>
+    <image name="zynqvideopsp">
+		<app name="visionzynq">
+            <dts file="visionzynq-hdmiin-base.dts"/>
+            <bit file="visionzynq.bit"/>
+        </app>
+		<app name="visionzynq_ps">
+            <dts file="visionzynq-hdmiin-ps.dts"/>
+        </app>
+		<app name="visionzynq_python">
+            <dts file="visionzynq-python.dts"/>
+        </app>
+    </image>
+</board>

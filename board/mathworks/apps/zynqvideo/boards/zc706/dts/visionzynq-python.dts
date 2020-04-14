@@ -1,0 +1,3 @@
+#include "visionzynq-base.dtsi"
+#include "zynq-mw-visionzynq-python.dtsi"
+#include "zynq-mw-visionzynq-ps-vdma.dtsi"

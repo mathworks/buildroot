@@ -1,2 +1,0 @@
-#include "visionzynq.dts"
-#include "zynqmp-mw-visionzynq-ps-vdma.dtsi"

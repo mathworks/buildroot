@@ -8,13 +8,22 @@
 		mwgen,ipver = "6.3";
 	};
 	
-	mwipcore_axis_video_to_vht@a3c60000 {
-		compatible = "mathworks,mwgeneric-v1.00";
+	mwipcore_ps_vdma_to_vht@a3c60000 {
+		compatible = "mathworks,mwipcore-v2.00";
 		reg = <0xa3c60000 0x10000>;
-		mwgen,ipname = "mathworks,axis_video_to_vht";
-		mwgen,devname = "axis_video_to_vht";
-		mwgen,ipinst = "ps_vdma_to_vht";
-		mwgen,ipver = "1.0";
+	};
+	
+	mwipcore_platform_info@afff0000 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xafff0000 0x10000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		mmrd-channel@0 {
+			reg = <0x0>;
+			compatible = "mathworks,mm-read-channel-v1.00";
+			mathworks,dev-name = "mmrd0";
+		};
 	};
 };
 

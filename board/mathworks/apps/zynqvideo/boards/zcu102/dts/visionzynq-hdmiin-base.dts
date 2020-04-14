@@ -1,0 +1,2 @@
+#include "visionzynq-base.dtsi"
+#include "zynqmp-mw-visionzynq-hdmiin.dtsi"

@@ -2,7 +2,7 @@
     <default>
         <app name="default">
         </app>
-        <fsbl dir="fsbl.elf"/>
+        <fsbl dir="handoff"/>
         <dtsi dir="../../dts"/>
     </default>
     <image name="visionzynq">

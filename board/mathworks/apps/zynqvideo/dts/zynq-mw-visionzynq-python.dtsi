@@ -1,0 +1,55 @@
+&fpga_axi {
+	mwipcore_pythoncam@43c80000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0x43c80000 0x10000>;
+	};
+	
+	mwipcore_pythonspi@43c90000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0x43c90000 0x10000>;
+	};
+
+	mwipcore_pythongpio@41200000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0x41200000 0x10000>;
+	};
+	
+	mwipcore_python_to_vht@43c20000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0x43c20000 0x10000>;
+	};
+	
+	mwipcore_vtc@43ca0000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0x43ca0000 0x10000>;
+	};
+};
+
+&hdmicam_i2c_mux {
+	i2c@4 {
+		#size-cells = <0x0>;
+		#address-cells = <0x1>;
+		reg = <0x4>;
+		
+		camgpio_i2c: camgpio@24 {
+			compatible = "mwnxp,mwpca9654";
+			reg = <0x24>;
+		};
+	};
+};
+
+/ {
+	i2c_misc {
+        compatible = "simple-bus";
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+
+		camgpio@0 {
+			compatible = "mathworks,mwgeneric-v1.00";       
+			reg = <0x0>;    
+			mwgen,type = "nomem";            
+			mwgen,devname = "camgpio";
+			i2c-controller = <&camgpio_i2c>;
+		};
+	};
+};
