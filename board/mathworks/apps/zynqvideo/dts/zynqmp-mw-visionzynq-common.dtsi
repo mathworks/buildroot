@@ -130,4 +130,5 @@
     };
 };
 
+#include "visionzynq-sharedmem-common.dtsi"
 #include "zynqmp-mw-hdmicam-common.dtsi"
