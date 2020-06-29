@@ -3,8 +3,8 @@
 ###########################################
 #include "arm_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_iiosdr_R19.2.1"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/analogdevicesinc/linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="2018_R2"
 BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x8000"
 #endif
