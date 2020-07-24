@@ -13,5 +13,8 @@
         <app name="dlhdl">
             <dts file="dlhdl.dts"/>
         </app>
+        <app name="axilite_iio">
+            <dts file="axilite_iio.dts"/>
+        </app>
     </image>
 </board>
