@@ -9,5 +9,8 @@
             <dts file="axilite.dts"/>
             <bit file="base.rbf"/>
         </app>
+        <app name="axilite_iio">
+            <dts file="axilite_iio.dts"/>
+	</app>
     </image>
 </board>
