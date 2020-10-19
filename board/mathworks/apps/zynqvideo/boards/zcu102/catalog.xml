@@ -1,18 +1,21 @@
 <board name="zcu102" platform="zynqmp">
-    <default>
-        <app name="default">
-        </app>
-        <dtsi dir="../../dts"/>
+	<default>
+		<app name="default">
+		</app>
+		<dtsi dir="../../dts"/>
 		<fsbl file="fsbl.elf"/>
-        <pmufw file="pmufw.elf"/>
-    </default>
-    <image name="zynqvideopsp">
+		<pmufw file="pmufw.elf"/>
+	</default>
+	<image name="zynqvideopsp">
 		<app name="visionzynq">
-            <dts file="visionzynq-hdmiin-base.dts"/>
-            <bit file="visionzynq.bit"/>
-        </app>
+			<dts file="visionzynq-hdmiin-base.dts"/>
+			<bit file="visionzynq.bit"/>
+		</app>
 		<app name="visionzynq_ps">
-            <dts file="visionzynq-hdmiin-ps.dts"/>
-        </app>
-    </image>
+			<dts file="visionzynq-hdmiin-ps.dts"/>
+		</app>
+		<app name="visionzynq_dl">
+			<dts file="visionzynq-hdmiin-dl.dts"/>
+		</app>
+	</image>
 </board>
