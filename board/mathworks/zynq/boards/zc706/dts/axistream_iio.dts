@@ -1,3 +1,4 @@
 #include "base.dtsi"
 #include "zynq-mw-axistream-iio-common.dtsi"
+#include "mw-aximm-common.dtsi"
 
