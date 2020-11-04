@@ -1,0 +1,16 @@
+#include "base.dtsi"
+#include "zynq-mw-cma.dtsi"
+#include "xilinx-mw-axistream-iio-common.dtsi"
+
+&axi4stream_mm2s {
+	reg = <0x40020000 0x10000>;
+	dma-channel@0  {
+		interrupts = <0x0 0x1d 0x4>;
+	};
+};
+
+&mwipcore0 {
+   /delete-node/  stream-channel@1 ; 			
+};
+/delete-node/ &axi4stream_s2mm ;
+

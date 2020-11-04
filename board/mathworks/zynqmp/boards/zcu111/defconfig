@@ -1,0 +1,26 @@
+###########################################
+# ZCU111 Options
+###########################################
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="xilinx_zynqmp_zcu111_revA"
+BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR="board/xilinx/zynqmp/zynqmp-zcu111-revA"
+
+BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt board/mathworks/zynqmp/device_table.txt ./board/mathworks/zynqmp/boards/zcu111/device_table.txt"
+
+BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/zynqmp/fs-overlay ./board/mathworks/zynqmp/boards/zcu111/fs-overlay"
+
+BR2_LINUX_KERNEL_DEFCONFIG="mw_zynqmp_zcu111"
+
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="rfsoc-4.14"
+
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mw-xilinx-v2018.3"
+BR2_TARGET_UBOOT_VERSION="mw-xilinx-v2018.3"
+
+BR2_PACKAGE_LIBCONFIG=y
+BR2_PACKAGE_LIBSYSFS=y
+
+BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
+BR2_PACKAGE_BASH=y
+BR2_PACKAGE_LTTNG_MODULES=n
+BR2_PACKAGE_LTTNG_MODULES_RFSOC=y

@@ -1,0 +1,13 @@
+#include "zynqmp-zcu111-revA.dts"
+
+/ {
+	chosen {
+		bootargs = "earlycon root=/dev/ram rw";
+	};
+};
+#include "zynqmp-mw-fpga-bridge-common.dtsi"
+#include "zynqmp-mw-common.dtsi"
+#include "mw-aximm-common.dtsi"
+&mwipcore0 {
+	reg = <0xA0020000 0xffff>;
+};

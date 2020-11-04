@@ -9,6 +9,9 @@
             <dts file="axilite.dts"/>
             <bit file="axilite.bit"/>
         </app>
+        <app name="axilite_iio">
+            <dts file="axilite_iio.dts"/>
+        </app>
         <app name="axistream">
             <dts file="axistream.dts"/>
         </app>
@@ -20,6 +23,15 @@
         </app>
         <app name="axistream_iio_64">
             <dts file="axistream_iio_64.dts"/>
+        </app>
+        <app name="dlhdl">
+            <dts file="dlhdl.dts"/>
+        </app>
+        <app name="axistream_MasterOnly_iio">
+            <dts file="axistream_MasterOnly_iio.dts"/>
+        </app>
+        <app name="axistream_SlaveOnly_iio">
+            <dts file="axistream_SlaveOnly_iio.dts"/>
         </app>
     </image>
 </board>

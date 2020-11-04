@@ -9,6 +9,9 @@
             <dts file="axilite.dts"/>
             <bit file="axilite.bit"/>
         </app>
+        <app name="axilite_iio">
+            <dts file="axilite_iio.dts"/>
+        </app>
         <app name="axistream">
             <dts file="axistream.dts"/>
         </app>

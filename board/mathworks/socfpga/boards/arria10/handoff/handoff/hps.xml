@@ -22,7 +22,7 @@
     <config name='LWH2F_AXI_MASTER' used='false' />
     <config name='F2SDRAM0_AXI_SLAVE' used='true' />
     <config name='F2SDRAM1_AXI_SLAVE' used='false' />
-    <config name='F2SDRAM2_AXI_SLAVE' used='false' />
+    <config name='F2SDRAM2_AXI_SLAVE' used='true' />
   </fpga_interfaces>
   <peripherals>
     <peripheral name='rgmii0' used='true' />
