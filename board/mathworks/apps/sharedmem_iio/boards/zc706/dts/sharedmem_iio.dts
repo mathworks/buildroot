@@ -1,3 +1,8 @@
 #include "base.dtsi"
+#include "mw-aximm-common.dtsi"
 #include "zynq-mw-sharedmem-iio-common.dtsi"
 
+/* define the PL DDR size */
+#define MW_PLDDR_SIZE (0x40000000) // 1 GB
+
+#include "zynq-mw-sharedmem-iio-plmem.dtsi"

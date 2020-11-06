@@ -8,7 +8,7 @@
     <image name="sharedmem-iio">
         <app name="sharedmem_iio">
             <dts file="sharedmem_iio.dts"/>
-            <bit file="axilite.bit"/>
+            <bit file="sharedmem_iio.bit"/>
         </app>
     </image>
 </board>

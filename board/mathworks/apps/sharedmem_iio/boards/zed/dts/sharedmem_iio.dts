@@ -1,3 +1,4 @@
 #include "base.dtsi"
+#include "mw-aximm-common.dtsi"
 #include "zynq-mw-sharedmem-iio-common.dtsi"
 
