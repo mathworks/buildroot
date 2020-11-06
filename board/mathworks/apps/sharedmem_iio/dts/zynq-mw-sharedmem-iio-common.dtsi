@@ -1,0 +1,14 @@
+/ {
+	memory_reserved: reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		
+		sharedmem: region@14000000 {
+			reg = <0x14000000 0x4000000>;
+			no-map;
+		};
+	};
+};
+
+#include "mw-sharedmem-iio-common.dtsi"

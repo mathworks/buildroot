@@ -1,0 +1,46 @@
+/{
+	axi-gp1 {
+		compatible = "simple-bus";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		ranges;
+
+		memory@80000000 {
+			device_type = "memory";
+			reg = <0x80000000 MW_PLDDR_SIZE>;
+		};
+	};
+};
+
+&memory_reserved {
+	plmem: region@80000000 {
+		reg = <0x80000000 MW_PLDDR_SIZE>;
+		no-map;
+	};
+};
+
+&mwipcore0 {	
+	sharedmem@1 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x1>;
+		compatible = "mathworks,sharedmem-v1.00";
+		memory-region = <&plmem>;
+		mathworks,dev-name = "plmem0";
+
+		read-channel@0 {
+			reg = <0x0>;
+			compatible = "mathworks,sharedmem-read-channel-v1.00";
+			mathworks,dev-name = "rd0";
+		};
+		
+		write-channel@1 {
+			reg = <0x1>;
+			compatible = "mathworks,sharedmem-write-channel-v1.00";
+			mathworks,dev-name = "wr0";
+		};
+	};
+};
+
+
+
