@@ -1,6 +1,7 @@
 /{
 	fpd_hpm0_32: fpd-hpm0-32 {
 		compatible = "simple-bus";
+                interrupt-names = "irq";
 		interrupt-parent = <&gic>;
 		#address-cells = <1>;
 		#size-cells = <1>;
