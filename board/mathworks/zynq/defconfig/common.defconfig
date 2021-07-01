@@ -3,8 +3,8 @@
 ###########################################
 #include "arm_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="xilinx-next"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/tmealey/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mw_sharedmem_iio_proto_4"
 BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x8000"
 #endif
