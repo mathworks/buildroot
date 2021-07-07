@@ -1,0 +1,12 @@
+
+&fpga_axi {
+    mwipcore_vht2vs@A3c70000 {
+        compatible = "mathworks,mwipcore-v2.00";
+        reg = <0xa3c70000 0x10000>;
+    };
+
+    mwipcore_video2vht@A3c60000 {
+        compatible = "mathworks,mwipcore-v2.00";
+        reg = <0xa3c60000 0x10000>;
+    };
+};
