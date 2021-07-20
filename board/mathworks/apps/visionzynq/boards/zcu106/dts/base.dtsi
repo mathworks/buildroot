@@ -1,0 +1,9 @@
+#include "zynqmp-zcu106-revA.dts"
+/ {
+        chosen {
+            bootargs = "earlycon root=/dev/ram rw";
+        };
+};
+#include "zynqmp-mw-fpga-bridge-common.dtsi"
+#include "zynqmp-mw-common.dtsi"
+#include "mw-aximm-common.dtsi"

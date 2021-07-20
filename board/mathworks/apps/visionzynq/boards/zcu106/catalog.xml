@@ -1,0 +1,17 @@
+<board name="zcu106" platform="zynqmp">
+    <default>
+        <app name="default">
+        </app>
+        <fsbl file="fsbl.elf"/>
+        <pmufw file="pmufw.elf"/>
+        <dtsi dir="../../dts"/>
+    </default>
+    <image name="visionzynq">
+        <app name="visionzynq">
+            <dts file="visionzynq.dts"/>
+        </app>
+        <app name="visionzynq_axis">
+            <dts file="visionzynq_axis.dts"/>
+        </app>
+    </image>
+</board>
