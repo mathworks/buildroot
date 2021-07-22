@@ -3,6 +3,6 @@
 #include "zynq-mw-sharedmem-iio-common.dtsi"
 
 /* define the PL DDR size */
-#define MW_PLDDR_SIZE (0x40000000) // 1 GB
+#define MW_PLDDR_SIZE (0x6400000) // 100 MB
 
 #include "zynq-mw-sharedmem-iio-plmem.dtsi"
