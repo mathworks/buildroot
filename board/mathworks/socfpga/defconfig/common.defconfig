@@ -3,8 +3,8 @@
 ###########################################
 #include "arm_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/altera-linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="next"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/altera-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_socfpga_R21.2.0"
 # BR2_LINUX_KERNEL_UIMAGE is not set
 BR2_LINUX_KERNEL_ZIMAGE=y
 #endif
@@ -28,8 +28,8 @@ BR2_TARGET_ROOTFS_TAR=y
 BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_TARGET_UBOOT=y
 BR2_TARGET_UBOOT_CUSTOM_GIT=y
-BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/altera-uboot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="next"
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/altera-uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_socfpga_R20.2.0"
 # BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG=y
 BR2_PACKAGE_UBOOT_ALTERA=y
 BR2_PACKAGE_UBOOT_ALTERA_EDS_VERSION="17.0.0.155"
