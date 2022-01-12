@@ -24,5 +24,8 @@
         <app name="axistream_iio_64">
             <dts file="axistream_iio_64.dts"/>
         </app>
+	<app name="sharedmem_iio">
+            <dts file="sharedmem_iio.dts"/>
+        </app>
     </image>
 </board>
