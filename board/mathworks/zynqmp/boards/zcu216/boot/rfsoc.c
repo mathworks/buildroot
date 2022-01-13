@@ -90,7 +90,8 @@ double adc_sampling_rate_g;
 int active_adc_tiles_g ; 
 int active_dac_tiles_g , isExternalPLLEnabled ; 
 config_t cfg, *cf;
-char *multiTileSync=NULL ,  *versionInfo = NULL ;
+char *multiTileSync=NULL ,  *versionInfo = NULL , *adcRealtimePorts = "off" , *dacRealTimeNCOPort="off" , *adcRealTimeNCOPort= "off",  *adcThreshold1Mode[16],  *adcThreshold2Mode[16] ;
+int  adcThreshold1AvgVal[16],  adcThreshold2AvgVal[16] , adcThreshold1Min[16], adcThreshold1Max[16], adcThreshold2Min[16], adcThreshold2Max[16];
 char *adcMixerFrequency[MAX_ADC_CHANNELS]={} , *dacMixerFrequency[MAX_ADC_CHANNELS]={} ;
 double adcNCOFrequency[16], adcNCOPhase[16],  dacNCOFrequency[16] , dacNCOPhase[16] ; 
 
@@ -174,6 +175,18 @@ void readIntegerArrayFromConfig( config_t *cf , char *paramName , int *intData )
 
 
 
+int mapThresholdMode( char *type )
+{
+    if(strcmp(type,"Sticky over") == 0 ){
+            return XRFDC_TRSHD_STICKY_OVER  ;
+    }
+    else if(strcmp(type ,"Sticky under") == 0 ){
+        return XRFDC_TRSHD_STICKY_UNDER  ;
+    }
+    else if(strcmp(type ,"Hysteresis") == 0){
+        return XRFDC_TRSHD_HYSTERISIS;
+    } 
+}
 
 int mapMixerType( char *type )
 {
@@ -355,6 +368,22 @@ XRFdc_Config  *mw_get_sysinfo_from_config_file()
         exit(1) ;
     }
     int status ; //= mw_readIntegerParam(cf, "numADCs", &numADCs );
+    status  = mw_readStringParam(cf, "version" , &versionInfo);
+    printf("Checking version info:%f: \n", atof(versionInfo) );
+    if (atof(versionInfo) > 1.2 )
+    {
+        mw_readStringParam(cf, "dacRealTimeNCOPortsEnable" , &dacRealTimeNCOPort);
+        mw_readStringParam(cf, "adcRealTimeNCOPortsEnable" , &adcRealTimeNCOPort);
+        mw_readStringParam(cf, "adcRealTimePortsEnable" , &adcRealtimePorts);
+        readStringArrayFromConfig(cf , "adcThreshold1Mode", adcThreshold1Mode );
+        readStringArrayFromConfig(cf , "adcThreshold2Mode", adcThreshold2Mode );
+        readIntegerArrayFromConfig(cf , "adcThreshold1AvgVal", adcThreshold1AvgVal);
+        readIntegerArrayFromConfig(cf , "adcThreshold2AvgVal", adcThreshold2AvgVal);
+        readIntegerArrayFromConfig(cf , "adcThreshold1Min", adcThreshold1Min);
+        readIntegerArrayFromConfig(cf , "adcThreshold1Max", adcThreshold1Max);
+        readIntegerArrayFromConfig(cf , "adcThreshold2Min", adcThreshold2Min);
+        readIntegerArrayFromConfig(cf , "adcThreshold2Max", adcThreshold2Max);
+    }
 
     mw_readStringParam(cf, "externalPLL" , &externalPLL);
     readFloatArrayFromConfig(cf , "dacNCOFrequency", dacNCOFrequency );
@@ -763,6 +792,9 @@ int main(int argc, char *argv[])
     XRFdc_MultiConverter_Sync_Config sync_config;
     unsigned int adcClkSrcTile = 2 ; 
     unsigned int dacClkSrcTile = 2 ;
+    XRFdc_Threshold_Settings ThresholdSettings;
+    XRFdc_QMC_Settings QMCSettings;   // QMC settings struct
+    int dacSyncTileValue =0, adcSyncTileValue =0 ;
 
     if(argc == 2 )
     {
@@ -811,6 +843,16 @@ int main(int argc, char *argv[])
 #if DEBUG_RFTOOL
         mw_dump_configuration_info(rfdcConfigPtr);
 #endif
+
+        for (tile = 0; tile < MAX_DAC_TILE  ; tile++)
+        {
+            dacSyncTileValue = dacSyncTileValue |  rfdcConfigPtr->DACTile_Config[tile].Enable << tile ;
+        }
+        for (tile = 0; tile < MAX_ADC_TILE  ; tile++)
+        {
+            adcSyncTileValue = adcSyncTileValue |  rfdcConfigPtr->ADCTile_Config[tile].Enable << tile ;
+        }
+        printf("###########dacSyncTileValue : %d , adcSyncTileValue :%d  \n", dacSyncTileValue , adcSyncTileValue);
         for (tile = 0; tile <  MAX_ADC_CHANNELS/MAX_ADC_PER_TILE    ; tile++)
         {
             if (rfdcConfigPtr-> ADCTile_Config[tile].Enable == 1)
@@ -907,8 +949,8 @@ int main(int argc, char *argv[])
         if(strcmp(multiTileSync , "on" ) == 0 )
         {
             printf("Disabling  Multi tile sync   \n");
-            DAC_Sync_Config.Tiles = 15;
-            ADC_Sync_Config.Tiles = 15;
+            DAC_Sync_Config.Tiles = dacSyncTileValue ;   //15
+            ADC_Sync_Config.Tiles = adcSyncTileValue  ; //15;
             int status = XRFdc_MTS_Sysref_Config(&RFdcInst, &DAC_Sync_Config, &ADC_Sync_Config, 0 );
             if(status != SUCCESS) {
                 printf(": Failed \n");
@@ -985,7 +1027,17 @@ int main(int argc, char *argv[])
                             }
 #endif
                             mixer_settings.MixerType = XRFDC_MIXER_TYPE_FINE ;  
-                            mixer_settings.EventSource= 2 ;    //TODO  
+                            if(strcmp(adcRealTimeNCOPort , "on" ) == 0 )
+                            {
+                                if(strcmp(multiTileSync , "on" ) == 0 )   {
+                                    mixer_settings.EventSource=  3 /*SYSREF */ ;
+                                }
+                                else{
+                                    mixer_settings.EventSource=  2 /*TILE */ ;
+                                }
+                            }else{
+                                mixer_settings.EventSource= 2 ;     
+                            }
                             mixer_settings.CoarseMixFreq= 0 ;  
                             mixer_settings.PhaseOffset = adcNCOPhase[tile*MAX_ADC_PER_TILE  + block]  ; 
                             effectNCOFreq = calculate_effective_NCO_freq( rfdcConfigPtr-> ADCTile_Config[tile].SamplingRate ,(  adcNCOFrequency[tile*MAX_ADC_PER_TILE  + block] * 1000 )  , 0 )  ;
@@ -1114,7 +1166,17 @@ int main(int argc, char *argv[])
                             }
 #endif
                             mixer_settings.MixerType = XRFDC_MIXER_TYPE_FINE ;  
-                            mixer_settings.EventSource= 0 ;   //TODO
+                            if(strcmp(dacRealTimeNCOPort , "on" ) == 0 )
+                            {
+                                if(strcmp(multiTileSync , "on" ) == 0 )   {
+                                    mixer_settings.EventSource=  3 /*SYSREF */ ;
+                                }
+                                else{
+                                    mixer_settings.EventSource=  2 /*TILE */ ;
+                                }
+                            }else{
+                                mixer_settings.EventSource= 0 ;     
+                            }
                             mixer_settings.CoarseMixFreq= 0 ;  
                             mixer_settings.PhaseOffset = dacNCOPhase [tile*MAX_DAC_PER_TILE  + block] ; 
                             effectNCOFreq = calculate_effective_NCO_freq( rfdcConfigPtr-> DACTile_Config[tile].SamplingRate , ( dacNCOFrequency[tile*MAX_DAC_PER_TILE  + block] *1000) , 1 )  ;
@@ -1172,12 +1234,12 @@ int main(int argc, char *argv[])
         if(strcmp(multiTileSync , "on" ) == 0 )
         {
             printf("Enabling Multi tile sync   \n");
-            DAC_Sync_Config.Tiles = 15;
-            ADC_Sync_Config.Tiles = 15;
+            DAC_Sync_Config.Tiles = dacSyncTileValue ; //15
+            ADC_Sync_Config.Tiles = adcSyncTileValue ; //15;
             status = XRFdc_MTS_Sysref_Config(&RFdcInst, &DAC_Sync_Config, &ADC_Sync_Config, 1 );
             printf("MultiConverter_Syncing ....");  
             XRFdc_MultiConverter_Init(&DAC_Sync_Config, 0 , 0);
-            DAC_Sync_Config.Tiles = 15 ;
+            DAC_Sync_Config.Tiles = dacSyncTileValue ; //15
             DAC_Sync_Config.Target_Latency = -1 ;
             status = XRFdc_MultiConverter_Sync(&RFdcInst, DAC  ,&DAC_Sync_Config);
             if(status != SUCCESS) {
@@ -1189,13 +1251,71 @@ int main(int argc, char *argv[])
             sync_config = DAC_Sync_Config;
 
             XRFdc_MultiConverter_Init(&ADC_Sync_Config, 0 , 0);
-            ADC_Sync_Config.Tiles = 15 ;
+            ADC_Sync_Config.Tiles = adcSyncTileValue ; //15;
             ADC_Sync_Config.Target_Latency = -1 ;
             status = XRFdc_MultiConverter_Sync(&RFdcInst, ADC ,&ADC_Sync_Config);
             sync_config = ADC_Sync_Config;
             usleep(50000); 
 
         }  
+
+        if(strcmp(adcRealtimePorts , "on" ) == 0 )
+        {
+            for (tile = 0; tile <  MAX_ADC_CHANNELS/MAX_ADC_PER_TILE    ; tile++)
+            {
+                if (rfdcConfigPtr-> ADCTile_Config[tile].Enable == 1)
+                {
+                    for (block = 0 ;  block < MAX_ADC_PER_TILE ; block++ ) 
+                    {
+                        printf("Setting threshold settings for tile:%d  blocks:%d... ", tile, block);
+                        ThresholdSettings.UpdateThreshold = 4 ;
+                        ThresholdSettings.ThresholdMode[0] =  mapThresholdMode(adcThreshold1Mode[tile * MAX_ADC_PER_TILE + block]) ;    
+                        ThresholdSettings.ThresholdMode[1] =  mapThresholdMode( adcThreshold2Mode [tile * MAX_ADC_PER_TILE + block]);
+                        ThresholdSettings.ThresholdAvgVal[0] = adcThreshold1AvgVal[tile * MAX_ADC_PER_TILE + block ] ;
+                        ThresholdSettings.ThresholdAvgVal[1] = adcThreshold2AvgVal[tile * MAX_ADC_PER_TILE + block ] ;
+                        ThresholdSettings.ThresholdUnderVal[0] = adcThreshold1Min[tile * MAX_ADC_PER_TILE + block ] ;
+                        ThresholdSettings.ThresholdUnderVal[1] = adcThreshold2Min[tile * MAX_ADC_PER_TILE + block ] ;
+                        ThresholdSettings.ThresholdOverVal[0] = adcThreshold1Max [tile * MAX_ADC_PER_TILE + block ] ;
+                        ThresholdSettings.ThresholdOverVal[1] = adcThreshold2Max [tile * MAX_ADC_PER_TILE + block ];
+                        status = XRFdc_SetThresholdSettings(&RFdcInst , tile , block  , &ThresholdSettings) ;
+                        if(status != SUCCESS) {
+                            printf(": Failed \n");
+                            return -1; 
+                        }
+                        else
+                            printf(": Success \n");
+
+                        printf("Setting threshold clearmode for tile:%d  blocks:%d... ", tile, block);
+                        status = XRFdc_SetThresholdClrMode(&RFdcInst, tile , block , 4 /*ThresholdToUpdate*/ , 2 /*Auto ClrMode*/);
+                        if(status != SUCCESS) {
+                            printf(": Failed \n");
+                            return -1; 
+                        }
+                        else
+                            printf(": Success \n");
+                        printf("Setting QMC settings for tile:%d  blocks:%d... ", tile, block);
+                        status = XRFdc_GetQMCSettings(&RFdcInst , ADC , tile, block , &QMCSettings);
+                        if (status != XRFDC_SUCCESS) {
+                            return XRFDC_FAILURE;
+                        }
+                        int event_src=QMCSettings.EventSource;
+                        QMCSettings.EventSource = XRFDC_EVNT_SRC_PL;
+                        status = XRFdc_SetQMCSettings(&RFdcInst, ADC , tile, block, &QMCSettings);
+                        if (status != XRFDC_SUCCESS) {
+                            return XRFDC_FAILURE;
+                        }
+                        else
+                            printf(": Success \n");
+                        status = XRFdc_GetQMCSettings(&RFdcInst, ADC, tile , block , &QMCSettings);
+                        if (status != XRFDC_SUCCESS) {
+                            return XRFDC_FAILURE;
+                        }
+                        event_src=QMCSettings.EventSource;
+                    }
+                }
+            }
+        }
+
         printf("RFDC configuration done successfully \n");
     }else { 
         tcpServerInitialize();
