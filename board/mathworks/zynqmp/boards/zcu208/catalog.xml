@@ -1,0 +1,19 @@
+<board name="zcu208" platform="zynqmp">
+    <default>
+        <app name="default">
+        </app>
+		<fsbl file="fsbl.elf"/>
+        <pmufw file="pmufw.elf"/>		
+        <!--				
+		<fsbl dir="handoff"/>
+        <pmufw file="pmufw.bin"/>
+		-->
+    </default>
+    <image name="zynqmpec">
+        <app name="axilite">
+            <dts file="axilite.dts"/>
+            <bit file="axilite.bit"/>
+        </app>
+	<sdcard dir="sdcard"/>
+    </image>
+</board>
