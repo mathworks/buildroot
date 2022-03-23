@@ -1,0 +1,5 @@
+#include "zynq-zybo-z7.dts"
+
+#include "zynq-mw-common.dtsi"
+#include "zynq-mw-axilite-common.dtsi"
+

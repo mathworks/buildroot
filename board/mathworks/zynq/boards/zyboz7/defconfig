@@ -1,0 +1,5 @@
+###########################################
+# Zybo Options
+###########################################
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="zynq_zyboz7"
+BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR="board/xilinx/zynq/zynq-zyboz7"

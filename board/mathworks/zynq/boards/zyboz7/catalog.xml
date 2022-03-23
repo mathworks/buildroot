@@ -1,0 +1,13 @@
+<board name="zybo" platform="zynq">
+    <default>
+        <app name="default">
+        </app>
+        <fsbl dir="handoff"/>
+    </default>
+    <image name="zynq7000ec">
+        <app name="axilite">
+            <dts file="axilite.dts"/>
+            <bit file="axilite.bit"/>
+        </app>
+    </image>
+</board>
