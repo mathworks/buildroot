@@ -1,0 +1,53 @@
+&amba_pl {
+    vid_stream_clk: vid_stream_clk {
+        compatible = "fixed-clock";
+        #clock-cells = <0>;
+        clock-frequency = <150000000>;
+    };
+    vid_s_axi_clk: vid_s_axi_clk {
+        compatible = "fixed-clock";
+        #clock-cells = <0>;
+        clock-frequency = <99990000>;
+    };
+
+   mwipcore0: mwipcore@A0040000 {
+        compatible = "mathworks,mwipcore-v3.00";
+        reg = <0x0 0xA0040000 0x0 0x10000>;
+    };
+
+};
+
+&i2c1 {
+    i2c-mux@74 {
+        /delete-node/   i2c@3;
+    };
+};
+
+
+
+&sensor_iic_0 {
+    clocks = <&vid_s_axi_clk>;
+};
+
+&mipi_csi2_rx_mipi_csi2_rx_subsystem_0 {
+    compatible = "xlnx,mipi-csi2-rx-subsystem-2.0";
+};
+
+&mipi_csi_inmipi_csi2_rx_mipi_csi2_rx_subsystem_0 {
+    data-lanes = <1 2 3 4>;
+    remote-endpoint = <&sensor_out>;
+};
+
+&mipi_csi2_rx_v_proc_ss_csc {
+    compatible = "xlnx,v-vpss-csc";
+};
+
+&mipi_csi2_rx_v_proc_ss_scaler {
+    compatible = "xlnx,v-vpss-scaler-2.2";
+};
+
+&mipi_csi2_rx_v_frmbuf_wr_0 {
+    xlnx,dma-align = <32>;
+};
+
+

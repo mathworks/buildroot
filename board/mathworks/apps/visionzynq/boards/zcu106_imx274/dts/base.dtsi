@@ -1,0 +1,6 @@
+#include "zynqmp-zcu106-revA.dts"
+/ {
+        chosen {
+            bootargs = "earlycon root=/dev/ram rw";
+        };
+};
