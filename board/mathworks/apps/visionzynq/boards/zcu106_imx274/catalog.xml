@@ -1,0 +1,14 @@
+<board name="zcu106_imx274" platform="zynqmp">
+    <default>
+        <app name="default">
+        </app>
+        <fsbl file="fsbl.elf"/>
+        <pmufw file="pmufw.elf"/>
+        <dtsi dir="../../dts"/>
+    </default>
+    <image name="visionzynq">
+        <app name="visionzynq_imx274">
+            <dts file="visionzynq_imx274.dts"/>
+        </app>
+    </image>
+</board>

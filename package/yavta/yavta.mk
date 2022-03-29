@@ -4,12 +4,13 @@
 #
 ################################################################################
 
-YAVTA_VERSION = 82ff2efdb9787737b9f21b6f4759f077c827b238
+YAVTA_VERSION = 65f740aa1758531fd810339bc1b7d1d33666e28a
 YAVTA_SITE = git://git.ideasonboard.org/yavta.git
 YAVTA_LICENSE = GPL-2.0+
 YAVTA_LICENSE_FILES = COPYING.GPL
 
 define YAVTA_BUILD_CMDS
+	cp -a $(@D)/include/linux/videodev2.h  $(STAGING_DIR)/usr/include/linux/videodev2.h
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)
 endef
 

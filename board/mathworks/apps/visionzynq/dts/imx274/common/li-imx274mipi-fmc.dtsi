@@ -1,0 +1,29 @@
+&i2c1 {
+	i2cswitch@75 {
+		i2c@0 {
+			eeprom@57 { /* HPC0_IIC */
+				compatible = "at,24c64";
+				reg = <0x57>;
+			};
+		};
+	};
+};
+
+&sensor_iic_0 {
+	clocks = <&vid_s_axi_clk>;
+	imx274: sensor@1a{
+		compatible = "sony,imx274";
+		reg = <0x1a>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reset-gpios = <&gpio 90 0>;
+
+		port@0 {
+			reg = <0>;
+
+			sensor_out: endpoint {
+				remote-endpoint = <&mipi_csi_inmipi_csi2_rx_mipi_csi2_rx_subsystem_0>;
+			};
+		};
+	};
+};
