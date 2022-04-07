@@ -10,5 +10,6 @@
         <app name="visionzynq_imx274">
             <dts file="visionzynq_imx274.dts"/>
         </app>
+        <sdcard dir="sdcard"/>
     </image>
 </board>
