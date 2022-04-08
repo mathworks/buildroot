@@ -42,10 +42,6 @@
     compatible = "xlnx,v-vpss-csc";
 };
 
-&mipi_csi2_rx_v_proc_ss_scaler {
-    compatible = "xlnx,v-vpss-scaler-2.2";
-};
-
 &mipi_csi2_rx_v_frmbuf_wr_0 {
     xlnx,dma-align = <32>;
 };
