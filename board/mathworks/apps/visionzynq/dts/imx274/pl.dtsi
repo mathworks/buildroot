@@ -236,7 +236,7 @@
 					xlnx,video-format = <3>;
 					xlnx,video-width = <8>;
 					csc_outmipi_csi2_rx_v_proc_ss_csc: endpoint {
-						remote-endpoint = <&mipi_csi2_rx_v_proc_ss_scalermipi_csi2_rx_v_proc_ss_csc>;
+						remote-endpoint = <&mipi_csi2_rx_v_frmbuf_wr_0mipi_csi2_rx_v_proc_ss_scaler>;
 					};
 				};
 				csc_port0mipi_csi2_rx_v_proc_ss_csc: port@0 {
@@ -246,53 +246,6 @@
 					xlnx,video-width = <8>;
 					mipi_csi2_rx_v_proc_ss_cscmipi_csi2_rx_v_gamma_lut_0: endpoint {
 						remote-endpoint = <&gamma_outmipi_csi2_rx_v_gamma_lut_0>;
-					};
-				};
-			};
-		};
-		mipi_csi2_rx_v_proc_ss_scaler: v_proc_ss@a0200000 {
-			clock-names = "aclk_axis", "aclk_ctrl";
-			clocks = <&zynqmp_clk 72>, <&zynqmp_clk 72>;
-			compatible = "xlnx,v-proc-ss-2.3", "xlnx,vpss-scaler-2.2", "xlnx,v-vpss-scaler-2.2", "xlnx,vpss-scaler";
-			reg = <0x0 0xa0200000 0x0 0x40000>;
-			reset-gpios = <&gpio 82 1>;
-			xlnx,colorspace-support = <0>;
-			xlnx,csc-enable-window = "true";
-			xlnx,enable-csc = "true";
-			xlnx,h-scaler-phases = <64>;
-			xlnx,h-scaler-taps = <8>;
-			xlnx,max-height = <2160>;
-			xlnx,max-num-phases = <64>;
-			xlnx,max-width = <3840>;
-			xlnx,num-hori-taps = <8>;
-			xlnx,num-vert-taps = <8>;
-			xlnx,pix-per-clk = <1>;
-			xlnx,samples-per-clk = <1>;
-			xlnx,scaler-algorithm = <2>;
-			xlnx,topology = <0>;
-			xlnx,use-uram = <0>;
-			xlnx,v-scaler-phases = <64>;
-			xlnx,v-scaler-taps = <8>;
-			xlnx,video-width = <8>;
-			scaler_portsmipi_csi2_rx_v_proc_ss_scaler: ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				scaler_port1mipi_csi2_rx_v_proc_ss_scaler: port@1 {
-					/* For xlnx,video-format user needs to fill as per their requirement */
-					reg = <1>;
-					xlnx,video-format = <3>;
-					xlnx,video-width = <8>;
-					sca_outmipi_csi2_rx_v_proc_ss_scaler: endpoint {
-						remote-endpoint = <&mipi_csi2_rx_v_frmbuf_wr_0mipi_csi2_rx_v_proc_ss_scaler>;
-					};
-				};
-				scaler_port0mipi_csi2_rx_v_proc_ss_scaler: port@0 {
-					/* For xlnx,video-format user needs to fill as per their requirement */
-					reg = <0>;
-					xlnx,video-format = <3>;
-					xlnx,video-width = <8>;
-					mipi_csi2_rx_v_proc_ss_scalermipi_csi2_rx_v_proc_ss_csc: endpoint {
-						remote-endpoint = <&csc_outmipi_csi2_rx_v_proc_ss_csc>;
 					};
 				};
 			};
@@ -319,7 +272,7 @@
 					direction = "input";
 					reg = <0>;
 					mipi_csi2_rx_v_frmbuf_wr_0mipi_csi2_rx_v_proc_ss_scaler: endpoint {
-						remote-endpoint = <&sca_outmipi_csi2_rx_v_proc_ss_scaler>;
+						remote-endpoint = <&csc_outmipi_csi2_rx_v_proc_ss_csc>;
 					};
 				};
 			};
