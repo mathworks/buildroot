@@ -93,7 +93,12 @@
 			xlnx,max-lanes = <4>;
 			xlnx,mipi-slv-int = <0x0>;
 			xlnx,ooc-vid-clk = "6.666";
+                #ifdef CONFIG_ONE_PPC
 			xlnx,ppc = <1>;
+                #endif 
+                #ifdef CONFIG_TWO_PPC
+			xlnx,ppc = <2>;
+                #endif 
 			xlnx,rcve-alt-deskew-seq = "false";
 			xlnx,rcve-deskew-seq = "false";
 			xlnx,share-idlyctrl = "false";
@@ -174,10 +179,16 @@
 			reg = <0x0 0xa0260000 0x0 0x10000>;
 			reset-gpios = <&gpio 80 1>;
 			xlnx,dma-addr-width = <32>;
+                #ifdef CONFIG_ONE_PPC
 			xlnx,dma-align = <8>;
+			xlnx,pixels-per-clock = <1>;
+                #endif
+                #ifdef CONFIG_TWO_PPC
+			xlnx,dma-align = <16>;
+			xlnx,pixels-per-clock = <2>;
+                #endif
 			xlnx,max-height = <2160>;
 			xlnx,max-width = <3840>;
-			xlnx,pixels-per-clock = <1>;
 			xlnx,s-axi-ctrl-addr-width = <0x7>;
 			xlnx,s-axi-ctrl-data-width = <0x20>;
 			xlnx,vid-formats = "bgr888", "xbgr8888", "xrgb8888", "uyvy", "y8", "vuy888", "xvuy8888", "yuyv", "nv12", "nv16";
@@ -223,7 +234,12 @@
 			xlnx,max-height = <2160>;
 			xlnx,max-width = <3840>;
 			xlnx,num-video-components = <3>;
+                #ifdef CONFIG_ONE_PPC
 			xlnx,samples-per-clk = <1>;
+                #endif
+                #ifdef CONFIG_TWO_PPC
+			xlnx,samples-per-clk = <2>;
+                #endif
 			xlnx,topology = <3>;
 			xlnx,use-uram = <0>;
 			xlnx,video-width = <8>;
