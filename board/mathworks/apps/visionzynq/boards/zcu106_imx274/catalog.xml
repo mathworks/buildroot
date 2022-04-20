@@ -7,8 +7,11 @@
         <dtsi dir="../../dts"/>
     </default>
     <image name="visionzynq">
-        <app name="visionzynq_imx274">
-            <dts file="visionzynq_imx274.dts"/>
+        <app name="imx274_1ppc">
+            <dts file="imx274_1ppc.dts"/>
+        </app>
+        <app name="imx274_2ppc">
+            <dts file="imx274_2ppc.dts"/>
         </app>
         <sdcard dir="sdcard"/>
     </image>
