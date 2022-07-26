@@ -14,5 +14,8 @@
         <app name="visionzynq_axis">
             <dts file="visionzynq_axis.dts"/>
         </app>
+        <app name="visionzynq_fmchdmi_dl">
+            <dts file="visionzynq-fmchdmi-dl.dts"/>
+        </app>
     </image>
 </board>

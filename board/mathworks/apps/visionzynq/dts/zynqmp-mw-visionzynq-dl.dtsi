@@ -1,0 +1,153 @@
+&fpga_axi {
+	
+	/* remove IPs not used in DL design */
+	/delete-node/ mwipcore_tpg@A3c10000;
+	/delete-node/ mwipcore_dutbypass@A3c50000;
+	/delete-node/ mwipcore_framecapture@A3c40000;
+	/delete-node/ mwipcore_frame_buffer@A0500000;
+	
+	mwipcore_hdmi_out@a3c30000 {
+		stream-channel@0 {
+			reg = <0x1>;
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			compatible = "mathworks,axi4stream-s2mm-channel-v1.00";
+			dma-names = "s2mm";
+			dmas = <&axidma 0x0>;
+			mathworks,dev-name = "s2mm0";
+			mathworks,sample-cnt-reg = <0x8>;
+
+			data-channel@0 {
+				compatible = "mathworks,iio-data-channel-v1.00";
+				mathworks,data-format = "u32/32>>0";
+				reg = <0x0>;
+			};
+		};
+	};
+	
+	mwipcore_ddr@0 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xa0010000 0x10000>;
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+
+		mmrd-channel@0 {
+			reg = <0x0>;
+			compatible = "mathworks,mm-read-channel-v1.00";
+			mathworks,dev-name = "mmrd0";
+		};
+
+		mmwr-channel@1 {
+			reg = <0x1>;
+			compatible = "mathworks,mm-write-channel-v1.00";
+			mathworks,dev-name = "mmwr0";
+		};
+
+		stream-channel@0 {
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			reg = <0x0>;
+			compatible = "mathworks,axi4stream-mm2s-channel-v1.00";
+			dma-names = "mm2s";
+			dmas = <&axi4stream_mm2s 0x0>;
+			mathworks,dev-name = "mm2s0";
+
+			data-channel@0 {
+				compatible = "mathworks,iio-data-channel-v1.00";
+				mathworks,data-format = "u32/32>>0";
+				reg = <0x0>;
+			};
+		};
+
+		stream-channel@1 {
+			reg = <0x1>;
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			compatible = "mathworks,axi4stream-s2mm-channel-v1.00";
+			dma-names = "s2mm";
+			dmas = <&axi4stream_s2mm 0x0>;
+			mathworks,dev-name = "s2mm0";
+			mathworks,sample-cnt-reg = <0x40>;
+
+			data-channel@0 {
+				compatible = "mathworks,iio-data-channel-v1.00";
+				mathworks,data-format = "u32/32>>0";
+				reg = <0x0>;
+			};
+		};
+	};
+
+	mwipcore_dl@0 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xa0000000 0x10000>;
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+
+		mmrd-channel@0 {
+			reg = <0x0>;
+			compatible = "mathworks,mm-read-channel-v1.00";
+			mathworks,dev-name = "mmrd0";
+		};
+
+		mmwr-channel@1 {
+			reg = <0x1>;
+			compatible = "mathworks,mm-write-channel-v1.00";
+			mathworks,dev-name = "mmwr0";
+		};
+	};
+	
+	axi4stream_mm2s: axidma@1 {
+		#dma-cells = <0x1>;
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "xlnx,axi-dma-1.00.a";
+		reg = <0xa0020000 0x10000>;
+		xlnx,include-sg = <0x1>;
+		xlnx,halt-mode = "reset-always";
+		xlnx,addrwidth = <0x20>;
+		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
+		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_mm2s_aclk";
+
+		dma-channel@0 {
+			reg = <0x0>;
+			compatible = "xlnx,axi-dma-mm2s-channel";
+			interrupts = <0x0 0x59 0x4>;
+			dma-channels = <0x1>;
+			xlnx,datawidth = <0x40>;
+			xlnx,no-coalesce;
+		};
+	};
+
+	axi4stream_s2mm: axidma@2 {
+		#dma-cells = <0x1>;
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "xlnx,axi-dma-1.00.a";
+		reg = <0xa0030000 0x10000>;
+		xlnx,include-sg = <0x1>;
+		xlnx,halt-mode = "reset-always";
+		xlnx,addrwidth = <0x20>;
+		clocks = <&core_clkwiz 0>, <&core_clkwiz 0>, <&core_clkwiz 0>;
+		clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_s2mm_aclk";
+
+		dma-channel@0 {
+			reg = <0x0>;
+			compatible = "xlnx,axi-dma-s2mm-channel";
+			interrupts = <0x0 0x5a 0x4>;
+			dma-channels = <0x1>;
+			xlnx,datawidth = <0x40>;
+			xlnx,no-coalesce;
+		};
+	};
+};
+
+&hdmicam_i2c {
+	interrupts = <0x0 0x5b 0x4>;
+};
+
+&axidma {
+	interrupts = <0x0 0x5c 0x4>;
+};
+
+
+
