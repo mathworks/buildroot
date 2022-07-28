@@ -28,25 +28,49 @@
     };
 		
 	mwipcore_tpg@A3c10000 {
-		compatible = "mathworks,mwipcore-v2.00";
+		compatible = "mathworks,mwipcore-v3.00";
 		reg = <0xA3c10000 0x10000>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+                };
 	};
 
 	mwipcore_hdmi_in@A3c20000 {
-		compatible = "mathworks,mwipcore-v2.00";
+		compatible = "mathworks,mwipcore-v3.00";
 		reg = <0xA3c20000 0x10000>;
-	};
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+                 };
+     };
 
 	mwipcore_hdmi_out@A3c30000 {
-		compatible = "mathworks,mwipcore-v2.00";
+		compatible = "mathworks,mwipcore-v3.00";
 		reg = <0xA3c30000 0x10000>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+                 };
 	};
 
 	mwipcore_framecapture@A3c40000 {
 		compatible = "mathworks,mwipcore-v3.00";
 		reg = <0xA3c40000 0x10000>;
-        #address-cells = <0x1>;
-        #size-cells = <0x0>;
+                #address-cells = <0x1>;
+                #size-cells = <0x0>;
 
             stream-channel@0 {
                 reg = <0x1>;
@@ -54,7 +78,7 @@
                 #size-cells = <0x0>;
                 compatible = "mathworks,axi4stream-s2mm-channel-v1.00";
                 dma-names = "s2mm";
-		        dmas = <&axidma 0>; 
+		dmas = <&axidma 0>; 
                 mathworks,dev-name = "s2mm0";
                 mathworks,sample-cnt-reg = <0x8>;
 
@@ -64,11 +88,26 @@
                     reg = <0x0>;
                 };
             };
+
+
+            mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+            };
 	};
 
 	mwipcore_dutbypass@A3c50000 {
-		compatible = "mathworks,mwipcore-v2.00";
-		reg = <0xA3c50000 0x10000>;
+	    compatible = "mathworks,mwipcore-v3.00";
+	    reg = <0xA3c50000 0x10000>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+            };
 	};
 
 	mwipcore_frame_buffer@A0500000 {
