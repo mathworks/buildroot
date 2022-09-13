@@ -5,8 +5,14 @@
 	/delete-node/ mwipcore_dutbypass@A3c50000;
 	/delete-node/ mwipcore_framecapture@A3c40000;
 	/delete-node/ mwipcore_frame_buffer@A0500000;
+	/delete-node/ mwipcore_hdmi_out@A3c30000;
 	
-	mwipcore_hdmi_out@a3c30000 {
+	mwipcore_framecapture@A3c30000 {
+            compatible = "mathworks,mwipcore-v3.00";
+            reg = <0xA3c30000 0x10000>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
 		stream-channel@0 {
 			reg = <0x1>;
 			#address-cells = <0x1>;
@@ -23,6 +29,12 @@
 				reg = <0x0>;
 			};
 		};
+
+                mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+                };
 	};
 	
 	mwipcore_ddr@0 {
