@@ -1,12 +1,22 @@
 
 &fpga_axi {
     mwipcore_vht2vs@A3c70000 {
-        compatible = "mathworks,mwipcore-v2.00";
+        compatible = "mathworks,mwipcore-v3.00";
         reg = <0xa3c70000 0x10000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+         mmwr-channel@0 {
+            reg = <0x0>;
+            compatible = "mathworks,mm-write-channel-v1.00";
+            mathworks,dev-name = "mmwr0";
+        };
+
     };
 
     mwipcore_video2vht@A3c60000 {
-        compatible = "mathworks,mwipcore-v2.00";
+        compatible = "mathworks,mwipcore-v3.00";
         reg = <0xa3c60000 0x10000>;
+
     };
 };
