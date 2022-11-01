@@ -5,10 +5,10 @@ BR2_TARGET_UBOOT_BOARD_DEFCONFIG="xilinx_zynqmp_virt"
 BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR="board/xilinx/zynqmp/zynqmp-zcu106-revA"
 
 BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_vision_imx274_R22.2.0"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_vision_imx274_R23.1.0"
 
 BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/uboot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_vision_imx274_R22.2.0"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_vision_imx274_R23.1.0"
 
 BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_REPO_VERSION="xilinx-v2020.2"
 BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH="/opt/Xilinx/SDK/2020.2/bin/bootgen"
