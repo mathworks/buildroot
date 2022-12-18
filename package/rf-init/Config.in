@@ -1,0 +1,5 @@
+config BR2_PACKAGE_RFINIT
+    bool "rf-init"
+    default n
+    help
+    RF init application to send rfdc configuration through tcp.

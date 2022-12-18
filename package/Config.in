@@ -159,6 +159,8 @@ menu "Development tools"
 	source "package/subversion/Config.in"
 	source "package/tree/Config.in"
 	source "package/yasm/Config.in"
+	source "package/cots-tcp/Config.in"
+	source "package/rf-init/Config.in"
 endmenu
 
 menu "Filesystem and flash utilities"
