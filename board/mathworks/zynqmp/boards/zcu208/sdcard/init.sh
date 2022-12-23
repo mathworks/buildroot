@@ -4,6 +4,6 @@
 is_rfdc_exist=$(ls /sys/bus/platform/devices/*)
 if [[ $is_rfdc_exist = *usp_rf_data_converter* ]]; then
    echo "Running rftool application..."
-   rftool
+   rftool 1 &
    echo "rftool application closed"
 fi

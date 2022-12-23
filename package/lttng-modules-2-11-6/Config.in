@@ -1,4 +1,4 @@
-config BR2_PACKAGE_LTTNG_MODULES_2_11_6"
+config BR2_PACKAGE_LTTNG_MODULES_2_11_6
 	bool "lttng-modules-2-11-6"
 	depends on BR2_LINUX_KERNEL
 	help

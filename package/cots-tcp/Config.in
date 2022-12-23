@@ -1,0 +1,5 @@
+config BR2_PACKAGE_COTS-TCP
+bool "cots-tcp"
+default n
+help
+Avinet cots-tcp applicaiton.
