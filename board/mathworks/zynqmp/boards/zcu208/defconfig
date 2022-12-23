@@ -10,11 +10,10 @@ BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/zynqmp
 
 BR2_LINUX_KERNEL_DEFCONFIG="mw_zynqmp_zcu208"
 
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_rfsoc_gen3_R22.1.0"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_rfsoc_gen3_R23.1.0"
 
-
-BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-uboot.git"
 BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_rfsoc_gen3_R22.1.0"
 BR2_TARGET_UBOOT_VERSION="mathworks_zynq_rfsoc_gen3_R22.1.0"
 BR2_PACKAGE_XILINX_BOOTLOADER_PLATFORM="zynqmp_gen3"
@@ -25,9 +24,7 @@ BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_REPO_URL="https://github.com/Xilinx/arm-t
 BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_REPO_VERSION="xilinx-v2020.1"
 BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM="zynqmp"
 BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES="RESET_TO_BL31=1"
-BR2_WGET="wget --passive-ftp -nd -t 3 --no-check-certificate"
-BR2_PACKAGE_RF-INIT_APP=y
-BR2_PACKAGE_COTS-TCP_APP=y
+
 
 BR2_PACKAGE_LIBCONFIG=y
 BR2_PACKAGE_LIBSYSFS=y

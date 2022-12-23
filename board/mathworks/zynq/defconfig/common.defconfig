@@ -3,8 +3,8 @@
 ###########################################
 #include "arm_common.defconfig"
 #ifdef BUILD_MODE_NORMAL
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="xilinx-next"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_R22.1.0"
 BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x8000"
 #endif
@@ -24,8 +24,8 @@ BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG=y
 BR2_TARGET_UBOOT_NEEDS_DTC=y
 BR2_TARGET_UBOOT_NEEDS_OPENSSL=y
 BR2_TARGET_UBOOT_CUSTOM_GIT=y
-BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/uboot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="xilinx-next"
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_R20.2.0"
 BR2_PACKAGE_XILINX_BOOTLOADER=y
-BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH="/opt/Xilinx/SDK/2018.2/bin/bootgen"
+BR2_PACKAGE_XILINX_BOOTLOADER_BOOTGEN_PATH="/opt/Xilinx/SDK/2019.1/bin/bootgen"
 #endif
