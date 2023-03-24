@@ -6,9 +6,9 @@
 #    HOST_DIR, STAGING_DIR, TARGET_DIR
 #    BINARIES_DIR: images dir
 #    BASE_DIR: base output directory
-import sys, os, shutil, glob, imp, argparse, distutils.dir_util
+import sys, os, shutil, glob, importlib, argparse, distutils.dir_util
 import csv, time
-
+from importlib.machinery import SourceFileLoader
 import parse_catalog
 import gen_dtb
 import helper_func
@@ -186,9 +186,7 @@ PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + PLATFORM_NAME
 
 # load the platform functions
 PLATFORM_MODULE = catalog['platformInfo']['platformDir'] + "/scripts/platform_support.py"
-m = imp.load_source('br_platform', PLATFORM_MODULE)
-import br_platform
-
+br_platform = SourceFileLoader('br_platform', PLATFORM_MODULE).load_module()
 br_platform.platform_update_catalog(catalog)
 
 if catalog['buildMode'] == BuildMode.NORMAL:

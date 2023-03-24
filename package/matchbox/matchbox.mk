@@ -7,10 +7,10 @@
 MATCHBOX_VERSION = 1.2
 MATCHBOX_SOURCE = matchbox-window-manager-$(MATCHBOX_VERSION).tar.bz2
 MATCHBOX_SITE = http://downloads.yoctoproject.org/releases/matchbox/matchbox-window-manager/$(MATCHBOX_VERSION)
-MATCHBOX_LICENSE = GPLv2+
+MATCHBOX_LICENSE = GPL-2.0+
 MATCHBOX_LICENSE_FILES = COPYING
 
-MATCHBOX_DEPENDENCIES = matchbox-lib
+MATCHBOX_DEPENDENCIES = expat matchbox-lib
 MATCHBOX_CONF_OPTS = \
 	--enable-expat \
 	--disable-gconf \

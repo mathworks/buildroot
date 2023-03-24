@@ -7,12 +7,13 @@ config BR2_PACKAGE_FMLIB
 	depends on BR2_powerpc_e500mc || BR2_powerpc_e6500
 	depends on BR2_LINUX_KERNEL
 	help
-	  The Frame Manager library provides Freescale PowerPC platforms an
-	  API on top of the Frame Manager driver ioctl calls, that provides
-	  a user space application with a simple way to configure driver
-	  parameters and PCD (parse - classify - distribute) rules.
+	  The Frame Manager library provides Freescale PowerPC platforms
+	  an API on top of the Frame Manager driver ioctl calls, that
+	  provides a user space application with a simple way to
+	  configure driver parameters and PCD (parse - classify -
+	  distribute) rules.
 
-	  http://git.freescale.com/git/cgit.cgi/ppc/sdk/fmlib.git/tree/README
+	  https://github.com/nxp-qoriq/fmlib
 
 if BR2_PACKAGE_FMLIB
 choice
@@ -36,7 +37,7 @@ endchoice
 
 config BR2_PACKAGE_FMLIB_ARCHTYPE
 	string
-	default "e500mc" if BR2_powerpc_e500mc
+	default "ppce500mc" if BR2_powerpc_e500mc
 	default "ppc64e6500" if BR2_powerpc_e6500 && BR2_powerpc64
 	default "ppc32e6500" if BR2_powerpc_e6500 && BR2_powerpc
 

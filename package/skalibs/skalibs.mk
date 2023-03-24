@@ -4,15 +4,16 @@
 #
 ################################################################################
 
-SKALIBS_VERSION = 2.4.0.2
+SKALIBS_VERSION = 2.12.0.1
 SKALIBS_SITE = http://skarnet.org/software/skalibs
 SKALIBS_LICENSE = ISC
 SKALIBS_LICENSE_FILES = COPYING
 SKALIBS_INSTALL_STAGING = YES
 
 SKALIBS_CONF_OPTS = \
-	--prefix=/usr \
+	--prefix=/ \
 	--with-default-path=/sbin:/usr/sbin:/bin:/usr/bin \
+	--with-sysdep-devurandom=yes \
 	$(SHARED_STATIC_LIBS_OPTS)
 
 define SKALIBS_CONFIGURE_CMDS
@@ -33,7 +34,7 @@ define SKALIBS_INSTALL_STAGING_CMDS
 endef
 
 HOST_SKALIBS_CONF_OPTS = \
-	--prefix=$(HOST_DIR)/usr \
+	--prefix=$(HOST_DIR) \
 	--disable-static \
 	--enable-shared \
 	--disable-allstatic

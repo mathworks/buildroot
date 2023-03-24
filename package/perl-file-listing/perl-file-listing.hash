@@ -1,3 +1,6 @@
 # retrieved by scancpan from http://cpan.metacpan.org/
-md5    83f636b477741f3a014585bb9cc079a6 File-Listing-6.04.tar.gz
-sha256 1e0050fcd6789a2179ec0db282bf1e90fb92be35d1171588bd9c47d52d959cf5 File-Listing-6.04.tar.gz
+md5  8ba34641a6c5a2ec1b0bf7064f68c535  File-Listing-6.15.tar.gz
+sha256  46c4fb9f9eb9635805e26b7ea55b54455e47302758a10ed2a0b92f392713770c  File-Listing-6.15.tar.gz
+
+# computed by scancpan
+sha256  287e6f0fdf2db790a24975b492cde64b210c16af7137f44373cbd03fcf844212  LICENSE

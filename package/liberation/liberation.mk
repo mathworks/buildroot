@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-LIBERATION_VERSION = 2.00.1
-LIBERATION_SITE = http://www.fedorahosted.org/releases/l/i/liberation-fonts
+LIBERATION_VERSION = 2.1.5
+LIBERATION_SITE = https://github.com/liberationfonts/liberation-fonts/files/7261482
 LIBERATION_SOURCE = liberation-fonts-ttf-$(LIBERATION_VERSION).tar.gz
 LIBERATION_TARGET_DIR = $(TARGET_DIR)/usr/share/fonts/liberation
-LIBERATION_LICENSE = OFLv1.1
+LIBERATION_LICENSE = OFL-1.1
 LIBERATION_LICENSE_FILES = LICENSE
 
 ifeq ($(BR2_PACKAGE_LIBERATION_MONO),y)

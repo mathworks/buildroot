@@ -4,26 +4,22 @@
 #
 ################################################################################
 
-FREESWITCH_VERSION = 1.6.14
-FREESWITCH_SOURCE = freeswitch-$(FREESWITCH_VERSION).tar.xz
-FREESWITCH_SITE = http://files.freeswitch.org/freeswitch-releases
-FREESWITCH_LICENSE = MPLv1.1, \
-	GPLv3+ with font exception (fonts), \
-	Apache-2.0 (apr, apr-util), \
-	LGPLv2+ (sofia-sip), \
-	LGPLv2.1, GPLv2 (spandsp), \
-	BSD-3c (libsrtp), \
-	tiff license
+FREESWITCH_VERSION = 1.10.9
+FREESWITCH_SOURCE = freeswitch-$(FREESWITCH_VERSION).-release.tar.xz
+FREESWITCH_SITE = https://files.freeswitch.org/freeswitch-releases
+# External modules need headers/libs from staging
+FREESWITCH_INSTALL_STAGING = YES
+FREESWITCH_LICENSE = MPL-1.1, \
+	GPL-3.0+ with font exception (fonts), \
+	Apache-2.0 (apr), \
+	BSD-3-Clause (libsrtp)
 
 FREESWITCH_LICENSE_FILES = \
 	COPYING \
 	libs/apr/LICENSE \
-	libs/apr-util/LICENSE \
-	libs/sofia-sip/COPYING \
-	libs/sofia-sip/COPYRIGHTS \
-	libs/spandsp/COPYING \
-	libs/srtp/LICENSE \
-	libs/tiff-4.0.2/COPYRIGHT
+	libs/srtp/LICENSE
+
+FREESWITCH_CPE_ID_VENDOR = freeswitch
 
 # required dependencies
 FREESWITCH_DEPENDENCIES = \
@@ -32,10 +28,17 @@ FREESWITCH_DEPENDENCIES = \
 	libcurl \
 	openssl \
 	pcre \
+	spandsp \
+	sofia-sip \
 	speex \
 	sqlite \
+	tiff \
 	util-linux \
 	zlib
+
+# disable display of ClueCon banner in fs_cli
+FREESWITCH_CONF_ENV += \
+	disable_cc=yes
 
 # we neither need host-perl nor host-php
 FREESWITCH_CONF_ENV += \
@@ -45,6 +48,10 @@ FREESWITCH_CONF_ENV += \
 	ac_cv_have_php=no \
 	ac_cv_prog_PHP_CONFIG=false \
 	ac_cv_have_php_config=no
+
+# disable pcap detection, pcap is an optional dependency for unit tests
+FREESWITCH_CONF_ENV += \
+	ac_cv_prog_HAVE_PCAP_CONFIG=false
 
 # copied from freeswitch/configure.ac, line 258+
 FREESWITCH_CONF_ENV += \
@@ -74,15 +81,6 @@ FREESWITCH_CONF_OPTS = \
 	--without-python \
 	--disable-system-xmlrpc-c
 
-# zrtp supports a limited set of archs, sparc support is also broken due
-# to a broken ld call by gcc, see libs/libzrtp/include/zrtp_config.h
-ifeq ($(BR2_i386)$(BR2_arm)$(BR2_armeb)$(BR2_aarch64)$(BR2_aarch64_be)$(BR2_mips)$(BR2_mipsel)$(BR2_mips64)$(BR2_mips64el)$(BR2_powerpc)$(BR2_powerpc64)$(BR2_powerpcle)$(BR2_x86_64),y)
-FREESWITCH_LICENSE_FILES += libs/libzrtp/src/zrtp_legal.c
-FREESWITCH_CONF_OPTS += --enable-zrtp
-else
-FREESWITCH_CONF_OPTS += --disable-zrtp
-endif
-
 # Enable optional modules
 FREESWITCH_ENABLED_MODULES += \
 	applications/mod_avmd \
@@ -110,14 +108,12 @@ FREESWITCH_ENABLED_MODULES += \
 	applications/mod_valet_parking \
 	applications/mod_voicemail \
 	codecs/mod_g723_1 \
-	codecs/mod_g729 \
 	dialplans/mod_dialplan_asterisk \
 	dialplans/mod_dialplan_xml \
 	endpoints/mod_loopback \
 	endpoints/mod_rtc \
 	endpoints/mod_rtmp \
 	endpoints/mod_sofia \
-	endpoints/mod_verto \
 	event_handlers/mod_cdr_csv \
 	event_handlers/mod_cdr_sqlite \
 	event_handlers/mod_event_socket \
@@ -145,6 +141,7 @@ FREESWITCH_ENABLED_MODULES += \
 	say/mod_say_sv \
 	say/mod_say_th \
 	say/mod_say_zh \
+	timers/mod_timerfd \
 	xml_int/mod_xml_cdr \
 	xml_int/mod_xml_rpc \
 	xml_int/mod_xml_scgi
@@ -159,7 +156,7 @@ FREESWITCH_PRE_CONFIGURE_HOOKS += FREESWITCH_ENABLE_MODULES
 # mod_isac supports a limited set of archs
 # src/mod/codecs/mod_isac/typedefs.h
 ifeq ($(BR2_i386)$(BR2_mips)$(BR2_mipsel)$(BR2_mips64)$(BR2_mips64el)$(BR2_x86_64),y)
-FREESWITCH_LICENSE := $(FREESWITCH_LICENSE), BSD-3c (mod_isac)
+FREESWITCH_LICENSE += , BSD-3-Clause (mod_isac)
 FREESWITCH_LICENSE_FILES += src/mod/codecs/mod_isac/LICENSE
 FREESWITCH_ENABLED_MODULES += codecs/mod_isac
 endif
@@ -167,6 +164,12 @@ endif
 ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
 FREESWITCH_DEPENDENCIES += alsa-lib
 FREESWITCH_ENABLED_MODULES += endpoints/mod_alsa
+endif
+
+# Use the pass-through g729 module provided by freeswitch instead of
+# the external mod_bcg729 provided by freeswitch-mod-bcg729.
+ifeq ($(BR2_PACKAGE_FREESWITCH_MOD_BCG729),)
+FREESWITCH_ENABLED_MODULES += codecs/mod_g729
 endif
 
 ifeq ($(BR2_PACKAGE_FREETYPE),y)
@@ -199,6 +202,11 @@ FREESWITCH_DEPENDENCIES += libilbc
 FREESWITCH_ENABLED_MODULES += codecs/mod_ilbc
 endif
 
+ifeq ($(BR2_PACKAGE_LIBKS),y)
+FREESWITCH_DEPENDENCIES += libks
+FREESWITCH_ENABLED_MODULES += endpoints/mod_verto
+endif
+
 ifeq ($(BR2_PACKAGE_LIBLDNS),y)
 FREESWITCH_DEPENDENCIES += libldns
 FREESWITCH_ENABLED_MODULES += applications/mod_enum
@@ -207,6 +215,13 @@ endif
 ifeq ($(BR2_PACKAGE_LIBMEMCACHED),y)
 FREESWITCH_DEPENDENCIES += libmemcached
 FREESWITCH_ENABLED_MODULES += applications/mod_memcache
+endif
+
+ifeq ($(BR2_PACKAGE_LIBOPENH264),y)
+FREESWITCH_LICENSE += , BSD-2-Clause (libopenh264)
+FREESWITCH_LICENSE_FILES += docs/OPENH264_BINARY_LICENSE.txt
+FREESWITCH_DEPENDENCIES += libopenh264
+FREESWITCH_ENABLED_MODULES += codecs/mod_openh264
 endif
 
 ifeq ($(BR2_PACKAGE_LIBPNG),y)
@@ -259,9 +274,16 @@ FREESWITCH_DEPENDENCIES += libsoundtouch
 FREESWITCH_ENABLED_MODULES += applications/mod_soundtouch
 endif
 
-ifeq ($(BR2_PACKAGE_OPENCV),y)
-FREESWITCH_DEPENDENCIES += opencv
+ifeq ($(BR2_PACKAGE_OPENCV3),y)
+FREESWITCH_DEPENDENCIES += opencv3
 FREESWITCH_ENABLED_MODULES += applications/mod_cv
+endif
+
+ifeq ($(BR2_PACKAGE_POSTGRESQL),y)
+FREESWITCH_CONF_ENV += \
+	ac_cv_path_PG_CONFIG=$(STAGING_DIR)/usr/bin/pg_config
+FREESWITCH_DEPENDENCIES += postgresql
+FREESWITCH_ENABLED_MODULES += databases/mod_pgsql
 endif
 
 ifeq ($(BR2_PACKAGE_UNIXODBC),y)
@@ -278,12 +300,45 @@ FREESWITCH_DEPENDENCIES += xz
 endif
 
 ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_4_8)$(BR2_PACKAGE_FFMPEG),yy)
-FREESWITCH_LICENSE := $(FREESWITCH_LICENSE), BSD-3c (libvpx, libyuv)
+FREESWITCH_LICENSE += , BSD-3-Clause (libvpx, libyuv)
 FREESWITCH_LICENSE_FILES += libs/libvpx/LICENSE libs/libyuv/LICENSE
 FREESWITCH_CONF_OPTS += --enable-libvpx --enable-libyuv
 FREESWITCH_DEPENDENCIES += host-yasm ffmpeg
 FREESWITCH_ENABLED_MODULES += applications/mod_av applications/mod_fsv
 FREESWITCH_MAKE_ENV += CROSS=$(TARGET_CROSS)
+
+# Freeswitch's buildsystem forgets to pass important environment
+# variables and config options when it configures libvpx, so
+# pre-build libvpx manually, so Freeswitch does not attempt to run
+# its flawed commands...
+# Freeswitch only ever uses the static libtrary, that's hard-coded,
+# we can't do anything about that...
+# From package/libvpx/libvpx.mk:
+# - this is not a true autotools package.  It is based on the ffmpeg
+#   build system.
+# - ld is being used with cc options. therefore, pretend ld is cc.
+define FREESWITCH_BUILD_LIBVPX
+	cd $(@D)/libs/libvpx && \
+	$(TARGET_CONFIGURE_OPTS) \
+	$(TARGET_CONFIGURE_ARGS) \
+	LD="$(TARGET_CC)" \
+	CROSS=$(GNU_TARGET_NAME) \
+	./configure \
+		--target=generic-gnu \
+		--enable-pic \
+		--prefix=/usr \
+		--disable-shared --enable-static \
+		--disable-examples \
+		--disable-docs \
+		--disable-unit-tests && \
+	$(TARGET_MAKE_ENV) \
+	$(LIBVPX_MAKE_ENV) \
+	$(MAKE) \
+		-C $(@D)/libs/libvpx \
+		all
+endef
+FREESWITCH_PRE_BUILD_HOOKS += FREESWITCH_BUILD_LIBVPX
+
 else
 FREESWITCH_CONF_OPTS += --disable-libvpx --disable-libyuv
 endif

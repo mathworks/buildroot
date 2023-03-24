@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi?:action=show_md5&digest=b1fb60759ad5a885cb8ea562553f2d4c, sha256 locally computed
-md5	b1fb60759ad5a885cb8ea562553f2d4c  treq-15.1.0.tar.gz
-sha256	425a47d5d52a993d51211028fb6ade252e5fbea094e878bb4b644096a7322de8  treq-15.1.0.tar.gz
+# md5, sha256 from https://pypi.org/pypi/treq/json
+md5  43892086d556e7596392134f1e10bdef  treq-22.2.0.tar.gz
+sha256  df757e3f141fc782ede076a604521194ffcb40fa2645cf48e5a37060307f52ec  treq-22.2.0.tar.gz
+# Locally computed sha256 checksums
+sha256  7cc1b65e1937b1cc07052bb864ec96d8e5fd413400c0842e5b89a8201a600293  LICENSE

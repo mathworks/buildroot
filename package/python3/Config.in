@@ -4,13 +4,13 @@ comment "python3 needs a toolchain w/ wchar, threads, dynamic library"
 
 config BR2_PACKAGE_PYTHON3
 	bool "python3"
-	depends on !BR2_PACKAGE_PYTHON
 	depends on BR2_USE_WCHAR
 	# uses fork()
 	depends on BR2_USE_MMU
 	depends on BR2_TOOLCHAIN_HAS_THREADS # libffi
 	depends on !BR2_STATIC_LIBS
 	select BR2_PACKAGE_LIBFFI
+	select BR2_PACKAGE_BLUEZ5_UTILS_HEADERS if BR2_PACKAGE_BLUEZ5_UTILS
 	help
 	  The python language interpreter.
 
@@ -22,7 +22,8 @@ choice
 	prompt "python3 module format to install"
 	default BR2_PACKAGE_PYTHON3_PYC_ONLY
 	help
-	  Select Python module format to install on target (py, pyc or both)
+	  Select Python module format to install on target (py, pyc or
+	  both)
 
 config BR2_PACKAGE_PYTHON3_PY_ONLY
 	bool ".py sources only"
@@ -38,6 +39,17 @@ endchoice
 menu "core python3 modules"
 
 comment "The following modules are unusual or require extra libraries"
+
+config BR2_PACKAGE_PYTHON3_2TO3
+	bool "2to3 module"
+	help
+	  code translation from python 2 to 3
+
+config BR2_PACKAGE_PYTHON3_BERKELEYDB
+	bool "berkeleydb"
+	select BR2_PACKAGE_BERKELEYDB
+	help
+	  berkeleydb module for Python3
 
 config BR2_PACKAGE_PYTHON3_BZIP2
 	bool "bz2 module"
@@ -77,6 +89,8 @@ config BR2_PACKAGE_PYTHON3_READLINE
 config BR2_PACKAGE_PYTHON3_SSL
 	bool "ssl"
 	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_OPENSSL_FORCE_LIBOPENSSL
+	select BR2_PACKAGE_LIBOPENSSL_ENABLE_BLAKE2
 	help
 	  _ssl module for Python3 (required for https in urllib etc).
 
@@ -84,7 +98,8 @@ config BR2_PACKAGE_PYTHON3_UNICODEDATA
 	bool "unicodedata module"
 	default y
 	help
-	  Unicode character database (used by stringprep module) (large).
+	  Unicode character database (used by stringprep module)
+	  (large).
 
 config BR2_PACKAGE_PYTHON3_SQLITE
 	bool "sqlite module"

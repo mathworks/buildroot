@@ -4,110 +4,134 @@
 #
 ################################################################################
 
-DOCKER_ENGINE_VERSION = v1.12.6
-DOCKER_ENGINE_COMMIT = 78d18021ecba00c00730dec9d56de6896f9e708d
-DOCKER_ENGINE_SITE = $(call github,docker,docker,$(DOCKER_ENGINE_VERSION))
+DOCKER_ENGINE_VERSION = 23.0.1
+DOCKER_ENGINE_SITE = $(call github,moby,moby,v$(DOCKER_ENGINE_VERSION))
 
 DOCKER_ENGINE_LICENSE = Apache-2.0
 DOCKER_ENGINE_LICENSE_FILES = LICENSE
 
-DOCKER_ENGINE_DEPENDENCIES = host-go host-pkgconf
+DOCKER_ENGINE_DEPENDENCIES = host-pkgconf libseccomp
+DOCKER_ENGINE_GOMOD = github.com/docker/docker
 
-DOCKER_ENGINE_GOPATH = "$(@D)/vendor"
-DOCKER_ENGINE_MAKE_ENV = $(HOST_GO_TARGET_ENV) \
-	CGO_ENABLED=1 \
-	CGO_NO_EMULATION=1 \
-	GOBIN="$(@D)/bin" \
-	GOPATH="$(DOCKER_ENGINE_GOPATH)" \
-	PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
-	$(TARGET_MAKE_ENV)
+DOCKER_ENGINE_CPE_ID_VENDOR = docker
+DOCKER_ENGINE_CPE_ID_PRODUCT = docker
 
-DOCKER_ENGINE_GLDFLAGS = \
-	-X main.GitCommit=$(DOCKER_ENGINE_VERSION) \
-	-X main.Version=$(DOCKER_ENGINE_VERSION)
+DOCKER_ENGINE_LDFLAGS = \
+	-X $(DOCKER_ENGINE_GOMOD)/dockerversion.BuildTime="" \
+	-X $(DOCKER_ENGINE_GOMOD)/dockerversion.GitCommit="buildroot" \
+	-X $(DOCKER_ENGINE_GOMOD)/dockerversion.IAmStatic="false" \
+	-X $(DOCKER_ENGINE_GOMOD)/dockerversion.InitCommitID="" \
+	-X $(DOCKER_ENGINE_GOMOD)/dockerversion.Version="$(DOCKER_ENGINE_VERSION)"
 
-ifeq ($(BR2_STATIC_LIBS),y)
-DOCKER_ENGINE_GLDFLAGS += -extldflags '-static'
+DOCKER_ENGINE_TAGS = cgo exclude_graphdriver_zfs
+DOCKER_ENGINE_BUILD_TARGETS = cmd/dockerd cmd/docker-proxy
+
+ifeq ($(BR2_PACKAGE_LIBAPPARMOR),y)
+DOCKER_ENGINE_DEPENDENCIES += libapparmor
 endif
 
-DOCKER_ENGINE_BUILD_TAGS = cgo exclude_graphdriver_zfs autogen
-DOCKER_ENGINE_BUILD_TARGETS = docker
-
-ifeq ($(BR2_PACKAGE_LIBSECCOMP),y)
-DOCKER_ENGINE_BUILD_TAGS += seccomp
-DOCKER_ENGINE_DEPENDENCIES += libseccomp
+ifeq ($(BR2_INIT_SYSTEMD),y)
+DOCKER_ENGINE_DEPENDENCIES += systemd
+DOCKER_ENGINE_TAGS += systemd journald
 endif
-
-ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_DAEMON),y)
-DOCKER_ENGINE_BUILD_TAGS += daemon
-DOCKER_ENGINE_BUILD_TARGETS += dockerd
-endif
-
 ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_EXPERIMENTAL),y)
-DOCKER_ENGINE_BUILD_TAGS += experimental
+DOCKER_ENGINE_TAGS += experimental
 endif
 
 ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_DRIVER_BTRFS),y)
 DOCKER_ENGINE_DEPENDENCIES += btrfs-progs
 else
-DOCKER_ENGINE_BUILD_TAGS += exclude_graphdriver_btrfs
+DOCKER_ENGINE_TAGS += exclude_graphdriver_btrfs
 endif
 
 ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_DRIVER_DEVICEMAPPER),y)
 DOCKER_ENGINE_DEPENDENCIES += lvm2
 else
-DOCKER_ENGINE_BUILD_TAGS += exclude_graphdriver_devicemapper
+DOCKER_ENGINE_TAGS += exclude_graphdriver_devicemapper
 endif
 
 ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_DRIVER_VFS),y)
 DOCKER_ENGINE_DEPENDENCIES += gvfs
 else
-DOCKER_ENGINE_BUILD_TAGS += exclude_graphdriver_vfs
+DOCKER_ENGINE_TAGS += exclude_graphdriver_vfs
 endif
 
-define DOCKER_ENGINE_CONFIGURE_CMDS
-	ln -fs $(@D) $(DOCKER_ENGINE_GOPATH)/src/github.com/docker/docker
-	cd $(@D) && \
-		GITCOMMIT="$$(echo $(DOCKER_ENGINE_COMMIT) | head -c7)" \
-		BUILDTIME="$$(date)" \
-		VERSION="$(patsubst v%,%,$(DOCKER_ENGINE_VERSION))" \
-		PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" $(TARGET_MAKE_ENV) \
-		bash ./hack/make/.go-autogen
+# create the go.mod file with language version go1.19
+# remove the conflicting vendor/modules.txt
+# https://github.com/moby/moby/issues/44618#issuecomment-1343565705
+define DOCKER_ENGINE_FIX_VENDORING
+	printf "module $(DOCKER_ENGINE_GOMOD)\n\ngo 1.19\n" > $(@D)/go.mod
+	rm -f $(@D)/vendor/modules.txt
 endef
+DOCKER_ENGINE_POST_EXTRACT_HOOKS += DOCKER_ENGINE_FIX_VENDORING
 
-ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_DAEMON),y)
+DOCKER_ENGINE_INSTALL_BINS = $(notdir $(DOCKER_ENGINE_BUILD_TARGETS))
 
 define DOCKER_ENGINE_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 0644 $(@D)/contrib/init/systemd/docker.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/docker.service
 	$(INSTALL) -D -m 0644 $(@D)/contrib/init/systemd/docker.socket \
 		$(TARGET_DIR)/usr/lib/systemd/system/docker.socket
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/
-	ln -fs ../../../../usr/lib/systemd/system/docker.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/docker.service
+endef
+
+define DOCKER_ENGINE_INSTALL_INIT_SYSV
+	$(INSTALL) -D -m 755 package/docker-engine/S60dockerd \
+		$(TARGET_DIR)/etc/init.d/S60dockerd
 endef
 
 define DOCKER_ENGINE_USERS
 	- - docker -1 * - - - Docker Application Container Framework
 endef
 
+ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_DRIVER_BTRFS),y)
+define DOCKER_ENGINE_DRIVER_BTRFS_LINUX_CONFIG_FIXUPS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_BTRFS_FS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_BTRFS_FS_POSIX_ACL)
+endef
 endif
 
-define DOCKER_ENGINE_BUILD_CMDS
-	$(foreach target,$(DOCKER_ENGINE_BUILD_TARGETS), \
-		cd $(@D); $(DOCKER_ENGINE_MAKE_ENV) \
-		$(HOST_DIR)/usr/bin/go build -v \
-			-o $(@D)/bin/$(target) \
-			-tags "$(DOCKER_ENGINE_BUILD_TAGS)" \
-			-ldflags "$(DOCKER_ENGINE_GLDFLAGS)" \
-			./cmd/$(target)
-	)
+ifeq ($(BR2_PACKAGE_DOCKER_ENGINE_DRIVER_DEVICEMAPPER),y)
+define DOCKER_ENGINE_DRIVER_DM_LINUX_CONFIG_FIXUPS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_MD)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_DM)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_MD_THIN_PROVISIONING)
+endef
+endif
+
+# based on contrib/check-config.sh
+define DOCKER_ENGINE_LINUX_CONFIG_FIXUPS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_POSIX_MQUEUE)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_MEMCG)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUP_SCHED)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUP_FREEZER)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CPUSETS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUP_DEVICE)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUP_CPUACCT)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NAMESPACES)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_UTS_NS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_IPC_NS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_PID_NS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NET_NS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NETFILTER)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NETFILTER_ADVANCED)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_BRIDGE_NETFILTER)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NF_CONNTRACK)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NETFILTER_XTABLES)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NETFILTER_XT_MATCH_ADDRTYPE)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NETFILTER_XT_MATCH_CONNTRACK)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NETFILTER_XT_MATCH_IPVS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_IP_NF_IPTABLES)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_IP_NF_FILTER)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_IP_NF_NAT)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_IP_NF_TARGET_MASQUERADE)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_BRIDGE)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NET_CORE)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_VETH)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_OVERLAY_FS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_KEYS)
+	$(DOCKER_ENGINE_DRIVER_BTRFS_LINUX_CONFIG_FIXUPS)
+	$(DOCKER_ENGINE_DRIVER_DM_LINUX_CONFIG_FIXUPS)
 endef
 
-define DOCKER_ENGINE_INSTALL_TARGET_CMDS
-	$(foreach target,$(DOCKER_ENGINE_BUILD_TARGETS), \
-		$(INSTALL) -D -m 0755 $(@D)/bin/$(target) $(TARGET_DIR)/usr/bin/$(target)
-	)
-endef
-
-$(eval $(generic-package))
+$(eval $(golang-package))

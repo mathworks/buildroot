@@ -1,2 +1,4 @@
 # Locally calculated after checking pgp signature
-sha256	93b54bdf46d5e6d2354b7034395fe329c222a966790de34520702bb9642f1c06	libsamplerate-0.1.8.tar.gz
+sha256  3258da280511d24b49d6b08615bbe824d0cacc9842b0e4caf11c52cf2b043893  libsamplerate-0.2.2.tar.xz
+# Locally computed
+sha256  2c1f76ce2effdddb425018405d5690c0b1ab4e6976e35296b0a6db65c5e1a55d  COPYING

@@ -73,7 +73,7 @@ basically two things that can be done:
     In the commit message of a patch fixing an autobuild failure, add a
     reference to the build result directory, as follows:
 ---------------------
-Fixes http://autobuild.buildroot.org/results/51000a9d4656afe9e0ea6f07b9f8ed374c2e4069
+Fixes: http://autobuild.buildroot.org/results/51000a9d4656afe9e0ea6f07b9f8ed374c2e4069
 ---------------------
 
 === Reviewing and testing patches
@@ -194,14 +194,29 @@ bisect+ to locate the origin of a problem.
 
 First of all, it is essential that the patch has a good commit
 message. The commit message should start with a separate line with a
-brief summary of the change, starting with the name of the affected
-package. The body of the commit message should describe _why_ this
+brief summary of the change, prefixed by the area touched by the
+patch. A few examples of good commit titles:
+
+* +package/linuxptp: bump version to 2.0+
+
+* +configs/imx23evk: bump Linux version to 4.19+
+
+* +package/pkg-generic: postpone evaluation of dependency conditions+
+
+* +boot/uboot: needs host-{flex,bison}+
+
+* +support/testing: add python-ubjson tests+
+
+The description that follows the prefix should start with a lower case
+letter (i.e "bump", "needs", "postpone", "add" in the above examples).
+
+Second, the body of the commit message should describe _why_ this
 change is needed, and if necessary also give details about _how_ it
 was done. When writing the commit message, think of how the reviewers
 will read it, but also think about how you will read it when you look
 at this change again a few years down the line.
 
-Second, the patch itself should do only one change, but do it
+Third, the patch itself should do only one change, but do it
 completely. Two unrelated or weakly related changes should usually be
 done in two separate patches. This usually means that a patch affects
 only a single package. If several changes are related, it is often
@@ -227,7 +242,7 @@ Finally, the patch should be signed off. This is done by adding
 +Signed-off-by: Your Real Name <your@email.address>+ at the end of the
 commit message. +git commit -s+ does that for you, if configured
 properly. The +Signed-off-by+ tag means that you publish the patch
-under the Buildroot license (i.e. GPLv2, except for package patches,
+under the Buildroot license (i.e. GPL-2.0+, except for package patches,
 which have the upstream license), and that you are allowed to do so.
 See http://developercertificate.org/[the Developer Certificate of
 Origin] for details.
@@ -260,9 +275,13 @@ options that no longer exist or are no longer needed.
 
 If you are interested in getting notified of build failures and of
 further changes in the packages you added or modified, please add
-yourself to the DEVELOPERS file. This should be done in a separate
-patch of the series. See xref:DEVELOPERS[the DEVELOPERS file] for more
-information.
+yourself to the DEVELOPERS file. This should be done in the same patch
+creating or modifying the package. See xref:DEVELOPERS[the DEVELOPERS file]
+for more information.
+
+Buildroot provides a handy tool to check for common coding style
+mistakes on files you created or modified, called +check-package+ (see
+xref:check-package[] for more information).
 
 ==== Preparing a patch series
 
@@ -273,6 +292,12 @@ a patch set. To do so, run:
 ---------------------
 $ git fetch --all --tags
 $ git rebase origin/master
+---------------------
+
+Now check the coding style for the changes you committed:
+
+---------------------
+$ utils/docker-run make check-package
 ---------------------
 
 Now, you are ready to generate then submit your patch set.
@@ -295,13 +320,35 @@ information). This tool reads your patches and outputs the appropriate
 +git send-email+ command to use:
 
 ---------------------
-$ ./support/scripts/get-developers outgoing/*
+$ ./utils/get-developers outgoing/*
 ---------------------
 
 Use the output of +get-developers+ to send your patches:
 
 ---------------------
 $ git send-email --to buildroot@buildroot.org --cc bob --cc alice outgoing/*
+---------------------
+
+Alternatively, +get-developers -e+ can be used directly with the
++--cc-cmd+ argument to +git send-email+ to automatically CC the
+affected developers:
+
+---------------------
+$ git send-email --to buildroot@buildroot.org \
+      --cc-cmd './utils/get-developers -e' origin/master
+---------------------
+
++git+ can be configured to automatically do this out of the box with:
+
+---------------------
+$ git config sendemail.to buildroot@buildroot.org
+$ git config sendemail.ccCmd "$(pwd)/utils/get-developers -e"
+---------------------
+
+And then just do:
+
+---------------------
+$ git send-email origin/master
 ---------------------
 
 Note that +git+ should be configured to use your mail account.
@@ -330,6 +377,37 @@ in the following cases:
 * whenever you feel it will help presenting your work, your choices,
   the review process, etc.
 
+==== Patches for maintenance branches
+
+When fixing bugs on a maintenance branch, bugs should be fixed on the
+master branch first. The commit log for such a patch may then contain a
+post-commit note specifying what branches are affected:
+
+----
+package/foo: fix stuff
+
+Signed-off-by: Your Real Name <your@email.address>
+---
+Backport to: 2020.02.x, 2020.05.x
+(2020.08.x not affected as the version was bumped)
+----
+
+Those changes will then be backported by a maintainer to the affected
+branches.
+
+However, some bugs may apply only to a specific release, for example
+because it is using an older version of a package. In that case, patches
+should be based off the maintenance branch, and the patch subject prefix
+must include the maintenance branch name (for example "[PATCH 2020.02.x]").
+This can be done with the +git format-patch+ flag +--subject-prefix+:
+
+---------------------
+$ git format-patch --subject-prefix "PATCH 2020.02.x" \
+    -M -s -o outgoing origin/2020.02.x
+---------------------
+
+Then send the patches with +git send-email+, as described above.
+
 ==== Patch revision changelog
 
 When improvements are requested, the new revision of each commit
@@ -346,7 +424,8 @@ editing the commit message. Below the +Signed-off-by+ section, add
 +---+ and your changelog.
 
 Although the changelog will be visible for the reviewers in the mail
-thread, as well as in http://patchwork.buildroot.org[patchwork], +git+
+thread, as well as in
+https://patchwork.ozlabs.org/project/buildroot/list/[patchwork], +git+
 will automatically ignores lines below +---+ when the patch will be
 merged. This is the intended behavior: the changelog is not meant to
 be preserved forever in the +git+ history of the project.
@@ -361,7 +440,7 @@ the problem is complex, it is OK to add more paragraphs. All paragraphs
 should be wrapped at 72 characters.
 
 A paragraph that explains the root cause of the problem. Again, more
-than on paragraph is OK.
+than one paragraph is OK.
 
 Finally, one or more paragraphs that explain how the problem is solved.
 Don't hesitate to explain complex solutions in detail.
@@ -398,19 +477,22 @@ $ git format-patch -v4 -M -s -o outgoing origin/master
 ---------------------
 
 When you provide a new version of a patch, please mark the old one as
-superseded in http://patchwork.buildroot.org[patchwork]. You need to
-create an account on http://patchwork.buildroot.org[patchwork] to be
+superseded in
+https://patchwork.ozlabs.org/project/buildroot/list/[patchwork]. You
+need to create an account on
+https://patchwork.ozlabs.org/project/buildroot/list/[patchwork] to be
 able to modify the status of your patches. Note that you can only change
 the status of patches you submitted yourself, which means the email
-address you register in http://patchwork.buildroot.org[patchwork] should
+address you register in
+https://patchwork.ozlabs.org/project/buildroot/list/[patchwork] should
 match the one you use for sending patches to the mailing list.
 
 You can also add the +--in-reply-to <message-id>+ option when
 submitting a patch to the mailing list. The id of the mail to reply to
 can be found under the "Message Id" tag on
-http://patchwork.buildroot.org[patchwork].  The advantage of
-*in-reply-to* is that patchwork will automatically mark the previous
-version of the patch as superseded.
+https://patchwork.ozlabs.org/project/buildroot/list/[patchwork]. The
+advantage of *in-reply-to* is that patchwork will automatically mark
+the previous version of the patch as superseded.
 
 [[reporting-bugs]]
 === Reporting issues/bugs or getting help
@@ -446,3 +528,195 @@ preserve Unix-style line terminators when downloading raw pastes.
 Following pastebin services are known to work correctly:
 - https://gist.github.com/
 - http://code.bulix.org/
+
+=== Using the runtime tests framework
+
+Buildroot includes a run-time testing framework built upon Python
+scripting and QEMU runtime execution. The goals of the framework are
+the following:
+
+* build a well defined Buildroot configuration
+* optionally, verify some properties of the build output
+* optionally, boot the build results under Qemu, and verify that a
+  given feature is working as expected
+
+The entry point to use the runtime tests framework is the
++support/testing/run-tests+ tool, which has a series of options
+documented in the tool's help '-h' description. Some common options
+include setting the download folder, the output folder, keeping build
+output, and for multiple test cases, you can set the JLEVEL for each.
+
+Here is an example walk through of running a test case.
+
+* For a first step, let us see what all the test case options are. The test
+cases can be listed by executing +support/testing/run-tests -l+. These tests
+can all be run individually during test development from the console. Both
+one at a time and selectively as a group of a subset of tests.
+
+---------------------
+$ support/testing/run-tests -l
+List of tests
+test_run (tests.utils.test_check_package.TestCheckPackage)
+test_run (tests.toolchain.test_external.TestExternalToolchainBuildrootMusl) ... ok
+test_run (tests.toolchain.test_external.TestExternalToolchainBuildrootuClibc) ... ok
+test_run (tests.toolchain.test_external.TestExternalToolchainCCache) ... ok
+test_run (tests.toolchain.test_external.TestExternalToolchainCtngMusl) ... ok
+test_run (tests.toolchain.test_external.TestExternalToolchainLinaroArm) ... ok
+test_run (tests.toolchain.test_external.TestExternalToolchainSourceryArmv4) ... ok
+test_run (tests.toolchain.test_external.TestExternalToolchainSourceryArmv5) ... ok
+test_run (tests.toolchain.test_external.TestExternalToolchainSourceryArmv7) ... ok
+[snip]
+test_run (tests.init.test_systemd.TestInitSystemSystemdRoFull) ... ok
+test_run (tests.init.test_systemd.TestInitSystemSystemdRoIfupdown) ... ok
+test_run (tests.init.test_systemd.TestInitSystemSystemdRoNetworkd) ... ok
+test_run (tests.init.test_systemd.TestInitSystemSystemdRwFull) ... ok
+test_run (tests.init.test_systemd.TestInitSystemSystemdRwIfupdown) ... ok
+test_run (tests.init.test_systemd.TestInitSystemSystemdRwNetworkd) ... ok
+test_run (tests.init.test_busybox.TestInitSystemBusyboxRo) ... ok
+test_run (tests.init.test_busybox.TestInitSystemBusyboxRoNet) ... ok
+test_run (tests.init.test_busybox.TestInitSystemBusyboxRw) ... ok
+test_run (tests.init.test_busybox.TestInitSystemBusyboxRwNet) ... ok
+
+Ran 157 tests in 0.021s
+
+OK
+---------------------
+
+* Then, to run one test case:
+
+---------------------
+$ support/testing/run-tests -d dl -o output_folder -k tests.init.test_busybox.TestInitSystemBusyboxRw
+15:03:26 TestInitSystemBusyboxRw                  Starting
+15:03:28 TestInitSystemBusyboxRw                  Building
+15:08:18 TestInitSystemBusyboxRw                  Building done
+15:08:27 TestInitSystemBusyboxRw                  Cleaning up
+.
+Ran 1 test in 301.140s
+
+OK
+---------------------
+
+The standard output indicates if the test is successful or not. By
+default, the output folder for the test is deleted automatically
+unless the option +-k+ is passed to *keep* the output directory.
+
+==== Creating a test case
+
+Within the Buildroot repository, the testing framework is organized at the
+top level in +support/testing/+ by folders of +conf+, +infra+ and +tests+.
+All the test cases live under the +tests+ folder and are organized in various
+folders representing the category of test.
+
+The best way to get familiar with how to create a test case is to look
+at a few of the basic file system +support/testing/tests/fs/+ and init
++support/testing/tests/init/+ test scripts. Those tests give good
+examples of a basic tests that include both checking the build
+results, and doing runtime tests. There are other more advanced cases
+that use things like nested +br2-external+ folders to provide
+skeletons and additional packages.
+
+Creating a basic test case involves:
+
+* Defining a test class that inherits from +infra.basetest.BRTest+
+
+* Defining the +config+ member of the test class, to the Buildroot
+  configuration to build for this test case. It can optionally rely on
+  configuration snippets provided by the runtime test infrastructure:
+  +infra.basetest.BASIC_TOOLCHAIN_CONFIG+ to get a basic
+  architecture/toolchain configuration, and
+  +infra.basetest.MINIMAL_CONFIG+ to not build any filesystem. The
+  advantage of using +infra.basetest.BASIC_TOOLCHAIN_CONFIG+ is that a
+  matching Linux kernel image is provided, which allows to boot the
+  resulting image in Qemu without having to build a Linux kernel image
+  as part of the test case, therefore significant decreasing the build
+  time required for the test case.
+
+* Implementing a +def test_run(self):+ function to implement the
+  actual tests to run after the build has completed. They may be tests
+  that verify the build output, by running command on the host using
+  the +run_cmd_on_host()+ helper function. Or they may boot the
+  generated system in Qemu using the +Emulator+ object available as
+  +self.emulator+ in the test case. For example +self.emulator.boot()+
+  allows to boot the system in Qemu, +self.emulator.login()+ allows to
+  login, +self.emulator.run()+ allows to run shell commands inside
+  Qemu.
+
+After creating the test script, add yourself to the +DEVELOPERS+ file to
+be the maintainer of that test case.
+
+==== Debugging a test case
+
+When a test case runs, the +output_folder+ will contain the following:
+
+---------------------
+$ ls output_folder/
+TestInitSystemBusyboxRw/
+TestInitSystemBusyboxRw-build.log
+TestInitSystemBusyboxRw-run.log
+---------------------
+
++TestInitSystemBusyboxRw/+ is the Buildroot output directory, and it
+is preserved only if the +-k+ option is passed.
+
++TestInitSystemBusyboxRw-build.log+ is the log of the Buildroot build.
+
++TestInitSystemBusyboxRw-run.log+ is the log of the Qemu boot and
+test. This file will only exist if the build was successful and the
+test case involves booting under Qemu.
+
+If you want to manually run Qemu to do manual tests of the build
+result, the first few lines of +TestInitSystemBusyboxRw-run.log+
+contain the Qemu command line to use.
+
+You can also make modifications to the current sources inside the
++output_folder+ (e.g. for debug purposes) and rerun the standard
+Buildroot make targets (in order to regenerate the complete image with
+the new modifications) and then rerun the test.
+
+==== Runtime tests and Gitlab CI
+
+All runtime tests are regularly executed by Buildroot Gitlab CI
+infrastructure, see .gitlab.yml and
+https://gitlab.com/buildroot.org/buildroot/-/jobs.
+
+You can also use Gitlab CI to test your new test cases, or verify that
+existing tests continue to work after making changes in Buildroot.
+
+In order to achieve this, you need to create a fork of the Buildroot
+project on Gitlab, and be able to push branches to your Buildroot fork
+on Gitlab.
+
+The name of the branch that you push will determine if a Gitlab CI
+pipeline will be triggered or not, and for which test cases.
+
+In the examples below, the <name> component of the branch name is an
+arbitrary string you choose.
+
+* To trigger all run-test test case jobs, push a branch that ends with
+  +-runtime-tests+:
+
+---------------------
+ $ git push gitlab HEAD:<name>-runtime-tests
+---------------------
+
+* To trigger one or several test case jobs, push a branch that ends
+  with the complete test case name
+  (+tests.init.test_busybox.TestInitSystemBusyboxRo+) or with the name
+  of a category of tests (+tests.init.test_busybox+):
+
+---------------------
+ $ git push gitlab HEAD:<name>-<test case name>
+---------------------
+
+Example to run one test:
+
+---------------------
+ $ git push gitlab HEAD:foo-tests.init.test_busybox.TestInitSystemBusyboxRo
+---------------------
+
+Examples to run several tests part of the same group:
+
+---------------------
+ $ git push gitlab HEAD:foo-tests.init.test_busybox
+ $ git push gitlab HEAD:foo-tests.init
+---------------------

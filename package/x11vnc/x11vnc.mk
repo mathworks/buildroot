@@ -4,14 +4,20 @@
 #
 ################################################################################
 
-X11VNC_VERSION = 0.9.13
-X11VNC_SITE = http://downloads.sourceforge.net/project/libvncserver/x11vnc/$(X11VNC_VERSION)
+X11VNC_VERSION = 0.9.16
+X11VNC_SITE = $(call github,LibVNC,x11vnc,$(X11VNC_VERSION))
 # sdl support is not used in x11vnc, but host include / library search paths
 # leak in if host has sdl-config
 X11VNC_CONF_OPTS = --without-sdl
-X11VNC_DEPENDENCIES = xlib_libXt xlib_libXext xlib_libXtst
-X11VNC_LICENSE = GPLv2+
+X11VNC_DEPENDENCIES = xlib_libXt xlib_libXext xlib_libXtst libvncserver
+X11VNC_LICENSE = GPL-2.0+
 X11VNC_LICENSE_FILES = COPYING
+X11VNC_CPE_ID_VENDOR = x11vnc_project
+# 0002-scan-limit-access-to-shared-memory-segments-to-current-user.patch
+X11VNC_IGNORE_CVES += CVE-2020-29074
+
+# Source coming from github, no configure included
+X11VNC_AUTORECONF = YES
 
 ifeq ($(BR2_PACKAGE_AVAHI_DAEMON)$(BR2_PACKAGE_DBUS),yy)
 X11VNC_DEPENDENCIES += avahi dbus
@@ -60,6 +66,5 @@ X11VNC_DEPENDENCIES += zlib
 else
 X11VNC_CONF_OPTS += --without-zlib
 endif
-
 
 $(eval $(autotools-package))

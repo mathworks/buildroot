@@ -8,7 +8,7 @@ Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
 diff -uwNr vdr-2.3.1.org/skinlcars.c vdr-2.3.1/skinlcars.c
 --- vdr-2.3.1.org/skinlcars.c	2015-09-01 12:07:07.000000000 +0200
 +++ vdr-2.3.1/skinlcars.c	2016-07-31 21:00:11.000000000 +0200
-@@ -1099,6 +1099,44 @@
+@@ -1100,6 +1100,44 @@
       }
  }
  

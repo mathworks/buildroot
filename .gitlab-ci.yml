@@ -1,115 +1,16 @@
-########################
-# Global Config
-########################
+# Configuration for Gitlab-CI.
+# Builds appear on https://gitlab.com/buildroot.org/buildroot/pipelines
 
-#cache:
-#    key: "$CI_RUNNER_ID"
-#    paths:
-#        - dl/
-
-variables:
-    CONFIG_BR2_DL_DIR: "buildroot-ci/dl"
-    GIT_STRATEGY: none
-
-before_script:
-    - export CONFIG_BR2_DL_DIR=$HOME/$CONFIG_BR2_DL_DIR
-    - export
-
-########################
-# Job Templates
-########################
-
-# Global job template
-# Used by all jobs
-.global_job_template: &global_job_template
-    script:
-        - ./board/mathworks/common/scripts/gitlab_automation.sh    
-    only:
-        - /.*-ci$/
-        - next
-        - master
-        - triggers
-        - tags
-
-# Global sysroot template
-# Used by all sysroot jobs
-.sysroot_job_template: &sysroot_job_template
-    <<: *global_job_template  
-    stage: sysroot
-    artifacts:
-        paths:
-            - images/sysroot_$CONFIG_JOB_BOARD*.tar.gz
-            - images/licenses_$CONFIG_JOB_BOARD*.txt
-        expire_in: 2 days
-
-# Global setup/teardown template
-# Used by all setup/teardown jobs
-.setup_job_template: &setup_job_template
-    <<: *global_job_template  
-    script:
-        - '
-            if [ "$CONFIG_SETUP_SCRIPT" != "" ]; then
-                $CONFIG_SETUP_SCRIPT;
-            fi
-        '
-
-# Global build job template
-# Used by all build jobs
-.build_job_template: &build_job_template
-    <<: *global_job_template  
-    stage: build
-    artifacts:
-        paths:
-            - images/$CONFIG_JOB_BOARD*.zip
-            - images/$CONFIG_JOB_BOARD*.gz
-        expire_in: 2 days
-
-# Global source job template
-# Used by all source jobs
-.build_job_template: &source_job_template
-    <<: *global_job_template  
-    stage: sources_custom
-    
-
-########################
-# Pipeline Definition
-########################
+image: $CI_REGISTRY/buildroot.org/buildroot/base:20230207.1123
 
 stages:
-    - setup
-    - sources_common
-    - sources_custom
-    - build
-    - sysroot
-    - upload_logs
-    - teardown
+  - generate-gitlab-ci
+  - build
 
-########################
-# Jobs
-########################
-
-# Prep and teardown jobs
-setup:
-    <<: *setup_job_template
-    stage: setup
-
-teardown:
-    <<: *setup_job_template
-    stage: teardown
-    when: always
-
-# Download the sources for all supported platforms
-# Perform the download for one platform first, then copy the common bits
-# To the others to save time
-sources_common:
-    <<: *global_job_template  
-    stage: sources_common
-    variables:
-        GIT_STRATEGY: fetch
-
-upload_logs:
-    <<: *global_job_template
-    stage: upload_logs
+generate-gitlab-ci-yml:
+  stage: generate-gitlab-ci
+  script: ./support/scripts/generate-gitlab-ci-yml support/misc/gitlab-ci.yml.in > generated-gitlab-ci.yml
+  artifacts:
     when: always
     artifacts:
         paths:        
@@ -208,3 +109,33 @@ build_zcu102:
         CONFIG_JOB_PLATFORM: zynqmp
         CONFIG_JOB_BOARD: zcu102
 
+=======
+# Configuration for Gitlab-CI.
+# Builds appear on https://gitlab.com/buildroot.org/buildroot/pipelines
+
+image: $CI_REGISTRY/buildroot.org/buildroot/base:20230207.1123
+
+stages:
+  - generate-gitlab-ci
+  - build
+
+generate-gitlab-ci-yml:
+  stage: generate-gitlab-ci
+  script: ./support/scripts/generate-gitlab-ci-yml support/misc/gitlab-ci.yml.in > generated-gitlab-ci.yml
+  artifacts:
+    when: always
+    paths:
+      - generated-gitlab-ci.yml
+      - br-test-pkg/*/.config
+      - br-test-pkg/*/missing.config
+
+buildroot-pipeline:
+  stage: build
+  trigger:
+    include:
+      - artifact: generated-gitlab-ci.yml
+        job: generate-gitlab-ci-yml
+    strategy: depend
+  variables:
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+>>>>>>> c9946b4d21c1883c30f2b1f62fc6601ca16b6c99

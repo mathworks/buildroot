@@ -4,16 +4,29 @@
 #
 ################################################################################
 
-LIBMBIM_VERSION = 1.14.0
-LIBMBIM_SITE = http://www.freedesktop.org/software/libmbim
-LIBMBIM_SOURCE = libmbim-$(LIBMBIM_VERSION).tar.xz
-LIBMBIM_LICENSE = LGPLv2+ (library), GPLv2+ (programs)
-LIBMBIM_LICENSE_FILES = COPYING
+LIBMBIM_VERSION = 1.28.2
+LIBMBIM_SITE = https://gitlab.freedesktop.org/mobile-broadband/libmbim/-/archive/$(LIBMBIM_VERSION)
+LIBMBIM_LICENSE = LGPL-2.1+ (library), GPL-2.0+ (programs)
+LIBMBIM_LICENSE_FILES = \
+	LICENSES/GPL-2.0-or-later.txt LICENSES/LGPL-2.1-or-later.txt
+LIBMBIM_CPE_ID_VENDOR = freedesktop
 LIBMBIM_INSTALL_STAGING = YES
 
-LIBMBIM_DEPENDENCIES = libglib2 udev libgudev
+LIBMBIM_DEPENDENCIES = libglib2
+LIBMBIM_CONF_OPTS = -Dman=false
 
-# we don't want -Werror
-LIBMBIM_CONF_OPTS = --enable-more-warnings=no
+ifeq ($(BR2_PACKAGE_GOBJECT_INTROSPECTION),y)
+LIBMBIM_DEPENDENCIES += gobject-introspection
+LIBMBIM_CONF_OPTS += -Dintrospection=true
+else
+LIBMBIM_CONF_OPTS += -Dintrospection=false
+endif
 
-$(eval $(autotools-package))
+ifeq ($(BR2_PACKAGE_BASH_COMPLETION),y)
+LIBMBIM_DEPENDENCIES += bash-completion
+LIBMBIM_CONF_OPTS += -Dbash_completion=true
+else
+LIBMBIM_CONF_OPTS += -Dbash_completion=false
+endif
+
+$(eval $(meson-package))

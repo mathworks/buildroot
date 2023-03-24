@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi/markdown/json, sha256 locally computed
-md5	a06f1c5d462b32e0e8da014e9eebb0d9  Markdown-2.6.7.tar.gz
-sha256	daebf24846efa7ff269cfde8c41a48bb2303920c7b2c7c5e04fa82e6282d05c0  Markdown-2.6.7.tar.gz
+# md5, sha256 from https://pypi.org/pypi/markdown/json
+md5  597656cf4feadf1998b0511201620202  Markdown-3.4.1.tar.gz
+sha256  3b809086bb6efad416156e00a0da66fe47618a5d6918dd688f53f40c8e4cfeff  Markdown-3.4.1.tar.gz
+# Locally computed sha256
+sha256  6f1193cb634718e65c3a537d6e25ebd614820ec0ef693cfc12248112638d64da  LICENSE.md

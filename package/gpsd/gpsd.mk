@@ -4,25 +4,30 @@
 #
 ################################################################################
 
-GPSD_VERSION = 3.16
+GPSD_VERSION = 3.25
 GPSD_SITE = http://download-mirror.savannah.gnu.org/releases/gpsd
-GPSD_LICENSE = BSD-3c
+GPSD_LICENSE = BSD-2-Clause
 GPSD_LICENSE_FILES = COPYING
+GPSD_CPE_ID_VENDOR = gpsd_project
+GPSD_SELINUX_MODULES = gpsd
 GPSD_INSTALL_STAGING = YES
 
 GPSD_DEPENDENCIES = host-scons host-pkgconf
 
 GPSD_LDFLAGS = $(TARGET_LDFLAGS)
 GPSD_CFLAGS = $(TARGET_CFLAGS)
+GPSD_CXXFLAGS = $(TARGET_CXXFLAGS)
 
 GPSD_SCONS_ENV = $(TARGET_CONFIGURE_OPTS)
 
 GPSD_SCONS_OPTS = \
-	arch=$(ARCH)\
-	prefix=/usr\
-	sysroot=$(STAGING_DIR)\
-	strip=no\
-	python=no
+	arch=$(ARCH) \
+	manbuild=no \
+	prefix=/usr \
+	sysroot=$(STAGING_DIR) \
+	strip=no \
+	qt=no \
+	systemd=$(if $(BR2_INIT_SYSTEMD),yes,no)
 
 ifeq ($(BR2_PACKAGE_NCURSES),y)
 GPSD_DEPENDENCIES += ncurses
@@ -40,19 +45,9 @@ else
 GPSD_SCONS_OPTS += libgpsmm=no
 endif
 
-# prevents from triggering GCC ICE
-# A bug was reported to the gcc bug tracker:
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68485
-ifeq ($(BR2_microblaze),y)
-GPSD_CFLAGS += -fno-expensive-optimizations -fno-schedule-insns
-endif
-
-# Enable or disable Qt binding
-ifeq ($(BR2_PACKAGE_QT_NETWORK),y)
-GPSD_SCONS_ENV += QMAKE="$(QT_QMAKE)"
-GPSD_DEPENDENCIES += qt
-else
-GPSD_SCONS_OPTS += qt=no
+ifeq ($(BR2_TOOLCHAIN_HAS_GCC_BUG_68485),y)
+GPSD_CFLAGS += -O0
+GPSD_CXXFLAGS += -O0
 endif
 
 # If libusb is available build it before so the package can use it
@@ -63,8 +58,8 @@ GPSD_SCONS_OPTS += usb=no
 endif
 
 # If bluetooth is available build it before so the package can use it
-ifeq ($(BR2_PACKAGE_BLUEZ_UTILS),y)
-GPSD_DEPENDENCIES += bluez_utils
+ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS),y)
+GPSD_DEPENDENCIES += bluez5_utils
 else
 GPSD_SCONS_OPTS += bluez=no
 endif
@@ -111,17 +106,14 @@ endif
 ifneq ($(BR2_PACKAGE_GPSD_GPSCLOCK),y)
 GPSD_SCONS_OPTS += gpsclock=no
 endif
+ifneq ($(BR2_PACKAGE_GPSD_GREIS),y)
+GPSD_SCONS_OPTS += greis=no
+endif
+ifneq ($(BR2_PACKAGE_GPSD_ISYNC),y)
+GPSD_SCONS_OPTS += isync=no
+endif
 ifneq ($(BR2_PACKAGE_GPSD_ITRAX),y)
 GPSD_SCONS_OPTS += itrax=no
-endif
-ifneq ($(BR2_PACKAGE_GPSD_MTK3301),y)
-GPSD_SCONS_OPTS += mtk3301=no
-endif
-ifneq ($(BR2_PACKAGE_GPSD_NMEA),y)
-GPSD_SCONS_OPTS += nmea0183=no
-endif
-ifneq ($(BR2_PACKAGE_GPSD_NTRIP),y)
-GPSD_SCONS_OPTS += ntrip=no
 endif
 ifneq ($(BR2_PACKAGE_GPSD_NAVCOM),y)
 GPSD_SCONS_OPTS += navcom=no
@@ -144,6 +136,9 @@ endif
 ifneq ($(BR2_PACKAGE_GPSD_SIRF),y)
 GPSD_SCONS_OPTS += sirf=no
 endif
+ifneq ($(BR2_PACKAGE_GPSD_SKYTRAQ),y)
+GPSD_SCONS_OPTS += skytraq=no
+endif
 ifneq ($(BR2_PACKAGE_GPSD_SUPERSTAR2),y)
 GPSD_SCONS_OPTS += superstar2=no
 endif
@@ -161,23 +156,8 @@ GPSD_SCONS_OPTS += ublox=no
 endif
 
 # Features
-ifneq ($(BR2_PACKAGE_GPSD_NTP_SHM),y)
-GPSD_SCONS_OPTS += ntpshm=no
-endif
-ifneq ($(BR2_PACKAGE_GPSD_PPS),y)
-GPSD_SCONS_OPTS += pps=no
-endif
 ifeq ($(BR2_PACKAGE_GPSD_SQUELCH),y)
 GPSD_SCONS_OPTS += squelch=yes
-endif
-ifneq ($(BR2_PACKAGE_GPSD_RECONFIGURE),y)
-GPSD_SCONS_OPTS += reconfigure=no
-endif
-ifneq ($(BR2_PACKAGE_GPSD_CONTROLSEND),y)
-GPSD_SCONS_OPTS += controlsend=no
-endif
-ifneq ($(BR2_PACKAGE_GPSD_OLDSTYLE),y)
-GPSD_SCONS_OPTS += oldstyle=no
 endif
 ifeq ($(BR2_PACKAGE_GPSD_PROFILING),y)
 GPSD_SCONS_OPTS += profiling=yes
@@ -191,17 +171,26 @@ endif
 ifeq ($(BR2_PACKAGE_GPSD_GROUP),y)
 GPSD_SCONS_OPTS += gpsd_group=$(BR2_PACKAGE_GPSD_GROUP_VALUE)
 endif
-ifeq ($(BR2_PACKAGE_GPSD_FIXED_PORT_SPEED),y)
-GPSD_SCONS_OPTS += fixed_port_speed=$(BR2_PACKAGE_GPSD_FIXED_PORT_SPEED_VALUE)
-endif
 ifeq ($(BR2_PACKAGE_GPSD_MAX_CLIENT),y)
-GPSD_SCONS_OPTS += limited_max_clients=$(BR2_PACKAGE_GPSD_MAX_CLIENT_VALUE)
+GPSD_SCONS_OPTS += max_clients=$(BR2_PACKAGE_GPSD_MAX_CLIENT_VALUE)
 endif
 ifeq ($(BR2_PACKAGE_GPSD_MAX_DEV),y)
-GPSD_SCONS_OPTS += limited_max_devices=$(BR2_PACKAGE_GPSD_MAX_DEV_VALUE)
+GPSD_SCONS_OPTS += max_devices=$(BR2_PACKAGE_GPSD_MAX_DEV_VALUE)
 endif
 
-GPSD_SCONS_ENV += LDFLAGS="$(GPSD_LDFLAGS)" CFLAGS="$(GPSD_CFLAGS)"
+ifeq ($(BR2_PACKAGE_PYTHON3),y)
+GPSD_SCONS_OPTS += \
+	python=yes \
+	python_libdir="/usr/lib/python$(PYTHON3_VERSION_MAJOR)/site-packages"
+else
+GPSD_SCONS_OPTS += python=no
+endif
+
+GPSD_SCONS_ENV += \
+	LDFLAGS="$(GPSD_LDFLAGS)" \
+	CFLAGS="$(GPSD_CFLAGS)" \
+	CCFLAGS="$(GPSD_CFLAGS)" \
+	CXXFLAGS="$(GPSD_CXXFLAGS)"
 
 define GPSD_BUILD_CMDS
 	(cd $(@D); \
@@ -216,13 +205,21 @@ define GPSD_INSTALL_TARGET_CMDS
 		DESTDIR=$(TARGET_DIR) \
 		$(SCONS) \
 		$(GPSD_SCONS_OPTS) \
-		install)
+		$(if $(BR2_PACKAGE_HAS_UDEV),udev-install,install))
 endef
 
 define GPSD_INSTALL_INIT_SYSV
 	$(INSTALL) -m 0755 -D package/gpsd/S50gpsd $(TARGET_DIR)/etc/init.d/S50gpsd
 	$(SED) 's,^DEVICES=.*,DEVICES=$(BR2_PACKAGE_GPSD_DEVICES),' $(TARGET_DIR)/etc/init.d/S50gpsd
 endef
+
+# When using chrony, wait for after Buildroot's chrony.service
+ifeq ($(BR2_PACKAGE_CHRONY),y)
+define GPSD_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 0644 $(GPSD_PKGDIR)/br-chrony.conf \
+		$(TARGET_DIR)/usr/lib/systemd/system/gpsd.service.d/br-chrony.conf
+endef
+endif
 
 define GPSD_INSTALL_STAGING_CMDS
 	(cd $(@D); \
@@ -233,16 +230,10 @@ define GPSD_INSTALL_STAGING_CMDS
 		install)
 endef
 
-# After installing the udev rule, make it writable so that this
+# After the udev rule is installed, make it writable so that this
 # package can be re-built/re-installed.
 ifeq ($(BR2_PACKAGE_HAS_UDEV),y)
 define GPSD_INSTALL_UDEV_RULES
-	(cd $(@D); \
-		$(GPSD_SCONS_ENV) \
-		DESTDIR=$(TARGET_DIR) \
-		$(SCONS) \
-		$(GPSD_SCONS_OPTS) \
-		udev-install)
 	chmod u+w $(TARGET_DIR)/lib/udev/rules.d/25-gpsd.rules
 endef
 

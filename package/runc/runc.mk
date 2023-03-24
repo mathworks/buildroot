@@ -4,47 +4,27 @@
 #
 ################################################################################
 
-RUNC_VERSION = 50a19c6ff828c58e5dab13830bd3dacde268afe5
-RUNC_SITE = $(call github,opencontainers,runc,$(RUNC_VERSION))
-RUNC_LICENSE = Apache-2.0
+RUNC_VERSION = 1.1.4
+RUNC_SITE = $(call github,opencontainers,runc,v$(RUNC_VERSION))
+RUNC_LICENSE = Apache-2.0, LGPL-2.1 (libseccomp)
 RUNC_LICENSE_FILES = LICENSE
+RUNC_CPE_ID_VENDOR = linuxfoundation
 
-RUNC_DEPENDENCIES = host-go
+RUNC_LDFLAGS = -X main.version=$(RUNC_VERSION)
+RUNC_TAGS = cgo static_build
 
-RUNC_GOPATH = "$(@D)/Godeps/_workspace"
-RUNC_MAKE_ENV = $(HOST_GO_TARGET_ENV) \
-	CGO_ENABLED=1 \
-	GOBIN="$(@D)/bin" \
-	GOPATH="$(RUNC_GOPATH)" \
-	PATH=$(BR_PATH)
-
-RUNC_GLDFLAGS = \
-	-X main.gitCommit=$(RUNC_VERSION)
-
-ifeq ($(BR2_STATIC_LIBS),y)
-RUNC_GLDFLAGS += -extldflags '-static'
+ifeq ($(BR2_PACKAGE_LIBAPPARMOR),y)
+RUNC_DEPENDENCIES += libapparmor
+RUNC_TAGS += apparmor
 endif
 
-RUNC_GOTAGS = cgo static_build
-
 ifeq ($(BR2_PACKAGE_LIBSECCOMP),y)
-RUNC_GOTAGS += seccomp
+RUNC_TAGS += seccomp
 RUNC_DEPENDENCIES += libseccomp host-pkgconf
 endif
 
-define RUNC_CONFIGURE_CMDS
-	mkdir -p $(RUNC_GOPATH)/src/github.com/opencontainers
-	ln -s $(@D) $(RUNC_GOPATH)/src/github.com/opencontainers/runc
-endef
+HOST_RUNC_LDFLAGS = $(RUNC_LDFLAGS)
+HOST_RUNC_TAGS = cgo static_build
 
-define RUNC_BUILD_CMDS
-	cd $(@D) && $(RUNC_MAKE_ENV) $(HOST_DIR)/usr/bin/go \
-		build -v -o $(@D)/bin/runc \
-		-tags "$(RUNC_GOTAGS)" -ldflags "$(RUNC_GLDFLAGS)" .
-endef
-
-define RUNC_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/bin/runc $(TARGET_DIR)/usr/bin/runc
-endef
-
-$(eval $(generic-package))
+$(eval $(golang-package))
+$(eval $(host-golang-package))

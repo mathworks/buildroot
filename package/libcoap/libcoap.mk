@@ -4,12 +4,30 @@
 #
 ################################################################################
 
-LIBCOAP_VERSION = c909bf802034b7762a2182848304b2530e58444f
-LIBCOAP_SITE = $(call github,obgm,libcoap,$(LIBCOAP_VERSION))
+LIBCOAP_VERSION = 4.3.1
+LIBCOAP_SITE = $(call github,obgm,libcoap,v$(LIBCOAP_VERSION))
 LIBCOAP_INSTALL_STAGING = YES
-LIBCOAP_LICENSE = GPLv2+ or BSD-2c
-LIBCOAP_LICENSE_FILES = COPYING LICENSE.GPL LICENSE.BSD
-LIBCOAP_CONF_OPTS = --disable-examples
+LIBCOAP_LICENSE = BSD-2-Clause
+LIBCOAP_LICENSE_FILES = COPYING LICENSE
+LIBCOAP_DEPENDENCIES = host-pkgconf
+LIBCOAP_CONF_OPTS = \
+	--disable-examples --disable-examples-source --without-tinydtls
 LIBCOAP_AUTORECONF = YES
+
+ifeq ($(BR2_PACKAGE_GNUTLS),y)
+LIBCOAP_DEPENDENCIES += gnutls
+LIBCOAP_CONF_OPTS += \
+	--enable-dtls --with-gnutls --without-mbedtls --without-openssl
+else ifeq ($(BR2_PACKAGE_LIBOPENSSL),y)
+LIBCOAP_DEPENDENCIES += openssl
+LIBCOAP_CONF_OPTS += \
+	--enable-dtls --without-gnutls --without-mbedtls --with-openssl
+else ifeq ($(BR2_PACKAGE_MBEDTLS),y)
+LIBCOAP_DEPENDENCIES += mbedtls
+LIBCOAP_CONF_OPTS += \
+	--enable-dtls --without-gnutls --with-mbedtls --without-openssl
+else
+LIBCOAP_CONF_OPTS += --disable-dtls
+endif
 
 $(eval $(autotools-package))

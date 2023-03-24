@@ -4,46 +4,35 @@
 #
 ################################################################################
 
-GNURADIO_VERSION = 3.7.9.1
-GNURADIO_SITE = http://gnuradio.org/releases/gnuradio
-GNURADIO_LICENSE = GPLv3+
+GNURADIO_VERSION = 3.10.4.0
+GNURADIO_SITE = $(call github,gnuradio,gnuradio,v$(GNURADIO_VERSION))
+GNURADIO_LICENSE = GPL-3.0+
 GNURADIO_LICENSE_FILES = COPYING
 
 GNURADIO_SUPPORTS_IN_SOURCE_BUILD = NO
 
-# host-python-cheetah is needed for volk to compile
 GNURADIO_DEPENDENCIES = \
-	host-python-cheetah \
-	host-swig \
-	boost
-
-ifeq ($(BR2_PACKAGE_ORC),y)
-GNURADIO_DEPENDENCIES += orc
-endif
+	host-python3 \
+	boost \
+	log4cpp \
+	gmp \
+	spdlog \
+	volk
 
 GNURADIO_CONF_OPTS = \
+	-DPYTHON_EXECUTABLE=$(HOST_DIR)/bin/python3 \
 	-DENABLE_DEFAULT=OFF \
-	-DENABLE_VOLK=ON \
-	-DENABLE_GNURADIO_RUNTIME=ON
+	-DENABLE_EXAMPLES=OFF \
+	-DENABLE_GNURADIO_RUNTIME=ON \
+	-DENABLE_TESTING=OFF \
+	-DXMLTO_EXECUTABLE=NOTFOUND
 
 # For third-party blocks, the gnuradio libraries are mandatory at
 # compile time.
 GNURADIO_INSTALL_STAGING = YES
 
-# Yes, this is silly, because -march is already known by the compiler
-# with the internal toolchain, and passed by the external wrapper for
-# external toolchains. Nonetheless, gnuradio does some matching on the
-# CFLAGS to decide whether to build the NEON functions or not, and
-# wants to see the string 'armv7' in the CFLAGS.
-ifeq ($(BR2_ARM_CPU_ARMV7A)$(BR2_ARM_CPU_HAS_NEON),yy)
-GNURADIO_CONF_OPTS += -DCMAKE_C_FLAGS="$(TARGET_CFLAGS) -march=armv7-a"
-endif
-
-# As soon as -mfpu=neon is supported by the compiler, gnuradio will try
-# to use it. But having NEON support in the compiler doesn't necessarily
-# mean we have NEON support in our CPU.
-ifeq ($(BR2_ARM_CPU_HAS_NEON),)
-GNURADIO_CONF_OPTS += -Dhave_mfpu_neon=0
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+GNURADIO_CONF_OPTS += -DCMAKE_EXE_LINKER_FLAGS=-latomic
 endif
 
 ifeq ($(BR2_PACKAGE_GNURADIO_ANALOG),y)
@@ -66,6 +55,9 @@ endif
 
 ifeq ($(BR2_PACKAGE_GNURADIO_BLOCKS),y)
 GNURADIO_CONF_OPTS += -DENABLE_GR_BLOCKS=ON
+ifeq ($(BR2_PACKAGE_LIBSNDFILE),y)
+GNURADIO_DEPENDENCIES += libsndfile
+endif
 else
 GNURADIO_CONF_OPTS += -DENABLE_GR_BLOCKS=OFF
 endif
@@ -88,6 +80,12 @@ else
 GNURADIO_CONF_OPTS += -DENABLE_GR_DIGITAL=OFF
 endif
 
+ifeq ($(BR2_PACKAGE_GNURADIO_DTV),y)
+GNURADIO_CONF_OPTS += -DENABLE_GR_DTV=ON
+else
+GNURADIO_CONF_OPTS += -DENABLE_GR_DTV=OFF
+endif
+
 ifeq ($(BR2_PACKAGE_GNURADIO_FEC),y)
 GNURADIO_DEPENDENCIES += gsl
 GNURADIO_CONF_OPTS += -DENABLE_GR_FEC=ON
@@ -96,7 +94,7 @@ GNURADIO_CONF_OPTS += -DENABLE_GR_FEC=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_GNURADIO_FFT),y)
-GNURADIO_DEPENDENCIES += fftw
+GNURADIO_DEPENDENCIES += fftw-single
 GNURADIO_CONF_OPTS += -DENABLE_GR_FFT=ON
 else
 GNURADIO_CONF_OPTS += -DENABLE_GR_FFT=OFF
@@ -108,21 +106,26 @@ else
 GNURADIO_CONF_OPTS += -DENABLE_GR_FILTER=OFF
 endif
 
+ifeq ($(BR2_PACKAGE_GNURADIO_NETWORK),y)
+GNURADIO_CONF_OPTS += -DENABLE_GR_NETWORK=ON
+else
+GNURADIO_CONF_OPTS += -DENABLE_GR_NETWORK=OFF
+endif
+
 ifeq ($(BR2_PACKAGE_GNURADIO_PYTHON),y)
-GNURADIO_DEPENDENCIES += python
+GNURADIO_DEPENDENCIES += python3 python-pybind \
+	host-python-numpy host-python-packaging
 GNURADIO_CONF_OPTS += -DENABLE_PYTHON=ON
+# mandatory to install python modules in site-packages and to use
+# correct path for python libraries
+GNURADIO_CONF_OPTS += -DGR_PYTHON_RELATIVE=ON \
+	-DGR_PYTHON_DIR=lib/python$(PYTHON3_VERSION_MAJOR)/site-packages
 else
 GNURADIO_CONF_OPTS += -DENABLE_PYTHON=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_GNURADIO_PAGER),y)
-GNURADIO_CONF_OPTS += -DENABLE_PAGER=ON
-else
-GNURADIO_CONF_OPTS += -DENABLE_PAGER=OFF
-endif
-
 ifeq ($(BR2_PACKAGE_GNURADIO_QTGUI),y)
-GNURADIO_DEPENDENCIES += python-pyqt qwt
+GNURADIO_DEPENDENCIES += qt5base python-pyqt5 qwt
 GNURADIO_CONF_OPTS += -DENABLE_GR_QTGUI=ON
 else
 GNURADIO_CONF_OPTS += -DENABLE_GR_QTGUI=OFF
@@ -134,10 +137,27 @@ else
 GNURADIO_CONF_OPTS += -DENABLE_GR_TRELLIS=OFF
 endif
 
+ifeq ($(BR2_PACKAGE_GNURADIO_UHD),y)
+GNURADIO_DEPENDENCIES += uhd
+GNURADIO_CONF_OPTS += -DENABLE_GR_UHD=ON
+else
+GNURADIO_CONF_OPTS += -DENABLE_GR_UHD=OFF
+endif
+
 ifeq ($(BR2_PACKAGE_GNURADIO_UTILS),y)
 GNURADIO_CONF_OPTS += -DENABLE_GR_UTILS=ON
 else
 GNURADIO_CONF_OPTS += -DENABLE_GR_UTILS=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO_ZEROMQ),y)
+GNURADIO_DEPENDENCIES += cppzmq
+ifeq ($(BR2_PACKAGE_GNURADIO_PYTHON),y)
+GNURADIO_DEPENDENCIES += python-pyzmq
+endif
+GNURADIO_CONF_OPTS += -DENABLE_GR_ZEROMQ=ON
+else
+GNURADIO_CONF_OPTS += -DENABLE_GR_ZEROMQ=OFF
 endif
 
 $(eval $(cmake-package))

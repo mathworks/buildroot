@@ -4,23 +4,37 @@
 #
 ################################################################################
 
-PSPLASH_VERSION = 14c8f7b705de944beb4de3f296506d80871e410f
-PSPLASH_SITE = git://git.yoctoproject.org/psplash
-PSPLASH_LICENSE = GPLv2+
+PSPLASH_VERSION = 44afb7506d43cca15582b4c5b90ba5580344d75d
+PSPLASH_SITE = https://git.yoctoproject.org/psplash
+PSPLASH_SITE_METHOD = git
+PSPLASH_LICENSE = GPL-2.0+
+PSPLASH_LICENSE_FILES = COPYING
 PSPLASH_AUTORECONF = YES
+PSPLASH_DEPENDENCIES = host-gdk-pixbuf host-pkgconf
+
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+PSPLASH_DEPENDENCIES += systemd
+PSPLASH_CONF_OPTS += --with-systemd
+else
+PSPLASH_CONF_OPTS += --without-systemd
+endif
+
+PSPLASH_IMAGE = $(call qstrip,$(BR2_PACKAGE_PSPLASH_IMAGE))
+
+ifneq ($(PSPLASH_IMAGE),)
+define PSPLASH_COPY_IMAGE
+	cp $(PSPLASH_IMAGE) $(@D)/base-images/psplash-poky.png
+endef
+
+PSPLASH_POST_EXTRACT_HOOKS += PSPLASH_COPY_IMAGE
+endif
 
 define PSPLASH_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 package/psplash/psplash-start.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/psplash-start.service
-	$(INSTALL) -d $(TARGET_DIR)/etc/systemd/system/sysinit.target.wants
-	ln -sf  ../../../../usr/lib/systemd/system/psplash-start.service \
-		$(TARGET_DIR)/etc/systemd/system/sysinit.target.wants/
 
-	$(INSTALL) -D -m 644 package/psplash/psplash-quit.service \
-		$(TARGET_DIR)/usr/lib/systemd/system/psplash-quit.service
-	$(INSTALL) -d $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -sf  ../../../../usr/lib/systemd/system/psplash-quit.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/
+	$(INSTALL) -D -m 644 package/psplash/psplash-systemd.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/psplash-systemd.service
 endef
 
 $(eval $(autotools-package))

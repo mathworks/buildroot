@@ -1,48 +1,34 @@
 ################################################################################
 #
-# Eclipse TCF Agent
+# tcf-agent
 #
 ################################################################################
-TCF_AGENT_VERSION = 1.4_neon
-TCF_AGENT_SITE_METHOD = git
-TCF_AGENT_SITE = https://git.eclipse.org/r/tcf/org.eclipse.tcf.agent
-TCF_AGENT_LICENSE = EPLv1.0
-TCF_AGENT_LICENSE_FILES = agent/about.html
+
+TCF_AGENT_VERSION = 1.7.0
+# the tar.xz link was broken the time this file got authored
+TCF_AGENT_SOURCE = org.eclipse.tcf.agent-$(TCF_AGENT_VERSION).tar.gz
+TCF_AGENT_SITE = http://git.eclipse.org/c/tcf/org.eclipse.tcf.agent.git/snapshot
+# see https://wiki.spdx.org/view/Legal_Team/License_List/Licenses_Under_Consideration
+TCF_AGENT_LICENSE = BSD-3-Clause
+TCF_AGENT_LICENSE_FILES = agent/edl-v10.html
+
+TCF_AGENT_DEPENDENCIES = util-linux
 TCF_AGENT_SUBDIR = agent
-TCF_AGENT_INSTALL_STAGING = YES
 
-TCF_AGENT_CONF_OPTS=-DTCF_MACHINE:STRING=$(BR2_PACKAGE_TCF_AGENT_MACHINE)
+# there is not much purpose for the shared lib,
+# if wont be used (unmodifed) outside the tcf-agent application
+TCF_AGENT_CONF_OPTS = \
+	-DBUILD_SHARED_LIBS=OFF \
+	-DTCF_MACHINE=$(call qstrip,$(BR2_PACKAGE_TCF_AGENT_ARCH))
 
-ifneq ($(BR2_PACKAGE_TCF_AGENT_USESSL),y)
-TCF_AGENT_CONFIGURE_OPTS += NO_SSL=1
-else
-TCF_AGENT_DEPENDENCIES += openssl
-endif
-
-ifneq ($(BR2_PACKAGE_TCF_AGENT_USEUUID),y)
-TCF_AGENT_CONFIGURE_OPTS += NO_UUID=1
-else
-# util-linux provides uuid lib
-TCF_AGENT_DEPENDENCIES += util-linux
-endif
-
-define TCF_AGENT_INSTALL_STAGING_CMDS
-    $(INSTALL) -D -m 0755 $(@D)/$(TCF_AGENT_SUBDIR)/libtcf-agent.so* $(STAGING_DIR)/usr/lib
-    $(INSTALL) -D -m 0644 $(@D)/$(TCF_AGENT_SUBDIR)/tcf/config.h $(STAGING_DIR)/usr/include/tcf/config.h
-	mkdir -p $(STAGING_DIR)/usr/include/tcf/framework
-    $(INSTALL) -D -m 0644 $(@D)/$(TCF_AGENT_SUBDIR)/tcf/framework/*.h $(STAGING_DIR)/usr/include/tcf/framework
-	mkdir -p $(STAGING_DIR)/usr/include/tcf/services
-    $(INSTALL) -D -m 0644 $(@D)/$(TCF_AGENT_SUBDIR)/tcf/services/*.h $(STAGING_DIR)/usr/include/tcf/services
-endef
-
-define TCF_AGENT_INSTALL_TARGET_CMDS
-    $(INSTALL) -D -m 0755 $(@D)/$(TCF_AGENT_SUBDIR)/agent $(TARGET_DIR)/usr/sbin/tcf-agent
-    $(INSTALL) -D -m 0755 $(@D)/$(TCF_AGENT_SUBDIR)/libtcf-agent.so* $(TARGET_DIR)/usr/lib
+define TCF_AGENT_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 644 package/tcf-agent/tcf-agent.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/tcf-agent.service
 endef
 
 define TCF_AGENT_INSTALL_INIT_SYSV
-        $(INSTALL) -D -m 0755 $(TCF_AGENT_PKGDIR)/S99tcf_agent \
-                $(TARGET_DIR)/etc/init.d/S99tcf_agent
+	$(INSTALL) -D -m 755 package/tcf-agent/S55tcf-agent \
+		$(TARGET_DIR)/etc/init.d/S55tcf-agent
 endef
 
 $(eval $(cmake-package))

@@ -4,24 +4,19 @@
 #
 ################################################################################
 
-INADYN_VERSION = v2.0
-INADYN_SITE = $(call github,troglobit,inadyn,$(INADYN_VERSION))
-INADYN_LICENSE = GPLv2+
+INADYN_VERSION = 2.10.0
+INADYN_SITE = https://github.com/troglobit/inadyn/releases/download/v$(INADYN_VERSION)
+INADYN_LICENSE = GPL-2.0+
 INADYN_LICENSE_FILES = COPYING
-INADYN_AUTORECONF = YES
-INADYN_DEPENDENCIES = host-pkgconf libconfuse libite
-
-# Needed for autoreconf to work properly, see ./autogen.sh
-define INADYN_FIXUP_M4_DIR
-	mkdir $(@D)/m4
-endef
-INADYN_POST_EXTRACT_HOOKS += INADYN_FIXUP_M4_DIR
+INADYN_DEPENDENCIES = host-pkgconf libconfuse
 
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 INADYN_CONF_OPTS += --enable-openssl
 INADYN_DEPENDENCIES += openssl
 else ifeq ($(BR2_PACKAGE_GNUTLS),y)
 INADYN_DEPENDENCIES += gnutls
+else ifeq ($BR2_PACKAGE_MBEDTLS, y)
+INADYN_DEPENDENCIES += mbedtls
 else
 INADYN_CONF_OPTS += --disable-ssl
 endif
@@ -38,11 +33,8 @@ define INADYN_INSTALL_INIT_SYSV
 endef
 
 define INADYN_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -m 644 package/inadyn/inadyn.service \
+	$(INSTALL) -D -m 644 $(@D)/inadyn.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/inadyn.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -sf ../../../../usr/lib/systemd/system/inadyn.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/inadyn.service
 endef
 
 $(eval $(autotools-package))

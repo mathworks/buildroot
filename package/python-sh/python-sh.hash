@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi/sh/json, sha256 locally computed
-md5	89d46b1dba32713b7df74b1bc59d74a1  sh-1.12.7.tar.gz
-sha256	5a07373657a1a704a34ea1bf73b2e55c42388c5d449634d6d7c96147f5660086  sh-1.12.7.tar.gz
+# md5, sha256 from https://pypi.org/pypi/sh/json
+md5  d60498172876f35aef6303a9cbb8eb11  sh-1.14.3.tar.gz
+sha256  e4045b6c732d9ce75d571c79f5ac2234edd9ae4f5fa9d59b09705082bdca18c7  sh-1.14.3.tar.gz
+# Locally computed sha256 checksums
+sha256  d8491c6e236568d04f7c8c07f2f1b8f5d142706dab6ab88f6e0d2dd476b6c706  LICENSE.txt

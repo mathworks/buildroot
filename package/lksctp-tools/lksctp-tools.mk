@@ -4,12 +4,12 @@
 #
 ################################################################################
 
-LKSCTP_TOOLS_VERSION = 1.0.17
-LKSCTP_TOOLS_SITE = http://downloads.sourceforge.net/project/lksctp/lksctp-tools
+LKSCTP_TOOLS_VERSION = 1.0.19
+LKSCTP_TOOLS_SITE = $(call github,sctp,lksctp-tools,v$(LKSCTP_TOOLS_VERSION))
 LKSCTP_TOOLS_INSTALL_STAGING = YES
 # configure not shipped
 LKSCTP_TOOLS_AUTORECONF = YES
-LKSCTP_TOOLS_LICENSE = LGPLv2.1 (library), GPLv2+ (programs)
+LKSCTP_TOOLS_LICENSE = LGPL-2.1 (library), GPL-2.0+ (programs)
 LKSCTP_TOOLS_LICENSE_FILES = COPYING.lib COPYING
 LKSCTP_TOOLS_CONF_OPTS = --disable-tests
 

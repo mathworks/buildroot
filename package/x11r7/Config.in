@@ -12,6 +12,7 @@ menuconfig BR2_PACKAGE_XORG7
 if BR2_PACKAGE_XORG7
 	menu "X11R7 Servers"
 		source package/x11r7/xserver_xorg-server/Config.in
+		source package/x11r7/xwayland/Config.in
 	endmenu
 	menu "X11R7 Libraries"
 		source package/x11r7/libxcb/Config.in
@@ -52,6 +53,7 @@ if BR2_PACKAGE_XORG7
 		source package/x11r7/xlib_libXxf86vm/Config.in
 		source package/x11r7/xlib_libdmx/Config.in
 		source package/x11r7/xlib_libfontenc/Config.in
+		source package/x11r7/xlib_libxcvt/Config.in
 		source package/x11r7/xlib_libxkbfile/Config.in
 		source package/x11r7/xlib_libxshmfence/Config.in
 		source package/x11r7/xlib_xtrans/Config.in
@@ -69,7 +71,6 @@ if BR2_PACKAGE_XORG7
 		source package/x11r7/xapp_ico/Config.in
 		source package/x11r7/xapp_listres/Config.in
 		source package/x11r7/xapp_luit/Config.in
-		source package/x11r7/xapp_mkfontdir/Config.in
 		source package/x11r7/xapp_mkfontscale/Config.in
 		source package/x11r7/xapp_oclock/Config.in
 		source package/x11r7/xapp_rgb/Config.in
@@ -149,7 +150,6 @@ if BR2_PACKAGE_XORG7
 	menu "X11R7 Drivers"
 		source package/x11r7/xdriver_xf86-input-evdev/Config.in
 		source package/x11r7/xdriver_xf86-input-joystick/Config.in
-		source package/x11r7/xdriver_xf86-input-keyboard/Config.in
 		source package/x11r7/xdriver_xf86-input-libinput/Config.in
 		source package/x11r7/xdriver_xf86-input-mouse/Config.in
 		source package/x11r7/xdriver_xf86-input-synaptics/Config.in
@@ -164,11 +164,8 @@ if BR2_PACKAGE_XORG7
 		source package/x11r7/xdriver_xf86-video-fbdev/Config.in
 		source package/x11r7/xdriver_xf86-video-fbturbo/Config.in
 		source package/x11r7/xdriver_xf86-video-geode/Config.in
-		source package/x11r7/xdriver_xf86-video-glide/Config.in
-		source package/x11r7/xdriver_xf86-video-glint/Config.in
 		source package/x11r7/xdriver_xf86-video-i128/Config.in
 		source package/x11r7/xdriver_xf86-video-imx/Config.in
-		source package/x11r7/xdriver_xf86-video-imx-viv/Config.in
 		source package/x11r7/xdriver_xf86-video-intel/Config.in
 		source package/x11r7/xdriver_xf86-video-mach64/Config.in
 		source package/x11r7/xdriver_xf86-video-mga/Config.in
@@ -182,13 +179,10 @@ if BR2_PACKAGE_XORG7
 		source package/x11r7/xdriver_xf86-video-siliconmotion/Config.in
 		source package/x11r7/xdriver_xf86-video-sis/Config.in
 		source package/x11r7/xdriver_xf86-video-tdfx/Config.in
-		source package/x11r7/xdriver_xf86-video-tga/Config.in
 		source package/x11r7/xdriver_xf86-video-trident/Config.in
-		source package/x11r7/xdriver_xf86-video-v4l/Config.in
 		source package/x11r7/xdriver_xf86-video-vesa/Config.in
 		source package/x11r7/xdriver_xf86-video-vmware/Config.in
 		source package/x11r7/xdriver_xf86-video-voodoo/Config.in
-		source package/x11r7/xdriver_xf86-video-wsfb/Config.in
 	endmenu
 	endif
 	menu "X11R7 Fonts"
@@ -232,36 +226,7 @@ if BR2_PACKAGE_XORG7
 	endmenu
 	menu "X11R7 X protocols"
 		source package/x11r7/xcb-proto/Config.in
-		source package/x11r7/xproto_applewmproto/Config.in
-		source package/x11r7/xproto_bigreqsproto/Config.in
-		source package/x11r7/xproto_compositeproto/Config.in
-		source package/x11r7/xproto_damageproto/Config.in
-		source package/x11r7/xproto_dmxproto/Config.in
-		source package/x11r7/xproto_dri2proto/Config.in
-		source package/x11r7/xproto_dri3proto/Config.in
-		source package/x11r7/xproto_fixesproto/Config.in
-		source package/x11r7/xproto_fontcacheproto/Config.in
-		source package/x11r7/xproto_fontsproto/Config.in
-		source package/x11r7/xproto_glproto/Config.in
-		source package/x11r7/xproto_inputproto/Config.in
-		source package/x11r7/xproto_kbproto/Config.in
-		source package/x11r7/xproto_presentproto/Config.in
-		source package/x11r7/xproto_randrproto/Config.in
-		source package/x11r7/xproto_recordproto/Config.in
-		source package/x11r7/xproto_renderproto/Config.in
-		source package/x11r7/xproto_resourceproto/Config.in
-		source package/x11r7/xproto_scrnsaverproto/Config.in
-		source package/x11r7/xproto_videoproto/Config.in
-		source package/x11r7/xproto_windowswmproto/Config.in
-		source package/x11r7/xproto_xcmiscproto/Config.in
-		source package/x11r7/xproto_xextproto/Config.in
-		source package/x11r7/xproto_xf86bigfontproto/Config.in
-		source package/x11r7/xproto_xf86dgaproto/Config.in
-		source package/x11r7/xproto_xf86driproto/Config.in
-		source package/x11r7/xproto_xf86vidmodeproto/Config.in
-		source package/x11r7/xproto_xineramaproto/Config.in
-		source package/x11r7/xproto_xproto/Config.in
-		source package/x11r7/xproto_xproxymanagementprotocol/Config.in
+		source package/x11r7/xorgproto/Config.in
 	endmenu
 	menu "X11R7 Utilities"
 		source package/x11r7/xutil_makedepend/Config.in

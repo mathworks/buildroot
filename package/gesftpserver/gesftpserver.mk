@@ -4,18 +4,30 @@
 #
 ################################################################################
 
-GESFTPSERVER_VERSION = 0.2.1
+GESFTPSERVER_VERSION = 2
 GESFTPSERVER_SOURCE = sftpserver-$(GESFTPSERVER_VERSION).tar.gz
 GESFTPSERVER_SITE = http://www.greenend.org.uk/rjk/sftpserver
-GESFTPSERVER_LICENSE = GPLv2+
+GESFTPSERVER_LICENSE = GPL-2.0+
 GESFTPSERVER_LICENSE_FILES = COPYING
+
+# "Missing prototype" warning treated as error
+GESFTPSERVER_CONF_OPTS = --disable-warnings-as-errors
+GESFTPSERVER_CPE_ID_VENDOR = green_end
+GESFTPSERVER_CPE_ID_PRODUCT = sftpserver
+
 # forgets to link against pthread when cross compiling
-GESFTPSERVER_CONF_ENV = LIBS=-lpthread
+GESFTPSERVER_CONF_ENV = \
+	CFLAGS="$(TARGET_CFLAGS) -std=c99" \
+	LIBS=-lpthread
 
 # overwrite openssh version if enabled
 GESFTPSERVER_DEPENDENCIES += \
 	$(if $(BR2_ENABLE_LOCALE),,libiconv) \
 	$(if $(BR2_PACKAGE_OPENSSH),openssh)
+
+# Python on the host is only used for tests, which we don't use in
+# Buildroot
+GESFTPSERVER_CONF_ENV += rjk_cv_python3=false
 
 # openssh/dropbear looks here
 define GESFTPSERVER_ADD_SYMLINK

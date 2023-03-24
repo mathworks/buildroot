@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi/incremental/json, sha256 locally computed
-md5	3fe6b3b1da1d26a48187fb27e969f072  incremental-16.10.1.tar.gz
-sha256	14ad6b720ec47aad6c9caa83e47db1843e2b9b98742da5dda08e16a99f400342  incremental-16.10.1.tar.gz
+# md5, sha256 from https://pypi.org/pypi/incremental/json
+md5  9fffa2490ca649550c79a78e85ef2eef  incremental-22.10.0.tar.gz
+sha256  912feeb5e0f7e0188e6f42241d2f450002e11bbc0937c65865045854c24c0bd0  incremental-22.10.0.tar.gz
+# Locally computed sha256 checksums
+sha256  d043bc8899b4695de1f4511d8f507b927e11723b981ce600fa3ef7b73954afa5  LICENSE

@@ -1,6 +1,7 @@
 config BR2_PACKAGE_NETSNMP
 	bool "netsnmp"
 	depends on BR2_USE_MMU # fork()
+	select BR2_PACKAGE_LIBOPENSSL_ENABLE_DES if BR2_PACKAGE_LIBOPENSSL
 	help
 	  Suite of applications used to implement SNMP v1, SNMP v2c, and
 	  SNMP v3 using both IPv4 and IPv6.
@@ -46,9 +47,9 @@ config BR2_PACKAGE_NETSNMP_ENABLE_DEBUGGING
 	bool "Enable debugging code"
 	help
 	  By default net-snmp is compiled without debugging support
-	  (--disable-debugging). Enable this options if you need debugging
-	  support, including the ability to log with DEBUGMSG(),
-	  DEBUGMSGTL() and companion macros.
+	  (--disable-debugging). Enable this options if you need
+	  debugging support, including the ability to log with
+	  DEBUGMSG(), DEBUGMSGTL() and companion macros.
 
 config BR2_PACKAGE_NETSNMP_OPENSSL_INTERNAL
 	bool "Enable minimal internal OpenSSL code"

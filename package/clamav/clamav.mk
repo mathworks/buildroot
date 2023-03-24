@@ -4,32 +4,50 @@
 #
 ################################################################################
 
-CLAMAV_VERSION = 0.99.2
+CLAMAV_VERSION = 0.103.8
 CLAMAV_SITE = https://www.clamav.net/downloads/production
-CLAMAV_LICENSE = GPLv2
+CLAMAV_LICENSE = GPL-2.0
 CLAMAV_LICENSE_FILES = COPYING COPYING.bzip2 COPYING.file COPYING.getopt \
 	COPYING.LGPL COPYING.llvm COPYING.lzma COPYING.pcre COPYING.regex \
 	COPYING.unrar COPYING.zlib
+CLAMAV_CPE_ID_VENDOR = clamav
+CLAMAV_SELINUX_MODULES = clamav
+# affects only Cisco devices
+CLAMAV_IGNORE_CVES += CVE-2016-1405
 CLAMAV_DEPENDENCIES = \
 	host-pkgconf \
+	libcurl \
+	libmspack \
 	openssl \
 	zlib \
-	$(if $(BR2_NEEDS_GETTEXT_IF_LOCALE),gettext)
+	$(TARGET_NLS_DEPENDENCIES)
 
 # mmap cannot be detected when cross-compiling, needed for mempool support
 CLAMAV_CONF_ENV = \
 	ac_cv_c_mmap_private=yes \
-	have_cv_ipv6=yes
+	have_cv_ipv6=yes \
+	OBJC=$(TARGET_CC)
 
-# UCLIBC_HAS_FTS is disabled, therefore disable fanotify (missing fts.h)
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+CLAMAV_LIBS += -latomic
+endif
+
+ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),)
+CLAMAV_DEPENDENCIES += musl-fts
+CLAMAV_LIBS += -lfts
+endif
+
+CLAMAV_CONF_ENV += LIBS="$(CLAMAV_LIBS)"
+
 CLAMAV_CONF_OPTS = \
 	--with-dbdir=/var/lib/clamav \
+	--with-libcurl=$(STAGING_DIR)/usr \
 	--with-openssl=$(STAGING_DIR)/usr \
+	--with-system-libmspack=$(STAGING_DIR)/usr \
 	--with-zlib=$(STAGING_DIR)/usr \
 	--disable-zlib-vcheck \
 	--disable-rpath \
 	--disable-clamav \
-	--disable-fanotify \
 	--disable-milter \
 	--disable-llvm \
 	--disable-clamdtop \
@@ -45,18 +63,19 @@ else
 CLAMAV_CONF_OPTS += --disable-bzip2
 endif
 
+ifeq ($(BR2_PACKAGE_JSON_C),y)
+CLAMAV_CONF_OPTS += --with-libjson=$(STAGING_DIR)/usr
+CLAMAV_DEPENDENCIES += json-c
+else
+CLAMAV_CONF_OPTS += --without-libjson
+endif
+
 ifeq ($(BR2_PACKAGE_LIBXML2),y)
+CLAMAV_CONF_ENV += ac_cv_path_xmlconfig=$(STAGING_DIR)/usr/bin/xml2-config
 CLAMAV_CONF_OPTS += --with-xml=$(STAGING_DIR)/usr
 CLAMAV_DEPENDENCIES += libxml2
 else
 CLAMAV_CONF_OPTS += --disable-xml
-endif
-
-ifeq ($(BR2_PACKAGE_LIBCURL),y)
-CLAMAV_CONF_OPTS += --with-libcurl=$(STAGING_DIR)/usr
-CLAMAV_DEPENDENCIES += libcurl
-else
-CLAMAV_CONF_OPTS += --without-libcurl
 endif
 
 ifeq ($(BR2_PACKAGE_LIBICONV),y)
@@ -66,11 +85,21 @@ else
 CLAMAV_CONF_OPTS += --without-iconv
 endif
 
-ifeq ($(BR2_PACKAGE_PCRE),y)
+ifeq ($(BR2_PACKAGE_PCRE2),y)
+CLAMAV_CONF_OPTS += --with-pcre=$(STAGING_DIR)/usr
+CLAMAV_DEPENDENCIES += pcre2
+else ifeq ($(BR2_PACKAGE_PCRE),y)
 CLAMAV_CONF_OPTS += --with-pcre=$(STAGING_DIR)/usr
 CLAMAV_DEPENDENCIES += pcre
 else
 CLAMAV_CONF_OPTS += --without-pcre
+endif
+
+ifeq ($(BR2_INIT_SYSTEMD),y)
+CLAMAV_CONF_OPTS += --with-systemdsystemunitdir=/usr/lib/systemd/system
+CLAMAV_DEPENDENCIES += systemd
+else
+CLAMAV_CONF_OPTS += --with-systemdsystemunitdir=no
 endif
 
 $(eval $(autotools-package))

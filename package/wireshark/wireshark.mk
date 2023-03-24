@@ -4,99 +4,204 @@
 #
 ################################################################################
 
-WIRESHARK_VERSION = 2.2.4
-WIRESHARK_SOURCE = wireshark-$(WIRESHARK_VERSION).tar.bz2
+WIRESHARK_VERSION = 4.0.3
+WIRESHARK_SOURCE = wireshark-$(WIRESHARK_VERSION).tar.xz
 WIRESHARK_SITE = https://www.wireshark.org/download/src/all-versions
 WIRESHARK_LICENSE = wireshark license
-WIRESHARK_LICENSE_FILES = COPYING
-WIRESHARK_DEPENDENCIES = host-pkgconf libpcap libglib2
-WIRESHARK_CONF_ENV = \
-	PCAP_CONFIG=$(STAGING_DIR)/usr/bin/pcap-config
+WIRESHARK_LICENSE_FILES = COPYING README.md
+WIRESHARK_CPE_ID_VENDOR = wireshark
+WIRESHARK_SELINUX_MODULES = wireshark
+WIRESHARK_DEPENDENCIES = \
+	c-ares \
+	host-pkgconf \
+	host-python3 \
+	libgcrypt \
+	libglib2 \
+	libpcap \
+	pcre2 \
+	speexdsp
 
-# patch touching configure.ac
-WIRESHARK_AUTORECONF = YES
-
-# wireshark adds -I$includedir to CFLAGS, causing host/target headers mixup.
-# Work around it by pointing includedir at staging
 WIRESHARK_CONF_OPTS = \
-	--without-krb5 \
-	--enable-static=no \
-	--with-libsmi=no \
-	--with-lua=no \
-	--with-pcap=$(STAGING_DIR)/usr \
-	--includedir=$(STAGING_DIR)/usr/include
+	-DENABLE_ILBC=OFF \
+	-DENABLE_PCAP=ON \
+	-DENABLE_SMI=OFF \
+	-DENABLE_WERROR=OFF \
+	-DHAVE_C99_VSNPRINTF=ON \
+	-DLEMON_C_COMPILER=$(HOSTCC_NOCCACHE)
 
-# wireshark GUI options
-ifeq ($(BR2_PACKAGE_LIBGTK3),y)
-WIRESHARK_CONF_OPTS += --with-gtk=3
-WIRESHARK_DEPENDENCIES += libgtk3
-else ifeq ($(BR2_PACKAGE_LIBGTK2),y)
-WIRESHARK_CONF_OPTS += --with-gtk=2
-WIRESHARK_DEPENDENCIES += libgtk2
-else
-WIRESHARK_CONF_OPTS += --with-gtk=no
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+WIRESHARK_CONF_OPTS += -DCMAKE_EXE_LINKER_FLAGS=-latomic
 endif
 
-# Qt4 needs accessibility, we don't support it
-ifeq ($(BR2_PACKAGE_WIRESHARK_QT),y)
-WIRESHARK_CONF_OPTS += --with-qt=5
-WIRESHARK_DEPENDENCIES += qt5base qt5tools
-WIRESHARK_CONF_ENV += ac_cv_path_QTCHOOSER=""
-# Seems it expects wrappers and passes a -qt=X parameter for version
-WIRESHARK_MAKE_OPTS += \
-	MOC="$(HOST_DIR)/usr/bin/moc" \
-	RCC="$(HOST_DIR)/usr/bin/rcc" \
-	UIC="$(HOST_DIR)/usr/bin/uic"
+ifeq ($(BR2_ENABLE_LTO),y)
+WIRESHARK_CONF_OPTS += -DENABLE_LTO=ON
 else
-WIRESHARK_CONF_OPTS += --with-qt=no
+WIRESHARK_CONF_OPTS += -DENABLE_LTO=OFF
 endif
 
-# No GUI at all
-ifeq ($(BR2_PACKAGE_WIRESHARK_GUI),)
-WIRESHARK_CONF_OPTS += --disable-wireshark
+ifeq ($(BR2_PACKAGE_WIRESHARK_GUI),y)
+WIRESHARK_CONF_OPTS += -DBUILD_wireshark=ON
+WIRESHARK_DEPENDENCIES += qt5base qt5multimedia qt5svg qt5tools
+else
+WIRESHARK_CONF_OPTS += -DBUILD_wireshark=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_C_ARES),y)
-WIRESHARK_CONF_OPTS += --with-c-ares=$(STAGING_DIR)/usr
-WIRESHARK_DEPENDENCIES += c-ares
+ifeq ($(BR2_PACKAGE_BCG729),y)
+WIRESHARK_CONF_OPTS += -DENABLE_BCG729=ON
+WIRESHARK_DEPENDENCIES += bcg729
 else
-WIRESHARK_CONF_OPTS += --without-c-ares
+WIRESHARK_CONF_OPTS += -DENABLE_BCG729=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_GEOIP),y)
-WIRESHARK_CONF_OPTS += --with-geoip=$(STAGING_DIR)/usr
-WIRESHARK_DEPENDENCIES += geoip
+ifeq ($(BR2_PACKAGE_BROTLI),y)
+WIRESHARK_CONF_OPTS += -DENABLE_BROTLI=ON
+WIRESHARK_DEPENDENCIES += brotli
 else
-WIRESHARK_CONF_OPTS += --without-geoip
+WIRESHARK_CONF_OPTS += -DENABLE_BROTLI=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_GNUTLS),y)
-WIRESHARK_CONF_OPTS += --with-gnutls=yes
+WIRESHARK_CONF_OPTS += -DENABLE_GNUTLS=ON
 WIRESHARK_DEPENDENCIES += gnutls
 else
-WIRESHARK_CONF_OPTS += --with-gnutls=no
+WIRESHARK_CONF_OPTS += -DENABLE_GNUTLS=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
-WIRESHARK_CONF_ENV += LIBGCRYPT_CONFIG=$(STAGING_DIR)/usr/bin/libgcrypt-config
-WIRESHARK_CONF_OPTS += --with-gcrypt=yes
-WIRESHARK_DEPENDENCIES += libgcrypt
+ifeq ($(BR2_PACKAGE_LIBCAP),y)
+WIRESHARK_CONF_OPTS += -DENABLE_CAP=ON
+WIRESHARK_DEPENDENCIES += libcap
 else
-WIRESHARK_CONF_OPTS += --with-gcrypt=no
+WIRESHARK_CONF_OPTS += -DENABLE_CAP=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_LIBKRB5),y)
+WIRESHARK_CONF_OPTS += -DENABLE_KERBEROS=ON
+WIRESHARK_DEPENDENCIES += libkrb5
+else
+WIRESHARK_CONF_OPTS += -DENABLE_KERBEROS=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_LIBMAXMINDDB),y)
+WIRESHARK_CONF_OPTS += -DBUILD_mmdbresolve=ON
+WIRESHARK_DEPENDENCIES += libmaxminddb
+else
+WIRESHARK_CONF_OPTS += -DBUILD_mmdbresolve=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_LIBNL),y)
-WIRESHARK_CONF_OPTS += --with-libnl
+WIRESHARK_CONF_OPTS += -DENABLE_NETLINK=ON
 WIRESHARK_DEPENDENCIES += libnl
 else
-WIRESHARK_CONF_OPTS += --without-libnl
+WIRESHARK_CONF_OPTS += -DENABLE_NETLINK=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_LIBSSH),y)
+WIRESHARK_CONF_OPTS += -DENABLE_LIBSSH=ON
+WIRESHARK_DEPENDENCIES += libssh
+else
+WIRESHARK_CONF_OPTS += -DENABLE_LIBSSH=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_LIBXML2),y)
+WIRESHARK_CONF_OPTS += -DENABLE_LIBXML2=ON
+WIRESHARK_DEPENDENCIES += libxml2
+else
+WIRESHARK_CONF_OPTS += -DENABLE_LIBXML2=OFF
+endif
+
+# no support for lua53 yet
+ifeq ($(BR2_PACKAGE_LUA_5_1),y)
+WIRESHARK_CONF_OPTS += -DENABLE_LUA=ON
+WIRESHARK_DEPENDENCIES += lua
+else
+WIRESHARK_CONF_OPTS += -DENABLE_LUA=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_LZ4),y)
+WIRESHARK_CONF_OPTS += -DENABLE_LZ4=ON
+WIRESHARK_DEPENDENCIES += lz4
+else
+WIRESHARK_CONF_OPTS += -DENABLE_LZ4=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_MINIZIP_ZLIB),y)
+WIRESHARK_CONF_OPTS += -DENABLE_MINIZIP=ON
+WIRESHARK_DEPENDENCIES += minizip-zlib
+else
+WIRESHARK_CONF_OPTS += -DENABLE_MINIZIP=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_NGHTTP2),y)
+WIRESHARK_CONF_OPTS += -DENABLE_NGHTTP2=ON
+WIRESHARK_DEPENDENCIES += nghttp2
+else
+WIRESHARK_CONF_OPTS += -DENABLE_NGHTTP2=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_OPUS),y)
+WIRESHARK_CONF_OPTS += -DENABLE_OPUS=ON
+WIRESHARK_DEPENDENCIES += opus
+else
+WIRESHARK_CONF_OPTS += -DENABLE_OPUS=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_SBC),y)
-WIRESHARK_CONF_OPTS += --with-sbc=yes
+WIRESHARK_CONF_OPTS += -DENABLE_SBC=ON
 WIRESHARK_DEPENDENCIES += sbc
 else
-WIRESHARK_CONF_OPTS += --with-sbc=no
+WIRESHARK_CONF_OPTS += -DENABLE_SBC=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_SNAPPY),y)
+WIRESHARK_CONF_OPTS += -DENABLE_SNAPPY=ON
+WIRESHARK_DEPENDENCIES += snappy
+else
+WIRESHARK_CONF_OPTS += -DENABLE_SNAPPY=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_SPANDSP),y)
+WIRESHARK_CONF_OPTS += -DENABLE_SPANDSP=ON
+WIRESHARK_DEPENDENCIES += spandsp
+else
+WIRESHARK_CONF_OPTS += -DENABLE_SPANDSP=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+WIRESHARK_CONF_OPTS += -DBUILD_sdjournal=ON
+WIRESHARK_DEPENDENCIES += systemd
+else
+WIRESHARK_CONF_OPTS += -DBUILD_sdjournal=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_ZLIB),y)
+WIRESHARK_CONF_OPTS += -DENABLE_ZLIB=ON
+WIRESHARK_DEPENDENCIES += zlib
+else
+WIRESHARK_CONF_OPTS += -DENABLE_ZLIB=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_ZSTD),y)
+WIRESHARK_CONF_OPTS += -DENABLE_ZSTD=ON
+WIRESHARK_DEPENDENCIES += zstd
+else
+WIRESHARK_CONF_OPTS += -DENABLE_ZSTD=OFF
+endif
+
+# Disable plugins as some of them (like l16mono) can't be built
+# statically. ENABLE_STATIC=ON actually means "disable shared library"
+# and ENABLE_STATIC=OFF means "enable shared library". So for the
+# BR2_SHARED_STATIC_LIBS=y case, we want ENABLE_STATIC=OFF even if
+# that sounds counter-intuitive.
+ifeq ($(BR2_STATIC_LIBS),y)
+WIRESHARK_CONF_OPTS += \
+	-DENABLE_PLUGINS=OFF \
+	-DENABLE_STATIC=ON \
+	-DUSE_STATIC=ON
+else
+WIRESHARK_CONF_OPTS += \
+	-DENABLE_PLUGINS=ON \
+	-DENABLE_STATIC=OFF \
+	-DUSE_STATIC=OFF
 endif
 
 define WIRESHARK_REMOVE_DOCS
@@ -106,4 +211,4 @@ endef
 
 WIRESHARK_POST_INSTALL_TARGET_HOOKS += WIRESHARK_REMOVE_DOCS
 
-$(eval $(autotools-package))
+$(eval $(cmake-package))

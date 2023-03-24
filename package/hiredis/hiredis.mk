@@ -4,45 +4,34 @@
 #
 ################################################################################
 
-HIREDIS_VERSION = v0.13.3
-HIREDIS_SITE = $(call github,redis,hiredis,$(HIREDIS_VERSION))
-HIREDIS_LICENSE = BSD-3c
+HIREDIS_VERSION_MAJOR = 1.1
+HIREDIS_VERSION = $(HIREDIS_VERSION_MAJOR).0
+HIREDIS_SITE = $(call github,redis,hiredis,v$(HIREDIS_VERSION))
+HIREDIS_LICENSE = BSD-3-Clause
 HIREDIS_LICENSE_FILES = COPYING
+HIREDIS_CPE_ID_VENDOR = redislabs
 HIREDIS_INSTALL_STAGING = YES
 
-HIREDIS_MAKE_OPTS = \
-	$(TARGET_CONFIGURE_OPTS) \
-	PREFIX=/usr
+HIREDIS_CONF_OPTS = -DDISABLE_TESTS=ON
+HOST_HIREDIS_CONF_OPTS = -DDISABLE_TESTS=ON -DENABLE_SSL=OFF
 
-HIREDIS_TARGETS = hiredis.pc
-ifeq ($(BR2_STATIC_LIBS),y)
-HIREDIS_TARGETS += static
-else ifeq ($(BR2_SHARED_LIBS),y)
-HIREDIS_TARGETS += dynamic
-else ifeq ($(BR2_SHARED_STATIC_LIBS),y)
-HIREDIS_TARGETS += dynamic static
+# Set CMAKE_BUILD_TYPE to Release or the libraries will be suffixed with "d"
+# resulting in build failures when linking.
+HIREDIS_CONF_OPTS += -DCMAKE_BUILD_TYPE=Release
+HOST_HIREDIS_CONF_OPTS += -DCMAKE_BUILD_TYPE=Release
+
+ifeq ($(BR2_PACKAGE_OPENSSL)$(BR2_TOOLCHAIN_HAS_THREADS),yy)
+HIREDIS_CONF_OPTS += -DENABLE_SSL=ON
+HIREDIS_DEPENDENCIES += openssl
+else
+HIREDIS_CONF_OPTS += -DENABLE_SSL=OFF
 endif
 
-define HIREDIS_BUILD_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) $(HIREDIS_MAKE_OPTS) -C $(@D) \
-		$(HIREDIS_TARGETS)
-endef
+# We may be a ccache dependency, so we can't use ccache; reset the
+# options set by the cmake infra.
+HOST_HIREDIS_CONF_OPTS += \
+	-UCMAKE_C_COMPILER_LAUNCHER \
+	-UCMAKE_CXX_COMPILER_LAUNCHER
 
-HIREDIS_INCLUDE_DIR = $(STAGING_DIR)/usr/include/hiredis
-
-# Do not call make install as this target will build shared and static libraries
-define HIREDIS_INSTALL_STAGING_CMDS
-	mkdir -p $(HIREDIS_INCLUDE_DIR)
-	cp -dpfr $(@D)/hiredis.h $(@D)/async.h $(@D)/read.h $(@D)/sds.h \
-		$(@D)/adapters $(HIREDIS_INCLUDE_DIR)
-	$(INSTALL) -D -m 0644 $(@D)/hiredis.pc \
-		$(STAGING_DIR)/usr/lib/pkgconfig/hiredis.pc
-	$(INSTALL) -m 0644 -t $(STAGING_DIR)/usr/lib $(@D)/libhiredis*
-endef
-
-define HIREDIS_INSTALL_TARGET_CMDS
-	mkdir -p $(TARGET_DIR)/usr/lib
-	$(INSTALL) -m 0644 -t $(TARGET_DIR)/usr/lib $(@D)/libhiredis*
-endef
-
-$(eval $(generic-package))
+$(eval $(cmake-package))
+$(eval $(host-cmake-package))

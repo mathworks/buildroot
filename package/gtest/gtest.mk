@@ -4,13 +4,14 @@
 #
 ################################################################################
 
-# Make sure this remains the same version as the gmock one
-GTEST_VERSION = release-1.7.0
-GTEST_SITE = $(call github,google,googletest,$(GTEST_VERSION))
+GTEST_VERSION = 1.12.1
+GTEST_SITE = $(call github,google,googletest,release-$(GTEST_VERSION))
 GTEST_INSTALL_STAGING = YES
 GTEST_INSTALL_TARGET = NO
-GTEST_LICENSE = BSD-3c
+GTEST_LICENSE = BSD-3-Clause
 GTEST_LICENSE_FILES = LICENSE
+GTEST_CPE_ID_VENDOR = google
+GTEST_CPE_ID_PRODUCT = google_test
 
 # While it is possible to build gtest as shared library, using this gtest shared
 # library requires to set some special configure option in the project using
@@ -21,27 +22,17 @@ GTEST_LICENSE_FILES = LICENSE
 # the gtest sources.
 GTEST_CONF_OPTS = -DBUILD_SHARED_LIBS=OFF
 
-define GTEST_INSTALL_STAGING_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/libgtest.a $(STAGING_DIR)/usr/lib/libgtest.a
-	$(INSTALL) -D -m 0755 $(@D)/libgtest_main.a $(STAGING_DIR)/usr/lib/libgtest_main.a
-	$(INSTALL) -d -m 0755 $(STAGING_DIR)/usr/include/gtest/
-	cp -rp $(@D)/include/gtest/* $(STAGING_DIR)/usr/include/gtest/
-	$(INSTALL) -D -m 0644 package/gtest/gtest.pc \
-		$(STAGING_DIR)/usr/lib/pkgconfig/gtest.pc
-	# Generate the gtest-config script manually, since the CMake
-	# build system is not doing it.
-	sed 's%@PACKAGE_TARNAME@%gtest%;\
-		s%@PACKAGE_VERSION@%$(GTEST_VERSION)%;\
-		s%@prefix@%$(STAGING_DIR)/usr%;\
-		s%@exec_prefix@%$(STAGING_DIR)/usr%;\
-		s%@libdir@%$(STAGING_DIR)/usr/lib%;\
-		s%@includedir@%$(STAGING_DIR)/usr/include%;\
-		s%@bindir@%$(STAGING_DIR)/usr/bin%;\
-		s%@PTHREAD_CFLAGS@%%;\
-		s%@PTHREAD_LIBS@%-lpthread%;' \
-		$(@D)/scripts/gtest-config.in \
-		> $(STAGING_DIR)/usr/bin/gtest-config
-	chmod +x $(STAGING_DIR)/usr/bin/gtest-config
-endef
+# Ensure that GTest is compiled with -fPIC to allow linking the static
+# libraries with dynamically linked programs. This is not a requirement
+# for most architectures but is mandatory for ARM.
+ifeq ($(BR2_STATIC_LIBS),)
+GTEST_CONF_OPTS += -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+endif
+
+ifeq ($(BR2_PACKAGE_GTEST_GMOCK),y)
+GTEST_CONF_OPTS += -DBUILD_GMOCK=ON
+else
+GTEST_CONF_OPTS += -DBUILD_GMOCK=OFF
+endif
 
 $(eval $(cmake-package))

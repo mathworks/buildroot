@@ -1,5 +1,5 @@
-# From http://rpm.org/wiki/Releases/4.13.0
-sha1	c6ce4f879ca6a75340921093105e5ef9d33381d3	rpm-4.13.0.tar.bz2
-# Locally computed
-sha256	a3e5568d721737a24141737e6036bb39ba9dfbeaa03fa4a51cc7881a243e0c5d b5f1895aae096836d6e8e155ee289e1b10fcabcb.patch
-sha256	7ab0e08e143bb2d43d5b0553ee22ea34da15a611c597860a6110745467d20fa8 c810a0aca3f1148d2072d44b91b8cc9caeb4cf19.patch
+# From https://rpm.org/wiki/Releases/4.18.0.html
+sha256  2a17152d7187ab30edf2c2fb586463bdf6388de7b5837480955659e5e9054554  rpm-4.18.0.tar.bz2
+
+# Hash for license file
+sha256  171d94d9f1641316bff7f157a903237dc69cdb5fca405fed8c832c76ed8370f9  COPYING

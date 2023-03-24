@@ -4,112 +4,145 @@
 #
 ################################################################################
 
-PULSEAUDIO_VERSION = 9.0
+PULSEAUDIO_VERSION = 16.1
 PULSEAUDIO_SOURCE = pulseaudio-$(PULSEAUDIO_VERSION).tar.xz
-PULSEAUDIO_SITE = http://freedesktop.org/software/pulseaudio/releases
+PULSEAUDIO_SITE = https://freedesktop.org/software/pulseaudio/releases
 PULSEAUDIO_INSTALL_STAGING = YES
-PULSEAUDIO_LICENSE = LGPLv2.1+ (specific license for modules, see LICENSE file)
+PULSEAUDIO_LICENSE = LGPL-2.1+ (specific license for modules, see LICENSE file)
 PULSEAUDIO_LICENSE_FILES = LICENSE GPL LGPL
+PULSEAUDIO_CPE_ID_VENDOR = pulseaudio
+PULSEAUDIO_SELINUX_MODULES = pulseaudio xdg
 PULSEAUDIO_CONF_OPTS = \
-	--disable-default-build-tests \
-	--disable-legacy-database-entry-format \
-	--disable-manpages
-
-# Make sure we don't detect libatomic_ops. Indeed, since pulseaudio
-# requires json-c, which needs 4 bytes __sync builtins, there should
-# be no need for pulseaudio to rely on libatomic_ops.
-PULSEAUDIO_CONF_ENV += \
-	ac_cv_header_atomic_ops_h=no
-
-# 0002-webrtc-C-11-is-only-required-for-WebRTC-support.patch
-PULSEAUDIO_AUTORECONF = YES
+	-Ddoxygen=false \
+	-Dlegacy-database-entry-format=false \
+	-Dman=false \
+	-Drunning-from-build-tree=false \
+	-Dtests=false
 
 PULSEAUDIO_DEPENDENCIES = \
-	host-pkgconf libtool json-c libsndfile speex host-intltool \
-	$(if $(BR2_PACKAGE_LIBSAMPLERATE),libsamplerate) \
-	$(if $(BR2_PACKAGE_ALSA_LIB),alsa-lib) \
-	$(if $(BR2_PACKAGE_LIBGLIB2),libglib2) \
-	$(if $(BR2_PACKAGE_AVAHI_DAEMON),avahi) \
-	$(if $(BR2_PACKAGE_DBUS),dbus) \
-	$(if $(BR2_PACKAGE_BLUEZ_UTILS),bluez_utils) \
-	$(if $(BR2_PACKAGE_OPENSSL),openssl) \
-	$(if $(BR2_PACKAGE_FFTW),fftw) \
-	$(if $(BR2_PACKAGE_SYSTEMD),systemd)
+	host-pkgconf libtool libsndfile libglib2 \
+	$(TARGET_NLS_DEPENDENCIES)
+
+PULSEAUDIO_LDFLAGS = $(TARGET_LDFLAGS) $(TARGET_NLS_LIBS)
+
+ifeq ($(BR2_PACKAGE_AVAHI_LIBAVAHI_CLIENT),y)
+PULSEAUDIO_CONF_OPTS += -Davahi=enabled
+PULSEAUDIO_DEPENDENCIES += avahi
+else
+PULSEAUDIO_CONF_OPTS += -Davahi=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_DBUS),y)
+PULSEAUDIO_CONF_OPTS += -Ddbus=enabled
+PULSEAUDIO_DEPENDENCIES += dbus
+else
+PULSEAUDIO_CONF_OPTS += -Ddbus=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_FFTW_SINGLE),y)
+PULSEAUDIO_CONF_OPTS += -Dfftw=enabled
+PULSEAUDIO_DEPENDENCIES += fftw-single
+else
+PULSEAUDIO_CONF_OPTS += -Dfftw=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_LIBSAMPLERATE),y)
+PULSEAUDIO_CONF_OPTS += -Dsamplerate=enabled
+PULSEAUDIO_DEPENDENCIES += libsamplerate
+else
+PULSEAUDIO_CONF_OPTS += -Dsamplerate=disabled
+endif
 
 ifeq ($(BR2_PACKAGE_GDBM),y)
-PULSEAUDIO_CONF_OPTS += --with-database=gdbm
+PULSEAUDIO_CONF_OPTS += -Ddatabase=gdbm
 PULSEAUDIO_DEPENDENCIES += gdbm
 else
-PULSEAUDIO_CONF_OPTS += --with-database=simple
+PULSEAUDIO_CONF_OPTS += -Ddatabase=simple
 endif
 
 ifeq ($(BR2_PACKAGE_JACK2),y)
-PULSEAUDIO_CONF_OPTS += --enable-jack
+PULSEAUDIO_CONF_OPTS += -Djack=enabled
 PULSEAUDIO_DEPENDENCIES += jack2
 else
-PULSEAUDIO_CONF_OPTS += --disable-jack
+PULSEAUDIO_CONF_OPTS += -Djack=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_LIBATOMIC_OPS),y)
+PULSEAUDIO_DEPENDENCIES += libatomic_ops
+ifeq ($(BR2_sparc_v8)$(BR2_sparc_leon3),y)
+PULSEAUDIO_CFLAGS = $(TARGET_CFLAGS) -DAO_NO_SPARC_V9
+endif
+endif
+
+ifeq ($(BR2_PACKAGE_LIRC_TOOLS),y)
+PULSEAUDIO_DEPENDENCIES += lirc-tools
+PULSEAUDIO_CONF_OPTS += -Dlirc=enabled
+else
+PULSEAUDIO_CONF_OPTS += -Dlirc=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_OPENSSL),y)
+PULSEAUDIO_CONF_OPTS += -Dopenssl=enabled
+PULSEAUDIO_DEPENDENCIES += openssl
+else
+PULSEAUDIO_CONF_OPTS += -Dopenssl=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_ORC),y)
 PULSEAUDIO_DEPENDENCIES += orc
-PULSEAUDIO_CONF_ENV += ORCC=$(HOST_DIR)/usr/bin/orcc
-PULSEAUDIO_CONF_OPTS += --enable-orc
+PULSEAUDIO_CONF_ENV += ORCC=$(HOST_DIR)/bin/orcc
+PULSEAUDIO_CONF_OPTS += -Dorc=enabled
 else
-PULSEAUDIO_CONF_OPTS += --disable-orc
+PULSEAUDIO_CONF_OPTS += -Dorc=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBCAP),y)
 PULSEAUDIO_DEPENDENCIES += libcap
-PULSEAUDIO_CONF_OPTS += --with-caps
-else
-PULSEAUDIO_CONF_OPTS += --without-caps
 endif
 
 # gtk3 support needs X11 backend
 ifeq ($(BR2_PACKAGE_LIBGTK3_X11),y)
 PULSEAUDIO_DEPENDENCIES += libgtk3
-PULSEAUDIO_CONF_OPTS += --enable-gtk3
+PULSEAUDIO_CONF_OPTS += -Dgtk=enabled
 else
-PULSEAUDIO_CONF_OPTS += --disable-gtk3
+PULSEAUDIO_CONF_OPTS += -Dgtk=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBSOXR),y)
-PULSEAUDIO_CONF_OPTS += --with-soxr
+PULSEAUDIO_CONF_OPTS += -Dsoxr=enabled
 PULSEAUDIO_DEPENDENCIES += libsoxr
 else
-PULSEAUDIO_CONF_OPTS += --without-soxr
+PULSEAUDIO_CONF_OPTS += -Dsoxr=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS)$(BR2_PACKAGE_SBC),yy)
+PULSEAUDIO_CONF_OPTS += -Dbluez5=enabled
+PULSEAUDIO_DEPENDENCIES += bluez5_utils sbc
+else
+PULSEAUDIO_CONF_OPTS += -Dbluez5=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_HAS_UDEV),y)
-PULSEAUDIO_CONF_OPTS += --enable-udev
+PULSEAUDIO_CONF_OPTS += -Dudev=enabled
 PULSEAUDIO_DEPENDENCIES += udev
 else
-PULSEAUDIO_CONF_OPTS += --disable-udev
+PULSEAUDIO_CONF_OPTS += -Dudev=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_WEBRTC_AUDIO_PROCESSING),y)
-PULSEAUDIO_CONF_OPTS += --enable-webrtc-aec
+PULSEAUDIO_CONF_OPTS += -Dwebrtc-aec=enabled
 PULSEAUDIO_DEPENDENCIES += webrtc-audio-processing
 else
-PULSEAUDIO_CONF_OPTS += --disable-webrtc-aec
+PULSEAUDIO_CONF_OPTS += -Dwebrtc-aec=disabled
 endif
 
-# neon intrinsics not available with float-abi=soft
-ifeq ($(BR2_ARM_SOFT_FLOAT),)
-ifeq ($(BR2_ARM_CPU_HAS_NEON),y)
-PULSEAUDIO_USE_NEON = y
-endif
-endif
-
-ifeq ($(PULSEAUDIO_USE_NEON),y)
-PULSEAUDIO_CONF_OPTS += --enable-neon-opt=yes
+# our Config.in makes sure that all needed alsa-lib features are
+# enabled
+ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
+PULSEAUDIO_DEPENDENCIES += alsa-lib
+PULSEAUDIO_CONF_OPTS += -Dalsa=enabled
 else
-PULSEAUDIO_CONF_OPTS += --enable-neon-opt=no
-endif
-
-# pulseaudio alsa backend needs pcm/mixer apis
-ifneq ($(BR2_PACKAGE_ALSA_LIB_PCM)$(BR2_PACKAGE_ALSA_LIB_MIXER),yy)
-PULSEAUDIO_CONF_OPTS += --disable-alsa
+PULSEAUDIO_CONF_OPTS += -Dalsa=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBXCB)$(BR2_PACKAGE_XLIB_LIBSM)$(BR2_PACKAGE_XLIB_LIBXTST),yyy)
@@ -117,25 +150,52 @@ PULSEAUDIO_DEPENDENCIES += libxcb xlib_libSM xlib_libXtst
 
 # .desktop file generation needs nls support, so fake it for !locale builds
 # https://bugs.freedesktop.org/show_bug.cgi?id=54658
-ifneq ($(BR2_ENABLE_LOCALE),y)
+ifeq ($(BR2_SYSTEM_ENABLE_NLS),)
 define PULSEAUDIO_FIXUP_DESKTOP_FILES
 	cp $(@D)/src/daemon/pulseaudio.desktop.in \
 		$(@D)/src/daemon/pulseaudio.desktop
-	cp $(@D)/src/daemon/pulseaudio-kde.desktop.in \
-		$(@D)/src/daemon/pulseaudio-kde.desktop
 endef
 PULSEAUDIO_POST_PATCH_HOOKS += PULSEAUDIO_FIXUP_DESKTOP_FILES
 endif
 
 else
-PULSEAUDIO_CONF_OPTS += --disable-x11
+PULSEAUDIO_CONF_OPTS += -Dx11=disabled
 endif
+
+# This is not a mistake: the option is called speex, but what it
+# really needs is speexdsp
+ifeq ($(BR2_PACKAGE_SPEEXDSP),y)
+PULSEAUDIO_CONF_OPTS += -Dspeex=enabled
+PULSEAUDIO_DEPENDENCIES += speexdsp
+else
+PULSEAUDIO_CONF_OPTS += -Dspeex=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+PULSEAUDIO_CONF_OPTS += -Dsystemd=enabled
+PULSEAUDIO_DEPENDENCIES += systemd
+else
+PULSEAUDIO_CONF_OPTS += -Dsystemd=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_VALGRIND),y)
+PULSEAUDIO_CONF_OPTS += -Dvalgrind=enabled
+PULSEAUDIO_DEPENDENCIES += valgrind
+else
+PULSEAUDIO_CONF_OPTS += -Dvalgrind=disabled
+endif
+
+# ConsoleKit module init failure breaks user daemon startup
+define PULSEAUDIO_REMOVE_CONSOLE_KIT
+	rm -f $(TARGET_DIR)/usr/lib/pulse-$(PULSEAUDIO_VERSION)/modules/module-console-kit.so
+endef
 
 define PULSEAUDIO_REMOVE_VALA
 	rm -rf $(TARGET_DIR)/usr/share/vala
 endef
 
-PULSEAUDIO_POST_INSTALL_TARGET_HOOKS += PULSEAUDIO_REMOVE_VALA
+PULSEAUDIO_POST_INSTALL_TARGET_HOOKS += PULSEAUDIO_REMOVE_VALA \
+	PULSEAUDIO_REMOVE_CONSOLE_KIT
 
 ifeq ($(BR2_PACKAGE_PULSEAUDIO_DAEMON),y)
 define PULSEAUDIO_USERS
@@ -150,11 +210,8 @@ endef
 define PULSEAUDIO_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 package/pulseaudio/pulseaudio.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/pulseaudio.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -sf ../../../../usr/lib/systemd/system/pulseaudio.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/pulseaudio.service
 endef
 
 endif
 
-$(eval $(autotools-package))
+$(eval $(meson-package))

@@ -4,38 +4,28 @@
 #
 ################################################################################
 
-EIGEN_VERSION = 3.2.5
-EIGEN_SITE = https://bitbucket.org/eigen/eigen
-EIGEN_SITE_METHOD = hg
-EIGEN_LICENSE = MPL2, BSD-3c, LGPLv2.1
+EIGEN_VERSION = 3.4.0
+EIGEN_SOURCE = eigen-$(EIGEN_VERSION).tar.bz2
+EIGEN_SITE = $(call gitlab,libeigen,eigen,$(EIGEN_VERSION))
+EIGEN_LICENSE = MPL2, BSD-3-Clause, LGPL-2.1
 EIGEN_LICENSE_FILES = COPYING.MPL2 COPYING.BSD COPYING.LGPL COPYING.README
 EIGEN_INSTALL_STAGING = YES
 EIGEN_INSTALL_TARGET = NO
-EIGEN_DEST_DIR = $(STAGING_DIR)/usr/include/eigen3
+EIGEN_SUPPORTS_IN_SOURCE_BUILD = NO
 
-ifeq ($(BR2_PACKAGE_EIGEN_UNSUPPORTED_MODULES),y)
-define EIGEN_INSTALL_UNSUPPORTED_MODULES_CMDS
-	mkdir -p $(EIGEN_DEST_DIR)/unsupported
-	cp -a $(@D)/unsupported/Eigen $(EIGEN_DEST_DIR)/unsupported
-endef
+# Default Eigen CMake installs .pc file in /usr/share/pkgconfig
+# change it to /usr/lib/pkgconfig, to be consistent with other packages.
+EIGEN_CONF_OPTS = -DPKGCONFIG_INSTALL_DIR=/usr/lib/pkgconfig
+
+ifeq ($(BR2_TOOLCHAIN_HAS_FORTRAN),y)
+EIGEN_CONF_OPTS += \
+	-DCMAKE_Fortran_COMPILER=$(TARGET_FC) \
+	-DEIGEN_BUILD_BLAS=ON \
+	-DEIGEN_BUILD_LAPACK=ON
+else
+EIGEN_CONF_OPTS += \
+	-DEIGEN_BUILD_BLAS=OFF \
+	-DEIGEN_BUILD_LAPACK=OFF
 endif
 
-# Generate the .pc file at build time
-define EIGEN_BUILD_CMDS
-	sed -r -e 's,^Version: .*,Version: $(EIGEN_VERSION),' \
-		-e 's,^Cflags: .*,Cflags: -I$(EIGEN_DEST_DIR),' \
-		$(@D)/eigen3.pc.in >$(@D)/eigen3.pc
-endef
-
-# This package only consists of headers that need to be
-# copied over to the sysroot for compile time use
-define EIGEN_INSTALL_STAGING_CMDS
-	$(RM) -r $(EIGEN_DEST_DIR)
-	mkdir -p $(EIGEN_DEST_DIR)
-	cp -a $(@D)/Eigen $(EIGEN_DEST_DIR)
-	$(EIGEN_INSTALL_UNSUPPORTED_MODULES_CMDS)
-	$(INSTALL) -D -m 0644 $(@D)/eigen3.pc \
-		$(STAGING_DIR)/usr/lib/pkgconfig/eigen3.pc
-endef
-
-$(eval $(generic-package))
+$(eval $(cmake-package))
