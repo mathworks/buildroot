@@ -7,11 +7,17 @@
         <dtsi dir="../../dts"/>
     </default>
     <image name="visionzynq">
-        <app name="imx274_1ppc">
-            <dts file="imx274_1ppc.dts"/>
+        <app name="imx274_1ppc_150mhz">
+            <dts file="imx274_1ppc_150mhz.dts"/>
         </app>
-        <app name="imx274_2ppc">
-            <dts file="imx274_2ppc.dts"/>
+        <app name="imx274_2ppc_150mhz">
+            <dts file="imx274_2ppc_150mhz.dts"/>
+        </app>
+        <app name="imx274_1ppc_300mhz">
+            <dts file="imx274_1ppc_300mhz.dts"/>
+        </app>
+        <app name="imx274_2ppc_300mhz">
+            <dts file="imx274_2ppc_300mhz.dts"/>
         </app>
         <sdcard dir="sdcard"/>
     </image>

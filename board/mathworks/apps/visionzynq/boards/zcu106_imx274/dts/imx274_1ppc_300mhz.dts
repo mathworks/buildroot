@@ -1,0 +1,10 @@
+#define CONFIG_ONE_PPC
+
+#include "base.dtsi"
+#include "imx274/system-top.dts"
+/{
+    model = "IMX274MIPI-FMC ZynqMP ZCU106 RevA";
+};
+
+#include "imx274/common/stream_clk_300mhz.dtsi"
+
