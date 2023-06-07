@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# Start the network....
+#
+
+WORKFLOW=`fw_printenv -n workflow 2> /dev/null || echo 0`
+GADGET=/sys/kernel/config/usb_gadget/g1
+if [ "$WORKFLOW" == "HDLVerifier" ]
+then
+	echo "Workflow is HDLVerifier"
+else
+    exit 0
+fi
+
+case "$1" in
+  start)
+ 	echo "Starting UDC Gadgets..."
+	PRODUCT="Mathworks USB Ethernet/RNDIS Gadget"
+	echo "Starting UDC Gadgets: "
+	mount -t configfs none /sys/kernel/config
+	mkdir -p $GADGET
+	echo "creating gadget complete "
+	echo "64" > $GADGET/bMaxPacketSize0
+	echo "0x200" >  $GADGET/bcdUSB
+	echo "0x100" >  $GADGET/bcdDevice
+	echo "0x353E" > $GADGET/idVendor
+	echo "0x0001" > $GADGET/idProduct
+	serial=`dmesg | grep SPI-NOR-UniqueID`
+	serial=${serial#*SPI-NOR-UniqueID }
+	echo $serial > /etc/serial
+	sha1=`echo $serial | sha1sum`
+	mkdir -p $GADGET/strings/0x409
+	echo "The MathWorks Inc." > $GADGET/strings/0x409/manufacturer
+	echo $PRODUCT > $GADGET/strings/0x409/product
+	echo $serial > $GADGET/strings/0x409/serialnumber 
+	mkdir -p $GADGET/configs/c1.1
+	mkdir -p $GADGET/functions/rndis.rn0
+	ln -s $GADGET/functions/rndis.rn0 $GADGET/configs/c1.1
+	echo "fe200000.dwc3" > $GADGET/UDC
+	ip link set dev usb0 mtu 15300
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+	;;
+  stop)
+	echo -n "Stopping UDC Gadgets..."
+	echo "" > $GADGET/UDC
+
+	rm $GADGET/configs/c1.1/rndis.rn0
+	rmdir $GADGET/strings/0x409
+	rmdir $GADGET/configs/c1.1/strings/0x409
+	rmdir $GADGET/configs/c1.1
+	rmdir $GADGET/functions/rndis.rn0
+	rmdir $GADGET 2> /dev/null
+	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+

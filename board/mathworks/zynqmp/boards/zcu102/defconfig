@@ -3,3 +3,4 @@
 ###########################################
 BR2_TARGET_UBOOT_BOARD_DEFCONFIG="xilinx_zynqmp_zcu102_rev1_0"
 BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR="board/xilinx/zynqmp/zynqmp-zcu102-rev1.0"
+BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/zynqmp/fs-overlay ./board/mathworks/zynqmp/boards/zcu102/fs-overlay"
