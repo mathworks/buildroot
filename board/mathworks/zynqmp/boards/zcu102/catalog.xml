@@ -23,6 +23,9 @@
         <app name="dlhdl">
             <dts file="dlhdl.dts"/>
         </app>
+		<app name="hdlv">
+            <dts file="hdlv.dts"/>
+        </app>
 	<app name="sharedmem_iio">
             <dts file="sharedmem_iio.dts"/>
         </app>
