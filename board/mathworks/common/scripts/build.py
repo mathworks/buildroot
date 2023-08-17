@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-import sys, os, shutil, glob, imp, argparse, datetime
+import sys, os, shutil, glob, importlib, argparse, datetime
 
+from importlib.machinery import SourceFileLoader
 import parse_catalog
 import helper_func
 from helper_func import *
@@ -170,9 +171,7 @@ args['buildMode'] = catalog['buildMode']
 
 # load the platform functions
 PLATFORM_MODULE = catalog['platformInfo']['platformDir'] + "/scripts/platform_support.py"
-m = imp.load_source('br_platform', PLATFORM_MODULE)
-import br_platform
-
+br_platform = SourceFileLoader('br_platform',PLATFORM_MODULE).load_module()
 br_platform.platform_update_catalog(catalog)
 SUPPORTED = br_platform.platform_supported()
 

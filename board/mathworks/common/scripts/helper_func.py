@@ -217,7 +217,7 @@ def run_genimage(cfgFile, ioPath, rootPath=""):
                     ioPath,
                     ioPath,
                     cfgFile)
-    print argStr           
+    print(argStr ) 
     subproc(argStr, cwd=ENV['IMAGE_DIR'] )
     rm(genimgDir)
 
@@ -305,11 +305,9 @@ def print_msg(msg, level=4, mlevel=6, bg = 0, fg = 7, bold=False):
     if bold:
         startMsg = startMsg + _BCOLORS['BOLD']
     
-    print startMsg + prefix + msg + _BMSG['MSG_END']
-
+    print (startMsg + prefix + msg + _BMSG['MSG_END'])
 def print_err(msg):
-
-    print _BMSG['ERR_START'] + "ERROR:   " + msg + _BMSG['MSG_END']
+    print (_BMSG['ERR_START'] + "ERROR:   " + msg + _BMSG['MSG_END'])
 
 ##############
 # Run a sudo command
