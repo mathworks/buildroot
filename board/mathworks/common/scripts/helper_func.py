@@ -403,7 +403,7 @@ def br_set_var(var, value, quoted=True):
 
 def _git_verinfo(git_dir):
     git_hash = subproc_output('git log -n 1 --pretty="%H"', cwd=git_dir)
-    git_hash = re.sub("\n", "", git_hash)
+    git_hash = re.sub("\n", "", git_hash.decode("utf-8"))
     git_hash = re.sub('"',"", git_hash)
     return git_hash
 
@@ -495,7 +495,7 @@ def subproc(args, cwd=None, shell=False):
 def subproc_output(args, cwd=None, stderr=None, shell=False, universal_newlines=False):
 
     # Support strings or lists as args
-    if isinstance(args, basestring):
+    if isinstance(args, str):
         args = shlex.split(args)
 
     return subprocess.check_output( args, cwd=cwd, stderr=stderr, shell=shell, universal_newlines=universal_newlines)

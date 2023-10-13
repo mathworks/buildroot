@@ -6,9 +6,9 @@
 #    HOST_DIR, STAGING_DIR, TARGET_DIR
 #    BINARIES_DIR: images dir
 #    BASE_DIR: base output directory
-import sys, os, shutil, glob, imp, argparse, distutils.dir_util
+import sys, os, shutil, glob, importlib, argparse, distutils.dir_util
 import csv, time
-
+from importlib.machinery import SourceFileLoader
 import parse_catalog
 import gen_dtb
 import helper_func
@@ -33,8 +33,8 @@ def _gen_legalinfo(catalog, outputDir):
     print_msg("Creating combined license file %s " % (licDstFile),
         level=3, fg=2, bold=True)
 
-    with open(licDstFile, 'w') as licDst:
-        with open(manifest, 'rb') as csvFile:
+    with open(licDstFile,'w') as licDst:
+        with open(manifest,'r',encoding='latin-1') as csvFile:
             manifestReader = csv.DictReader(csvFile)
             for licInfo in manifestReader:
                 licSrcs = licInfo['LICENSE FILES'].split()
@@ -45,7 +45,7 @@ def _gen_legalinfo(catalog, outputDir):
                         (pkgNameVer, lic))
                     licDst.write(licenseHeader)
                     licSrcFile = "%s/licenses/%s/%s" % (legalDir, pkgNameVer, lic)
-                    with open(licSrcFile) as licSrc:
+                    with open(licSrcFile,'r',encoding='latin-1') as licSrc:
                         lines = licSrc.readlines()
                         licDst.writelines(lines)
                     licDst.write("\n\n")
@@ -75,7 +75,7 @@ def _gen_sysroot(catalog, outputDir):
 
 def _gen_sdcard(image, catalog, outputDir):
     
-    print ""
+    print("")
     print_msg("Starting on image %s " % (image['imageName']), level=3, fg=2, bold=True)
     ##############
     # prep the directory
@@ -192,8 +192,7 @@ PLATFORM_DIR = os.path.dirname(COMMON_DIR) + "/" + PLATFORM_NAME
 
 # load the platform functions
 PLATFORM_MODULE = catalog['platformInfo']['platformDir'] + "/scripts/platform_support.py"
-m = imp.load_source('br_platform', PLATFORM_MODULE)
-import br_platform
+br_platform = SourceFileLoader('br_platform',PLATFORM_MODULE).load_module()
 
 br_platform.platform_update_catalog(catalog)
 
