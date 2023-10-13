@@ -46,6 +46,8 @@ The following hook points are available:
 * +LIBFOO_PRE_LEGAL_INFO_HOOKS+
 * +LIBFOO_POST_LEGAL_INFO_HOOKS+
 
+* +LIBFOO_TARGET_FINALIZE_HOOKS+
+
 These variables are 'lists' of variable names containing actions to be
 performed at this hook point. This allows several hooks to be
 registered at a given hook point. Here is an example:
@@ -59,6 +61,7 @@ endef
 LIBFOO_POST_PATCH_HOOKS += LIBFOO_POST_PATCH_FIXUP
 ----------------------
 
+[[hooks-rsync]]
 ==== Using the +POST_RSYNC+ hook
 The +POST_RSYNC+ hook is run only for packages that use a local source,
 either through the +local+ site method or the +OVERRIDE_SRCDIR+

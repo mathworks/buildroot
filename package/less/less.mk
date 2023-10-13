@@ -4,12 +4,15 @@
 #
 ################################################################################
 
-LESS_VERSION = 487
-LESS_SITE = $(BR2_GNU_MIRROR)/less
+LESS_VERSION = 608
+LESS_SITE = http://www.greenwoodsoftware.com/less
 LESS_LICENSE = GPL-3.0+
 LESS_LICENSE_FILES = COPYING
-# Build after busybox, full-blown is better
-LESS_DEPENDENCIES = ncurses $(if $(BR2_PACKAGE_BUSYBOX),busybox)
+LESS_CPE_ID_VENDOR = gnu
+LESS_DEPENDENCIES = ncurses
+
+# 0001-End-OSC8-hyperlink-on-invalid-embedded-escape-sequence.patch
+LESS_IGNORE_CVES += CVE-2022-46663
 
 define LESS_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0755 $(@D)/less $(TARGET_DIR)/usr/bin/less

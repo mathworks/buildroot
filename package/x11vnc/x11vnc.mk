@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-X11VNC_VERSION = 0.9.14
+X11VNC_VERSION = 0.9.16
 X11VNC_SITE = $(call github,LibVNC,x11vnc,$(X11VNC_VERSION))
 # sdl support is not used in x11vnc, but host include / library search paths
 # leak in if host has sdl-config
@@ -12,6 +12,9 @@ X11VNC_CONF_OPTS = --without-sdl
 X11VNC_DEPENDENCIES = xlib_libXt xlib_libXext xlib_libXtst libvncserver
 X11VNC_LICENSE = GPL-2.0+
 X11VNC_LICENSE_FILES = COPYING
+X11VNC_CPE_ID_VENDOR = x11vnc_project
+# 0002-scan-limit-access-to-shared-memory-segments-to-current-user.patch
+X11VNC_IGNORE_CVES += CVE-2020-29074
 
 # Source coming from github, no configure included
 X11VNC_AUTORECONF = YES

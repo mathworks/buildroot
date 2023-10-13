@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-EVEMU_VERSION = 2.5.0
+EVEMU_VERSION = 2.7.0
 EVEMU_SITE = http://www.freedesktop.org/software/evemu
 EVEMU_SOURCE = evemu-$(EVEMU_VERSION).tar.xz
 EVEMU_LICENSE = LGPL-3.0 (library), GPL-3.0 (tools)
@@ -22,9 +22,9 @@ EVEMU_CONF_OPTS += --disable-tests
 EVEMU_DEPENDENCIES = host-pkgconf libevdev
 
 # Check for target python
-ifeq ($(BR2_PACKAGE_PYTHON)$(BR2_PACKAGE_PYTHON3),y)
+ifeq ($(BR2_PACKAGE_PYTHON3),y)
 EVEMU_CONF_OPTS += --enable-python-bindings
-EVEMU_DEPENDENCIES += $(if $(BR2_PACKAGE_PYTHON3),python3,python)
+EVEMU_DEPENDENCIES += python3
 else
 EVEMU_CONF_OPTS += --disable-python-bindings
 endif

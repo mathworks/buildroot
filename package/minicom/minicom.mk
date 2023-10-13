@@ -4,17 +4,19 @@
 #
 ################################################################################
 
-MINICOM_VERSION = 2.7.1
-MINICOM_SITE = https://alioth.debian.org/frs/download.php/file/4215
+MINICOM_VERSION = 2.8
+MINICOM_SOURCE = minicom-$(MINICOM_VERSION).tar.bz2
+MINICOM_SITE = \
+	https://salsa.debian.org/minicom-team/minicom/-/archive/$(MINICOM_VERSION)
 MINICOM_LICENSE = GPL-2.0+
 MINICOM_LICENSE_FILES = COPYING
+MINICOM_CPE_ID_VENDOR = minicom_project
 
-# pkg-config is only used to check for liblockdev, which we don't have
-# in BR, so instead of adding host-pkgconf as a dependency, simply make
-# sure the host version isn't used so we don't end up with problems if
-# people have liblockdev1-dev installed
-MINICOM_CONF_ENV = PKG_CONFIG=/bin/false
+MINICOM_DEPENDENCIES = ncurses $(if $(BR2_ENABLE_LOCALE),,libiconv) \
+	$(TARGET_NLS_DEPENDENCIES) host-pkgconf
 
-MINICOM_DEPENDENCIES = ncurses $(if $(BR2_ENABLE_LOCALE),,libiconv)
+MINICOM_CONF_OPTS = \
+	--enable-dfl-port=/dev/ttyS1 \
+	--enable-lock-dir=/var/lock
 
 $(eval $(autotools-package))

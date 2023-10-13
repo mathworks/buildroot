@@ -4,10 +4,11 @@
 #
 ################################################################################
 
-SUPERVISOR_VERSION = 3.1.3
-SUPERVISOR_SITE = http://pypi.python.org/packages/source/s/supervisor
-SUPERVISOR_LICENSE = BSD-like, rdflib (http_client.py), PSF (medusa), ZPL-2.1
+SUPERVISOR_VERSION = 4.2.2
+SUPERVISOR_SITE = https://files.pythonhosted.org/packages/d3/7f/c780b7471ba0ff4548967a9f7a8b0bfce222c3a496c3dfad0164172222b0
+SUPERVISOR_LICENSE = BSD-like, rdflib (http_client.py), PSF (medusa)
 SUPERVISOR_LICENSE_FILES = COPYRIGHT.txt LICENSES.txt
+SUPERVISOR_CPE_ID_VENDOR = supervisord
 SUPERVISOR_SETUP_TYPE = setuptools
 
 define SUPERVISOR_INSTALL_CONF_FILES
@@ -26,9 +27,6 @@ endef
 define SUPERVISOR_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 package/supervisor/supervisord.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/supervisord.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -sf ../../../../usr/lib/systemd/system/supervisord.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/supervisord.service
 endef
 
 $(eval $(python-package))

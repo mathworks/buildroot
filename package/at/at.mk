@@ -4,12 +4,9 @@
 #
 ################################################################################
 
-AT_VERSION = 3.1.16
+AT_VERSION = 3.2.5
 AT_SOURCE = at_$(AT_VERSION).orig.tar.gz
-AT_SITE = http://snapshot.debian.org/archive/debian/20141023T043132Z/pool/main/a/at
-# missing deps for parsetime.l
-AT_MAKE = $(MAKE1)
-AT_AUTORECONF = YES
+AT_SITE = http://software.calhariz.com/at
 AT_DEPENDENCIES = $(if $(BR2_PACKAGE_FLEX),flex) host-bison host-flex
 AT_LICENSE = GPL-2.0+, GPL-3.0+, ISC
 AT_LICENSE_FILES = Copyright COPYING

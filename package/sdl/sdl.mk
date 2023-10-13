@@ -9,7 +9,12 @@ SDL_SOURCE = SDL-$(SDL_VERSION).tar.gz
 SDL_SITE = http://www.libsdl.org/release
 SDL_LICENSE = LGPL-2.1+
 SDL_LICENSE_FILES = COPYING
+SDL_CPE_ID_VENDOR = libsdl
+SDL_CPE_ID_PRODUCT = simple_directmedia_layer
 SDL_INSTALL_STAGING = YES
+
+# 0003-SDL_x11yuv.c-fix-possible-use-after-free.patch
+SDL_IGNORE_CVES += CVE-2022-34568
 
 # we're patching configure.in, but package cannot autoreconf with our version of
 # autotools, so we have to do it manually instead of setting SDL_AUTORECONF = YES
@@ -23,6 +28,8 @@ HOST_SDL_PRE_CONFIGURE_HOOKS += SDL_RUN_AUTOGEN
 SDL_DEPENDENCIES += host-automake host-autoconf host-libtool
 HOST_SDL_DEPENDENCIES += host-automake host-autoconf host-libtool
 
+SDL_CONF_OPTS += --enable-video-qtopia=no
+
 ifeq ($(BR2_PACKAGE_SDL_FBCON),y)
 SDL_CONF_OPTS += --enable-video-fbcon=yes
 else
@@ -35,13 +42,6 @@ SDL_CONF_OPTS += --enable-video-directfb=yes
 SDL_CONF_ENV = ac_cv_path_DIRECTFBCONFIG=$(STAGING_DIR)/usr/bin/directfb-config
 else
 SDL_CONF_OPTS += --enable-video-directfb=no
-endif
-
-ifeq ($(BR2_PACKAGE_SDL_QTOPIA),y)
-SDL_CONF_OPTS += --enable-video-qtopia=yes
-SDL_DEPENDENCIES += qt
-else
-SDL_CONF_OPTS += --enable-video-qtopia=no
 endif
 
 ifeq ($(BR2_PACKAGE_SDL_X11),y)

@@ -4,10 +4,11 @@
 #
 ################################################################################
 
-DARKHTTPD_VERSION = 1.12
-DARKHTTPD_SITE = https://unix4lyfe.org/darkhttpd
-DARKHTTPD_SOURCE = darkhttpd-$(DARKHTTPD_VERSION).tar.bz2
+DARKHTTPD_VERSION = 1.14
+DARKHTTPD_SITE = $(call github,emikulic,darkhttpd,v$(DARKHTTPD_VERSION))
 DARKHTTPD_LICENSE = MIT
+DARKHTTPD_LICENSE_FILES = darkhttpd.c
+DARKHTTPD_CPE_ID_VENDOR = darkhttpd_project
 
 define DARKHTTPD_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)
@@ -21,9 +22,6 @@ endef
 define DARKHTTPD_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 0644 package/darkhttpd/darkhttpd.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/darkhttpd.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -fs ../../../../usr/lib/systemd/system/darkhttpd.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/darkhttpd.service
 endef
 
 define DARKHTTPD_INSTALL_INIT_SYSV

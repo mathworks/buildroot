@@ -4,25 +4,21 @@
 #
 ################################################################################
 
-LEPTONICA_VERSION = 1.74.1
+LEPTONICA_VERSION = 1.82.0
 LEPTONICA_SITE = http://www.leptonica.org/source
 LEPTONICA_LICENSE = BSD-2-Clause
 LEPTONICA_LICENSE_FILES = leptonica-license.txt
+LEPTONICA_CPE_ID_VENDOR = leptonica
 LEPTONICA_INSTALL_STAGING = YES
-
-# we patch configure.ac
-LEPTONICA_AUTORECONF = YES
-
-# PKG_CHECK_MODULES() is used in configure.ac patch
 LEPTONICA_DEPENDENCIES = host-pkgconf
 
 LEPTONICA_CONF_OPTS += --disable-programs
 
 ifeq ($(BR2_PACKAGE_GIFLIB),y)
 LEPTONICA_DEPENDENCIES += giflib
-LEPTONICA_CONF_OPTS +=  --with-giflib
+LEPTONICA_CONF_OPTS += --with-giflib
 else
-LEPTONICA_CONF_OPTS +=  --without-giflib
+LEPTONICA_CONF_OPTS += --without-giflib
 endif
 
 ifeq ($(BR2_PACKAGE_JPEG),y)
@@ -56,8 +52,15 @@ endif
 ifeq ($(BR2_PACKAGE_WEBP),y)
 LEPTONICA_DEPENDENCIES += webp
 LEPTONICA_CONF_OPTS += --with-libwebp
+ifeq ($(BR2_PACKAGE_WEBP_DEMUX)$(BR2_PACKAGE_WEBP_MUX),yy)
+LEPTONICA_CONF_OPTS += --with-libwebpmux
 else
-LEPTONICA_CONF_OPTS += --without-libwebp
+LEPTONICA_CONF_OPTS += --without-libwebpmux
+endif
+else
+LEPTONICA_CONF_OPTS += \
+	--without-libwebp \
+	--without-libwebpmux
 endif
 
 ifeq ($(BR2_PACKAGE_ZLIB),y)

@@ -4,12 +4,18 @@
 #
 ################################################################################
 
-NCURSES_VERSION = 6.0
-NCURSES_SITE = $(BR2_GNU_MIRROR)/ncurses
+# When there is no snapshost yet for a new version, set it to the empty string
+NCURSES_VERSION_MAJOR = 6.4
+NCURSES_SNAPSHOT_DATE = 20230429
+NCURSES_VERSION = $(NCURSES_VERSION_MAJOR)$(if $(NCURSES_SNAPSHOT_DATE),-$(NCURSES_SNAPSHOT_DATE))
+NCURSES_VERSION_GIT = $(subst .,_,$(subst -,_,$(NCURSES_VERSION)))
+NCURSES_SITE = $(call github,ThomasDickey,ncurses-snapshots,v$(NCURSES_VERSION_GIT))
 NCURSES_INSTALL_STAGING = YES
 NCURSES_DEPENDENCIES = host-ncurses
 NCURSES_LICENSE = MIT with advertising clause
-NCURSES_LICENSE_FILES = README
+NCURSES_LICENSE_FILES = COPYING
+NCURSES_CPE_ID_VENDOR = gnu
+NCURSES_CPE_ID_VERSION = $(NCURSES_VERSION_MAJOR)$(if $(NCURSES_SNAPSHOT_DATE),.$(NCURSES_SNAPSHOT_DATE))
 NCURSES_CONFIG_SCRIPTS = ncurses$(NCURSES_LIB_SUFFIX)6-config
 
 NCURSES_CONF_OPTS = \
@@ -25,6 +31,7 @@ NCURSES_CONF_OPTS = \
 	--enable-const \
 	--enable-overwrite \
 	--enable-pc-files \
+	--disable-stripping \
 	--with-pkg-config-libdir="/usr/lib/pkgconfig" \
 	$(if $(BR2_PACKAGE_NCURSES_TARGET_PROGS),,--without-progs) \
 	--without-manpages
@@ -50,6 +57,7 @@ NCURSES_TERMINFO_FILES = \
 	d/dumb \
 	l/linux \
 	p/putty \
+	p/putty-256color \
 	p/putty-vt100 \
 	s/screen \
 	s/screen-256color \
@@ -59,8 +67,11 @@ NCURSES_TERMINFO_FILES = \
 	v/vt200 \
 	v/vt220 \
 	x/xterm \
+	x/xterm+256color \
+	x/xterm-256color \
 	x/xterm-color \
-	x/xterm-xfree86
+	x/xterm-xfree86 \
+	$(call qstrip,$(BR2_PACKAGE_NCURSES_ADDITIONAL_TERMINFO))
 
 ifeq ($(BR2_PACKAGE_NCURSES_WCHAR),y)
 NCURSES_CONF_OPTS += --enable-widec
@@ -97,10 +108,6 @@ NCURSES_LINK_STAGING_LIBS = \
 NCURSES_LINK_STAGING_PC = $(call NCURSES_LINK_PC)
 
 NCURSES_CONF_OPTS += --enable-ext-colors
-NCURSES_TERMINFO_FILES += \
-	p/putty-256color \
-	x/xterm+256color \
-	x/xterm-256color
 
 NCURSES_POST_INSTALL_STAGING_HOOKS += NCURSES_LINK_STAGING_LIBS
 NCURSES_POST_INSTALL_STAGING_HOOKS += NCURSES_LINK_STAGING_PC
@@ -135,15 +142,8 @@ define NCURSES_TARGET_CLEANUP_TERMINFO
 endef
 NCURSES_POST_INSTALL_TARGET_HOOKS += NCURSES_TARGET_CLEANUP_TERMINFO
 
-#
-# On systems with an older version of tic, the installation of ncurses hangs
-# forever. To resolve the problem, build a static version of tic on host
-# ourselves, and use that during installation.
-#
-define HOST_NCURSES_BUILD_CMDS
-	$(HOST_MAKE_ENV) $(MAKE1) -C $(@D) sources
-	$(HOST_MAKE_ENV) $(MAKE) -C $(@D)/progs tic
-endef
+HOST_NCURSES_CONF_ENV = \
+	ac_cv_path_LDCONFIG=""
 
 HOST_NCURSES_CONF_OPTS = \
 	--with-shared \
@@ -152,6 +152,8 @@ HOST_NCURSES_CONF_OPTS = \
 	--without-cxx \
 	--without-cxx-binding \
 	--without-ada \
+	--with-default-terminfo-dir=/usr/share/terminfo \
+	--disable-db-install \
 	--without-normal
 
 $(eval $(autotools-package))

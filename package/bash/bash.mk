@@ -4,14 +4,18 @@
 #
 ################################################################################
 
-BASH_VERSION = 4.4
+BASH_VERSION = 5.2.15
 BASH_SITE = $(BR2_GNU_MIRROR)/bash
-# Build after since bash is better than busybox shells
-BASH_DEPENDENCIES = ncurses readline host-bison \
-	$(if $(BR2_PACKAGE_BUSYBOX),busybox)
-BASH_CONF_OPTS = --with-installed-readline --without-bash-malloc
+BASH_DEPENDENCIES = ncurses readline host-bison
 BASH_LICENSE = GPL-3.0+
 BASH_LICENSE_FILES = COPYING
+BASH_CPE_ID_VENDOR = gnu
+
+# We want the bash binary in /bin
+BASH_CONF_OPTS = \
+	--bindir=/bin \
+	--with-installed-readline \
+	--without-bash-malloc
 
 BASH_CONF_ENV += \
 	ac_cv_rl_prefix="$(STAGING_DIR)" \
@@ -38,11 +42,30 @@ BASH_CONF_ENV += bash_cv_getenv_redef=yes
 endif
 endif
 
-# Make /bin/sh -> bash (no other shell, better than busybox shells)
-define BASH_INSTALL_TARGET_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) \
-		DESTDIR=$(TARGET_DIR) exec_prefix=/ install
+define BASH_REMOVE_UNUSED_FILES
 	rm -f $(TARGET_DIR)/bin/bashbug
 endef
+BASH_POST_INSTALL_TARGET_HOOKS += BASH_REMOVE_UNUSED_FILES
+
+ifeq ($(BR2_PACKAGE_BASH_LOADABLE_EXAMPLES),y)
+define BASH_REMOVE_LOADABLE_UNUSED_FILES
+	rm -f $(TARGET_DIR)/usr/lib/bash/Makefile.inc
+	rm -f $(TARGET_DIR)/usr/lib/bash/loadables.h
+endef
+BASH_POST_INSTALL_TARGET_HOOKS += BASH_REMOVE_LOADABLE_UNUSED_FILES
+else
+define BASH_REMOVE_LOADABLE_EXAMPLES
+	rm -rf $(TARGET_DIR)/usr/lib/bash
+endef
+BASH_POST_INSTALL_TARGET_HOOKS += BASH_REMOVE_LOADABLE_EXAMPLES
+endif
+
+# Add /bin/bash to /etc/shells otherwise some login tools like dropbear
+# can reject the user connection. See man shells.
+define BASH_ADD_BASH_TO_SHELLS
+	grep -qsE '^/bin/bash$$' $(TARGET_DIR)/etc/shells \
+		|| echo "/bin/bash" >> $(TARGET_DIR)/etc/shells
+endef
+BASH_TARGET_FINALIZE_HOOKS += BASH_ADD_BASH_TO_SHELLS
 
 $(eval $(autotools-package))

@@ -1,7 +1,10 @@
-From db480b9f3e3a5c6c12e9dd04e87c8dff9381b8e7 Mon Sep 17 00:00:00 2001
+From feb05271b484b158c14611839f968109e9cf3082 Mon Sep 17 00:00:00 2001
 From: Erico Nunes <nunes.erico@gmail.com>
 Date: Fri, 12 Aug 2016 23:11:56 +0200
 Subject: [PATCH] fwts: do not use -Werror
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 Warnings come and go with various compiler versions, so using -Werror is
 prone to cause build failures with various compiler versions, especially
@@ -10,6 +13,10 @@ newer versions that introduce new warnings.
 Remove use of -Werror.
 
 Signed-off-by: Erico Nunes <nunes.erico@gmail.com>
+[Fabrice: updated for 20.08.00]
+Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+[Vincent: rebased onto V21.05.00]
+Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
 ---
  configure.ac              | 2 +-
  src/Makefile.am           | 2 +-
@@ -18,7 +25,7 @@ Signed-off-by: Erico Nunes <nunes.erico@gmail.com>
  4 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index e3e7512..64034fa 100644
+index ca2f54e2..ed584abf 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1,5 +1,5 @@
@@ -29,41 +36,44 @@ index e3e7512..64034fa 100644
  	  AC_CANONICAL_HOST
  	  AC_CONFIG_MACRO_DIR([m4])
 diff --git a/src/Makefile.am b/src/Makefile.am
-index bc23e8d..599765d 100644
+index 3bb35e5c..e9fe92fe 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -14,7 +14,7 @@ AM_CPPFLAGS = \
- 	`pkg-config --silence-errors --cflags json` \
- 	`pkg-config --silence-errors --cflags json-c` \
- 	-pthread `pkg-config --cflags glib-2.0 gio-2.0` \
--	-Wall -Werror -Wextra
-+	-Wall -Wextra
- 
- bin_PROGRAMS = fwts
- 
+@@ -13,7 +13,7 @@ AM_CPPFLAGS = \
+ 	-I$(top_srcdir)/efi_runtime			\
+ 	-I$(top_srcdir)/smccc_test			\
+ 	-pthread					\
+-	-Wall -Werror -Wextra				\
++	-Wall -Wextra				\
+ 	-Wno-address-of-packed-member			\
+ 	-Wfloat-equal -Wmissing-declarations		\
+ 	-Wno-long-long -Wredundant-decls -Wshadow	\
 diff --git a/src/lib/src/Makefile.am b/src/lib/src/Makefile.am
-index 1b8fd74..163c9ae 100644
+index d5d53dd7..76c48d4d 100644
 --- a/src/lib/src/Makefile.am
 +++ b/src/lib/src/Makefile.am
-@@ -6,7 +6,7 @@ AM_CPPFLAGS = \
- 	`pkg-config --silence-errors --cflags json-c`	\
- 	`pkg-config --cflags glib-2.0 gio-2.0` 		\
+@@ -22,7 +22,7 @@ AM_CPPFLAGS = \
+ 	-I$(top_srcdir)/src/acpica/source/include	\
+ 	-I$(top_srcdir)/src/acpica/source/compiler	\
  	-DDATAROOTDIR=\"$(datarootdir)\"		\
--	-Wall -Werror -Wextra
-+	-Wall -Wextra
+-	-Wall -Werror -Wextra				\
++	-Wall -Wextra					\
+ 	-Wno-address-of-packed-member
  
  pkglib_LTLIBRARIES = libfwts.la
- 
 diff --git a/src/utilities/Makefile.am b/src/utilities/Makefile.am
-index 9a47980..14997df 100644
+index de38f070..785975ff 100644
 --- a/src/utilities/Makefile.am
 +++ b/src/utilities/Makefile.am
-@@ -1,4 +1,4 @@
--AM_CPPFLAGS = -Wall -Werror -Wextra -DDATAROOTDIR=\"$(datarootdir)\" \
-+AM_CPPFLAGS = -Wall -Wextra -DDATAROOTDIR=\"$(datarootdir)\" \
- 	`pkg-config --silence-errors --cflags json` \
- 	`pkg-config --silence-errors --cflags json-c`
+@@ -16,7 +16,7 @@
+ # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ #
  
+-AM_CPPFLAGS = -Wall -Werror -Wextra -DDATAROOTDIR=\"$(datarootdir)\" 	\
++AM_CPPFLAGS = -Wall -Wextra -DDATAROOTDIR=\"$(datarootdir)\" 	\
+ 	-I$(srcdir)/../lib/include
+ 
+ bin_PROGRAMS = kernelscan
 -- 
-2.7.4
+2.36.1
 

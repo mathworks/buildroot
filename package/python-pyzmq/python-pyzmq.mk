@@ -4,14 +4,14 @@
 #
 ################################################################################
 
-PYTHON_PYZMQ_VERSION = 16.0.2
+PYTHON_PYZMQ_VERSION = 24.0.1
 PYTHON_PYZMQ_SOURCE = pyzmq-$(PYTHON_PYZMQ_VERSION).tar.gz
-PYTHON_PYZMQ_SITE = https://pypi.python.org/packages/af/37/8e0bf3800823bc247c36715a52e924e8f8fd5d1432f04b44b8cd7a5d7e55
+PYTHON_PYZMQ_SITE = https://files.pythonhosted.org/packages/46/0d/b06cf99a64d4187632f4ac9ddf6be99cd35de06fe72d75140496a8e0eef5
 PYTHON_PYZMQ_LICENSE = LGPL-3.0+, BSD-3-Clause, Apache-2.0
 # Apache license only online: http://www.apache.org/licenses/LICENSE-2.0
 PYTHON_PYZMQ_LICENSE_FILES = COPYING.LESSER COPYING.BSD
-PYTHON_PYZMQ_DEPENDENCIES = zeromq
-PYTHON_PYZMQ_SETUP_TYPE = distutils
+PYTHON_PYZMQ_DEPENDENCIES = host-python-packaging zeromq
+PYTHON_PYZMQ_SETUP_TYPE = setuptools
 PYTHON_PYZMQ_BUILD_OPTS = --zmq=$(STAGING_DIR)/usr
 
 # Due to issues with cross-compiling, hardcode to the zeromq in BR
@@ -21,5 +21,9 @@ define PYTHON_PYZMQ_PATCH_ZEROMQ_VERSION
 endef
 
 PYTHON_PYZMQ_POST_PATCH_HOOKS += PYTHON_PYZMQ_PATCH_ZEROMQ_VERSION
+
+ifeq ($(BR2_PACKAGE_ZEROMQ_DRAFTS),y)
+PYTHON_PYZMQ_BUILD_OPTS += --enable-drafts
+endif
 
 $(eval $(python-package))

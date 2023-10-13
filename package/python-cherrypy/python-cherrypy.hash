@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi?:action=show_md5&digest=4b765329b0b4b65ec25811e3febb6c93, sha256 locally computed
-md5	4b765329b0b4b65ec25811e3febb6c93  CherryPy-4.0.0.tar.gz
-sha256	73ad4f8870b5a3e9988a7778b5d3003a390d440527ec3458a0c7e58865d2611a  CherryPy-4.0.0.tar.gz
+# md5, sha256 from https://pypi.org/pypi/cherrypy/json
+md5  033c58bf3da497f283b039911d1c882b  CherryPy-18.8.0.tar.gz
+sha256  9b48cfba8a2f16d5b6419cc657e6d51db005ba35c5e3824e4728bb03bbc7ef9b  CherryPy-18.8.0.tar.gz
+# Locally computed sha256 checksums
+sha256  45ade933c280ece37e3e01d3a91afeed9505746a456f72ad10b0897c49e65104  LICENSE.md

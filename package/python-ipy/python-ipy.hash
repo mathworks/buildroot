@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi/ipy/json, sha256 locally computed
-md5	7b8c6eb4111b15aea31b67108e769712  IPy-0.83.tar.gz
-sha256	61da5a532b159b387176f6eabf11946e7458b6df8fb8b91ff1d345ca7a6edab8  IPy-0.83.tar.gz
+# md5, sha256 from https://pypi.org/pypi/ipy/json
+md5  d6cf83e7f418ebbd23324ba1c658b907  IPy-1.01.tar.gz
+sha256  edeca741dea2d54aca568fa23740288c3fe86c0f3ea700344571e9ef14a7cc1a  IPy-1.01.tar.gz
+# Locally computed sha256 checksums
+sha256  078bb46799e46e51e7239c24ff130d345db911c11efafef5e3c45dfb7adb0a61  COPYING

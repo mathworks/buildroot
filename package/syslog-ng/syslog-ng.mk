@@ -4,21 +4,27 @@
 #
 ################################################################################
 
-SYSLOG_NG_VERSION = 3.9.1
+# When updating the version, please check at runtime if the version in
+# syslog-ng.conf header needs to be updated
+SYSLOG_NG_VERSION = 4.1.1
 SYSLOG_NG_SITE = https://github.com/balabit/syslog-ng/releases/download/syslog-ng-$(SYSLOG_NG_VERSION)
 SYSLOG_NG_LICENSE = LGPL-2.1+ (syslog-ng core), GPL-2.0+ (modules)
-SYSLOG_NG_LICENSE_FILES = COPYING
+SYSLOG_NG_LICENSE_FILES = COPYING GPL.txt LGPL.txt
+SYSLOG_NG_CPE_ID_VENDOR = oneidentity
 SYSLOG_NG_DEPENDENCIES = host-bison host-flex host-pkgconf \
-	eventlog libglib2 openssl pcre
-# rabbit-mq needs -lrt
-SYSLOG_NG_CONF_ENV = LIBS=-lrt
+	libglib2 openssl pcre
+# We're patching configure.ac
+SYSLOG_NG_AUTORECONF = YES
 SYSLOG_NG_CONF_OPTS = --disable-manpages --localstatedir=/var/run \
-	--disable-java --disable-java-modules --disable-mongodb
+	--disable-java --disable-java-modules --disable-mongodb \
+	--disable-python
+SYSLOG_NG_CFLAGS = $(TARGET_CFLAGS)
 
-# We override busybox's S01logging init script
-ifeq ($(BR2_PACKAGE_BUSYBOX),y)
-SYSLOG_NG_DEPENDENCIES += busybox
+ifeq ($(BR2_TOOLCHAIN_HAS_GCC_BUG_101915),y)
+SYSLOG_NG_CFLAGS += -O0
 endif
+
+SYSLOG_NG_CONF_ENV = CFLAGS="$(SYSLOG_NG_CFLAGS)"
 
 ifeq ($(BR2_PACKAGE_GEOIP),y)
 SYSLOG_NG_DEPENDENCIES += geoip
@@ -32,22 +38,6 @@ SYSLOG_NG_DEPENDENCIES += libcap
 SYSLOG_NG_CONF_OPTS += --enable-linux-caps
 else
 SYSLOG_NG_CONF_OPTS += --disable-linux-caps
-endif
-
-ifeq ($(BR2_PACKAGE_PYTHON),y)
-SYSLOG_NG_DEPENDENCIES += python
-SYSLOG_NG_CONF_OPTS += \
-	--enable-python \
-	--with-python=$(PYTHON_VERSION_MAJOR)
-else ifeq ($(BR2_PACKAGE_PYTHON3),y)
-SYSLOG_NG_DEPENDENCIES += python3
-SYSLOG_NG_CONF_OPTS += \
-	--enable-python \
-	--with-python=$(PYTHON3_VERSION_MAJOR)
-else
-SYSLOG_NG_CONF_OPTS += \
-	--disable-python \
-	--without-python
 endif
 
 ifeq ($(BR2_PACKAGE_LIBESMTP),y)
@@ -71,7 +61,9 @@ endif
 
 ifeq ($(BR2_PACKAGE_LIBNET),y)
 SYSLOG_NG_DEPENDENCIES += libnet
-SYSLOG_NG_CONF_OPTS += --enable-spoof-source
+SYSLOG_NG_CONF_OPTS += \
+	--with-libnet=$(STAGING_DIR)/usr/bin \
+	--enable-spoof-source
 else
 SYSLOG_NG_CONF_OPTS += --disable-spoof-source
 endif
@@ -84,6 +76,13 @@ else
 SYSLOG_NG_CONF_OPTS += --disable-http
 endif
 
+ifeq ($(BR2_PACKAGE_RABBITMQ_C),y)
+SYSLOG_NG_DEPENDENCIES += rabbitmq-c
+SYSLOG_NG_CONF_OPTS += --enable-amqp
+else
+SYSLOG_NG_CONF_OPTS += --disable-amqp
+endif
+
 ifeq ($(BR2_INIT_SYSTEMD),y)
 SYSLOG_NG_DEPENDENCIES += systemd
 SYSLOG_NG_CONF_OPTS += \
@@ -93,9 +92,25 @@ else
 SYSLOG_NG_CONF_OPTS += --disable-systemd
 endif
 
+ifeq ($(BR2_PACKAGE_NETSNMP),y)
+SYSLOG_NG_DEPENDENCIES += netsnmp
+SYSLOG_NG_CONF_OPTS += --enable-afsnmp
+SYSLOG_NG_CONF_OPTS += --with-net-snmp="$(STAGING_DIR)/usr/bin"
+else
+SYSLOG_NG_CONF_OPTS += --disable-afsnmp
+endif
+
 define SYSLOG_NG_INSTALL_INIT_SYSV
-	$(INSTALL) -m 0755 -D package/syslog-ng/S01logging \
-		$(TARGET_DIR)/etc/init.d/S01logging
+	$(INSTALL) -m 0755 -D package/syslog-ng/S01syslog-ng \
+		$(TARGET_DIR)/etc/init.d/S01syslog-ng
+endef
+
+# By default syslog-ng installs a .service that requires a config file at
+# /etc/default, so provide one with the default values.
+define SYSLOG_NG_INSTALL_INIT_SYSTEMD
+	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system/syslog-ng@.service.d
+	printf '[Install]\nDefaultInstance=default\n' \
+		>$(TARGET_DIR)/usr/lib/systemd/system/syslog-ng@.service.d/buildroot-default-instance.conf
 endef
 
 # By default syslog-ng installs a number of sample configuration

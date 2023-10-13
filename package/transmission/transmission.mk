@@ -4,54 +4,54 @@
 #
 ################################################################################
 
-TRANSMISSION_VERSION = 2.92
-TRANSMISSION_SITE = https://github.com/transmission/transmission-releases/raw/master
+TRANSMISSION_VERSION = 4.0.3
 TRANSMISSION_SOURCE = transmission-$(TRANSMISSION_VERSION).tar.xz
+TRANSMISSION_SITE = https://github.com/transmission/transmission/releases/download/$(TRANSMISSION_VERSION)
 TRANSMISSION_DEPENDENCIES = \
 	host-pkgconf \
-	host-intltool \
+	dht \
+	libb64 \
 	libcurl \
+	libdeflate \
 	libevent \
+	libminiupnpc \
+	libnatpmp \
+	libpsl \
+	libutp \
 	openssl \
 	zlib
-TRANSMISSION_AUTORECONF = YES
 TRANSMISSION_CONF_OPTS = \
-	--disable-libnotify \
-	--enable-lightweight
+	-DENABLE_TESTS=OFF \
+	-DRUN_CLANG_TIDY=OFF \
+	-DUSE_SYSTEM_B64=ON \
+	-DUSE_SYSTEM_DEFLATE=ON \
+	-DUSE_SYSTEM_DHT=ON \
+	-DUSE_SYSTEM_NATPMP=ON \
+	-DUSE_SYSTEM_PSL=ON \
+	-DWITH_INOTIFY=OFF
 TRANSMISSION_LICENSE = GPL-2.0 or GPL-3.0 with OpenSSL exception
 TRANSMISSION_LICENSE_FILES = COPYING
+TRANSMISSION_CPE_ID_VENDOR = transmissionbt
 
-ifeq ($(BR2_PACKAGE_LIBMINIUPNPC),y)
-TRANSMISSION_DEPENDENCIES += libminiupnpc
-endif
-
-ifeq ($(BR2_PACKAGE_LIBNATPMP),y)
-TRANSMISSION_DEPENDENCIES += libnatpmp
-TRANSMISSION_CONF_OPTS += --enable-external-natpmp
-else
-TRANSMISSION_CONF_OPTS += --disable-external-natpmp
-endif
-
-ifeq ($(BR2_PACKAGE_TRANSMISSION_UTP),y)
-TRANSMISSION_CONF_OPTS += --enable-utp
-else
-TRANSMISSION_CONF_OPTS += --disable-utp
+# Uses __atomic_load_8
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+TRANSMISSION_CONF_OPTS += -DCMAKE_EXE_LINKER_FLAGS=-latomic
 endif
 
 ifeq ($(BR2_PACKAGE_TRANSMISSION_CLI),y)
-TRANSMISSION_CONF_OPTS += --enable-cli
+TRANSMISSION_CONF_OPTS += -DENABLE_CLI=ON
 else
-TRANSMISSION_CONF_OPTS += --disable-cli
+TRANSMISSION_CONF_OPTS += -DENABLE_CLI=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_TRANSMISSION_DAEMON),y)
-TRANSMISSION_CONF_OPTS += --enable-daemon
+TRANSMISSION_CONF_OPTS += -DENABLE_DAEMON=ON
 
 ifeq ($(BR2_PACKAGE_SYSTEMD),y)
 TRANSMISSION_DEPENDENCIES += systemd
-TRANSMISSION_CONF_OPTS += --with-systemd-daemon
+TRANSMISSION_CONF_OPTS += -DWITH_SYSTEMD=ON
 else
-TRANSMISSION_CONF_OPTS += --without-systemd-daemon
+TRANSMISSION_CONF_OPTS += -DWITH_SYSTEMD=OFF
 endif
 
 define TRANSMISSION_USERS
@@ -64,28 +64,19 @@ define TRANSMISSION_INSTALL_INIT_SYSV
 endef
 
 define TRANSMISSION_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -m 0755 $(@D)/daemon/transmission-daemon.service \
+	$(INSTALL) -D -m 0644 $(@D)/daemon/transmission-daemon.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/transmission-daemon.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -fs ../../../../usr/lib/systemd/system/transmission-daemon.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/transmission-daemon.service
 endef
 
 else
-TRANSMISSION_CONF_OPTS += --disable-daemon
-endif
-
-ifeq ($(BR2_PACKAGE_TRANSMISSION_REMOTE),y)
-TRANSMISSION_CONF_OPTS += --enable-remote
-else
-TRANSMISSION_CONF_OPTS += --disable-remote
+TRANSMISSION_CONF_OPTS += -DENABLE_DAEMON=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_TRANSMISSION_GTK),y)
-TRANSMISSION_CONF_OPTS += --enable-gtk
-TRANSMISSION_DEPENDENCIES += libgtk2
+TRANSMISSION_CONF_OPTS += -DENABLE_GTK=ON
+TRANSMISSION_DEPENDENCIES += libgtk3
 else
-TRANSMISSION_CONF_OPTS += --disable-gtk
+TRANSMISSION_CONF_OPTS += -DENABLE_GTK=OFF
 endif
 
-$(eval $(autotools-package))
+$(eval $(cmake-package))

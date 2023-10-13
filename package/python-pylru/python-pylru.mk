@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-PYTHON_PYLRU_VERSION = 1.0.9
+PYTHON_PYLRU_VERSION = 1.2.1
 PYTHON_PYLRU_SOURCE = pylru-$(PYTHON_PYLRU_VERSION).tar.gz
-PYTHON_PYLRU_SITE = https://pypi.python.org/packages/c0/7d/0de1055632f3871dfeaabe5a3f0510317cd98b93e7b792b44e4c7de2b17b
-PYTHON_PYLRU_SETUP_TYPE = distutils
+PYTHON_PYLRU_SITE = https://files.pythonhosted.org/packages/95/8e/2a0d3426738db0b41d69d36243bdd00420ad231e802d09dad8db02005d13
+PYTHON_PYLRU_SETUP_TYPE = setuptools
 PYTHON_PYLRU_LICENSE = GPL-2.0
 PYTHON_PYLRU_LICENSE_FILES = LICENSE.txt
 

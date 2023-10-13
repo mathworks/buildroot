@@ -4,11 +4,15 @@
 #
 ################################################################################
 
-LIBXML2_VERSION = 2.9.4
-LIBXML2_SITE = ftp://xmlsoft.org/libxml2
+LIBXML2_VERSION_MAJOR = 2.10
+LIBXML2_VERSION = $(LIBXML2_VERSION_MAJOR).4
+LIBXML2_SOURCE = libxml2-$(LIBXML2_VERSION).tar.xz
+LIBXML2_SITE = \
+	https://download.gnome.org/sources/libxml2/$(LIBXML2_VERSION_MAJOR)
 LIBXML2_INSTALL_STAGING = YES
 LIBXML2_LICENSE = MIT
-LIBXML2_LICENSE_FILES = COPYING
+LIBXML2_LICENSE_FILES = Copyright
+LIBXML2_CPE_ID_VENDOR = xmlsoft
 LIBXML2_CONFIG_SCRIPTS = xml2-config
 
 # relocation truncated to fit: R_68K_GOT16O
@@ -22,6 +26,13 @@ HOST_LIBXML2_DEPENDENCIES = host-pkgconf
 LIBXML2_DEPENDENCIES = host-pkgconf
 
 HOST_LIBXML2_CONF_OPTS = --without-zlib --without-lzma --without-python
+
+ifeq ($(BR2_PACKAGE_ICU),y)
+LIBXML2_DEPENDENCIES += icu
+LIBXML2_CONF_OPTS += --with-icu
+else
+LIBXML2_CONF_OPTS += --without-icu
+endif
 
 ifeq ($(BR2_PACKAGE_ZLIB),y)
 LIBXML2_DEPENDENCIES += zlib
@@ -45,8 +56,13 @@ else
 LIBXML2_CONF_OPTS += --without-iconv
 endif
 
+define LIBXML2_CLEANUP_XML2CONF
+	rm -f $(TARGET_DIR)/usr/lib/xml2Conf.sh
+endef
+LIBXML2_POST_INSTALL_TARGET_HOOKS += LIBXML2_CLEANUP_XML2CONF
+
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))
 
 # libxml2 for the host
-LIBXML2_HOST_BINARY = $(HOST_DIR)/usr/bin/xmllint
+LIBXML2_HOST_BINARY = $(HOST_DIR)/bin/xmllint

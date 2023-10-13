@@ -1,2 +1,5 @@
 # Locally calculated after checking pgp signature
-sha256 9f340c7e2352e9cdf113893ca77ca9075d9f8d5e81476bf2bf361099383c602c  dbus-glib-0.108.tar.gz
+sha256  7d550dccdfcd286e33895501829ed971eeb65c614e73aadb4a08aeef719b143a  dbus-glib-0.112.tar.gz
+
+# Locally calculated
+sha256  589bc300214a8b9ecd121f51570fe6342617487fd8fc0fb1f4ec26a13d5b96f8  COPYING

@@ -4,10 +4,12 @@
 #
 ################################################################################
 
-REDIS_VERSION = 3.2.8
+REDIS_VERSION = 7.0.11
 REDIS_SITE = http://download.redis.io/releases
 REDIS_LICENSE = BSD-3-Clause (core); MIT and BSD family licenses (Bundled components)
 REDIS_LICENSE_FILES = COPYING
+REDIS_CPE_ID_VENDOR = redislabs
+REDIS_SELINUX_MODULES = redis
 
 define REDIS_USERS
 	redis -1 redis -1 * /var/lib/redis /bin/false - Redis Server
@@ -30,6 +32,20 @@ endif
 REDIS_BUILDOPTS = $(TARGET_CONFIGURE_OPTS) \
 	PREFIX=$(TARGET_DIR)/usr MALLOC=libc
 
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+REDIS_DEPENDENCIES += systemd
+REDIS_BUILDOPTS += USE_SYSTEMD=yes
+else
+REDIS_BUILDOPTS += USE_SYSTEMD=no
+endif
+
+ifeq ($(BR2_PACKAGE_LIBOPENSSL),y)
+REDIS_DEPENDENCIES += libopenssl
+REDIS_BUILDOPTS += BUILD_TLS=yes
+else
+REDIS_BUILDOPTS += BUILD_TLS=no
+endif
+
 define REDIS_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) $(REDIS_BUILDOPTS) -C $(@D)
 endef
@@ -49,9 +65,6 @@ endef
 define REDIS_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 0644 package/redis/redis.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/redis.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -fs ../../../../usr/lib/systemd/system/redis.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/redis.service
 endef
 
 $(eval $(generic-package))

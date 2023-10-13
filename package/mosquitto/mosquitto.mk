@@ -4,20 +4,39 @@
 #
 ################################################################################
 
-MOSQUITTO_VERSION = 1.4.12
-MOSQUITTO_SITE = http://mosquitto.org/files/source
-MOSQUITTO_LICENSE = EPL-1.0 or EDLv1.0
-MOSQUITTO_LICENSE_FILES = LICENSE.txt epl-v10 edl-v10
+MOSQUITTO_VERSION = 2.0.15
+MOSQUITTO_SITE = https://mosquitto.org/files/source
+MOSQUITTO_LICENSE = EPL-2.0 or EDLv1.0
+MOSQUITTO_LICENSE_FILES = LICENSE.txt epl-v20 edl-v10
+MOSQUITTO_CPE_ID_VENDOR = eclipse
 MOSQUITTO_INSTALL_STAGING = YES
 MOSQUITTO_PATCH = \
 	https://mosquitto.org/files/cve/2017-9868/mosquitto-1.4.x_cve-2017-9868.patch
 
 MOSQUITTO_MAKE_OPTS = \
+	CLIENT_STATIC_LDADD="$(MOSQUITTO_STATIC_LIBS)" \
 	UNAME=Linux \
 	STRIP=true \
 	prefix=/usr \
 	WITH_WRAP=no \
 	WITH_DOCS=no
+
+ifeq ($(BR2_SHARED_LIBS),y)
+MOSQUITTO_MAKE_OPTS += WITH_STATIC_LIBRARIES=no
+else
+MOSQUITTO_MAKE_OPTS += WITH_STATIC_LIBRARIES=yes
+endif
+
+ifeq ($(BR2_STATIC_LIBS),y)
+MOSQUITTO_MAKE_OPTS += WITH_SHARED_LIBRARIES=no
+else
+MOSQUITTO_MAKE_OPTS += WITH_SHARED_LIBRARIES=yes
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+MOSQUITTO_MAKE_OPTS += WITH_SYSTEMD=yes
+MOSQUITTO_DEPENDENCIES += systemd
+endif
 
 # adns uses getaddrinfo_a
 ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),y)
@@ -26,17 +45,27 @@ else
 MOSQUITTO_MAKE_OPTS += WITH_ADNS=no
 endif
 
-ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
+# threaded API uses pthread_setname_np
+ifeq ($(BR2_TOOLCHAIN_HAS_THREADS_NPTL),y)
 MOSQUITTO_MAKE_OPTS += WITH_THREADING=yes
 else
 MOSQUITTO_MAKE_OPTS += WITH_THREADING=no
 endif
 
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
-MOSQUITTO_DEPENDENCIES += openssl
+MOSQUITTO_DEPENDENCIES += host-pkgconf openssl
 MOSQUITTO_MAKE_OPTS += WITH_TLS=yes
+MOSQUITTO_STATIC_LIBS += `$(PKG_CONFIG_HOST_BINARY) --libs openssl`
 else
 MOSQUITTO_MAKE_OPTS += WITH_TLS=no
+endif
+
+ifeq ($(BR2_PACKAGE_CJSON),y)
+MOSQUITTO_DEPENDENCIES += cjson
+MOSQUITTO_MAKE_OPTS += WITH_CJSON=yes
+MOSQUITTO_STATIC_LIBS += -lcjson
+else
+MOSQUITTO_MAKE_OPTS += WITH_CJSON=no
 endif
 
 ifeq ($(BR2_PACKAGE_C_ARES),y)
@@ -44,13 +73,6 @@ MOSQUITTO_DEPENDENCIES += c-ares
 MOSQUITTO_MAKE_OPTS += WITH_SRV=yes
 else
 MOSQUITTO_MAKE_OPTS += WITH_SRV=no
-endif
-
-ifeq ($(BR2_PACKAGE_UTIL_LINUX_LIBUUID),y)
-MOSQUITTO_DEPENDENCIES += util-linux
-MOSQUITTO_MAKE_OPTS += WITH_UUID=yes
-else
-MOSQUITTO_MAKE_OPTS += WITH_UUID=no
 endif
 
 ifeq ($(BR2_PACKAGE_LIBWEBSOCKETS),y)
@@ -69,39 +91,63 @@ endef
 MOSQUITTO_POST_PATCH_HOOKS += MOSQUITTO_DISABLE_CPP
 endif
 
+MOSQUITTO_MAKE_DIRS = lib client
+ifeq ($(BR2_PACKAGE_MOSQUITTO_BROKER),y)
+MOSQUITTO_MAKE_DIRS += src
+endif
+
 define MOSQUITTO_BUILD_CMDS
-	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS) \
+	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS) DIRS="$(MOSQUITTO_MAKE_DIRS)" \
 		$(MOSQUITTO_MAKE_OPTS)
 endef
 
 define MOSQUITTO_INSTALL_STAGING_CMDS
-	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS) \
+	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS) DIRS="$(MOSQUITTO_MAKE_DIRS)" \
 		$(MOSQUITTO_MAKE_OPTS) DESTDIR=$(STAGING_DIR) install
 endef
 
 define MOSQUITTO_INSTALL_TARGET_CMDS
-	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS) \
+	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS) DIRS="$(MOSQUITTO_MAKE_DIRS)" \
 		$(MOSQUITTO_MAKE_OPTS) DESTDIR=$(TARGET_DIR) install
 	rm -f $(TARGET_DIR)/etc/mosquitto/*.example
 	$(INSTALL) -D -m 0644 $(@D)/mosquitto.conf \
 		$(TARGET_DIR)/etc/mosquitto/mosquitto.conf
 endef
 
+ifeq ($(BR2_PACKAGE_MOSQUITTO_BROKER),y)
 define MOSQUITTO_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 0755 package/mosquitto/S50mosquitto \
 		$(TARGET_DIR)/etc/init.d/S50mosquitto
 endef
 
 define MOSQUITTO_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -m 644 package/mosquitto/mosquitto.service \
+	$(INSTALL) -D -m 644 $(@D)/service/systemd/mosquitto.service.notify \
 		$(TARGET_DIR)/usr/lib/systemd/system/mosquitto.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -fs ../../../../usr/lib/systemd/system/mosquitto.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/mosquitto.service
 endef
 
 define MOSQUITTO_USERS
-	mosquitto -1 nogroup -1 * - - - Mosquitto user
+	mosquitto -1 mosquitto -1 * - - - Mosquitto user
+endef
+endif
+
+HOST_MOSQUITTO_DEPENDENCIES = host-pkgconf host-openssl
+
+HOST_MOSQUITTO_MAKE_OPTS = \
+	$(HOST_CONFIGURE_OPTS) \
+	UNAME=Linux \
+	STRIP=true \
+	prefix=$(HOST_DIR) \
+	WITH_WRAP=no \
+	WITH_DOCS=no \
+	WITH_TLS=yes
+
+define HOST_MOSQUITTO_BUILD_CMDS
+	$(MAKE) -C $(@D)/apps/mosquitto_passwd $(HOST_MOSQUITTO_MAKE_OPTS)
+endef
+
+define HOST_MOSQUITTO_INSTALL_CMDS
+	$(MAKE) -C $(@D)/apps/mosquitto_passwd $(HOST_MOSQUITTO_MAKE_OPTS) install
 endef
 
 $(eval $(generic-package))
+$(eval $(host-generic-package))

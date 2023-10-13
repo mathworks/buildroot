@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-S6_RC_VERSION = 0.1.0.0
+S6_RC_VERSION = 0.5.3.2
 S6_RC_SITE = http://skarnet.org/software/s6-rc
 S6_RC_LICENSE = ISC
 S6_RC_LICENSE_FILES = COPYING
@@ -12,13 +12,13 @@ S6_RC_INSTALL_STAGING = YES
 S6_RC_DEPENDENCIES = s6
 
 S6_RC_CONF_OPTS = \
-	--prefix=/usr \
-	--with-sysdeps=$(STAGING_DIR)/usr/lib/skalibs/sysdeps \
-	--with-include=$(STAGING_DIR)/usr/include \
-	--with-dynlib=$(STAGING_DIR)/usr/lib \
-	--with-lib=$(STAGING_DIR)/usr/lib/execline \
-	--with-lib=$(STAGING_DIR)/usr/lib/s6 \
-	--with-lib=$(STAGING_DIR)/usr/lib/skalibs \
+	--prefix=/ \
+	--with-sysdeps=$(STAGING_DIR)/lib/skalibs/sysdeps \
+	--with-include=$(STAGING_DIR)/include \
+	--with-dynlib=$(STAGING_DIR)/lib \
+	--with-lib=$(STAGING_DIR)/lib/execline \
+	--with-lib=$(STAGING_DIR)/lib/s6 \
+	--with-lib=$(STAGING_DIR)/lib/skalibs \
 	$(if $(BR2_STATIC_LIBS),,--disable-allstatic) \
 	$(SHARED_STATIC_LIBS_OPTS)
 
@@ -47,11 +47,11 @@ endef
 HOST_S6_RC_DEPENDENCIES = host-s6
 
 HOST_S6_RC_CONF_OPTS = \
-	--prefix=$(HOST_DIR)/usr \
+	--prefix=$(HOST_DIR) \
 	--libexecdir=/usr/libexec \
-	--with-sysdeps=$(HOST_DIR)/usr/lib/skalibs/sysdeps \
-	--with-include=$(HOST_DIR)/usr/include \
-	--with-dynlib=$(HOST_DIR)/usr/lib \
+	--with-sysdeps=$(HOST_DIR)/lib/skalibs/sysdeps \
+	--with-include=$(HOST_DIR)/include \
+	--with-dynlib=$(HOST_DIR)/lib \
 	--disable-static \
 	--enable-shared \
 	--disable-allstatic
@@ -66,7 +66,7 @@ endef
 
 define HOST_S6_RC_INSTALL_CMDS
 	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) install-dynlib install-bin
-	rm -f $(HOST_DIR)/usr/bin/s6-rc-dryrun
+	rm -f $(HOST_DIR)/bin/s6-rc-dryrun
 endef
 
 $(eval $(generic-package))

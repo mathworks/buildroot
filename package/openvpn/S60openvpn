@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 #
 # Original version by Robert Leslie
 # <rob@mars.org>, edited by iwj and cs
@@ -7,19 +7,19 @@
 
 test $DEBIAN_SCRIPT_DEBUG && set -v -x
 
-DAEMON=/usr/sbin/openvpn
 CONFIG_DIR=/etc/openvpn
-test -x $DAEMON || exit 0
 test -d $CONFIG_DIR || exit 0
 
 start_vpn () {
-    $DAEMON --daemon --writepid /var/run/openvpn.$NAME.pid \
-            --config $CONFIG_DIR/$NAME.conf --cd $CONFIG_DIR || printf " FAILED->"
-    printf " $NAME"
+    printf " $NAME "
+    start-stop-daemon -S -p /var/run/openvpn.$NAME.pid -x /usr/sbin/openvpn -- \
+	      --daemon --writepid /var/run/openvpn.$NAME.pid \
+	      --config $CONFIG_DIR/$NAME.conf --cd $CONFIG_DIR
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 stop_vpn () {
-   kill `cat $PIDFILE` || true
-  rm $PIDFILE
+    printf " $NAME "
+    start-stop-daemon -K -p /var/run/openvpn.$NAME.pid -x /usr/sbin/openvpn
 }
 
 case "$1" in
@@ -50,7 +50,6 @@ stop)
       NAME=`echo $PIDFILE | cut -c18-`
       NAME=${NAME%%.pid}
       stop_vpn
-      printf " $NAME"
     done
   else
     if test -e /var/run/openvpn.$2.pid ; then
@@ -58,7 +57,6 @@ stop)
       NAME=`echo $PIDFILE | cut -c18-`
       NAME=${NAME%%.pid}
       stop_vpn
-      printf " $NAME"
     else
       printf " No such VPN: $2"
     fi
@@ -79,8 +77,6 @@ reload|force-reload)
       printf "(restarted)"
     else
       kill -HUP `cat $PIDFILE` || true
-#    start-stop-daemon --stop --signal HUP --quiet --oknodo \
-#      --exec $DAEMON --pidfile $PIDFILE
     printf " $NAME"
     fi
   done

@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-LM_SENSORS_VERSION = 3.4.0
-LM_SENSORS_SOURCE = lm-sensors_$(LM_SENSORS_VERSION).orig.tar.bz2
-LM_SENSORS_SITE = http://snapshot.debian.org/archive/debian/20170208T211941Z/pool/main/l/lm-sensors
+LM_SENSORS_VERSION = 3.6.0
+LM_SENSORS_SITE = \
+	$(call github,lm-sensors,lm-sensors,V$(subst .,-,$(LM_SENSORS_VERSION)))
 LM_SENSORS_INSTALL_STAGING = YES
 LM_SENSORS_DEPENDENCIES = host-bison host-flex
 LM_SENSORS_LICENSE = LGPL-2.1+ (libsensors), GPL-2.0+ (programs)
@@ -21,12 +21,11 @@ LM_SENSORS_BINS_$(BR2_PACKAGE_LM_SENSORS_PWMCONFIG) += sbin/pwmconfig
 LM_SENSORS_BINS_$(BR2_PACKAGE_LM_SENSORS_SENSORS_DETECT) += sbin/sensors-detect
 
 LM_SENSORS_MAKE_OPTS = \
-	BUILD_STATIC_LIB=1 \
-	MACHINE=$(KERNEL_ARCH) \
+	$(TARGET_CONFIGURE_OPTS) \
 	PREFIX=/usr
 
 ifeq ($(BR2_STATIC_LIBS),y)
-LM_SENSORS_MAKE_OPTS += BUILD_SHARED_LIB=0
+LM_SENSORS_MAKE_OPTS += BUILD_SHARED_LIB=0 EXLDFLAGS=-static
 else
 LM_SENSORS_MAKE_OPTS += BUILD_SHARED_LIB=1
 endif
@@ -38,7 +37,7 @@ LM_SENSORS_MAKE_OPTS += BUILD_STATIC_LIB=1
 endif
 
 define LM_SENSORS_BUILD_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) $(TARGET_CONFIGURE_OPTS) $(LM_SENSORS_MAKE_OPTS) -C $(@D)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LM_SENSORS_MAKE_OPTS) -C $(@D)
 endef
 
 define LM_SENSORS_INSTALL_STAGING_CMDS

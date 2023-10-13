@@ -4,15 +4,16 @@
 #
 ################################################################################
 
-JASPER_VERSION = 2.0.12
-JASPER_SITE = http://www.ece.uvic.ca/~frodo/jasper/software
+JASPER_VERSION = 2.0.33
+JASPER_SITE = https://github.com/jasper-software/jasper/releases/download/version-$(JASPER_VERSION)
 JASPER_INSTALL_STAGING = YES
-JASPER_LICENSE = JasPer License Version 2.0
+JASPER_LICENSE = JasPer-2.0
 JASPER_LICENSE_FILES = LICENSE
+JASPER_CPE_ID_VENDOR = jasper_project
 JASPER_SUPPORTS_IN_SOURCE_BUILD = NO
 JASPER_CONF_OPTS = \
-	-DCMAKE_DISABLE_FIND_PACKAGE_DOXYGEN=TRUE \
-	-DCMAKE_DISABLE_FIND_PACKAGE_LATEX=TRUE
+	-DJAS_ENABLE_DOC=OFF \
+	-DJAS_ENABLE_PROGRAMS=OFF
 
 ifeq ($(BR2_STATIC_LIBS),y)
 JASPER_CONF_OPTS += -DJAS_ENABLE_SHARED=OFF
@@ -24,5 +25,13 @@ JASPER_DEPENDENCIES += jpeg
 else
 JASPER_CONF_OPTS += -DJAS_ENABLE_LIBJPEG=OFF
 endif
+
+JASPER_CFLAGS = $(TARGET_CFLAGS)
+
+ifeq ($(BR2_TOOLCHAIN_HAS_GCC_BUG_85180),y)
+JASPER_CFLAGS += -O0
+endif
+
+JASPER_CONF_OPTS += -DCMAKE_C_FLAGS="$(JASPER_CFLAGS)"
 
 $(eval $(cmake-package))

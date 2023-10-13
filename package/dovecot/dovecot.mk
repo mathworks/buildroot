@@ -4,16 +4,25 @@
 #
 ################################################################################
 
-DOVECOT_VERSION_MAJOR = 2.2
-DOVECOT_VERSION = $(DOVECOT_VERSION_MAJOR).29.1
-DOVECOT_SITE = http://www.dovecot.org/releases/$(DOVECOT_VERSION_MAJOR)
+DOVECOT_VERSION_MAJOR = 2.3
+DOVECOT_VERSION = $(DOVECOT_VERSION_MAJOR).20
+DOVECOT_SITE = https://dovecot.org/releases/$(DOVECOT_VERSION_MAJOR)
 DOVECOT_INSTALL_STAGING = YES
-DOVECOT_LICENSE = LGPL-2.1
+DOVECOT_LICENSE = LGPL-2.1, MIT, Public Domain, BSD-3-Clause, Unicode-DFS-2015
 DOVECOT_LICENSE_FILES = COPYING COPYING.LGPL COPYING.MIT
+DOVECOT_CPE_ID_VENDOR = dovecot
+DOVECOT_SELINUX_MODULES = dovecot
 DOVECOT_DEPENDENCIES = \
 	host-pkgconf \
 	$(if $(BR2_PACKAGE_LIBICONV),libiconv) \
 	openssl
+
+# CVE-2016-4983 is an issue in a postinstall script in the dovecot rpm, which
+# is part of the Red Hat packaging and not part of upstream dovecot
+DOVECOT_IGNORE_CVES += CVE-2016-4983
+
+# 0001-auth-Fix-handling-passdbs-with-identical-driver-args.patch
+DOVECOT_IGNORE_CVES += CVE-2022-30550
 
 DOVECOT_CONF_ENV = \
 	RPCGEN=__disable_RPCGEN_rquota \
@@ -55,6 +64,20 @@ DOVECOT_CONF_OPTS += --with-libcap
 DOVECOT_DEPENDENCIES += libcap
 else
 DOVECOT_CONF_OPTS += --without-libcap
+endif
+
+ifeq ($(BR2_PACKAGE_LIBSODIUM),y)
+DOVECOT_CONF_OPTS += --with-sodium
+DOVECOT_DEPENDENCIES += libsodium
+else
+DOVECOT_CONF_OPTS += --without-sodium
+endif
+
+ifeq ($(BR2_PACKAGE_LINUX_PAM),y)
+DOVECOT_CONF_OPTS += --with-pam
+DOVECOT_DEPENDENCIES += linux-pam
+else
+DOVECOT_CONF_OPTS += --without-pam
 endif
 
 ifeq ($(BR2_PACKAGE_DOVECOT_MYSQL),y)

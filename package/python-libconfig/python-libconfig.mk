@@ -14,4 +14,10 @@ PYTHON_LIBCONFIG_SETUP_TYPE = setuptools
 
 PYTHON_LIBCONFIG_DEPENDENCIES = libconfig boost
 
+define PYTHON_LIBCONFIG_FIX_SETUP
+	$(SED) 's/boost_python/boost_python$(subst .,,$(PYTHON3_VERSION_MAJOR))/g' \
+		$(@D)/setup.py
+endef
+PYTHON_LIBCONFIG_POST_PATCH_HOOKS += PYTHON_LIBCONFIG_FIX_SETUP
+
 $(eval $(python-package))

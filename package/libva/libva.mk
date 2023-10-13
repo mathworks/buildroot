@@ -4,9 +4,8 @@
 #
 ################################################################################
 
-LIBVA_VERSION = 1.8.1
-LIBVA_SOURCE = libva-$(LIBVA_VERSION).tar.bz2
-LIBVA_SITE = https://github.com/01org/libva/releases/download/$(LIBVA_VERSION)
+LIBVA_VERSION = 2.18.0
+LIBVA_SITE = $(call github,intel,libva,$(LIBVA_VERSION))
 LIBVA_LICENSE = MIT
 LIBVA_LICENSE_FILES = COPYING
 LIBVA_INSTALL_STAGING = YES
@@ -14,36 +13,25 @@ LIBVA_DEPENDENCIES = host-pkgconf libdrm
 
 # libdrm is a hard-dependency
 LIBVA_CONF_OPTS = \
-	--enable-drm \
-	--disable-dummy-driver \
-	--with-drivers-path="/usr/lib/va"
-
-ifeq ($(BR2_PACKAGE_MESA3D_DRI_DRIVER),y)
-LIBVA_DEPENDENCIES += mesa3d
-LIBVA_CONF_OPTS += --enable-glx
-else
-LIBVA_CONF_OPTS += --disable-glx
-endif
+	-Ddisable_drm=false \
+	-Ddriverdir="/usr/lib/va"
 
 ifeq ($(BR2_PACKAGE_XORG7),y)
 LIBVA_DEPENDENCIES += xlib_libX11 xlib_libXext xlib_libXfixes
-LIBVA_CONF_OPTS += --enable-x11
+LIBVA_CONF_OPTS += -Dwith_x11=yes
+ifeq ($(BR2_PACKAGE_HAS_LIBGL),y)
+LIBVA_DEPENDENCIES += libgl
+LIBVA_CONF_OPTS += -Dwith_glx=yes
+endif
 else
-LIBVA_CONF_OPTS += --disable-x11
+LIBVA_CONF_OPTS += -Dwith_glx=no -Dwith_x11=no
 endif
 
 ifeq ($(BR2_PACKAGE_WAYLAND),y)
 LIBVA_DEPENDENCIES += wayland
-LIBVA_CONF_OPTS += --enable-wayland
+LIBVA_CONF_OPTS += -Dwith_wayland=yes
 else
-LIBVA_CONF_OPTS += --disable-wayland
+LIBVA_CONF_OPTS += -Dwith_wayland=no
 endif
 
-ifeq ($(BR2_PACKAGE_HAS_LIBEGL),y)
-LIBVA_DEPENDENCIES += libegl
-LIBVA_CONF_OPTS += --enable-egl
-else
-LIBVA_CONF_OPTS += --disable-egl
-endif
-
-$(eval $(autotools-package))
+$(eval $(meson-package))

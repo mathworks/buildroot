@@ -4,12 +4,12 @@
 #
 ################################################################################
 
-LUVI_VERSION = v2.7.5
-LUVI_SOURCE = luvi-src-$(LUVI_VERSION).tar.gz
-LUVI_SITE = https://github.com/luvit/luvi/releases/download/$(LUVI_VERSION)
+LUVI_VERSION = 2.13.0
+LUVI_SOURCE = luvi-src-v$(LUVI_VERSION).tar.gz
+LUVI_SITE = https://github.com/luvit/luvi/releases/download/v$(LUVI_VERSION)
 LUVI_LICENSE = Apache-2.0
 LUVI_LICENSE_FILES = LICENSE.txt
-LUVI_DEPENDENCIES = libuv luajit luv host-luajit
+LUVI_DEPENDENCIES = libuv luajit luv host-luajit host-pkgconf
 
 # Dispatch all architectures of LuaJIT
 ifeq ($(BR2_i386),y)
@@ -20,6 +20,8 @@ else ifeq ($(BR2_powerpc),y)
 LUVI_TARGET_ARCH = ppc
 else ifeq ($(BR2_arm)$(BR2_armeb),y)
 LUVI_TARGET_ARCH = arm
+else ifeq ($(BR2_aarch64),y)
+LUVI_TARGET_ARCH = arm64
 else ifeq ($(BR2_mips),y)
 LUVI_TARGET_ARCH = mips
 else ifeq ($(BR2_mipsel),y)
@@ -28,12 +30,16 @@ else
 LUVI_TARGET_ARCH = $(BR2_ARCH)
 endif
 
+# LUAJIT_VERSION and the luajit installation path may not use the
+# same value. Use the value from luajit.pc file.
+LUVI_LUAJIT_VERSION = `$(PKG_CONFIG_HOST_BINARY) --variable=version luajit`
+
 # Bundled lua bindings have to be linked statically into the luvi executable
 LUVI_CONF_OPTS = \
 	-DBUILD_SHARED_LIBS=OFF \
 	-DWithSharedLibluv=ON \
 	-DTARGET_ARCH=$(LUVI_TARGET_ARCH) \
-	-DLUA_PATH=$(HOST_DIR)/usr/share/luajit-$(LUAJIT_VERSION)/?.lua
+	-DLUA_PATH=$(HOST_DIR)/share/luajit-$(LUVI_LUAJIT_VERSION)/?.lua
 
 # Add "rex" module (PCRE via bundled lrexlib)
 ifeq ($(BR2_PACKAGE_PCRE),y)

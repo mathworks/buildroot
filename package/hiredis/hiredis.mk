@@ -4,66 +4,34 @@
 #
 ################################################################################
 
-HIREDIS_VERSION_MAJOR = 0.13
-HIREDIS_VERSION = v$(HIREDIS_VERSION_MAJOR).3
-HIREDIS_SITE = $(call github,redis,hiredis,$(HIREDIS_VERSION))
+HIREDIS_VERSION_MAJOR = 1.1
+HIREDIS_VERSION = $(HIREDIS_VERSION_MAJOR).0
+HIREDIS_SITE = $(call github,redis,hiredis,v$(HIREDIS_VERSION))
 HIREDIS_LICENSE = BSD-3-Clause
 HIREDIS_LICENSE_FILES = COPYING
+HIREDIS_CPE_ID_VENDOR = redislabs
 HIREDIS_INSTALL_STAGING = YES
 
-HIREDIS_MAKE_OPTS = \
-	$(TARGET_CONFIGURE_OPTS) \
-	PREFIX=/usr
+HIREDIS_CONF_OPTS = -DDISABLE_TESTS=ON
+HOST_HIREDIS_CONF_OPTS = -DDISABLE_TESTS=ON -DENABLE_SSL=OFF
 
-HIREDIS_TARGETS = hiredis.pc
-ifeq ($(BR2_STATIC_LIBS),y)
-HIREDIS_TARGETS += static
-else ifeq ($(BR2_SHARED_LIBS),y)
-HIREDIS_TARGETS += dynamic
-else ifeq ($(BR2_SHARED_STATIC_LIBS),y)
-HIREDIS_TARGETS += dynamic static
+# Set CMAKE_BUILD_TYPE to Release or the libraries will be suffixed with "d"
+# resulting in build failures when linking.
+HIREDIS_CONF_OPTS += -DCMAKE_BUILD_TYPE=Release
+HOST_HIREDIS_CONF_OPTS += -DCMAKE_BUILD_TYPE=Release
+
+ifeq ($(BR2_PACKAGE_OPENSSL)$(BR2_TOOLCHAIN_HAS_THREADS),yy)
+HIREDIS_CONF_OPTS += -DENABLE_SSL=ON
+HIREDIS_DEPENDENCIES += openssl
+else
+HIREDIS_CONF_OPTS += -DENABLE_SSL=OFF
 endif
 
-define HIREDIS_BUILD_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) $(HIREDIS_MAKE_OPTS) -C $(@D) \
-		$(HIREDIS_TARGETS)
-endef
+# We may be a ccache dependency, so we can't use ccache; reset the
+# options set by the cmake infra.
+HOST_HIREDIS_CONF_OPTS += \
+	-UCMAKE_C_COMPILER_LAUNCHER \
+	-UCMAKE_CXX_COMPILER_LAUNCHER
 
-HIREDIS_INCLUDE_DIR = $(STAGING_DIR)/usr/include/hiredis
-
-ifeq ($(BR2_SHARED_LIBS),)
-define HIREDIS_INSTALL_STAGING_STATIC_LIB
-	$(INSTALL) -D -m 0755 $(@D)/libhiredis.a \
-		$(STAGING_DIR)/usr/lib/libhiredis.a
-endef
-endif
-
-ifeq ($(BR2_STATIC_LIBS),)
-define HIREDIS_INSTALL_STAGING_SHARED_LIB
-	$(INSTALL) -D -m 0755 $(@D)/libhiredis.so \
-		$(STAGING_DIR)/usr/lib/libhiredis.so.$(HIREDIS_VERSION_MAJOR)
-	ln -sf libhiredis.so.$(HIREDIS_VERSION_MAJOR) $(STAGING_DIR)/usr/lib/libhiredis.so
-endef
-define HIREDIS_INSTALL_TARGET_SHARED_LIB
-	$(INSTALL) -D -m 0755 $(@D)/libhiredis.so \
-		$(TARGET_DIR)/usr/lib/libhiredis.so.$(HIREDIS_VERSION_MAJOR)
-	ln -sf libhiredis.so.$(HIREDIS_VERSION_MAJOR) $(TARGET_DIR)/usr/lib/libhiredis.so
-endef
-endif
-
-# Do not call make install as this target will build shared and static libraries
-define HIREDIS_INSTALL_STAGING_CMDS
-	mkdir -p $(HIREDIS_INCLUDE_DIR)
-	cp -dpfr $(@D)/hiredis.h $(@D)/async.h $(@D)/read.h $(@D)/sds.h \
-		$(@D)/adapters $(HIREDIS_INCLUDE_DIR)
-	$(INSTALL) -D -m 0644 $(@D)/hiredis.pc \
-		$(STAGING_DIR)/usr/lib/pkgconfig/hiredis.pc
-	$(HIREDIS_INSTALL_STAGING_STATIC_LIB)
-	$(HIREDIS_INSTALL_STAGING_SHARED_LIB)
-endef
-
-define HIREDIS_INSTALL_TARGET_CMDS
-	$(HIREDIS_INSTALL_TARGET_SHARED_LIB)
-endef
-
-$(eval $(generic-package))
+$(eval $(cmake-package))
+$(eval $(host-cmake-package))

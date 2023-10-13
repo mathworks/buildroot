@@ -4,21 +4,24 @@
 #
 ################################################################################
 
-APACHE_VERSION = 2.4.26
+APACHE_VERSION = 2.4.57
 APACHE_SOURCE = httpd-$(APACHE_VERSION).tar.bz2
-APACHE_SITE = http://archive.apache.org/dist/httpd
+APACHE_SITE = https://downloads.apache.org/httpd
 APACHE_LICENSE = Apache-2.0
 APACHE_LICENSE_FILES = LICENSE
+APACHE_CPE_ID_VENDOR = apache
+APACHE_CPE_ID_PRODUCT = http_server
+APACHE_SELINUX_MODULES = apache
 # Needed for mod_php
 APACHE_INSTALL_STAGING = YES
 # We have a patch touching configure.in and Makefile.in,
 # so we need to autoreconf:
 APACHE_AUTORECONF = YES
-APACHE_DEPENDENCIES = apr apr-util pcre
+APACHE_DEPENDENCIES = apr apr-util pcre2
 
 APACHE_CONF_ENV= \
 	ap_cv_void_ptr_lt_long=no \
-	PCRE_CONFIG=$(STAGING_DIR)/usr/bin/pcre-config
+	PCRE_CONFIG=$(STAGING_DIR)/usr/bin/pcre2-config
 
 ifeq ($(BR2_PACKAGE_APACHE_MPM_EVENT),y)
 APACHE_MPM = event
@@ -32,7 +35,7 @@ APACHE_CONF_OPTS = \
 	--sysconfdir=/etc/apache2 \
 	--with-apr=$(STAGING_DIR)/usr \
 	--with-apr-util=$(STAGING_DIR)/usr \
-	--with-pcre=$(STAGING_DIR)/usr/bin/pcre-config \
+	--with-pcre=$(STAGING_DIR)/usr/bin/pcre2-config \
 	--enable-http \
 	--enable-dbd \
 	--enable-proxy \
@@ -40,8 +43,14 @@ APACHE_CONF_OPTS = \
 	--without-suexec-bin \
 	--enable-mods-shared=all \
 	--with-mpm=$(APACHE_MPM) \
-	--disable-lua \
 	--disable-luajit
+
+ifeq ($(BR2_PACKAGE_BROTLI),y)
+APACHE_CONF_OPTS += --enable-brotli
+APACHE_DEPENDENCIES += brotli
+else
+APACHE_CONF_OPTS += --disable-brotli
+endif
 
 ifeq ($(BR2_PACKAGE_LIBXML2),y)
 APACHE_DEPENDENCIES += libxml2
@@ -55,6 +64,22 @@ else
 APACHE_CONF_OPTS += \
 	--disable-xml2enc \
 	--disable-proxy-html
+endif
+
+ifeq ($(BR2_PACKAGE_LUA),y)
+APACHE_CONF_OPTS += --enable-lua
+APACHE_DEPENDENCIES += lua
+else
+APACHE_CONF_OPTS += --disable-lua
+endif
+
+ifeq ($(BR2_PACKAGE_NGHTTP2),y)
+APACHE_CONF_OPTS += \
+	--enable-http2 \
+	--with-nghttp2=$(STAGING_DIR)/usr
+APACHE_DEPENDENCIES += nghttp2
+else
+APACHE_CONF_OPTS += --disable-http2
 endif
 
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
@@ -76,6 +101,7 @@ APACHE_CONF_OPTS += --disable-deflate
 endif
 
 define APACHE_FIX_STAGING_APACHE_CONFIG
+	$(SED) 's%"/usr/bin"%"$(STAGING_DIR)/usr/bin"%' $(STAGING_DIR)/usr/bin/apxs
 	$(SED) 's%/usr/build%$(STAGING_DIR)/usr/build%' $(STAGING_DIR)/usr/bin/apxs
 	$(SED) 's%^prefix =.*%prefix = $(STAGING_DIR)/usr%' $(STAGING_DIR)/usr/build/config_vars.mk
 endef
@@ -85,5 +111,15 @@ define APACHE_CLEANUP_TARGET
 	$(RM) -rf $(TARGET_DIR)/usr/manual $(TARGET_DIR)/usr/build
 endef
 APACHE_POST_INSTALL_TARGET_HOOKS += APACHE_CLEANUP_TARGET
+
+define APACHE_INSTALL_INIT_SYSV
+	$(INSTALL) -D -m 0755 package/apache/S50apache \
+		$(TARGET_DIR)/etc/init.d/S50apache
+endef
+
+define APACHE_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 644 package/apache/apache.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/apache.service
+endef
 
 $(eval $(autotools-package))

@@ -1,45 +1,24 @@
 menuconfig BR2_PACKAGE_MPD
 	bool "mpd"
 	depends on BR2_INSTALL_LIBSTDCPP
-	depends on BR2_USE_WCHAR # flac
+	depends on BR2_USE_WCHAR # boost
 	depends on BR2_TOOLCHAIN_HAS_THREADS
 	depends on BR2_USE_MMU # fork
 	depends on BR2_TOOLCHAIN_HAS_ATOMIC
-	# 0.19.x could be built with GCC 4.6, but for simplicity we require
-	# the same toolchain dependencies for all versions.
-	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_9 # C++14
-	# ARC toolchain issue
-	depends on !BR2_TOOLCHAIN_EXTERNAL_SYNOPSYS_ARC
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_8 # C++17
+	depends on BR2_HOST_GCC_AT_LEAST_8 # C++17
 	select BR2_PACKAGE_BOOST
+	select BR2_PACKAGE_FMT
 	select BR2_PACKAGE_LIBICONV if !BR2_ENABLE_LOCALE
-	select BR2_PACKAGE_MPD_TREMOR if !(BR2_PACKAGE_MPD_MAD || BR2_PACKAGE_MPD_MPG123 || BR2_PACKAGE_MPD_VORBIS || BR2_PACKAGE_MPD_WAVPACK || BR2_PACKAGE_MPD_FLAC || BR2_PACKAGE_MPD_MUSEPACK || BR2_PACKAGE_MPD_FFMPEG)
 	help
 	  MPD is a flexible, powerful, server-side application
 	  for playing music. Through plugins and libraries
 	  it can play a variety of sound files while being
 	  controlled by its network protocol.
 
-	  http://www.musicpd.org
+	  https://www.musicpd.org
 
 if BR2_PACKAGE_MPD
-
-# Hidden config symbols to select the branch 0.20 by default and fallback
-# to branch 0.19 for toolchains affected by GCC bug PR 64735. This way we
-# keep support for mpd on some architectures, like ARMv5, until GCC 7 is
-# released, which will fix this issue.
-config BR2_PACKAGE_MPD_VERSION_STRING
-	string
-	default "0.20" if !BR2_TOOLCHAIN_HAS_GCC_BUG_64735
-	default "0.19"
-
-config BR2_PACKAGE_MPD_VERSION_0_20
-	bool
-	default y if BR2_PACKAGE_MPD_VERSION_STRING = "0.20"
-
-config BR2_PACKAGE_MPD_VERSION_0_19
-	bool
-	default y if BR2_PACKAGE_MPD_VERSION_STRING = "0.19"
-	select BR2_PACKAGE_LIBGLIB2
 
 comment "Archive plugins"
 
@@ -55,6 +34,30 @@ config BR2_PACKAGE_MPD_SQLITE
 	help
 	  Enable sqlite database support.
 	  If you don't use sqlite it will use an ASCII database.
+
+config BR2_PACKAGE_MPD_ZZIP
+	bool "zzip"
+	select BR2_PACKAGE_ZZIPLIB
+	help
+	  Enable ZIP archive support.
+
+comment "Commercial services"
+
+config BR2_PACKAGE_MPD_QOBUZ
+	bool "qobuz"
+	depends on BR2_PACKAGE_LIBGPG_ERROR_ARCH_SUPPORTS
+	select BR2_PACKAGE_MPD_CURL
+	select BR2_PACKAGE_LIBGCRYPT
+	select BR2_PACKAGE_YAJL
+	help
+	  Play songs from the commercial streaming service Qobuz.
+
+config BR2_PACKAGE_MPD_SOUNDCLOUD
+	bool "soundcloud"
+	select BR2_PACKAGE_MPD_CURL
+	select BR2_PACKAGE_YAJL
+	help
+	  Enable soundcloud.com playlist support.
 
 comment "Converter plugins"
 
@@ -74,13 +77,6 @@ config BR2_PACKAGE_MPD_LIBSOXR
 	  conversion.
 
 comment "Decoder plugins"
-
-config BR2_PACKAGE_MPD_AUDIOFILE
-	bool "audiofile"
-	select BR2_PACKAGE_AUDIOFILE
-	help
-	  Enable audiofile input/streaming support.
-	  Select this if you want to play back WAV files.
 
 config BR2_PACKAGE_MPD_DSD
 	bool "dsd"
@@ -111,6 +107,16 @@ config BR2_PACKAGE_MPD_FLAC
 	  Enable flac input/streaming support.
 	  Select this if you want to play back FLAC files.
 
+config BR2_PACKAGE_MPD_FLUIDSYNTH
+	bool "fluidsynth"
+	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_FLUIDSYNTH
+	help
+	  Enable fluidsynth MIDI decoder support.
+
+comment "fluidsynth support needs a toolchain w/ dynamic library"
+	depends on BR2_STATIC_LIBS
+
 config BR2_PACKAGE_MPD_LIBSNDFILE
 	bool "libsndfile"
 	select BR2_PACKAGE_LIBSNDFILE
@@ -126,6 +132,12 @@ config BR2_PACKAGE_MPD_MAD
 	help
 	  Enable mad input support.
 	  Select this if you want to play back MP3 files.
+
+config BR2_PACKAGE_MPD_MODPLUG
+	bool "modplug"
+	select BR2_PACKAGE_LIBMODPLUG
+	help
+	  Enable Modplug decoder support.
 
 config BR2_PACKAGE_MPD_MPG123
 	bool "mpg123"
@@ -152,8 +164,15 @@ config BR2_PACKAGE_MPD_OPUS
 	  Enable opus input support.
 	  Select this if you want to play back OPUS encoded files.
 
+config BR2_PACKAGE_MPD_SIDPLAY
+	bool "sidplay"
+	select BR2_PACKAGE_LIBSIDPLAY2
+	help
+	  Enable C64 SID support.
+
 config BR2_PACKAGE_MPD_TREMOR
 	bool "tremor"
+	depends on !BR2_PACKAGE_MPD_VORBIS
 	select BR2_PACKAGE_LIBOGG
 	select BR2_PACKAGE_TREMOR
 	help
@@ -193,11 +212,23 @@ config BR2_PACKAGE_MPD_TWOLAME
 
 comment "Input plugins"
 
+config BR2_PACKAGE_MPD_CDIO_PARANOIA
+	bool "cdio-paranoia"
+	select BR2_PACKAGE_LIBCDIO_PARANOIA
+	help
+	  Enable cdio-paranoia support.
+
 config BR2_PACKAGE_MPD_CURL
 	bool "curl"
 	select BR2_PACKAGE_LIBCURL
 	help
 	  Enable curl streaming (http) support.
+
+config BR2_PACKAGE_MPD_LIBMMS
+	bool "mms"
+	select BR2_PACKAGE_LIBMMS
+	help
+	  Enable MMS support.
 
 config BR2_PACKAGE_MPD_LIBNFS
 	bool "nfs"
@@ -225,12 +256,6 @@ config BR2_PACKAGE_MPD_LIBSMBCLIENT
 	select BR2_PACKAGE_SAMBA4
 	help
 	  Enable Samba support.
-
-config BR2_PACKAGE_MPD_SOUNDCLOUD
-	bool "soundcloud"
-	select BR2_PACKAGE_YAJL
-	help
-	  Enable soundcloud.com playlist support.
 
 comment "Output plugins"
 
@@ -266,6 +291,18 @@ comment "jack support needs a toolchain w/ dynamic library"
 	depends on BR2_TOOLCHAIN_HAS_SYNC_4
 	depends on BR2_STATIC_LIBS
 
+config BR2_PACKAGE_MPD_OPENAL
+	bool "openal"
+	depends on BR2_PACKAGE_OPENAL_ARCH_SUPPORTS
+	depends on BR2_TOOLCHAIN_HAS_THREADS_NPTL
+	select BR2_PACKAGE_OPENAL
+	help
+	  Enable OpenAL output support.
+
+comment "openal support needs a toolchain w/ NPTL"
+	depends on BR2_PACKAGE_OPENAL_ARCH_SUPPORTS
+	depends on !BR2_TOOLCHAIN_HAS_THREADS_NPTL
+
 config BR2_PACKAGE_MPD_OSS
 	bool "oss"
 	help
@@ -273,15 +310,19 @@ config BR2_PACKAGE_MPD_OSS
 
 config BR2_PACKAGE_MPD_PULSEAUDIO
 	bool "pulseaudio"
-	depends on !BR2_STATIC_LIBS # pulseaudio
-	depends on BR2_TOOLCHAIN_HAS_SYNC_4 # pulseaudio -> json-c
+	depends on BR2_PACKAGE_PULSEAUDIO_HAS_ATOMIC
+	depends on BR2_USE_WCHAR
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on !BR2_STATIC_LIBS
+	depends on BR2_USE_MMU
 	select BR2_PACKAGE_PULSEAUDIO
 	help
 	  Enable pulseaudio output support.
 
-comment "pulseaudio support needs a toolchain w/ dynamic library"
-	depends on BR2_TOOLCHAIN_HAS_SYNC_4
-	depends on BR2_STATIC_LIBS
+comment "pulseaudio support needs a toolchain w/ threads, wchar, dynamic library"
+	depends on BR2_USE_MMU
+	depends on BR2_PACKAGE_PULSEAUDIO_HAS_ATOMIC
+	depends on !BR2_TOOLCHAIN_HAS_THREADS || BR2_STATIC_LIBS || !BR2_USE_WCHAR
 
 config BR2_PACKAGE_MPD_SHOUTCAST
 	bool "shoutcast"
@@ -306,9 +347,25 @@ config BR2_PACKAGE_MPD_AVAHI_SUPPORT
 comment "avahi support needs a toolchain w/ dynamic library"
 	depends on BR2_STATIC_LIBS
 
+config BR2_PACKAGE_MPD_IO_URING
+	bool "io_uring"
+	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_1
+	select BR2_PACKAGE_LIBURING
+	help
+	  Asynchronous I/O using kernel io_uring subsystem
+
+comment "io_uring support needs a toolchain w/ headers >= 5.1"
+	depends on !BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_1
+
+config BR2_PACKAGE_MPD_LIBMPDCLIENT
+	bool "libmpdclient"
+	select BR2_PACKAGE_LIBMPDCLIENT
+	help
+	  Enable libmpdclient support.
+
 config BR2_PACKAGE_MPD_NEIGHBOR_DISCOVERY_SUPPORT
 	bool "neighbor discovery support"
-	depends on BR2_PACKAGE_MPD_LIBSMBCLIENT || BR2_PACKAGE_MPD_UPNP
+	depends on BR2_PACKAGE_MPD_LIBSMBCLIENT || !BR2_PACKAGE_MPD_UPNP_DISABLED
 	help
 	  Enable support for neighbor discovery.
 	  This option can be used in conjunction with the smbclient
@@ -327,18 +384,60 @@ config BR2_PACKAGE_MPD_TCP
 	  You want this on if MPD and the client(s) work
 	  on different machines (the usual scenario).
 
-config BR2_PACKAGE_MPD_UPNP
-	bool "UPnP"
+choice
+	prompt "UPnP"
+	default BR2_PACKAGE_MPD_UPNP_PUPNP if BR2_PACKAGE_MPD_UPNP # legacy
+	default BR2_PACKAGE_MPD_UPNP_DISABLED
+	help
+	  Enable MPD to access a UPnP based media server.
+
+	  For further information, see
+	  https://www.lesbonscomptes.com/upmpdcli/pages/upmpdcli-or-mpdupnp.html
+
+config BR2_PACKAGE_MPD_UPNP_PUPNP
+	bool "pupnp"
 	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_LIBUPNP
+	select BR2_PACKAGE_MPD_CURL
 	help
-	  Enable MPD UPnP client support.
+	  Provides UPnP database access through libupnp
+	  (the legacy Portable SDK for UPnP devices).
+
+	  Introduces least additional dependencies.
+
+config BR2_PACKAGE_MPD_UPNP_NPUPNP
+	bool "npupnp"
+	select BR2_PACKAGE_LIBNPUPNP
+	select BR2_PACKAGE_MPD_CURL
+	help
+	  Provides UPnP database access through libnpupnp
+	  (a C++ reimplementation of the Portable UPnP library).
+
+	  This implementation is more modern, but also brings
+	  additional features not needed in this context, thus
+	  consuming more space.
+
+config BR2_PACKAGE_MPD_UPNP_DISABLED
+	bool "disabled"
+	help
+	  No UPnP client functionality.
+
+endchoice
+
+comment "Tag plugins"
+
+config BR2_PACKAGE_MPD_ID3TAG
+	bool "id3tag"
+	select BR2_PACKAGE_LIBID3TAG
+	help
+	  Enable ID3 support.
 
 endif
 
-comment "mpd needs a toolchain w/ C++, threads, wchar, gcc >= 4.9"
+comment "mpd needs a toolchain w/ C++, threads, wchar, gcc >= 8, host gcc >= 8"
 	depends on BR2_USE_MMU
 	depends on BR2_TOOLCHAIN_HAS_ATOMIC
 	depends on !BR2_INSTALL_LIBSTDCPP || !BR2_USE_WCHAR || \
-		!BR2_TOOLCHAIN_HAS_THREADS || !BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
-	depends on !BR2_TOOLCHAIN_EXTERNAL_SYNOPSYS_ARC
+		!BR2_TOOLCHAIN_HAS_THREADS || \
+		!BR2_TOOLCHAIN_GCC_AT_LEAST_8 || \
+		!BR2_HOST_GCC_AT_LEAST_8

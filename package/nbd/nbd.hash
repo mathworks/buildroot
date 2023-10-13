@@ -1,3 +1,7 @@
-# From http://sourceforge.net/projects/nbd/files/nbd/3.13/
-md5	f52a4ef8979d81e6c15a745236582fdf	nbd-3.15.2.tar.xz
-sha1	c8248dd76641a31189735407cd4d55fe63969c08	nbd-3.15.2.tar.xz
+# From http://sourceforge.net/projects/nbd/files/nbd/3.24/
+md5  a6d9e7bbc311a2ed07ef84a58b82b5dd  nbd-3.24.tar.xz
+sha1  72c59ef5186ae355de6f539a1b348e18cbb8314e  nbd-3.24.tar.xz
+
+# Locally calculated
+sha256  6877156d23a7b33f75eee89d2f5c2c91c542afc3cdcb636dea5a88539a58d10c  nbd-3.24.tar.xz
+sha256  8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643  COPYING

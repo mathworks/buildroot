@@ -15,13 +15,17 @@ HOST_MAKEDEVS_CFLAGS += -DEXTENDED_ATTRIBUTES
 HOST_MAKEDEVS_LDFLAGS += -lcap
 endif
 
+define HOST_MAKEDEVS_EXTRACT_CMDS
+	cp $(HOST_MAKEDEVS_PKGDIR)/makedevs.c $(@D)
+endef
+
 define HOST_MAKEDEVS_BUILD_CMDS
-	$(HOSTCC) $(HOST_MAKEDEVS_CFLAGS) package/makedevs/makedevs.c \
+	$(HOSTCC) $(HOST_MAKEDEVS_CFLAGS) $(@D)/makedevs.c \
 		-o $(@D)/makedevs $(HOST_MAKEDEVS_LDFLAGS)
 endef
 
 define HOST_MAKEDEVS_INSTALL_CMDS
-	$(INSTALL) -D -m 755 $(@D)/makedevs $(HOST_DIR)/usr/bin/makedevs
+	$(INSTALL) -D -m 755 $(@D)/makedevs $(HOST_DIR)/bin/makedevs
 endef
 
 $(eval $(host-generic-package))

@@ -35,7 +35,8 @@ some settings in the +.config+ file may hide some targets:
 * +barebox-menuconfig+ and +barebox-savedefconfig+ only work when the
   +barebox+ bootloader is enabled.
 * +uboot-menuconfig+ and +uboot-savedefconfig+ only work when the
-  +U-Boot+ bootloader is enabled.
+  +U-Boot+ bootloader is enabled and the +uboot+ build system is set
+  to +Kconfig+.
 
 .Cleaning:
 
@@ -80,18 +81,18 @@ to xref:ccache[].
 
 .Dumping the internal make variables:
 
-One can dump all the variables known to make, along with their values:
+One can dump the variables known to make, along with their values:
 
 ----
- $ make -s printvars
- VARIABLE=value_of_variable
- ...
+ $ make -s printvars VARS='VARIABLE1 VARIABLE2'
+ VARIABLE1=value_of_variable
+ VARIABLE2=value_of_variable
 ----
 
 It is possible to tweak the output using some variables:
 
 - +VARS+ will limit the listing to variables which names match the
-  specified make-pattern
+  specified make-patterns - this must be set else nothing is printed
 - +QUOTED_VARS+, if set to +YES+, will single-quote the value
 - +RAW_VARS+, if set to +YES+, will print the unexpanded value
 

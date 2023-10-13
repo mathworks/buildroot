@@ -4,66 +4,162 @@
 #
 ################################################################################
 
-NETWORK_MANAGER_VERSION_MAJOR = 1.4
-NETWORK_MANAGER_VERSION = $(NETWORK_MANAGER_VERSION_MAJOR).2
+NETWORK_MANAGER_VERSION_MAJOR = 1.42
+NETWORK_MANAGER_VERSION = $(NETWORK_MANAGER_VERSION_MAJOR).0
 NETWORK_MANAGER_SOURCE = NetworkManager-$(NETWORK_MANAGER_VERSION).tar.xz
-NETWORK_MANAGER_SITE = http://ftp.gnome.org/pub/GNOME/sources/NetworkManager/$(NETWORK_MANAGER_VERSION_MAJOR)
+NETWORK_MANAGER_SITE = https://download.gnome.org/sources/NetworkManager/$(NETWORK_MANAGER_VERSION_MAJOR)
 NETWORK_MANAGER_INSTALL_STAGING = YES
-NETWORK_MANAGER_DEPENDENCIES = host-pkgconf udev dbus-glib libnl gnutls \
-	libgcrypt wireless_tools util-linux host-intltool readline libndp libgudev
-NETWORK_MANAGER_LICENSE = GPL-2.0+ (app), LGPL-2.0+ (libnm-util)
-NETWORK_MANAGER_LICENSE_FILES = COPYING libnm-util/COPYING
+NETWORK_MANAGER_LICENSE = GPL-2.0+ (app), LGPL-2.1+ (libnm)
+NETWORK_MANAGER_LICENSE_FILES = COPYING COPYING.LGPL CONTRIBUTING.md
+NETWORK_MANAGER_CPE_ID_VENDOR = gnome
+NETWORK_MANAGER_CPE_ID_PRODUCT = networkmanager
+NETWORK_MANAGER_SELINUX_MODULES = networkmanager
 
-NETWORK_MANAGER_CONF_ENV = \
-	ac_cv_path_LIBGCRYPT_CONFIG=$(STAGING_DIR)/usr/bin/libgcrypt-config \
-	ac_cv_file__etc_fedora_release=no \
-	ac_cv_file__etc_mandriva_release=no \
-	ac_cv_file__etc_debian_version=no \
-	ac_cv_file__etc_redhat_release=no \
-	ac_cv_file__etc_SuSE_release=no
+NETWORK_MANAGER_DEPENDENCIES = \
+	host-intltool \
+	host-libxslt \
+	host-pkgconf \
+	dbus \
+	libglib2 \
+	libndp \
+	udev \
+	util-linux
 
 NETWORK_MANAGER_CONF_OPTS = \
-	--disable-tests \
-	--disable-qt \
-	--disable-more-warnings \
-	--without-docs \
-	--with-crypto=gnutls \
-	--with-iptables=/usr/sbin/iptables \
-	--disable-ifupdown \
-	--disable-ifnet
+	-Dintrospection=false \
+	-Ddocs=false \
+	-Dtests=no \
+	-Dqt=false \
+	-Diptables=/usr/sbin/iptables \
+	-Difupdown=false \
+	-Dnm_cloud_setup=false \
+	-Dsession_tracking_consolekit=false
 
-ifeq ($(BR2_PACKAGE_NETWORK_MANAGER_TUI),y)
-NETWORK_MANAGER_DEPENDENCIES += newt
-NETWORK_MANAGER_CONF_OPTS += --with-nmtui=yes
+ifeq ($(BR2_PACKAGE_AUDIT),y)
+NETWORK_MANAGER_DEPENDENCIES += audit
+NETWORK_MANAGER_CONF_OPTS += -Dlibaudit=yes
 else
-NETWORK_MANAGER_CONF_OPTS += --with-nmtui=no
+NETWORK_MANAGER_CONF_OPTS += -Dlibaudit=no
+endif
+
+ifeq ($(BR2_PACKAGE_DHCP_CLIENT),y)
+NETWORK_MANAGER_CONF_OPTS += -Ddhclient=/sbin/dhclient
+endif
+
+ifeq ($(BR2_PACKAGE_DHCPCD),y)
+NETWORK_MANAGER_CONF_OPTS += -Ddhcpcd=/sbin/dhcpcd
+endif
+
+ifeq ($(BR2_PACKAGE_IWD),y)
+NETWORK_MANAGER_DEPENDENCIES += iwd
+NETWORK_MANAGER_CONF_OPTS += -Diwd=true
+ifeq ($(BR2_PACKAGE_WPA_SUPPLICANT),y)
+NETWORK_MANAGER_CONF_OPTS += -Dconfig_wifi_backend_default=wpa_supplicant
+else
+NETWORK_MANAGER_CONF_OPTS += -Dconfig_wifi_backend_default=iwd
+endif
+else
+NETWORK_MANAGER_CONF_OPTS += \
+	-Diwd=false \
+	-Dconfig_wifi_backend_default=wpa_supplicant
+endif
+
+ifeq ($(BR2_PACKAGE_LIBCURL),y)
+NETWORK_MANAGER_DEPENDENCIES += libcurl
+NETWORK_MANAGER_CONF_OPTS += -Dconcheck=true
+else
+NETWORK_MANAGER_CONF_OPTS += -Dconcheck=false
+endif
+
+ifeq ($(BR2_PACKAGE_LIBNSS),y)
+NETWORK_MANAGER_DEPENDENCIES += libnss
+NETWORK_MANAGER_CONF_OPTS += -Dcrypto=nss
+else
+NETWORK_MANAGER_DEPENDENCIES += gnutls
+NETWORK_MANAGER_CONF_OPTS += -Dcrypto=gnutls
+endif
+
+ifeq ($(BR2_PACKAGE_LIBPSL),y)
+NETWORK_MANAGER_DEPENDENCIES += libpsl
+NETWORK_MANAGER_CONF_OPTS += -Dlibpsl=true
+else
+NETWORK_MANAGER_CONF_OPTS += -Dlibpsl=false
+endif
+
+ifeq ($(BR2_PACKAGE_LIBSELINUX),y)
+NETWORK_MANAGER_DEPENDENCIES += libselinux
+NETWORK_MANAGER_CONF_OPTS += -Dselinux=true
+else
+NETWORK_MANAGER_CONF_OPTS += -Dselinux=false
+endif
+
+ifeq ($(BR2_PACKAGE_NETWORK_MANAGER_MODEM_MANAGER),y)
+NETWORK_MANAGER_DEPENDENCIES += modem-manager mobile-broadband-provider-info
+NETWORK_MANAGER_CONF_OPTS += -Dmodem_manager=true
+NETWORK_MANAGER_CONF_OPTS += -Dmobile_broadband_provider_info_database=/usr/share/mobile-broadband-provider-info/serviceproviders.xml
+else
+NETWORK_MANAGER_CONF_OPTS += -Dmodem_manager=false
+endif
+
+ifeq ($(BR2_PACKAGE_NETWORK_MANAGER_OVS),y)
+NETWORK_MANAGER_CONF_OPTS += -Dovs=true
+NETWORK_MANAGER_DEPENDENCIES += jansson
+else
+NETWORK_MANAGER_CONF_OPTS += -Dovs=false
 endif
 
 ifeq ($(BR2_PACKAGE_NETWORK_MANAGER_PPPD),y)
 NETWORK_MANAGER_DEPENDENCIES += pppd
-NETWORK_MANAGER_CONF_OPTS += --enable-ppp
+NETWORK_MANAGER_CONF_OPTS += \
+	-Dppp=true \
+	-Dpppd=/usr/sbin/pppd \
+	-Dpppd_plugin_dir=/usr/lib/pppd/$(PPPD_VERSION)
 else
-NETWORK_MANAGER_CONF_OPTS += --disable-ppp
+NETWORK_MANAGER_CONF_OPTS += -Dppp=false
 endif
 
-ifeq ($(BR2_PACKAGE_NETWORK_MANAGER_MODEM_MANAGER),y)
-NETWORK_MANAGER_DEPENDENCIES += modem-manager
-NETWORK_MANAGER_CONF_OPTS += --with-modem-manager-1
+ifeq ($(BR2_PACKAGE_NETWORK_MANAGER_TUI),y)
+NETWORK_MANAGER_DEPENDENCIES += newt
+NETWORK_MANAGER_CONF_OPTS += -Dnmtui=true
 else
-NETWORK_MANAGER_CONF_OPTS += --without-modem-manager-1
+NETWORK_MANAGER_CONF_OPTS += -Dnmtui=false
 endif
 
-ifeq ($(BR2_PACKAGE_DHCP_CLIENT),y)
-NETWORK_MANAGER_CONF_OPTS += --with-dhclient=/sbin/dhclient
+ifeq ($(BR2_PACKAGE_OFONO),y)
+NETWORK_MANAGER_DEPENDENCIES += ofono
+NETWORK_MANAGER_CONF_OPTS += -Dofono=true
+else
+NETWORK_MANAGER_CONF_OPTS += -Dofono=false
 endif
 
-ifeq ($(BR2_PACKAGE_DHCPCD),y)
-NETWORK_MANAGER_CONF_OPTS += --with-dhcpcd=/sbin/dhcpcd
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+NETWORK_MANAGER_DEPENDENCIES += systemd
+NETWORK_MANAGER_CONF_OPTS += \
+	-Dsystemd_journal=true \
+	-Dconfig_logging_backend_default=journal \
+	-Dsession_tracking=systemd \
+	-Dsuspend_resume=systemd
+else
+NETWORK_MANAGER_CONF_OPTS += \
+	-Dsystemd_journal=false \
+	-Dconfig_logging_backend_default=syslog \
+	-Dsession_tracking=no \
+	-Dsuspend_resume=upower \
+	-Dsystemdsystemunitdir=no
 endif
 
-# uClibc by default doesn't have backtrace support, so don't use it
-ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
-NETWORK_MANAGER_CONF_OPTS += --disable-crashtrace
+ifeq ($(BR2_PACKAGE_POLKIT),y)
+NETWORK_MANAGER_DEPENDENCIES += polkit
+NETWORK_MANAGER_CONF_OPTS += -Dpolkit=true
+else
+NETWORK_MANAGER_CONF_OPTS += -Dpolkit=false
+endif
+
+ifeq ($(BR2_PACKAGE_NETWORK_MANAGER_CLI),y)
+NETWORK_MANAGER_DEPENDENCIES += readline
+NETWORK_MANAGER_CONF_OPTS += -Dnmcli=true
+else
+NETWORK_MANAGER_CONF_OPTS += -Dnmcli=false
 endif
 
 define NETWORK_MANAGER_INSTALL_INIT_SYSV
@@ -71,16 +167,9 @@ define NETWORK_MANAGER_INSTALL_INIT_SYSV
 endef
 
 define NETWORK_MANAGER_INSTALL_INIT_SYSTEMD
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-
 	ln -sf /usr/lib/systemd/system/NetworkManager.service \
 		$(TARGET_DIR)/etc/systemd/system/dbus-org.freedesktop.NetworkManager.service
 
-	ln -sf /usr/lib/systemd/system/NetworkManager.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/NetworkManager.service
-
-	ln -sf /usr/lib/systemd/system/NetworkManager-dispatcher.service \
-		$(TARGET_DIR)/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service
 endef
 
-$(eval $(autotools-package))
+$(eval $(meson-package))

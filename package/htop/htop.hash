@@ -1,3 +1,5 @@
-# Hashes from: http://www.freelists.org/post/htop/ANN-htop-202
-md5	7d354d904bad591a931ad57e99fea84a	htop-2.0.2.tar.gz
-sha1	201f793f13dce2448e36047079875b9bd5bba75a	htop-2.0.2.tar.gz
+# From https://github.com/htop-dev/htop/releases/download/3.2.2/htop-3.2.2.tar.xz.sha256
+sha256  bac9e9ab7198256b8802d2e3b327a54804dc2a19b77a5f103645b11c12473dc8  htop-3.2.2.tar.xz
+
+# Locally calculated
+sha256  8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643  COPYING

@@ -18,17 +18,14 @@ URG_CONF_OPTS += \
 	--with-sdl-prefix=$(STAGING_DIR)/usr \
 	--with-sdl-exec-prefix=$(STAGING_DIR)/usr
 else
-URG_CONF_OPTS = --without-sdl
+URG_CONF_OPTS += --without-sdl
 URG_CONF_ENV += ac_cv_path_SDL_CONFIG=""
 endif
 
 URG_CONFIG_SCRIPTS = c_urg-config urg-config
 
 define URG_EXTRACT_CMDS
-	$(RM) -rf $(URG_DIR)
-	$(UNZIP) -d $(BUILD_DIR)/ $(DL_DIR)/$(URG_SOURCE)
-	test -d $(URG_DIR) || \
-		mv $(BUILD_DIR)/$(subst .zip,,$(URG_SOURCE)) $(URG_DIR)
+	$(UNZIP) -d $(BUILD_DIR) $(URG_DL_DIR)/$(URG_SOURCE)
 endef
 
 $(eval $(autotools-package))

@@ -1,4 +1,5 @@
-# From https://lists.gnupg.org/pipermail/gnupg-announce/2017q2/000404.html
-sha1 500ddae8e4225ae2e300934090f9b9a427b8def1  gnupg-2.1.20.tar.bz2
-# Calculated based on the hash above
-sha256 24cf9a69369be64a9f6f8cc11a1be33ab7780ad77a6a1b93719438f49f69960d  gnupg-2.1.20.tar.bz2
+# From https://www.gnupg.org/download/integrity_check.html
+sha1  3efd495a94dc81fd0ea8788bef6c69d1f13cedd7  gnupg-2.4.2.tar.bz2
+sha256  97eb47df8ae5a3ff744f868005a090da5ab45cb48ee9836dbf5ee739a4e5cf49  gnupg-2.4.2.tar.bz2
+# Locally calculated
+sha256  bc2d6664f6276fa0a72d57633b3ae68dc7dcb677b71018bf08c8e93e509f1357  COPYING

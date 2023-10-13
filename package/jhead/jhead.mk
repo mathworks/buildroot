@@ -4,10 +4,11 @@
 #
 ################################################################################
 
-JHEAD_VERSION = 3.00
-JHEAD_SITE = http://www.sentex.net/~mwandel/jhead
+JHEAD_VERSION = 3.08
+JHEAD_SITE = $(call github,Matthias-Wandel,jhead,$(JHEAD_VERSION))
 JHEAD_LICENSE = Public Domain
 JHEAD_LICENSE_FILES = readme.txt
+JHEAD_CPE_ID_VENDOR = jhead_project
 
 define JHEAD_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)

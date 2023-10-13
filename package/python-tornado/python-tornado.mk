@@ -4,10 +4,13 @@
 #
 ################################################################################
 
-PYTHON_TORNADO_VERSION = 4.5.1
+PYTHON_TORNADO_VERSION = 6.2
 PYTHON_TORNADO_SOURCE = tornado-$(PYTHON_TORNADO_VERSION).tar.gz
-PYTHON_TORNADO_SITE = https://pypi.python.org/packages/df/42/a180ee540e12e2ec1007ac82a42b09dd92e5461e09c98bf465e98646d187
+PYTHON_TORNADO_SITE = https://files.pythonhosted.org/packages/f3/9e/225a41452f2d9418d89be5e32cf824c84fe1e639d350d6e8d49db5b7f73a
 PYTHON_TORNADO_LICENSE = Apache-2.0
+PYTHON_TORNADO_LICENSE_FILES = LICENSE
+PYTHON_TORNADO_CPE_ID_VENDOR = tornadoweb
+PYTHON_TORNADO_CPE_ID_PRODUCT = tornado
 PYTHON_TORNADO_SETUP_TYPE = setuptools
 
 $(eval $(python-package))

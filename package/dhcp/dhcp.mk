@@ -4,15 +4,45 @@
 #
 ################################################################################
 
-DHCP_VERSION = 4.3.5
-DHCP_SITE = http://ftp.isc.org/isc/dhcp/$(DHCP_VERSION)
+DHCP_VERSION = 4.4.3-P1
+DHCP_SITE = https://ftp.isc.org/isc/dhcp/$(DHCP_VERSION)
 DHCP_INSTALL_STAGING = YES
-DHCP_LICENSE = ISC
+DHCP_LICENSE = MPL-2.0
 DHCP_LICENSE_FILES = LICENSE
+DHCP_DEPENDENCIES = host-gawk
+DHCP_CPE_ID_VENDOR = isc
+# internal bind does not support parallel builds.
+DHCP_MAKE = $(MAKE1)
+
+# untar internal bind so libtool patches will be applied on bind's libtool
+define DHCP_UNTAR_INTERNAL_BIND
+	$(TAR) xf $(@D)/bind/bind.tar.gz -C $(@D)/bind/
+endef
+
+DHCP_POST_EXTRACT_HOOKS = DHCP_UNTAR_INTERNAL_BIND
+
+# use libtool-enabled configure.ac
+define DHCP_LIBTOOL_AUTORECONF
+	cp $(@D)/configure.ac+lt $(@D)/configure.ac
+endef
+
 DHCP_CONF_ENV = \
 	CPPFLAGS='-D_PATH_DHCPD_CONF=\"/etc/dhcp/dhcpd.conf\" \
-		-D_PATH_DHCLIENT_CONF=\"/etc/dhcp/dhclient.conf\"'
+		-D_PATH_DHCLIENT_CONF=\"/etc/dhcp/dhclient.conf\"' \
+	CFLAGS='$(TARGET_CFLAGS) -DISC_CHECK_NONE=1'
+
+DHCP_BIND_EXTRA_CONFIG = \
+	BUILD_CC='$(HOSTCC)' \
+	BUILD_CFLAGS='$(HOST_CFLAGS)' \
+	BUILD_CPPFLAGS='$(HOST_CPPFLAGS)' \
+	BUILD_LDFLAGS='$(HOST_LDFLAGS)' \
+	RANLIB='$(TARGET_RANLIB)' \
+	--disable-backtrace
+
+DHCP_CONF_ENV += ac_cv_prog_AWK=$(HOST_DIR)/bin/gawk
+
 DHCP_CONF_OPTS = \
+	--with-bind-extra-config="$(DHCP_BIND_EXTRA_CONFIG)" \
 	--with-randomdev=/dev/random \
 	--with-srv-lease-file=/var/lib/dhcp/dhcpd.leases \
 	--with-srv6-lease-file=/var/lib/dhcp/dhcpd6.leases \
@@ -25,38 +55,56 @@ DHCP_CONF_OPTS = \
 	--with-relay-pid-file=/var/run/dhcrelay.pid \
 	--with-relay6-pid-file=/var/run/dhcrelay6.pid
 
-# The source for the bind libraries used by dhcp are embedded in the dhcp source
-# as a tar-ball. Extract the bind source to allow any patches to be applied
-# during the patch phase.
-define DHCP_EXTRACT_BIND
-	cd $(@D)/bind; tar -xvf bind.tar.gz
-endef
-DHCP_POST_EXTRACT_HOOKS += DHCP_EXTRACT_BIND
+ifeq ($(BR2_PACKAGE_ZLIB),y)
+DHCP_BIND_EXTRA_CONFIG += --with-zlib=$(STAGING_DIR)/usr
+DHCP_DEPENDENCIES += zlib
+else
+DHCP_BIND_EXTRA_CONFIG += --without-zlib
+endif
 
-# The patchset requires configure et.al. to be regenerated.
+ifeq ($(BR2_TOOLCHAIN_HAS_ATOMIC),y)
+DHCP_BIND_EXTRA_CONFIG += --enable-atomic
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+DHCP_CONF_ENV += LIBS=-latomic
+endif
+else
+DHCP_BIND_EXTRA_CONFIG += --disable-atomic
+endif
+
+ifeq ($(BR2_STATIC_LIBS),y)
+DHCP_CONF_OPTS += --disable-libtool
+else
+DHCP_POST_EXTRACT_HOOKS += DHCP_LIBTOOL_AUTORECONF
 DHCP_AUTORECONF = YES
-
-# bind does not support parallel builds.
-DHCP_MAKE = $(MAKE1)
-
-# bind configure is called via dhcp make instead of dhcp configure. The make env
-# needs extra values for bind configure.
-DHCP_MAKE_ENV = \
-	$(TARGET_CONFIGURE_OPTS) \
-	BUILD_CC="$(HOSTCC)" \
-	BUILD_CFLAGS="$(HOST_CFLAGS)" \
-	BUILD_CPPFLAGS="$(HOST_CPPFLAGS)" \
-	BUILD_LDFLAGS="$(HOST_LDFLAGS)"
+DHCP_CONF_OPTS += --enable-libtool
+endif
 
 ifeq ($(BR2_PACKAGE_DHCP_SERVER_DELAYED_ACK),y)
 DHCP_CONF_OPTS += --enable-delayed-ack
+else
+DHCP_CONF_OPTS += --disable-delayed-ack
 endif
 
+ifeq ($(BR2_PACKAGE_DHCP_SERVER_ENABLE_PARANOIA),y)
+DHCP_CONF_OPTS += --enable-paranoia
+else
+DHCP_CONF_OPTS += --disable-paranoia
+endif
+
+define DHCP_INSTALL_LIBS
+	$(MAKE) -C $(@D)/bind install-bind DESTDIR=$(TARGET_DIR)
+	$(MAKE) -C $(@D)/common install-exec DESTDIR=$(TARGET_DIR)
+	$(MAKE) -C $(@D)/omapip install-exec DESTDIR=$(TARGET_DIR)
+endef
+
 ifeq ($(BR2_PACKAGE_DHCP_SERVER),y)
+define DHCP_INSTALL_CTL_LIBS
+	$(MAKE) -C $(@D)/dhcpctl install-exec DESTDIR=$(TARGET_DIR)
+endef
 define DHCP_INSTALL_SERVER
 	mkdir -p $(TARGET_DIR)/var/lib
 	(cd $(TARGET_DIR)/var/lib; ln -snf /tmp dhcp)
-	$(INSTALL) -m 0755 -D $(@D)/server/dhcpd $(TARGET_DIR)/usr/sbin/dhcpd
+	$(MAKE) -C $(@D)/server DESTDIR=$(TARGET_DIR) install-sbinPROGRAMS
 	$(INSTALL) -m 0644 -D package/dhcp/dhcpd.conf \
 		$(TARGET_DIR)/etc/dhcp/dhcpd.conf
 endef
@@ -66,8 +114,7 @@ ifeq ($(BR2_PACKAGE_DHCP_RELAY),y)
 define DHCP_INSTALL_RELAY
 	mkdir -p $(TARGET_DIR)/var/lib
 	(cd $(TARGET_DIR)/var/lib; ln -snf /tmp dhcp)
-	$(INSTALL) -m 0755 -D $(DHCP_DIR)/relay/dhcrelay \
-		$(TARGET_DIR)/usr/sbin/dhcrelay
+	$(MAKE) -C $(@D)/relay DESTDIR=$(TARGET_DIR) install-sbinPROGRAMS
 endef
 endif
 
@@ -75,8 +122,8 @@ ifeq ($(BR2_PACKAGE_DHCP_CLIENT),y)
 define DHCP_INSTALL_CLIENT
 	mkdir -p $(TARGET_DIR)/var/lib
 	(cd $(TARGET_DIR)/var/lib; ln -snf /tmp dhcp)
-	$(INSTALL) -m 0755 -D $(DHCP_DIR)/client/dhclient \
-		$(TARGET_DIR)/sbin/dhclient
+	$(MAKE) -C $(@D)/client DESTDIR=$(TARGET_DIR) sbindir=/sbin \
+		install-sbinPROGRAMS
 	$(INSTALL) -m 0644 -D package/dhcp/dhclient.conf \
 		$(TARGET_DIR)/etc/dhcp/dhclient.conf
 	$(INSTALL) -m 0755 -D package/dhcp/dhclient-script \
@@ -97,11 +144,6 @@ define DHCP_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 package/dhcp/dhcpd.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/dhcpd.service
 
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-
-	ln -sf ../../../../usr/lib/systemd/system/dhcpd.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/dhcpd.service
-
 	mkdir -p $(TARGET_DIR)/usr/lib/tmpfiles.d
 	echo "d /var/lib/dhcp 0755 - - - -" > \
 		$(TARGET_DIR)/usr/lib/tmpfiles.d/dhcpd.conf
@@ -111,6 +153,8 @@ endef
 endif
 
 define DHCP_INSTALL_TARGET_CMDS
+	$(DHCP_INSTALL_LIBS)
+	$(DHCP_INSTALL_CTL_LIBS)
 	$(DHCP_INSTALL_RELAY)
 	$(DHCP_INSTALL_SERVER)
 	$(DHCP_INSTALL_CLIENT)

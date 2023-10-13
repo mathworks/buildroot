@@ -4,83 +4,71 @@
 #
 ################################################################################
 
-CLAMAV_VERSION = 0.99.2
+CLAMAV_VERSION = 1.0.1
 CLAMAV_SITE = https://www.clamav.net/downloads/production
 CLAMAV_LICENSE = GPL-2.0
-CLAMAV_LICENSE_FILES = COPYING COPYING.bzip2 COPYING.file COPYING.getopt \
-	COPYING.LGPL COPYING.llvm COPYING.lzma COPYING.pcre COPYING.regex \
-	COPYING.unrar COPYING.zlib
+CLAMAV_LICENSE_FILES = \
+	COPYING.txt \
+	COPYING/COPYING.bzip2 \
+	COPYING/COPYING.file \
+	COPYING/COPYING.getopt \
+	COPYING/COPYING.LGPL \
+	COPYING/COPYING.llvm \
+	COPYING/COPYING.lzma \
+	COPYING/COPYING.pcre \
+	COPYING/COPYING.regex \
+	COPYING/COPYING.unrar \
+	COPYING/COPYING.zlib
+CLAMAV_CPE_ID_VENDOR = clamav
+CLAMAV_SELINUX_MODULES = clamav
+# affects only Cisco devices
+CLAMAV_IGNORE_CVES += CVE-2016-1405
 CLAMAV_DEPENDENCIES = \
+	bzip2 \
 	host-pkgconf \
-	libtool \
+	host-rustc \
+	json-c \
+	libcurl \
+	libmspack \
+	libxml2 \
 	openssl \
+	pcre2 \
 	zlib \
-	$(if $(BR2_NEEDS_GETTEXT_IF_LOCALE),gettext)
+	$(TARGET_NLS_DEPENDENCIES)
 
-# mmap cannot be detected when cross-compiling, needed for mempool support
-CLAMAV_CONF_ENV = \
-	ac_cv_c_mmap_private=yes \
-	have_cv_ipv6=yes
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+CLAMAV_LIBS += -latomic
+endif
 
-# UCLIBC_HAS_FTS is disabled, therefore disable fanotify (missing fts.h)
+ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),)
+CLAMAV_DEPENDENCIES += musl-fts
+CLAMAV_LIBS += -lfts
+endif
+
+CLAMAV_CONF_ENV += LIBS="$(CLAMAV_LIBS)"
+
 CLAMAV_CONF_OPTS = \
-	--with-dbdir=/var/lib/clamav \
-	--with-ltdl-include=$(STAGING_DIR)/usr/include \
-	--with-ltdl-lib=$(STAGING_DIR)/usr/lib \
-	--with-openssl=$(STAGING_DIR)/usr \
-	--with-zlib=$(STAGING_DIR)/usr \
-	--disable-zlib-vcheck \
-	--disable-rpath \
-	--disable-clamav \
-	--disable-fanotify \
-	--disable-milter \
-	--disable-llvm \
-	--disable-clamdtop \
-	--enable-mempool
+	-DCMAKE_SKIP_INSTALL_RPATH=ON \
+	-DENABLE_JSON_SHARED=ON \
+	-DENABLE_MAN_PAGES=OFF \
+	-DENABLE_MILTER=OFF \
+	-DENABLE_TESTS=OFF \
+	-DHAVE_SYSTEM_LFS_FTS=ON \
+	-DRUST_COMPILER_TARGET=$(RUSTC_TARGET_NAME) \
+	-Dtest_run_result=ON \
+	-Dtest_run_result__TRYRUN_OUTPUT=ON
 
-ifeq ($(BR2_PACKAGE_BZIP2),y)
-CLAMAV_DEPENDENCIES += bzip2
-# autodetection gets confused if host has bzip2, so force it
-CLAMAV_CONF_ENV += \
-	ac_cv_libbz2_libs=-lbz2 \
-	ac_cv_libbz2_ltlibs=-lbz2
+ifeq ($(BR2_PACKAGE_NCURSES),y)
+CLAMAV_CONF_OPTS += -DENABLE_APP=ON
+CLAMAV_DEPENDENCIES += ncurses
+ifeq ($(BR2_INIT_SYSTEMD),y)
+CLAMAV_CONF_OPTS += -DENABLE_SYSTEMD=ON
+CLAMAV_DEPENDENCIES += systemd
 else
-CLAMAV_CONF_OPTS += --disable-bzip2
+CLAMAV_CONF_OPTS += -DENABLE_SYSTEMD=OFF
+endif
+else
+CLAMAV_CONF_OPTS += -DENABLE_APP=OFF -DENABLE_SYSTEMD=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_JSON_C),y)
-CLAMAV_CONF_OPTS += --with-libjson=$(STAGING_DIR)/usr
-CLAMAV_DEPENDENCIES += json-c
-else
-CLAMAV_CONF_OPTS += --without-libjson
-endif
-
-ifeq ($(BR2_PACKAGE_LIBXML2),y)
-CLAMAV_CONF_OPTS += --with-xml=$(STAGING_DIR)/usr
-CLAMAV_DEPENDENCIES += libxml2
-else
-CLAMAV_CONF_OPTS += --disable-xml
-endif
-
-ifeq ($(BR2_PACKAGE_LIBCURL),y)
-CLAMAV_CONF_OPTS += --with-libcurl=$(STAGING_DIR)/usr
-CLAMAV_DEPENDENCIES += libcurl
-else
-CLAMAV_CONF_OPTS += --without-libcurl
-endif
-
-ifeq ($(BR2_PACKAGE_LIBICONV),y)
-CLAMAV_CONF_OPTS += --with-iconv
-CLAMAV_DEPENDENCIES += libiconv
-else
-CLAMAV_CONF_OPTS += --without-iconv
-endif
-
-ifeq ($(BR2_PACKAGE_PCRE),y)
-CLAMAV_CONF_OPTS += --with-pcre=$(STAGING_DIR)/usr
-CLAMAV_DEPENDENCIES += pcre
-else
-CLAMAV_CONF_OPTS += --without-pcre
-endif
-
-$(eval $(autotools-package))
+$(eval $(cmake-package))

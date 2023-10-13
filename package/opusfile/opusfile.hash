@@ -1,2 +1,5 @@
 # From http://downloads.xiph.org/releases/opus/SHA256SUMS.txt
-sha256	2c231ed3cfaa1b3173f52d740e5bbd77d51b9dfecb87014b404917fba4b855a4	opusfile-0.8.tar.gz
+sha256  118d8601c12dd6a44f52423e68ca9083cc9f2bfe72da7a8c1acb22a80ae3550b  opusfile-0.12.tar.gz
+
+# Hash for license file
+sha256  0267ae795ab744c4e0f9c45e249440fdf2e75dac8c804f36066b28649bf74aaf  COPYING
