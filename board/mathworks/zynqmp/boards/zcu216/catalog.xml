@@ -14,6 +14,9 @@
             <dts file="axilite.dts"/>
             <bit file="axilite.bit"/>
         </app>
+		<app name="hdlv">
+            <dts file="hdlv.dts"/>
+        </app>
         <!--
 		<app name="axistream">
             <dts file="axistream.dts"/>

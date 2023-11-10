@@ -2,12 +2,21 @@
 #
 # Start the network....
 #
-
-WORKFLOW=`fw_printenv -n workflow 2> /dev/null || echo 0`
+USB_CONF=/mnt/usb_config
 GADGET=/sys/kernel/config/usb_gadget/g1
-if [ "$WORKFLOW" == "HDLVerifier" ]
+
+if [ -f "$USB_CONF" ]
 then
-	echo "Workflow is HDLVerifier"
+ source $USB_CONF
+fi
+
+#USB_MODE is defined in $USB_CONF which will be added by HDL Verifier APIs for board setup
+#Also check if the USB dr_mode is peripheral. In peripheral mode, /sys/class/udc is not empty
+#as it lists the USB Device Controller devices.
+
+if [ "$USB_MODE" == "EthernetDevice" ] && [ "$(ls -A /sys/class/udc | wc -l)" -ne 0 ]
+then
+	echo "USB_MODE is EthernetDevice"
 else
     exit 0
 fi
@@ -16,7 +25,6 @@ case "$1" in
   start)
  	echo "Starting UDC Gadgets..."
 	PRODUCT="Mathworks USB Ethernet/RNDIS Gadget"
-	echo "Starting UDC Gadgets: "
 	mount -t configfs none /sys/kernel/config
 	mkdir -p $GADGET
 	echo "creating gadget complete "
@@ -33,8 +41,12 @@ case "$1" in
 	echo "The MathWorks Inc." > $GADGET/strings/0x409/manufacturer
 	echo $PRODUCT > $GADGET/strings/0x409/product
 	echo $serial > $GADGET/strings/0x409/serialnumber 
-	mkdir -p $GADGET/configs/c1.1
+	
 	mkdir -p $GADGET/functions/rndis.rn0
+	echo $HOST_ADDR > $GADGET/functions/rndis.rn0/host_addr
+	echo $DEV_ADDR > $GADGET/functions/rndis.rn0/dev_addr
+
+	mkdir -p $GADGET/configs/c1.1
 	ln -s $GADGET/functions/rndis.rn0 $GADGET/configs/c1.1
 	echo "fe200000.dwc3" > $GADGET/UDC
 	ip link set dev usb0 mtu 15300
@@ -46,7 +58,6 @@ case "$1" in
 
 	rm $GADGET/configs/c1.1/rndis.rn0
 	rmdir $GADGET/strings/0x409
-	rmdir $GADGET/configs/c1.1/strings/0x409
 	rmdir $GADGET/configs/c1.1
 	rmdir $GADGET/functions/rndis.rn0
 	rmdir $GADGET 2> /dev/null
