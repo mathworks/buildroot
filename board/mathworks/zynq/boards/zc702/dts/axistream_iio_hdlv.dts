@@ -1,0 +1,7 @@
+#include "base.dtsi"
+#include "zynq-mw-axistream-iio-common.dtsi"
+#include "mw-aximm-common.dtsi"
+
+&usb0 {
+         dr_mode = "peripheral";
+     };

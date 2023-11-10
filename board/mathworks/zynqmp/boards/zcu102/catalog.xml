@@ -17,6 +17,9 @@
 		<app name="axistream">
             <dts file="axistream.dts"/>
         </app>
+		<app name="axistream_hdlv">
+            <dts file="axistream_hdlv.dts"/>
+        </app>
         <app name="axistream_64">
             <dts file="axistream_64.dts"/>
         </app>
