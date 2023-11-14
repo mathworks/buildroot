@@ -14,10 +14,10 @@
             <dts file="axilite.dts"/>
             <bit file="axilite.bit"/>
         </app>
-		<app name="axistream">
+	<app name="axistream">
             <dts file="axistream.dts"/>
         </app>
-		<app name="axistream_hdlv">
+	<app name="axistream_hdlv">
             <dts file="axistream_hdlv.dts"/>
         </app>
         <app name="axistream_64">
@@ -26,11 +26,37 @@
         <app name="dlhdl">
             <dts file="dlhdl.dts"/>
         </app>
-		<app name="hdlv">
+	<app name="hdlv">
             <dts file="hdlv.dts"/>
         </app>
 	<app name="sharedmem_iio">
             <dts file="sharedmem_iio.dts"/>
+        </app>
+	<app name="visionzynq">
+            <dts file="visionzynq.dts"/>
+            <bit file="visionzynq.bit"/>
+        </app>
+        <app name="visionzynq_axis">
+            <dts file="visionzynq_axis.dts"/>
+        </app>
+        <app name="visionzynq_fmchdmi_dl">
+            <dts file="visionzynq-fmchdmi-dl.dts"/>
+        </app>
+        <app name="fmcomms2_axis">
+            <dts file="fmcomms2_axis.dts"/>
+            <bit file="fmcomms2.bit"/>
+        </app>				
+        <app name="fmcomms2">
+            <dts file="fmcomms2.dts"/>
+        </app>
+        <app name="fmcomms2_axis64">
+            <dts file="fmcomms2_axis64.dts"/>
+        </app>
+        <app name="fmcomms2_axis_XIL_DMA">
+            <dts file="fmcomms2_axis_XIL_DMA.dts"/>
+        </app>
+        <app name="fmcomms2_axis64_XIL_DMA">
+            <dts file="fmcomms2_axis64_XIL_DMA.dts"/>
         </app>
     </image>
 </board>

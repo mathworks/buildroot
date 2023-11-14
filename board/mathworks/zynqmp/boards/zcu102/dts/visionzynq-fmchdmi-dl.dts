@@ -1,0 +1,4 @@
+#include "visionzynq.dts"
+#include "zynqmp-mw-visionzynq-ps-vdma.dtsi"
+#include "zynqmp-mw-visionzynq-dl.dtsi"
+#include "mw-aximm-common.dtsi"

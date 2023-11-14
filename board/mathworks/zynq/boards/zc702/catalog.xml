@@ -24,11 +24,17 @@
 		<app name="axistream_iio_64">
             <dts file="axistream_iio_64.dts"/>
         </app>
-		<app name="hdlv">
+	<app name="hdlv">
             <dts file="hdlv.dts"/>
         </app>
         <app name="axistream_iio_hdlv">
             <dts file="axistream_iio_hdlv.dts"/>
+        </app>
+        <app name="visionzynq">
+            <dts file="visionzynq.dts"/>
+        </app>
+        <app name="visionzynq_axis">
+            <dts file="visionzynq_axis.dts"/>
         </app>
     </image>
 </board>

@@ -27,7 +27,7 @@
 					bit-justification = <2>;
 					hsync-polarity = <0>;
 					vsync-polarity = <0>;
-					clock-delay = <3>;
+					clock-delay = <0>;
 				};
 
 				video-output {

@@ -1,0 +1,38 @@
+&fpga_axi {	
+	axi_vdma_ps@A0600000 {
+		compatible = "mathworks,mwgeneric-v1.00";
+		reg = <0xa0600000 0x10000>;
+		mwgen,ipname = "xlnx,axi_vdma";
+		mwgen,devname = "vdma";
+		mwgen,ipinst = "vdma_ps";
+		mwgen,ipver = "6.3";
+	};
+	
+	mwipcore_ps_vdma_to_vht@a3c60000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0xa3c60000 0x10000>;
+	};
+	
+	mwipcore_platform_info@afff0000 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xafff0000 0x10000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		mmrd-channel@0 {
+			reg = <0x0>;
+			compatible = "mathworks,mm-read-channel-v1.00";
+			mathworks,dev-name = "mmrd0";
+		};
+	};
+};
+
+/ {
+
+    reserved-memory {
+        	ps_vdma_mem: region@1C000000 {
+	        	reg = <0x00000000 0x1C000000 0x00000000 0x1800000>;
+		        no-map;
+	        };
+    };
+};

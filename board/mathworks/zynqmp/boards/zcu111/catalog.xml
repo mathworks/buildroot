@@ -20,7 +20,7 @@
         <app name="axistream_64">
             <dts file="axistream_64.dts"/>
         </app>
-		<app name="hdlv">
+	<app name="hdlv">
             <dts file="hdlv.dts"/>
         </app>
 	<sdcard dir="sdcard"/>
