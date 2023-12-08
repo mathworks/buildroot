@@ -1,0 +1,35 @@
+/* Setup logic for the bypass user logic */
+&fpga_axi {
+    mwbypassrx0: mwbypassrx@0 { 
+        compatible = "mathworks,mwipcore-v3.00";
+        reg = <0x0 0x80000000 0x10000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        mmrd-channel@0 {
+            reg = <0x0>;
+            compatible = "mathworks,mm-read-channel-v1.00";
+            mathworks,dev-name = "mmrd0";
+        };
+        mmwr-channel@0 {
+            reg = <0x1>;
+            compatible = "mathworks,mm-write-channel-v1.00";
+            mathworks,dev-name = "mmwr0";
+        };
+    };
+    mwbypasstx0: mwbypasstx@0 { 
+        compatible = "mathworks,mwipcore-v3.00";
+        reg = <0x0 0x80000000 0x10000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        mmrd-channel@0 {
+            reg = <0x0>;
+            compatible = "mathworks,mm-read-channel-v1.00";
+            mathworks,dev-name = "mmrd0";
+        };
+        mmwr-channel@0 {
+            reg = <0x1>;
+            compatible = "mathworks,mm-write-channel-v1.00";
+            mathworks,dev-name = "mmwr0";
+        };
+    };
+};

@@ -2,6 +2,7 @@
 #
 # Start the usb ethernet....
 #
+
 source /etc/bootvars.conf
 USB_CONF=/mnt/usb_config
 
