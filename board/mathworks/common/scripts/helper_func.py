@@ -402,7 +402,7 @@ def br_set_var(var, value, quoted=True):
 ########################
 
 def _git_verinfo(git_dir):
-    git_hash = subproc_output('git log -n 1 --pretty="%H"', cwd=git_dir)
+    git_hash = subproc_output('git log -n 1 --pretty="%H (%at)"', cwd=git_dir)
     git_hash = re.sub("\n", "", git_hash.decode("utf-8"))
     git_hash = re.sub('"',"", git_hash)
     return git_hash
@@ -428,6 +428,7 @@ def verinfo(pkg):
 def gen_verinfo_file(tgt_file):
     
     with open(tgt_file, 'w') as f:
+        f.write("#Project: <git hash of last commit> (author date, unix timestamp)")
         f.write("Buildroot: %s\n" % (_git_verinfo(BR_ROOT)))
         f.write("Linux: %s\n" % (verinfo('linux')))
         if get_cfg_var('BR2_TARGET_UBOOT') == 'y':
