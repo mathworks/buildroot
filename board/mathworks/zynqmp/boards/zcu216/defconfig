@@ -10,12 +10,13 @@ BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/zynqmp
 
 BR2_LINUX_KERNEL_DEFCONFIG="mw_zynqmp_zcu216"
 
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="rfsoc-5.4"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_rfsoc_gen3_R23.1.0"
 
-BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/uboot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mw-xilinx-v2020.x"
-BR2_TARGET_UBOOT_VERSION="mw-xilinx-v2020.x"
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_rfsoc_gen3_R21.1.0"
+BR2_TARGET_UBOOT_VERSION="mathworks_zynq_rfsoc_gen3_R21.1.0"
+
 BR2_PACKAGE_XILINX_BOOTLOADER_PLATFORM="zynqmp_gen3"
 
 BR2_TARGET_ARM_TRUSTED_FIRMWARE=y

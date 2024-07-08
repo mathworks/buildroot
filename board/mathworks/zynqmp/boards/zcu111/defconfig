@@ -9,13 +9,12 @@ BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt board/mathworks/zynqmp/device_t
 BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/zynqmp/fs-overlay ./board/mathworks/zynqmp/boards/zcu111/fs-overlay"
 
 BR2_LINUX_KERNEL_DEFCONFIG="mw_zynqmp_zcu111"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="mathworks_zynq_rfsoc_R23.1.0"
 
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="rfsoc-4.14"
-
-BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://insidelabs-git.mathworks.com/EmbeddedLinux/uboot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mw-xilinx-v2018.3"
-BR2_TARGET_UBOOT_VERSION="mw-xilinx-v2018.3"
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/mathworks/xilinx-uboot.git"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="mathworks_zynq_rfsoc_R20.2.0"
+BR2_TARGET_UBOOT_VERSION="mathworks_zynq_rfsoc_R20.2.0"
 
 BR2_PACKAGE_LIBCONFIG=y
 BR2_PACKAGE_LIBSYSFS=y
