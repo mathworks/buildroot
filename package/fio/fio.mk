@@ -4,17 +4,13 @@
 #
 ################################################################################
 
-FIO_VERSION = 3.28
-FIO_SITE = http://brick.kernel.dk/snaps
-FIO_LICENSE = GPL-2.0
-FIO_LICENSE_FILES = COPYING MORAL-LICENSE
+FIO_VERSION = fio-2.13
+FIO_SITE = git://git.kernel.dk/fio.git
+FIO_LICENSE = GPL-2.0 + special obligations
+FIO_LICENSE_FILES = COPYING
 
 ifeq ($(BR2_PACKAGE_LIBAIO),y)
 FIO_DEPENDENCIES += libaio
-endif
-
-ifeq ($(BR2_PACKAGE_LIBNFS),y)
-FIO_DEPENDENCIES += libnfs
 endif
 
 ifeq ($(BR2_PACKAGE_NUMACTL),y)

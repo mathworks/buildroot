@@ -1,7 +1,9 @@
 config BR2_PACKAGE_PCIUTILS
 	bool "pciutils"
+	# PCI not supported on Blackfin
+	depends on !BR2_bfin
 	help
 	  Various utilities dealing with the PCI bus.
 	  Provides things like setpci and lspci.
 
-	  https://mj.ucw.cz/sw/pciutils/
+	  http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html

@@ -26,11 +26,6 @@ config BR2_TARGET_ROOTFS_TAR_BZIP2
 	help
 	  Do compress the tarball with bzip2.
 
-config BR2_TARGET_ROOTFS_TAR_LZ4
-	bool "lz4"
-	help
-	  Do compress the tarball with lz4.
-
 config BR2_TARGET_ROOTFS_TAR_LZMA
 	bool "lzma"
 	help
@@ -46,17 +41,12 @@ config BR2_TARGET_ROOTFS_TAR_XZ
 	help
 	  Do compress the tarball with xz.
 
-config BR2_TARGET_ROOTFS_TAR_ZSTD
-	bool "zstd"
-	help
-	  Do compress the tarball with zstd.
-
 endchoice
 
 config BR2_TARGET_ROOTFS_TAR_OPTIONS
 	string "other random options to pass to tar"
-	default ""
 	depends on BR2_TARGET_ROOTFS_TAR
+	default ""
 	help
 	  Any other flags you want to pass to tar
 	  Refer to tar --help for details

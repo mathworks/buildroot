@@ -1,0 +1,12 @@
+
+/delete-node/ &adv7511;
+/delete-node/ &axi_vdma_0;
+/delete-node/ &hdmi_clock;
+/delete-node/ &axi_spdif_tx_0;
+/ { 
+	/delete-node/ adv7511_hdmi_snd;
+};
+&fpga_axi {
+	/delete-node/ axi_hdmi@70e00000;
+};
+

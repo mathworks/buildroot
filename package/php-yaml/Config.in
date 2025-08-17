@@ -1,5 +1,6 @@
 config BR2_PACKAGE_PHP_YAML
 	bool "php-yaml"
+	depends on BR2_PACKAGE_PHP
 	select BR2_PACKAGE_LIBYAML
 	help
 	  PHP YAML-1.1 parser and emitter.

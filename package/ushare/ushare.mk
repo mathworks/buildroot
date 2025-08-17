@@ -4,39 +4,29 @@
 #
 ################################################################################
 
-USHARE_VERSION = 2.1
-USHARE_SITE = $(call github,ddugovic,uShare,v$(USHARE_VERSION))
-USHARE_DEPENDENCIES = host-pkgconf libupnp $(TARGET_NLS_DEPENDENCIES)
+USHARE_VERSION = 1.1a
+USHARE_SOURCE = ushare-$(USHARE_VERSION).tar.bz2
+USHARE_SITE = http://ushare.geexbox.org/releases
+USHARE_DEPENDENCIES = host-pkgconf libupnp
 USHARE_LICENSE = GPL-2.0+
 USHARE_LICENSE_FILES = COPYING
-USHARE_LDFLAGS = $(TARGET_NLS_LIBS)
 
-USHARE_CONF_OPTS = \
-	--prefix=/usr \
-	--cross-compile \
-	--cross-prefix="$(TARGET_CROSS)" \
-	--sysconfdir=/etc \
-	--disable-strip
-
-USHARE_MAKE_OPTS = LDFLAGS="$(TARGET_LDFLAGS) $(USHARE_LDFLAGS)"
-
-ifeq ($(BR2_SYSTEM_ENABLE_NLS),y)
-USHARE_CONF_OPTS += --enable-nls
-USHARE_MAKE_OPTS += GMSGFMT="$(HOST_DIR)/bin/msgfmt"
-else
-USHARE_CONF_OPTS += --disable-nls
+ifeq ($(BR2_NEEDS_GETTEXT_IF_LOCALE),y)
+USHARE_DEPENDENCIES += gettext
+USHARE_LDFLAGS += -lintl
 endif
 
 define USHARE_CONFIGURE_CMDS
 	(cd $(@D); \
 		$(TARGET_CONFIGURE_OPTS) \
-		./configure \
-			$(USHARE_CONF_OPTS) \
+		./configure --prefix=/usr $(DISABLE_NLS) --cross-compile \
+		--cross-prefix="$(TARGET_CROSS)" --sysconfdir=/etc \
+		--disable-strip \
 	)
 endef
 
 define USHARE_BUILD_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) $(USHARE_MAKE_OPTS) -C $(@D)
+	$(TARGET_MAKE_ENV) $(MAKE) LDFLAGS="$(TARGET_LDFLAGS) $(USHARE_LDFLAGS)" -C $(@D)
 endef
 
 define USHARE_INSTALL_TARGET_CMDS

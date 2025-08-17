@@ -4,11 +4,12 @@
 #
 ################################################################################
 
-LIBCGI_VERSION = 1.3.0
-LIBCGI_SITE = https://github.com/rafaelsteil/libcgi/releases/download/v$(LIBCGI_VERSION)
-
+LIBCGI_VERSION = 1.0
+LIBCGI_SITE = http://downloads.sourceforge.net/project/libcgi/libcgi/$(LIBCGI_VERSION)
 LIBCGI_INSTALL_STAGING = YES
-LIBCGI_LICENSE = LGPL-2.1+, MIT (base64.c)
-LIBCGI_LICENSE_FILES = LICENSES/LGPL-2.1.txt LICENSES/MIT.txt
+# use cross CC/AR rather than host
+LIBCGI_MAKE_ENV = CC="$(TARGET_CC) $(TARGET_CFLAGS)" AR="$(TARGET_AR)" \
+	$(if $(BR2_STATIC_LIBS),STATIC=1)
+LIBCGI_LICENSE = LGPL-2.1+
 
-$(eval $(cmake-package))
+$(eval $(autotools-package))

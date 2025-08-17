@@ -12,6 +12,7 @@ XAPP_XFINDPROXY_LICENSE_FILES = COPYING
 XAPP_XFINDPROXY_DEPENDENCIES = \
 	xlib_libICE \
 	xlib_libXt \
-	xorgproto
+	xproto_xproto \
+	xproto_xproxymanagementprotocol
 
 $(eval $(autotools-package))

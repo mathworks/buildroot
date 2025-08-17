@@ -1,4 +1,5 @@
 ifeq (,$(call suitable-host-package,lzip,$(LZCAT)))
-BR2_LZIP_HOST_DEPENDENCY = host-lzip
-LZCAT = $(HOST_DIR)/bin/lzip -d -c
+DEPENDENCIES_HOST_PREREQ += host-lzip
+EXTRACTOR_DEPENDENCY_PRECHECKED_EXTENSIONS += .lz
+LZCAT = $(HOST_DIR)/usr/bin/lzip -d -c
 endif

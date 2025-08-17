@@ -2,45 +2,41 @@
 * MIPS Creator CI20 *
 *********************
 
-Introduction
-============
-
 The 'ci20_defconfig' will create a root filesystem and a kernel image
 under the 'output/images/' directory. This document will try to explain how
 to use them in order to run Buildroot in the MIPS Creator CI20 board.
 
-How to build it
-===============
+Assuming you are at the U-Boot prompt of the MIPS Creator CI20, you have to
+load the generated kernel image by using the 'tftpboot' command. In
+order to do that, you will need to get the network working. Here you
+have the instructions to set the ip address, netmask and gateway:
 
-Configure Buildroot
--------------------
+  setenv ipaddr x.x.x.x
+  setenv netmask x.x.x.x
+  setenv gatewayip x.x.x.x
 
-  $ make ci20_defconfig
+Now you have to set the ip for the TFTP server you are going to load the
+kernel image from, and also the name of the kernel image file (we use
+'uImage' as a filename in this example):
 
-Build the rootfs
-----------------
+  setenv serverip x.x.x.x
+  setenv bootfile uImage
 
-Note: you will need to have access to the network, since Buildroot will
-download the packages' sources.
+And finally load the kernel image:
 
-You may now build your rootfs with:
+  tftpboot
 
-  $ make
+Now you have to extract the generated root filesystem into a USB drive
+or SD-Card. Here you have the instructions to boot from the two of them.
+You have to choose the one your prefer:
 
-(This may take a while, consider getting yourself a coffee ;-) )
+From USB
+  setenv bootargs console=ttyS4,115200 console=tty0 mem=256M@0x0
+mem=768M@0x30000000 root=/dev/sda1
 
-How to write the SD card
-========================
+From SD-Card
+  setenv bootargs console=ttyS4,115200 console=tty0 mem=256M@0x0
+mem=768M@0x30000000 root=/dev/mmcblk0p1
 
-Once the build process is finished you will have an image called
-"sdcard.img" in the output/images/ directory.
-
-Make sure the SD card is not mounted then copy the bootable "sdcard.img" onto
-it with "dd":
-
-  $ sudo dd if=output/images/sdcard.img of=/dev/sdX
-
-Insert the SDcard into your ci20, and power it up. Your new system
-should come up now and start a console on the UART HEADER.
-
-see: https://elinux.org/CI20_Hardware#Dedicated_UART_header
+And finally run this command to boot the board:
+  bootm

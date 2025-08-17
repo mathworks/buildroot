@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Try to hardlink a file into a directory, fallback to copy on failure.
 #

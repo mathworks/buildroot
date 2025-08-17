@@ -5,9 +5,7 @@
  * Derived from menuconfig.
  *
  */
-#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
-#endif
 #include <string.h>
 #include <stdlib.h>
 
@@ -271,7 +269,7 @@ static struct mitem k_menu_items[MAX_MENU_ITEMS];
 static int items_num;
 static int global_exit;
 /* the currently selected button */
-static const char *current_instructions = menu_instructions;
+const char *current_instructions = menu_instructions;
 
 static char *dialog_input_result;
 static int dialog_input_result_len;
@@ -305,7 +303,7 @@ struct function_keys {
 };
 
 static const int function_keys_num = 9;
-static struct function_keys function_keys[] = {
+struct function_keys function_keys[] = {
 	{
 		.key_str = "F1",
 		.func = "Help",
@@ -508,7 +506,7 @@ static int get_mext_match(const char *match_str, match_f flag)
 	index = (index + items_num) % items_num;
 	while (true) {
 		char *str = k_menu_items[index].str;
-		if (strcasestr(str, match_str) != NULL)
+		if (strcasestr(str, match_str) != 0)
 			return index;
 		if (flag == FIND_NEXT_MATCH_UP ||
 		    flag == MATCH_TINKER_PATTERN_UP)
@@ -1067,7 +1065,7 @@ static int do_match(int key, struct match_state *state, int *ans)
 
 static void conf(struct menu *menu)
 {
-	struct menu *submenu = NULL;
+	struct menu *submenu = 0;
 	const char *prompt = menu_get_prompt(menu);
 	struct symbol *sym;
 	int res;
@@ -1234,7 +1232,7 @@ static void show_help(struct menu *menu)
 static void conf_choice(struct menu *menu)
 {
 	const char *prompt = _(menu_get_prompt(menu));
-	struct menu *child = NULL;
+	struct menu *child = 0;
 	struct symbol *active;
 	int selected_index = 0;
 	int last_top_row = 0;
@@ -1456,7 +1454,7 @@ static void conf_save(void)
 	}
 }
 
-static void setup_windows(void)
+void setup_windows(void)
 {
 	int lines, columns;
 
@@ -1484,11 +1482,6 @@ int main(int ac, char **av)
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
 
-	if (ac > 1 && strcmp(av[1], "-s") == 0) {
-		/* Silence conf_read() until the real callback is set up */
-		conf_set_message_callback(NULL);
-		av++;
-	}
 	conf_parse(av[1]);
 	conf_read(NULL);
 
@@ -1561,3 +1554,4 @@ int main(int ac, char **av)
 	endwin();
 	return 0;
 }
+

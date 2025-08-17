@@ -9,22 +9,17 @@ newer versions that introduce new warnings.
 
 Remove use of -Werror.
 
-[Vincent: tweak patch for 20170531 release]
-[Bernd: tweak patch for 20191018 release]
-
 Signed-off-by: "Yann E. MORIN" <yann.morin.1998@free.fr>
-Signed-off-by: "Vicente Olivert Riera" <Vincent.Riera@imgtec.com>
-Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
 ---
  generate/unix/Makefile.config |  1 -
- generate/unix/iasl/Makefile   | 16 ++++++++--------
- 2 files changed, 8 insertions(+), 9 deletions(-)
+ generate/unix/iasl/Makefile   | 12 ++++++------
+ 2 files changed, 6 insertions(+), 7 deletions(-)
 
 diff --git a/generate/unix/Makefile.config b/generate/unix/Makefile.config
-index c28e8a9b1..7064bed97 100644
+index da0f61d..1476e27 100644
 --- a/generate/unix/Makefile.config
 +++ b/generate/unix/Makefile.config
-@@ -204,7 +204,6 @@ CWARNINGFLAGS = \
+@@ -185,7 +185,6 @@ CWARNINGFLAGS = \
      -Wall\
      -Wbad-function-cast\
      -Wdeclaration-after-statement\
@@ -33,50 +28,35 @@ index c28e8a9b1..7064bed97 100644
      -Wmissing-declarations\
      -Wmissing-prototypes\
 diff --git a/generate/unix/iasl/Makefile b/generate/unix/iasl/Makefile
-index 47ea73cab..2c756af79 100644
+index a3759cc..c2dc8f0 100644
 --- a/generate/unix/iasl/Makefile
 +++ b/generate/unix/iasl/Makefile
-@@ -360,32 +360,32 @@ $(OBJDIR)/prparserparse.c $(OBJDIR)/prparser.y.h :       $(ASL_COMPILER)/prparse
+@@ -320,19 +320,19 @@ $(OBJDIR)/prparserparse.c $(OBJDIR)/prparser.y.h :       $(ASL_COMPILER)/prparse
+ # by the utilities above and they are not necessarily ANSI C, etc.
  #
  $(OBJDIR)/aslcompilerlex.o :   $(OBJDIR)/aslcompilerlex.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
+-	$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
++	$(CC) -c $(CFLAGS) -Wall -o$@ $<
  
  $(OBJDIR)/aslcompilerparse.o : $(OBJDIR)/aslcompilerparse.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
- 
- $(OBJDIR)/dtcompilerparserlex.o :      $(OBJDIR)/dtcompilerparserlex.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
- 
- $(OBJDIR)/dtcompilerparserparse.o :    $(OBJDIR)/dtcompilerparserparse.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
+-	$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
++	$(CC) -c $(CFLAGS) -Wall -o$@ $<
  
  $(OBJDIR)/dtparserlex.o :      $(OBJDIR)/dtparserlex.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
+-	$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
++	$(CC) -c $(CFLAGS) -Wall -o$@ $<
  
  $(OBJDIR)/dtparserparse.o :    $(OBJDIR)/dtparserparse.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
+-	$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
++	$(CC) -c $(CFLAGS) -Wall -o$@ $<
  
  $(OBJDIR)/prparserlex.o :      $(OBJDIR)/prparserlex.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
+-	$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
++	$(CC) -c $(CFLAGS) -Wall -o$@ $<
  
  $(OBJDIR)/prparserparse.o :    $(OBJDIR)/prparserparse.c
- 	@echo "- " "Intermediate" $<
--	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
-+	@$(CC) -c $(CFLAGS) -Wall -o$@ $<
+-	$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
++	$(CC) -c $(CFLAGS) -Wall -o$@ $<
 -- 
-2.20.1
+2.7.4
 

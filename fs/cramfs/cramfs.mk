@@ -5,23 +5,15 @@
 ################################################################################
 
 ifeq ($(BR2_ENDIAN),"BIG")
-CRAMFS_OPTS = -B
+CRAMFS_OPTS = -b
 else
-CRAMFS_OPTS = -L
-endif
-
-ifeq ($(BR2_TARGET_ROOTFS_CRAMFS_XIP),y)
-ifeq ($(BR2_USE_MMU),y)
-CRAMFS_OPTS += -X -X
-else
-CRAMFS_OPTS += -X
-endif
+CRAMFS_OPTS = -l
 endif
 
 define ROOTFS_CRAMFS_CMD
-	$(HOST_DIR)/bin/mkcramfs $(CRAMFS_OPTS) $(TARGET_DIR) $@
+	$(HOST_DIR)/usr/bin/mkcramfs $(CRAMFS_OPTS) $(TARGET_DIR) $@
 endef
 
 ROOTFS_CRAMFS_DEPENDENCIES = host-cramfs
 
-$(eval $(rootfs))
+$(eval $(call ROOTFS_TARGET,cramfs))

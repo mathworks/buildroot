@@ -217,7 +217,7 @@ def run_genimage(cfgFile, ioPath, rootPath=""):
                     ioPath,
                     ioPath,
                     cfgFile)
-    print(argStr ) 
+    print argStr           
     subproc(argStr, cwd=ENV['IMAGE_DIR'] )
     rm(genimgDir)
 
@@ -305,9 +305,11 @@ def print_msg(msg, level=4, mlevel=6, bg = 0, fg = 7, bold=False):
     if bold:
         startMsg = startMsg + _BCOLORS['BOLD']
     
-    print (startMsg + prefix + msg + _BMSG['MSG_END'])
+    print startMsg + prefix + msg + _BMSG['MSG_END']
+
 def print_err(msg):
-    print (_BMSG['ERR_START'] + "ERROR:   " + msg + _BMSG['MSG_END'])
+
+    print _BMSG['ERR_START'] + "ERROR:   " + msg + _BMSG['MSG_END']
 
 ##############
 # Run a sudo command
@@ -402,8 +404,8 @@ def br_set_var(var, value, quoted=True):
 ########################
 
 def _git_verinfo(git_dir):
-    git_hash = subproc_output('git log -n 1 --pretty="%H (%at)"', cwd=git_dir)
-    git_hash = re.sub("\n", "", git_hash.decode("utf-8"))
+    git_hash = subproc_output('git log -n 1 --pretty="%H"', cwd=git_dir)
+    git_hash = re.sub("\n", "", git_hash)
     git_hash = re.sub('"',"", git_hash)
     return git_hash
 
@@ -428,7 +430,6 @@ def verinfo(pkg):
 def gen_verinfo_file(tgt_file):
     
     with open(tgt_file, 'w') as f:
-        f.write("#Project: <git hash of last commit> (author date, unix timestamp)")
         f.write("Buildroot: %s\n" % (_git_verinfo(BR_ROOT)))
         f.write("Linux: %s\n" % (verinfo('linux')))
         if get_cfg_var('BR2_TARGET_UBOOT') == 'y':
@@ -496,7 +497,7 @@ def subproc(args, cwd=None, shell=False):
 def subproc_output(args, cwd=None, stderr=None, shell=False, universal_newlines=False):
 
     # Support strings or lists as args
-    if isinstance(args, str):
+    if isinstance(args, basestring):
         args = shlex.split(args)
 
     return subprocess.check_output( args, cwd=cwd, stderr=stderr, shell=shell, universal_newlines=universal_newlines)

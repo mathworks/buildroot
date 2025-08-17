@@ -4,16 +4,15 @@
 #
 ################################################################################
 
-UNRAR_VERSION = 6.2.6
+UNRAR_VERSION = 5.4.5
 UNRAR_SOURCE = unrarsrc-$(UNRAR_VERSION).tar.gz
-UNRAR_SITE = https://www.rarlab.com/rar
+UNRAR_SITE = http://www.rarlab.com/rar
 UNRAR_LICENSE = unrar
 UNRAR_LICENSE_FILES = license.txt
-UNRAR_CPE_ID_VENDOR = rarlab
 
 define UNRAR_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) CXX="$(TARGET_CXX)" STRIP="/bin/true" \
-		CXXFLAGS="$(TARGET_CXXFLAGS) -pthread -std=c++11" \
+		CXXFLAGS="$(TARGET_CXXFLAGS) -pthread" \
 		LDFLAGS="$(TARGET_LDFLAGS) -pthread" -C $(@D)
 endef
 

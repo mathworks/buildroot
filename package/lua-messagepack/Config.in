@@ -4,4 +4,4 @@ config BR2_PACKAGE_LUA_MESSAGEPACK
 	  A pure Lua implementation of the MessagePack serialization
 	  format.
 
-	  https://fperrad.frama.io/lua-MessagePack/
+	  http://fperrad.github.io/lua-MessagePack/

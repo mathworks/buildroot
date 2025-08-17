@@ -1,0 +1,6 @@
+#include "base.dtsi"
+
+
+&usb0 {
+         dr_mode = "peripheral";
+     };

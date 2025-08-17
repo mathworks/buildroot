@@ -8,4 +8,4 @@ config BR2_PACKAGE_LIBSEXY
 	  GtkLabel by subclassing them and working around the
 	  limitations of the widgets.
 
-	  https://blog.chipx86.com/tag/libsexy/
+	  http://www.chipx86.com/wiki/Libsexy

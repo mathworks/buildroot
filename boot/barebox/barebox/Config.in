@@ -17,6 +17,7 @@ config BR2_TARGET_BAREBOX_BOARD_DEFCONFIG
 	  Name of the board for which Barebox should be built, without
 	  the _defconfig suffix.
 
+
 config BR2_TARGET_BAREBOX_CUSTOM_CONFIG_FILE
 	string "Configuration file path"
 	depends on BR2_TARGET_BAREBOX_USE_CUSTOM_CONFIG
@@ -30,9 +31,9 @@ config BR2_TARGET_BAREBOX_CONFIG_FRAGMENT_FILES
 	  that will be merged to the main Barebox configuration file.
 
 config BR2_TARGET_BAREBOX_IMAGE_FILE
-	string "Image file names"
+	string "Image filename"
 	help
-	  Space-separated list of barebox images which will be copied to
+	  Name of the generated barebox image, which will be copied to
 	  the images directory.
 
 	  If left empty, defaults to:

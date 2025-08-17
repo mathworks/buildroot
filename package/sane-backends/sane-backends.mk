@@ -4,13 +4,11 @@
 #
 ################################################################################
 
-SANE_BACKENDS_VERSION = 1.1.1
-SANE_BACKENDS_SITE = \
-	https://gitlab.com/sane-project/backends/uploads/7d30fab4e115029d91027b6a58d64b43
+SANE_BACKENDS_VERSION = 1.0.25
+SANE_BACKENDS_SITE = https://alioth.debian.org/frs/download.php/file/4146
 SANE_BACKENDS_CONFIG_SCRIPTS = sane-config
 SANE_BACKENDS_LICENSE = GPL-2.0+
 SANE_BACKENDS_LICENSE_FILES = COPYING
-SANE_BACKENDS_CPE_ID_VENDOR = sane-backends_project
 SANE_BACKENDS_INSTALL_STAGING = YES
 
 SANE_BACKENDS_CONF_OPTS = \
@@ -25,9 +23,9 @@ endif
 
 ifeq ($(BR2_PACKAGE_LIBUSB),y)
 SANE_BACKENDS_DEPENDENCIES += libusb
-SANE_BACKENDS_CONF_OPTS += --with-usb
+SANE_BACKENDS_CONF_OPTS += --enable-libusb_1_0
 else
-SANE_BACKENDS_CONF_OPTS += --without-usb
+SANE_BACKENDS_CONF_OPTS += --disable-libusb
 endif
 
 ifeq ($(BR2_PACKAGE_JPEG),y)
@@ -44,7 +42,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_AVAHI)$(BR2_PACKAGE_DBUS)$(BR2_PACKAGE_LIBGLIB2),yyy)
 SANE_BACKENDS_DEPENDENCIES += avahi
-SANE_BACKENDS_CONF_OPTS += --with-avahi
+SANE_BACKENDS_CONF_OPTS += --enable-avahi
 endif
 
 ifeq ($(BR2_PACKAGE_NETSNMP),y)
@@ -52,27 +50,6 @@ SANE_BACKENDS_CONF_ENV += ac_cv_path_SNMP_CONFIG_PATH=$(STAGING_DIR)/usr/bin/net
 SANE_BACKENDS_DEPENDENCIES += netsnmp
 else
 SANE_BACKENDS_CONF_OPTS += --without-snmp
-endif
-
-ifeq ($(BR2_PACKAGE_LIBCURL),y)
-SANE_BACKENDS_DEPENDENCIES += libcurl
-SANE_BACKENDS_CONF_OPTS += --with-libcurl
-else
-SANE_BACKENDS_CONF_OPTS += --without-libcurl
-endif
-
-ifeq ($(BR2_PACKAGE_POPPLER)$(BR2_PACKAGE_CAIRO)$(BR2_PACKAGE_LIBGLIB2),yyy)
-SANE_BACKENDS_DEPENDENCIES += poppler libglib2
-SANE_BACKENDS_CONF_OPTS += --with-poppler-glib
-else
-SANE_BACKENDS_CONF_OPTS += --without-poppler-glib
-endif
-
-ifeq ($(BR2_PACKAGE_LIBXML2),y)
-SANE_BACKENDS_DEPENDENCIES += libxml2
-SANE_BACKENDS_CONF_OPTS += --with-usb-record-replay
-else
-SANE_BACKENDS_CONF_OPTS += --without-usb-record-replay
 endif
 
 define SANE_BACKENDS_DISABLE_DOCS
@@ -88,8 +65,14 @@ endef
 define SANE_BACKENDS_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -m 0644 -D package/sane-backends/saned.socket \
 		$(TARGET_DIR)/usr/lib/systemd/system/saned.socket
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/socket.target.wants
+	ln -sf ../../../../usr/lib/systemd/system/saned.socket \
+		$(TARGET_DIR)/etc/systemd/system/socket.target.wants/saned.socket
 	$(INSTALL) -m 0644 -D package/sane-backends/saned@.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/saned@.service
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
+	ln -sf ../../../../usr/lib/systemd/system/saned@.service \
+		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/saned@.service
 endef
 
 $(eval $(autotools-package))

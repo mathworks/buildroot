@@ -1,12 +1,11 @@
 [Unit]
 Description=vmtoolsd for openvmtools
 After=syslog.target network.target
-ConditionVirtualization=vmware
 
 [Service]
 Type=forking
-PIDFile=/run/vmtoolsd.pid
-ExecStart=/usr/bin/vmtoolsd -b /run/vmtoolsd.pid
+PIDFile=/var/run/vmtoolsd.pid
+ExecStart=/usr/bin/vmtoolsd -b /var/run/vmtoolsd.pid
 Restart=on-failure
 KillMode=process
 KillSignal=SIGKILL

@@ -4,10 +4,6 @@ BUILDIR=$1
 TTY=$2
 BOARD=$3
 
-family_at91sam9260ek="at91sam9260ek"
-mach_at91sam9260ek="at91sam9260-ek"
-dtb_at91sam9260ek="at91sam9260ek.dtb"
-
 family_at91sam9g45m10ek="at91sam9m10g45ek"
 mach_at91sam9g45m10ek="at91sam9m10-g45-ek"
 dtb_at91sam9g45m10ek="at91sam9m10g45ek.dtb"
@@ -19,10 +15,6 @@ dtb_at91sam9rlek="at91sam9rlek.dtb"
 family_at91sam9g15ek="at91sam9x5ek"
 mach_at91sam9g15ek="at91sam9g15-ek"
 dtb_at91sam9g15ek="at91sam9g15ek.dtb"
-
-family_at91sam9g20ek="at91sam9g20ek"
-mach_at91sam9g20ek="at91sam9g20-ek"
-dtb_at91sam9g20ek="at91sam9g20ek.dtb"
 
 family_at91sam9g25ek="at91sam9x5ek"
 mach_at91sam9g25ek="at91sam9g25-ek"
@@ -98,11 +90,9 @@ Usage:
   $0 <builddir_path> <interface> <board>
 
 Available boards:
-  at91sam9260ek
   at91sam9g45m10ek
   at91sam9rlek
   at91sam9g15ek
-  at91sam9g20ek
   at91sam9g25ek
   at91sam9x25ek
   at91sam9g35ek
@@ -140,6 +130,7 @@ if [[ $BOARD == "*pda4" ]]; then
 	video_mode="video=LVDS-1:480x272-16"
 fi
 
-echo "Executing: ${!F} O=$1/images $1/host/bin/sam-ba $TTY ${!M} $(dirname $0)/nandflash.tcl -- ${!F} ${!D} $video_mode"
+echo "Executing: ${!F} O=$1/images $1/host/opt/sam-ba/sam-ba $TTY ${!M} $(dirname $0)/nandflash.tcl -- ${!F} ${!D} $video_mode"
 export O=$1/images
-$1/host/bin/sam-ba $TTY ${!M} $(dirname $0)/nandflash.tcl -- ${!F} ${!D} $video_mode
+$1/host/opt/sam-ba/sam-ba $TTY ${!M} $(dirname $0)/nandflash.tcl -- ${!F} ${!D} $video_mode
+

@@ -3,16 +3,15 @@
 # Starts ModemManager
 #
 
-# Allow a few customizations from a config file
-test -r /etc/default/ModemManager && . /etc/default/ModemManager
-
 PIDFILE=/var/run/ModemManager.pid
+
+[ -x $MODEMMANAGER_BIN ] || exit 0
 
 start() {
 	printf "Starting ModemManager: "
 	umask 077
 	start-stop-daemon -S -q -b -m -p $PIDFILE \
-		--exec /usr/sbin/ModemManager -- $MODEMMANAGER_ARGS
+		--exec /usr/sbin/ModemManager
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 stop() {

@@ -27,28 +27,17 @@ Result of the build
 After building, you should obtain this tree:
 
     output/images/
-    +-- bl1.bin.hardkernel
-    +-- bl2.package
-    +-- bl301.bin
-    +-- bl30.bin
-    +-- bl31.bin
-    +-- boot_new.bin
-    +-- boot.scr                   [1]
+    +-- Image
+    +-- boot.ini                   [1]
     +-- boot.vfat
-    +-- fip.bin
-    +-- Image                      [2]
-    +-- meson-gxbb-odroidc2.dtb
+    +-- meson64_odroidc2.dtb
     +-- rootfs.ext2
     +-- rootfs.ext4
     +-- rootfs.tar
     +-- sdcard.img
-    +-- u-boot.bin
-    +-- u-boot.img
-    +-- uboot-odc2.img             [3]
+    `-- u-boot.bin
 
 [1] This is the ODROID-C2 configuration file used in u-boot.
-[2] This is the ODROID-C2 kernel image file which will be booted.
-[3] This is the ODROID-C2 signed u-boot image which will be used.
 
 How to write the SD card or eMMC
 ================================

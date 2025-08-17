@@ -4,50 +4,30 @@
 #
 ################################################################################
 
-LSHW_VERSION = d76afbaaf40e953243da921844cddff8185324f3
-LSHW_SITE = $(call github,lyonel,lshw,$(LSHW_VERSION))
+LSHW_VERSION = B.02.18
+LSHW_SITE = http://ezix.org/software/files
 LSHW_LICENSE = GPL-2.0
 LSHW_LICENSE_FILES = COPYING
 
-LSHW_DEPENDENCIES = $(TARGET_NLS_DEPENDENCIES)
+LSHW_CFLAGS = $(TARGET_CFLAGS)
+ifeq ($(BR2_ENABLE_LOCALE),)
+LSHW_CFLAGS += -DNONLS
+endif
 
-LSHW_MAKE_OPTS = \
-	CC="$(TARGET_CC)" \
-	CXX="$(TARGET_CXX)" \
-	AR="$(TARGET_AR)" \
-	LANGUAGES= \
-	RPM_OPT_FLAGS="$(TARGET_CFLAGS)"
-
+LSHW_MAKE_OPTS = CC="$(TARGET_CC)" CXX="$(TARGET_CXX)" AR="$(TARGET_AR)" \
+	RPM_OPT_FLAGS="$(LSHW_CFLAGS)" all
 LSHW_MAKE_ENV = \
 	$(TARGET_MAKE_ENV) \
-	LIBS=$(TARGET_NLS_LIBS)
-
-ifeq ($(BR2_PACKAGE_SQLITE),y)
-LSHW_DEPENDENCIES += host-pkgconf sqlite
-LSHW_MAKE_OPTS += SQLITE=1
-else
-LSHW_MAKE_OPTS += SQLITE=0
-endif
-
-ifeq ($(BR2_PACKAGE_ZLIB),y)
-LSHW_DEPENDENCIES += host-pkgconf zlib
-LSHW_MAKE_OPTS += ZLIB=1
-else
-LSHW_MAKE_OPTS += ZLIB=0
-endif
+	LIBS="$(if $(BR2_NEEDS_GETTEXT_IF_LOCALE),-lintl)"
+LSHW_DEPENDENCIES = $(if $(BR2_NEEDS_GETTEXT_IF_LOCALE),gettext)
 
 define LSHW_BUILD_CMDS
-	$(LSHW_MAKE_ENV) $(MAKE) -C $(@D)/src \
-		$(LSHW_MAKE_OPTS) \
-		all
+	$(LSHW_MAKE_ENV) $(MAKE) -C $(@D)/src $(LSHW_MAKE_OPTS)
 endef
 
 define LSHW_INSTALL_TARGET_CMDS
-	$(LSHW_MAKE_ENV) $(MAKE) -C $(@D)/src \
-		$(LSHW_MAKE_OPTS) \
-		DESTDIR=$(TARGET_DIR) \
-		install
-	$(RM) -rf $(TARGET_DIR)/usr/share/lshw
+	$(LSHW_MAKE_ENV) $(MAKE) -C $(@D)/src DESTDIR=$(TARGET_DIR) \
+		$(LSHW_MAKE_OPTS) install
 endef
 
 $(eval $(generic-package))

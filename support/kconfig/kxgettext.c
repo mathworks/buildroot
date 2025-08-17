@@ -101,7 +101,7 @@ static struct message *message__new(const char *msg, char *option,
 	if (self->files == NULL)
 		goto out_fail;
 
-	self->msg = xstrdup(msg);
+	self->msg = strdup(msg);
 	if (self->msg == NULL)
 		goto out_fail_msg;
 

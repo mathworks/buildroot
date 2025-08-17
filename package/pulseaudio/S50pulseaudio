@@ -7,19 +7,12 @@
 start() {
 	printf "Starting pulseaudio: "
 	umask 077
-	/usr/bin/pulseaudio \
-		--system \
-		--daemonize \
-		--disallow-module-loading \
-		--disallow-exit \
-		--exit-idle-time=-1 \
-		--use-pid-file \
-		--disable-shm
+	/usr/bin/pulseaudio --system --daemonize
 	echo "OK"
 }
 stop() {
 	printf "Stopping pulseaudio: "
-	PULSE_RUNTIME_PATH=/var/run/pulse /usr/bin/pulseaudio --kill
+	pulseaudio --kill
 	echo "OK"
 }
 restart() {

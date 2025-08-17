@@ -1,7 +1,8 @@
 config BR2_PACKAGE_PERL_WWW_ROBOTRULES
 	bool "perl-www-robotrules"
-	select BR2_PACKAGE_PERL_URI # runtime
+	select BR2_PACKAGE_PERL_URI
 	help
-	  database of robots.txt-derived permissions.
+	  This module provides functions that deal the date formats used by the
+	  HTTP protocol (and then some more)
 
-	  https://metacpan.org/release/WWW-RobotRules
+	  http://github.com/gisle/www-robotrules

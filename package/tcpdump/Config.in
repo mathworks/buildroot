@@ -4,7 +4,7 @@ config BR2_PACKAGE_TCPDUMP
 	help
 	  A tool for network monitoring and data acquisition.
 
-	  https://www.tcpdump.org/
+	  http://www.tcpdump.org/
 
 if BR2_PACKAGE_TCPDUMP
 

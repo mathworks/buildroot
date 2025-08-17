@@ -4,16 +4,12 @@
 #
 ################################################################################
 
-EXFAT_VERSION = 1.4.0
+EXFAT_VERSION = 1.2.4
 EXFAT_SITE = https://github.com/relan/exfat/releases/download/v$(EXFAT_VERSION)
 EXFAT_SOURCE = fuse-exfat-$(EXFAT_VERSION).tar.gz
-EXFAT_DEPENDENCIES = \
-	$(if $(BR2_PACKAGE_LIBFUSE3),libfuse3,libfuse) \
-	host-pkgconf
-EXFAT_LICENSE = GPL-2.0+
+EXFAT_DEPENDENCIES = libfuse host-pkgconf
+EXFAT_LICENSE = GPL-3.0+
 EXFAT_LICENSE_FILES = COPYING
-EXFAT_CPE_ID_VENDOR = exfat_project
-
-EXFAT_CONF_OPTS += --exec-prefix=/
+EXFAT_CFLAGS = $(TARGET_CFLAGS) -std=c99
 
 $(eval $(autotools-package))

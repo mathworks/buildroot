@@ -1,7 +1,7 @@
 config BR2_PACKAGE_PERL_MAILTOOLS
 	bool "perl-mailtools"
-	select BR2_PACKAGE_PERL_TIMEDATE # runtime
+	select BR2_PACKAGE_PERL_TIMEDATE
 	help
-	  Various ancient e-mail related modules.
+	  Various e-mail related modules
 
-	  http://perl.overmeer.net/CPAN/
+	  https://metacpan.org/release/MailTools

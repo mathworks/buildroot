@@ -3,3 +3,5 @@
 ###########################################
 BR2_TARGET_UBOOT_BOARD_DEFCONFIG="xilinx_zynqmp_zcu102_rev1_0"
 BR2_PACKAGE_XILINX_BOOTLOADER_UBOOT_TARGET_DIR="board/xilinx/zynqmp/zynqmp-zcu102-rev1.0"
+BR2_ROOTFS_OVERLAY="./board/mathworks/common/fs-overlay ./board/mathworks/zynqmp/fs-overlay"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(shell printenv BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES)board/mathworks/zynqmp/kernel-frags/iio_dummy.frag  board/mathworks/zynqmp/kernel-frags/hdmi-imageon.frag"

@@ -8,4 +8,4 @@ config BR2_PACKAGE_LIBRSYNC
 	  remote file synchronization that was popularized by the
 	  rsync utility and is used in rproxy.
 
-	  https://github.com/librsync/librsync
+	  http://sourceforge.net/projects/librsync/

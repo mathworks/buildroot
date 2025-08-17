@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-XDRIVER_XF86_VIDEO_QXL_VERSION = 0.1.6
-XDRIVER_XF86_VIDEO_QXL_SOURCE = xf86-video-qxl-$(XDRIVER_XF86_VIDEO_QXL_VERSION).tar.xz
-XDRIVER_XF86_VIDEO_QXL_SITE = https://xorg.freedesktop.org/archive/individual/driver
+XDRIVER_XF86_VIDEO_QXL_VERSION = 0.1.5
+XDRIVER_XF86_VIDEO_QXL_SOURCE = xf86-video-qxl-$(XDRIVER_XF86_VIDEO_QXL_VERSION).tar.bz2
+XDRIVER_XF86_VIDEO_QXL_SITE = http://xorg.freedesktop.org/releases/individual/driver
 XDRIVER_XF86_VIDEO_QXL_LICENSE = MIT
 XDRIVER_XF86_VIDEO_QXL_LICENSE_FILES = COPYING
 
@@ -16,7 +16,8 @@ XDRIVER_XF86_VIDEO_QXL_CONF_OPTS = \
 XDRIVER_XF86_VIDEO_QXL_DEPENDENCIES = \
 	libpciaccess \
 	spice-protocol \
-	xorgproto \
+	xproto_fontsproto \
+	xproto_xproto \
 	xserver_xorg-server
 
 # configure doesn't look for drm headers in the appropiate place, so help it

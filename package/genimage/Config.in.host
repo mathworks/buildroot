@@ -10,4 +10,4 @@ config BR2_PACKAGE_HOST_GENIMAGE
 	  environment variables, the config file or commandline
 	  switches.
 
-	  https://github.com/pengutronix/genimage
+	  http://www.pengutronix.de/software/genimage/

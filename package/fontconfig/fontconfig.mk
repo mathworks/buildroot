@@ -4,21 +4,18 @@
 #
 ################################################################################
 
-FONTCONFIG_VERSION = 2.14.2
-FONTCONFIG_SITE = https://www.freedesktop.org/software/fontconfig/release
-FONTCONFIG_SOURCE = fontconfig-$(FONTCONFIG_VERSION).tar.xz
-# 0001-add-pthread-as-a-dependency-of-a-static-lib.patch
-FONTCONFIG_AUTORECONF = YES
+FONTCONFIG_VERSION = 2.12.1
+FONTCONFIG_SITE = http://fontconfig.org/release
+FONTCONFIG_SOURCE = fontconfig-$(FONTCONFIG_VERSION).tar.bz2
 FONTCONFIG_INSTALL_STAGING = YES
-FONTCONFIG_DEPENDENCIES = freetype expat host-pkgconf host-gperf \
-	$(if $(BR2_PACKAGE_UTIL_LINUX_LIBS),util-linux-libs,util-linux) \
-	$(TARGET_NLS_DEPENDENCIES)
-HOST_FONTCONFIG_DEPENDENCIES = \
-	host-freetype host-expat host-pkgconf host-gperf host-util-linux \
-	host-gettext
+
+# When
+# 0001-Avoid-conflicts-with-integer-width-macros-from-TS-1866.patch is
+# removed, the host-gperf dependency should be removed.
+FONTCONFIG_DEPENDENCIES = freetype expat host-pkgconf host-gperf
+HOST_FONTCONFIG_DEPENDENCIES = host-freetype host-expat host-pkgconf host-gperf
 FONTCONFIG_LICENSE = fontconfig license
 FONTCONFIG_LICENSE_FILES = COPYING
-FONTCONFIG_CPE_ID_VENDOR = fontconfig_project
 
 FONTCONFIG_CONF_OPTS = \
 	--with-arch=$(GNU_TARGET_NAME) \

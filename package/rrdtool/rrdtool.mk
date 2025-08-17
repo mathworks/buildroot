@@ -4,15 +4,15 @@
 #
 ################################################################################
 
-RRDTOOL_VERSION = 1.7.2
+RRDTOOL_VERSION = 1.6.0
 RRDTOOL_SITE = http://oss.oetiker.ch/rrdtool/pub
 RRDTOOL_LICENSE = GPL-2.0+ with FLOSS license exceptions as explained in COPYRIGHT
 RRDTOOL_LICENSE_FILES = COPYRIGHT LICENSE
-RRDTOOL_DEPENDENCIES = host-pkgconf libglib2 $(TARGET_NLS_DEPENDENCIES)
+RRDTOOL_DEPENDENCIES = host-pkgconf libglib2
 # autoreconf needed to avoid link failure due to missing -lintl,
-# autopoint needed as a consequence of autoreconf
+# gettextize needed as a consequence of autoreconf
 RRDTOOL_AUTORECONF = YES
-RRDTOOL_AUTOPOINT = YES
+RRDTOOL_GETTEXTIZE = YES
 RRDTOOL_INSTALL_STAGING = YES
 RRDTOOL_CONF_OPTS = \
 	--disable-examples \
@@ -24,6 +24,10 @@ RRDTOOL_CONF_OPTS = \
 	--disable-python \
 	--disable-ruby \
 	--disable-tcl
+
+ifeq ($(BR2_NEEDS_GETTEXT),y)
+RRDTOOL_DEPENDENCIES += gettext
+endif
 
 ifeq ($(BR2_PACKAGE_RRDTOOL_RRDGRAPH),y)
 RRDTOOL_DEPENDENCIES += cairo pango

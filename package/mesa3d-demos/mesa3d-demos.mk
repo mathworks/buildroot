@@ -4,69 +4,77 @@
 #
 ################################################################################
 
-MESA3D_DEMOS_VERSION = 8.5.0
+MESA3D_DEMOS_VERSION = 8.3.0
 MESA3D_DEMOS_SOURCE = mesa-demos-$(MESA3D_DEMOS_VERSION).tar.bz2
-MESA3D_DEMOS_SITE = https://archive.mesa3d.org/demos/$(MESA3D_DEMOS_VERSION)
+MESA3D_DEMOS_SITE = ftp://ftp.freedesktop.org/pub/mesa/demos/$(MESA3D_DEMOS_VERSION)
+MESA3D_DEMOS_AUTORECONF = YES
 MESA3D_DEMOS_DEPENDENCIES = host-pkgconf
 MESA3D_DEMOS_LICENSE = MIT
 
 MESA3D_DEMOS_CONF_OPTS += \
-	-Dgles1=disabled
+	--disable-osmesa \
+	--disable-gles1
 
 ifeq ($(BR2_PACKAGE_XORG7)$(BR2_PACKAGE_HAS_LIBGL),yy)
 MESA3D_DEMOS_DEPENDENCIES += libgl libglew libglu xlib_libX11 xlib_libXext
-MESA3D_DEMOS_CONF_OPTS += -Dgl=enabled -Dx11=enabled
+MESA3D_DEMOS_CONF_OPTS += --enable-gl --enable-x11
 else
-MESA3D_DEMOS_CONF_OPTS += -Dgl=disabled -Dx11=disabled
+MESA3D_DEMOS_CONF_OPTS += --disable-gl --disable-x11
 endif
 
 ifeq ($(BR2_PACKAGE_HAS_LIBEGL),y)
 MESA3D_DEMOS_DEPENDENCIES += libegl
-MESA3D_DEMOS_CONF_OPTS += -Degl=enabled
+MESA3D_DEMOS_CONF_OPTS += --enable-egl
 else
-MESA3D_DEMOS_CONF_OPTS += -Degl=disabled
+MESA3D_DEMOS_CONF_OPTS += --disable-egl
 endif
 
 ifeq ($(BR2_PACKAGE_HAS_LIBGLES),y)
 MESA3D_DEMOS_DEPENDENCIES += libgles
-MESA3D_DEMOS_CONF_OPTS += -Dgles2=enabled
+MESA3D_DEMOS_CONF_OPTS += --enable-gles2
 else
-MESA3D_DEMOS_CONF_OPTS += -Dgles2=disabled
+MESA3D_DEMOS_CONF_OPTS += --disable-gles2
 endif
 
-ifeq ($(BR2_PACKAGE_LIBDRM),y)
-MESA3D_DEMOS_DEPENDENCIES += libdrm
-MESA3D_DEMOS_CONF_OPTS += -Dlibdrm=enabled
+ifeq ($(BR2_PACKAGE_HAS_LIBOPENVG),y)
+MESA3D_DEMOS_DEPENDENCIES += libopenvg
+MESA3D_DEMOS_CONF_OPTS += --enable-vg
 else
-MESA3D_DEMOS_CONF_OPTS += -Dlibdrm=disabled
+MESA3D_DEMOS_CONF_OPTS += --disable-vg
 endif
 
-ifeq ($(BR2_PACKAGE_MESA3D_GBM),y)
-# Meson search for gbm, but has no option to enable/disable it. See:
-# https://gitlab.freedesktop.org/mesa/demos/-/blob/mesa-demos-8.5.0/meson.build#L88
-# We still add the dependency, if needed, to make sure it will always
-# be detected.
+ifeq ($(BR2_PACKAGE_MESA3D_OPENGL_EGL),y)
 MESA3D_DEMOS_DEPENDENCIES += mesa3d
+MESA3D_DEMOS_CONF_OPTS += --enable-gbm
+else
+MESA3D_DEMOS_CONF_OPTS += --disable-gbm
+endif
+
+ifeq ($(BR2_PACKAGE_FREETYPE),y)
+MESA3D_DEMOS_DEPENDENCIES += freetype
+MESA3D_DEMOS_CONF_OPTS += --enable-freetype2
+else
+MESA3D_DEMOS_CONF_OPTS += --disable-freetype2
 endif
 
 ifeq ($(BR2_PACKAGE_LIBFREEGLUT),y)
 MESA3D_DEMOS_DEPENDENCIES += libfreeglut
-MESA3D_DEMOS_CONF_OPTS += -Dwith-glut=$(STAGING_DIR)/usr
+MESA3D_DEMOS_CONF_OPTS += --with-glut=$(STAGING_DIR)/usr
 # osmesa support depends on glut
-ifeq ($(BR2_PACKAGE_MESA3D_OSMESA_GALLIUM),y)
-MESA3D_DEMOS_CONF_OPTS += -Dosmesa=enabled
+ifeq ($(BR2_PACKAGE_MESA3D_OSMESA),y)
+MESA3D_DEMOS_CONF_OPTS += --enable-osmesa
 else
-MESA3D_DEMOS_CONF_OPTS += -Dosmesa=disabled
+MESA3D_DEMOS_CONF_OPTS += --disable-osmesa
 endif
 else
-MESA3D_DEMOS_CONF_OPTS += -Dosmesa=disabled
+MESA3D_DEMOS_CONF_OPTS += --without-glut --disable-osmesa
 endif
 
 ifeq ($(BR2_PACKAGE_WAYLAND),y)
 MESA3D_DEMOS_DEPENDENCIES += wayland
-MESA3D_DEMOS_CONF_OPTS += -Dwayland=enabled
+MESA3D_DEMOS_CONF_OPTS += --enable-wayland
 else
-MESA3D_DEMOS_CONF_OPTS += -Dwayland=disabled
+MESA3D_DEMOS_CONF_OPTS += --disable-wayland
 endif
 
-$(eval $(meson-package))
+$(eval $(autotools-package))

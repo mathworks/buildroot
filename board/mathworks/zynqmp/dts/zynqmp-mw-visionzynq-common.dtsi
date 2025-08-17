@@ -1,0 +1,146 @@
+#include "zynqmp-mw-cma.dtsi"
+
+&mwipcore0 {
+	reg = <0xA3c00000 0x10000>;
+};
+
+&fpga_axi {
+	axidma: axidma@0 {
+		#dma-cells = <0x1>;
+		compatible = "adi,axi-dmac-1.00.a";
+		reg = <0xA0400000 0x10000>;
+                interrupts = <0x0 90 0x4>;
+		clocks = <&core_clkwiz 0>;
+       
+         adi,channels {
+    	    #address-cells = <0x1>;
+    	    #size-cells = <0x0>;
+	
+        	dma-channel@0 {
+    		    reg = <0x0>;
+                    adi,source-bus-width = <32>;
+                    adi,source-bus-type = <1>;
+                    adi,destination-bus-width = <64>;
+                    adi,destination-bus-type = <0>;
+                    adi,length-width = <24>;
+    		};
+        };
+    };
+		
+	mwipcore_tpg@A3c10000 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xA3c10000 0x10000>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+                };
+	};
+
+	mwipcore_hdmi_in@A3c20000 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xA3c20000 0x10000>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+                 };
+     };
+
+	mwipcore_hdmi_out@A3c30000 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xA3c30000 0x10000>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+                 };
+	};
+
+	mwipcore_framecapture@A3c40000 {
+		compatible = "mathworks,mwipcore-v3.00";
+		reg = <0xA3c40000 0x10000>;
+                #address-cells = <0x1>;
+                #size-cells = <0x0>;
+
+            stream-channel@0 {
+                reg = <0x1>;
+                #address-cells = <0x1>;
+                #size-cells = <0x0>;
+                compatible = "mathworks,axi4stream-s2mm-channel-v1.00";
+                dma-names = "s2mm";
+		dmas = <&axidma 0>; 
+                mathworks,dev-name = "s2mm0";
+                mathworks,sample-cnt-reg = <0x8>;
+
+                data-channel@0 {
+                    compatible = "mathworks,iio-data-channel-v1.00";
+                    mathworks,data-format = "u32/32>>0";
+                    reg = <0x0>;
+                };
+            };
+
+
+            mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+            };
+	};
+
+	mwipcore_dutbypass@A3c50000 {
+	    compatible = "mathworks,mwipcore-v3.00";
+	    reg = <0xA3c50000 0x10000>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            mmwr-channel@0 {
+                    reg = <0x0>;
+                    compatible = "mathworks,mm-write-channel-v1.00";
+                    mathworks,dev-name = "mmwr0";
+            };
+	};
+
+	mwipcore_frame_buffer@A0500000 {
+		compatible = "mathworks,mwipcore-v2.00";
+		reg = <0xA0500000 0x10000>;
+	};
+
+	hdmicam_i2c: i2c@A1600000 {
+		compatible = "xlnx,axi-iic-1.01.b", "xlnx,xps-iic-2.00.a";
+		interrupt-parent = <&gic>;
+		interrupts = <0 89 0x4>;
+		reg = <0xA1600000 0x10000>;
+		clocks = <&core_clkwiz 0>;
+		clock-names = "pclk";
+
+		#size-cells = <0>;
+		#address-cells = <1>;
+	};
+};
+
+/ {
+    reserved-memory {
+    
+        axim_mem: region@14000000 {
+            reg = <0x0 0x14000000 0x0 0x4000000>;
+            no-map;
+        };
+        
+        vdma_mem: region@18000000 {
+            reg = <0x0 0x18000000 0x0 0x4000000>;
+            no-map;
+        };
+    };
+};
+
+#include "zynqmp-mw-hdmicam-common.dtsi"

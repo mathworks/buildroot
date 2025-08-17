@@ -4,493 +4,429 @@
 #
 ################################################################################
 
-GST1_PLUGINS_GOOD_VERSION = 1.22.2
+GST1_PLUGINS_GOOD_VERSION = 1.10.4
 GST1_PLUGINS_GOOD_SOURCE = gst-plugins-good-$(GST1_PLUGINS_GOOD_VERSION).tar.xz
 GST1_PLUGINS_GOOD_SITE = https://gstreamer.freedesktop.org/src/gst-plugins-good
 GST1_PLUGINS_GOOD_LICENSE_FILES = COPYING
 GST1_PLUGINS_GOOD_LICENSE = LGPL-2.1+
 
-GST1_PLUGINS_GOOD_CFLAGS = $(TARGET_CFLAGS) -std=gnu99
-GST1_PLUGINS_GOOD_LDFLAGS = $(TARGET_LDFLAGS) $(TARGET_NLS_LIBS)
-
 GST1_PLUGINS_GOOD_CONF_OPTS = \
-	-Dexamples=disabled \
-	-Dtests=disabled \
-	-Dgobject-cast-checks=disabled \
-	-Dglib-asserts=disabled \
-	-Dglib-checks=disabled \
-	-Dasm=disabled \
-	-Ddirectsound=disabled \
-	-Dwaveform=disabled \
-	-Drpicamsrc=disabled \
-	-Dosxaudio=disabled \
-	-Dosxvideo=disabled \
-	-Daalib=disabled \
-	-Dlibcaca=disabled \
-	-Ddoc=disabled
+	--disable-valgrind \
+	--disable-examples \
+	--disable-directsound \
+	--disable-waveform \
+	--disable-sunaudio \
+	--disable-osx_audio \
+	--disable-osx_video \
+	--disable-aalib \
+	--disable-aalibtest \
+	--disable-libcaca \
+	--disable-esd \
+	--disable-esdtest
 
 # Options which require currently unpackaged libraries
 GST1_PLUGINS_GOOD_CONF_OPTS += \
-	-Ddv=disabled \
-	-Ddv1394=disabled
+	--disable-jack \
+	--disable-libdv \
+	--disable-dv1394 \
+	--disable-shout2
 
-GST1_PLUGINS_GOOD_DEPENDENCIES = \
-	gstreamer1 \
-	gst1-plugins-base \
-	$(TARGET_NLS_DEPENDENCIES)
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_JACK),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Djack=enabled
-GST1_PLUGINS_GOOD_DEPENDENCIES += jack2
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Djack=disabled
-endif
+GST1_PLUGINS_GOOD_DEPENDENCIES = gstreamer1 gst1-plugins-base
 
 ifeq ($(BR2_PACKAGE_LIBV4L),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2-libv4l2=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --with-libv4l2
 GST1_PLUGINS_GOOD_DEPENDENCIES += libv4l
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2-libv4l2=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --without-libv4l2
 endif
 
 ifeq ($(BR2_PACKAGE_ORC),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dorc=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-orc
 GST1_PLUGINS_GOOD_DEPENDENCIES += orc
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_ALPHA),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dalpha=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-alpha
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dalpha=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-alpha
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_APETAG),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dapetag=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-apetag
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dapetag=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-apetag
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_AUDIOFX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Daudiofx=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-audiofx
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Daudiofx=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-audiofx
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_AUDIOPARSERS),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Daudioparsers=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-audioparsers
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Daudioparsers=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-audioparsers
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_AUPARSE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dauparse=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-auparse
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dauparse=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-auparse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_AUTODETECT),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dautodetect=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-autodetect
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dautodetect=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-autodetect
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_AVI),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Davi=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-avi
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Davi=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-avi
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_CUTTER),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dcutter=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-cutter
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dcutter=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-cutter
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_DEBUGUTILS),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Ddebugutils=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-debugutils
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Ddebugutils=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-debugutils
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_DEINTERLACE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Ddeinterlace=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-deinterlace
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Ddeinterlace=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-deinterlace
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_DTMF),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Ddtmf=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-dtmf
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Ddtmf=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-dtmf
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_EFFECTV),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Deffectv=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-effectv
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Deffectv=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-effectv
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_EQUALIZER),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dequalizer=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-equalizer
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dequalizer=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-equalizer
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_FLV),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dflv=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-flv
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dflv=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-flv
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_FLX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dflx=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-flx
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dflx=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-flx
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_GOOM),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dgoom=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-goom
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dgoom=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-goom
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_GOOM2K1),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dgoom2k1=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-goom2k1
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dgoom2k1=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-goom2k1
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_ICYDEMUX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dicydemux=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-icydemux
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dicydemux=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-icydemux
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_ID3DEMUX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Did3demux=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-id3demux
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Did3demux=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-id3demux
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_IMAGEFREEZE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dimagefreeze=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-imagefreeze
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dimagefreeze=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-imagefreeze
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_INTERLEAVE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dinterleave=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-interleave
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dinterleave=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-interleave
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_ISOMP4),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Disomp4=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-isomp4
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Disomp4=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_LAME),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dlame=enabled
-GST1_PLUGINS_GOOD_DEPENDENCIES += lame
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dlame=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_MPG123),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmpg123=enabled
-GST1_PLUGINS_GOOD_DEPENDENCIES += mpg123
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmpg123=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-isomp4
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_LAW),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dlaw=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-law
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dlaw=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-law
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_LEVEL),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dlevel=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-level
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dlevel=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-level
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_MATROSKA),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmatroska=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-matroska
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmatroska=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-matroska
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_MONOSCOPE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmonoscope=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-monoscope
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmonoscope=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-monoscope
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_MULTIFILE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmultifile=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-multifile
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmultifile=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-multifile
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_MULTIPART),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmultipart=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-multipart
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dmultipart=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-multipart
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_REPLAYGAIN),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dreplaygain=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-replaygain
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dreplaygain=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-replaygain
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_RTP),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Drtp=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-rtp
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Drtp=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-rtp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_RTPMANAGER),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Drtpmanager=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-rtpmanager
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Drtpmanager=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-rtpmanager
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_RTSP),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Drtsp=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-rtsp
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Drtsp=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-rtsp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SHAPEWIPE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dshapewipe=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-shapewipe
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dshapewipe=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-shapewipe
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SMPTE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dsmpte=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-smpte
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dsmpte=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-smpte
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SPECTRUM),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dspectrum=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-spectrum
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dspectrum=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-spectrum
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_UDP),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dudp=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-udp
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dudp=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-udp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_VIDEOBOX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideobox=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-videobox
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideobox=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-videobox
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_VIDEOCROP),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideocrop=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-videocrop
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideocrop=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-videocrop
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_VIDEOFILTER),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideofilter=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-videofilter
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideofilter=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-videofilter
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_VIDEOMIXER),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideomixer=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-videomixer
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvideomixer=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-videomixer
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_WAVENC),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dwavenc=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-wavenc
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dwavenc=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-wavenc
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_WAVPARSE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dwavparse=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-wavparse
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dwavparse=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_XINGMUX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dxingmux=enabled
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dxingmux=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-wavparse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_Y4M),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dy4m=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-y4m
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dy4m=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-y4m
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_OSS),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Doss=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-oss
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Doss=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-oss
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_OSS4),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Doss4=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-oss4
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Doss4=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_QMLGL),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dqt5=enabled
-GST1_PLUGINS_GOOD_DEPENDENCIES += qt5declarative
-ifeq ($(BR2_PACKAGE_QT5BASE_XCB),y)
-GST1_PLUGINS_GOOD_DEPENDENCIES += qt5x11extras
-endif
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dqt5=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SHOUT2),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dshout2=enabled
-GST1_PLUGINS_GOOD_DEPENDENCIES += libshout
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dshout2=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-oss4
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_V4L2),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2=enabled
-# Enable use of gudev if available, for device probing and monitoring.
-ifeq ($(BR2_PACKAGE_LIBGUDEV),y)
-GST1_PLUGINS_GOOD_DEPENDENCIES += libgudev
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2-gudev=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-gst_v4l2
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2-gudev=disabled
-endif
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-gst_v4l2
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_V4L2_PROBE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2-probe=true
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-v4l2-probe
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dv4l2-probe=false
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-v4l2-probe
 endif
 
 ifeq ($(BR2_PACKAGE_XORG7),y)
 GST1_PLUGINS_GOOD_DEPENDENCIES += xlib_libX11 xlib_libXext xlib_libXv
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dximagesrc=enabled
-ifeq ($(BR2_PACKAGE_XLIB_LIBXFIXES),y)
-GST1_PLUGINS_GOOD_DEPENDENCIES += xlib_libXfixes
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dximagesrc-xfixes=enabled
-endif
-ifeq ($(BR2_PACKAGE_XLIB_LIBXDAMAGE),y)
-GST1_PLUGINS_GOOD_DEPENDENCIES += xlib_libXdamage
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dximagesrc-xdamage=enabled
-endif
+GST1_PLUGINS_GOOD_CONF_OPTS += \
+	--enable-x \
+	$(if $(BR2_PACKAGE_XLIB_LIBXFIXES),xlib_libXfixes) \
+	$(if $(BR2_PACKAGE_XLIB_LIBXDAMAGE),xlib_libXdamage)
 else
 GST1_PLUGINS_GOOD_CONF_OPTS += \
-	-Dximagesrc=disabled \
-	-Dximagesrc-xfixes=disabled \
-	-Dximagesrc-xdamage=disabled
+	--disable-x
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_CAIRO),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dcairo=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-cairo
 GST1_PLUGINS_GOOD_DEPENDENCIES += cairo
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dcairo=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-cairo
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_FLAC),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dflac=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-flac
 GST1_PLUGINS_GOOD_DEPENDENCIES += flac
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dflac=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-flac
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_GDKPIXBUF),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dgdk-pixbuf=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-gdk_pixbuf
 GST1_PLUGINS_GOOD_DEPENDENCIES += gdk-pixbuf
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dgdk-pixbuf=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-gdk_pixbuf
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_JPEG),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Djpeg=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-jpeg
 GST1_PLUGINS_GOOD_DEPENDENCIES += jpeg
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Djpeg=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-jpeg
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PNG),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dpng=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-libpng
 GST1_PLUGINS_GOOD_DEPENDENCIES += libpng
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dpng=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-libpng
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_PULSE),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dpulse=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-pulse
 GST1_PLUGINS_GOOD_DEPENDENCIES += pulseaudio
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dpulse=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-pulse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SOUPHTTPSRC),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dsoup=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-soup
 GST1_PLUGINS_GOOD_DEPENDENCIES += libsoup
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dsoup=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-soup
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SPEEX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dspeex=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-speex
 GST1_PLUGINS_GOOD_DEPENDENCIES += speex
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dspeex=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-speex
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_TAGLIB),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dtaglib=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-taglib
 GST1_PLUGINS_GOOD_DEPENDENCIES += taglib
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dtaglib=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_TWOLAME),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dtwolame=enabled
-GST1_PLUGINS_GOOD_DEPENDENCIES += twolame
-else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dtwolame=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-taglib
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_VPX),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvpx=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-vpx
 GST1_PLUGINS_GOOD_DEPENDENCIES += libvpx
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dvpx=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-vpx
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_WAVPACK),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dwavpack=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-wavpack
 GST1_PLUGINS_GOOD_DEPENDENCIES += wavpack
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dwavpack=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-wavpack
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_ZLIB),y)
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-zlib
+GST1_PLUGINS_GOOD_DEPENDENCIES += zlib
+else
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-zlib
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_BZ2),y)
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dbz2=enabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-bz2
 GST1_PLUGINS_GOOD_DEPENDENCIES += bzip2
 else
-GST1_PLUGINS_GOOD_CONF_OPTS += -Dbz2=disabled
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-bz2
 endif
 
-$(eval $(meson-package))
+$(eval $(autotools-package))

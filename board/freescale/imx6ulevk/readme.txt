@@ -12,17 +12,7 @@ Build
 
 First, configure Buildroot for your i.MX6UL EVK board:
 
-In order to do so there are two supported options:
-
   make freescale_imx6ulevk_defconfig
-
-if you plan to use NXP provided U-Boot and kernel.
-
-or
-
-  make imx6ulevk_defconfig
-
-if you plan to use mainline U-Boot and mainline kernel.
 
 Build all components:
 
@@ -71,4 +61,4 @@ Enjoy!
 
 References
 ==========
-[1] https://www.nxp.com/webapp/Download?colCode=IMX6ULTRALITEQSG
+[1] http://cache.freescale.com/files/32bit/doc/quick_start_guide/IMX6ULTRALITEQSG.pdf

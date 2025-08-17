@@ -15,14 +15,13 @@ RAPIDXML_INSTALL_TARGET = NO
 RAPIDXML_INSTALL_STAGING = YES
 
 define RAPIDXML_EXTRACT_CMDS
-	$(UNZIP) -d $(@D) $(RAPIDXML_DL_DIR)/$(RAPIDXML_SOURCE)
+	$(UNZIP) -d $(@D) $(DL_DIR)/$(RAPIDXML_SOURCE)
 	mv $(@D)/rapidxml-$(RAPIDXML_VERSION)/* $(@D)/
 	rmdir $(@D)/rapidxml-$(RAPIDXML_VERSION)
 endef
 
 define RAPIDXML_INSTALL_STAGING_CMDS
-	mkdir -p $(STAGING_DIR)/usr/include/rapidxml
-	cp -dpfr $(@D)/*hpp $(STAGING_DIR)/usr/include/rapidxml
+	cp -dpfr $(@D)/*hpp $(STAGING_DIR)/usr/include
 endef
 
 $(eval $(generic-package))

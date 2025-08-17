@@ -1,9 +1,10 @@
 config BR2_PACKAGE_LUASEC
 	bool "luasec"
+	depends on BR2_PACKAGE_HAS_LUAINTERPRETER
 	select BR2_PACKAGE_OPENSSL
-	select BR2_PACKAGE_LUASOCKET # runtime
+	select BR2_PACKAGE_LUASOCKET
 	help
-	  A binding for OpenSSL library to provide TLS/SSL communication
-	  over LuaSocket.
+	  LuaSec is a binding for OpenSSL library to provide TLS/SSL
+	  communication.
 
-	  https://github.com/brunoos/luasec/wiki
+	  http://www.inf.puc-rio.br/~brunoos/luasec/

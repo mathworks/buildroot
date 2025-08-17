@@ -4,838 +4,841 @@
 #
 ################################################################################
 
-GST1_PLUGINS_BAD_VERSION = 1.22.2
+GST1_PLUGINS_BAD_VERSION = 1.10.4
 GST1_PLUGINS_BAD_SOURCE = gst-plugins-bad-$(GST1_PLUGINS_BAD_VERSION).tar.xz
 GST1_PLUGINS_BAD_SITE = https://gstreamer.freedesktop.org/src/gst-plugins-bad
 GST1_PLUGINS_BAD_INSTALL_STAGING = YES
-# Additional plugin licenses will be appended to GST1_PLUGINS_BAD_LICENSE and
-# GST1_PLUGINS_BAD_LICENSE_FILES if enabled.
-GST1_PLUGINS_BAD_LICENSE_FILES = COPYING
-GST1_PLUGINS_BAD_LICENSE = LGPL-2.0+
-GST1_PLUGINS_BAD_CPE_ID_VENDOR = freedesktop
-GST1_PLUGINS_BAD_CPE_ID_PRODUCT = gst-plugins-bad
-
-GST1_PLUGINS_BAD_CFLAGS = $(TARGET_CFLAGS) -std=c99 -D_GNU_SOURCE
-GST1_PLUGINS_BAD_LDFLAGS = $(TARGET_LDFLAGS) $(TARGET_NLS_LIBS)
+GST1_PLUGINS_BAD_LICENSE_FILES = COPYING COPYING.LIB
+# Unknown and GPL licensed plugins will append to GST1_PLUGINS_BAD_LICENSE if
+# enabled.
+GST1_PLUGINS_BAD_LICENSE = LGPL-2.0+, LGPL-2.1+
 
 GST1_PLUGINS_BAD_CONF_OPTS = \
-	-Dexamples=disabled \
-	-Dtests=disabled \
-	-Ddirectsound=disabled \
-	-Dd3dvideosink=disabled \
-	-Dwinks=disabled \
-	-Dandroidmedia=disabled \
-	-Dapplemedia=disabled \
-	-Dgobject-cast-checks=disabled \
-	-Dglib-asserts=disabled \
-	-Dglib-checks=disabled \
-	-Dextra-checks=disabled \
-	-Ddoc=disabled
+	--disable-examples \
+	--disable-valgrind \
+	--disable-directsound \
+	--disable-direct3d \
+	--disable-winks \
+	--disable-android_media \
+	--disable-apple_media \
+	--disable-sdltest \
+	--disable-wininet \
+	--disable-acm
 
 # Options which require currently unpackaged libraries
 GST1_PLUGINS_BAD_CONF_OPTS += \
-	-Dasio=disabled \
-	-Davtp=disabled \
-	-Dopensles=disabled \
-	-Dmsdk=disabled \
-	-Dvoamrwbenc=disabled \
-	-Dbs2b=disabled \
-	-Dchromaprint=disabled \
-	-Dd3d11=disabled \
-	-Ddc1394=disabled \
-	-Ddts=disabled \
-	-Dresindvd=disabled \
-	-Dfaac=disabled \
-	-Dflite=disabled \
-	-Dgs=disabled \
-	-Dgsm=disabled \
-	-Dkate=disabled \
-	-Dladspa=disabled \
-	-Dldac=disabled \
-	-Dlv2=disabled \
-	-Dmediafoundation=disabled \
-	-Dmicrodns=disabled \
-	-Dlibde265=disabled \
-	-Dmodplug=disabled \
-	-Dmplex=disabled \
-	-Donnx=disabled \
-	-Dopenexr=disabled \
-	-Dopenni2=disabled \
-	-Dteletext=disabled \
-	-Dwildmidi=disabled \
-	-Dsmoothstreaming=disabled \
-	-Dsoundtouch=disabled \
-	-Dgme=disabled \
-	-Dspandsp=disabled \
-	-Dsvthevcenc=disabled \
-	-Dtranscode=disabled \
-	-Dwasapi2=disabled \
-	-Dmagicleap=disabled \
-	-Disac=disabled \
-	-Diqa=disabled \
-	-Dopencv=disabled
+	--disable-avc \
+	--disable-opensles \
+	--disable-uvch264 \
+	--disable-voamrwbenc \
+	--disable-bs2b \
+	--disable-chromaprint \
+	--disable-dc1394 \
+	--disable-dts \
+	--disable-resindvd \
+	--disable-faac \
+	--disable-flite \
+	--disable-gsm \
+	--disable-fluidsynth \
+	--disable-kate \
+	--disable-ladspa \
+	--disable-lv2 \
+	--disable-libde265 \
+	--disable-linsys \
+	--disable-modplug \
+	--disable-mimic \
+	--disable-mplex \
+	--disable-nas \
+	--disable-ofa \
+	--disable-openexr \
+	--disable-openni2 \
+	--disable-pvr \
+	--disable-libvisual \
+	--disable-timidity \
+	--disable-teletextdec \
+	--disable-wildmidi \
+	--disable-smoothstreaming \
+	--disable-soundtouch \
+	--disable-spc \
+	--disable-gme \
+	--disable-xvid \
+	--disable-vdpau \
+	--disable-schro \
+	--disable-zbar \
+	--disable-spandsp \
+	--disable-sndio \
+	--disable-gtk3 \
+	--disable-qt
 
 GST1_PLUGINS_BAD_DEPENDENCIES = gst1-plugins-base gstreamer1
 
-ifeq ($(BR2_PACKAGE_GOBJECT_INTROSPECTION),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dintrospection=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += gobject-introspection
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dintrospection=disabled
+ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
+# RPI has odd locations for several required headers.
+GST1_PLUGINS_BAD_CONF_ENV += \
+	CPPFLAGS="$(TARGET_CPPFLAGS) \
+	-I$(STAGING_DIR)/usr/include/IL \
+	-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads \
+	-I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux"
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WAYLAND),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwayland=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += libdrm wayland wayland-protocols
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_OPENGL),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-opengl
+GST1_PLUGINS_BAD_DEPENDENCIES += libgl libglu
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwayland=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-opengl
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_GLES2),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-gles2
+GST1_PLUGINS_BAD_DEPENDENCIES += libgles
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-gles2
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_GLX),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-glx
+GST1_PLUGINS_BAD_DEPENDENCIES += xproto_glproto xlib_libXrender
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-glx
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_EGL),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-egl
+GST1_PLUGINS_BAD_DEPENDENCIES += libegl
+GST1_PLUGINS_BAD_CONF_ENV += \
+	CPPFLAGS="$(TARGET_CPPFLAGS) `$(PKG_CONFIG_HOST_BINARY) --cflags egl`" \
+	LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs egl`"
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-egl
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_X11),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-x11
+GST1_PLUGINS_BAD_DEPENDENCIES += xlib_libX11 xlib_libXext
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-x11
+endif
+
+ifneq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_WAYLAND)$(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WAYLAND),)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-wayland
+GST1_PLUGINS_BAD_DEPENDENCIES += wayland wayland-protocols
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-wayland
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_LIB_OPENGL_DISPMANX),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dispmanx
+GST1_PLUGINS_BAD_DEPENDENCIES += rpi-userland
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dispmanx
 endif
 
 ifeq ($(BR2_PACKAGE_ORC),y)
 GST1_PLUGINS_BAD_DEPENDENCIES += orc
-GST1_PLUGINS_BAD_CONF_OPTS += -Dorc=enabled
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dorc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-orc
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_BLUEZ),y)
-GST1_PLUGINS_BAD_DEPENDENCIES += bluez5_utils
-GST1_PLUGINS_BAD_CONF_OPTS += -Dbluez=enabled
+ifeq ($(BR2_PACKAGE_BLUEZ_UTILS),y)
+GST1_PLUGINS_BAD_DEPENDENCIES += bluez_utils
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-bluez
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dbluez=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-bluez
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ACCURIP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daccurip=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-accurip
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daccurip=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-accurip
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ADPCMDEC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dadpcmdec=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-adpcmdec
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dadpcmdec=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-adpcmdec
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ADPCMENC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dadpcmenc=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-adpcmenc
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dadpcmenc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-adpcmenc
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AIFF),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daiff=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-aiff
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daiff=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-aiff
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ASFMUX),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dasfmux=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-asfmux
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dasfmux=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AUDIOBUFFERSPLIT),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiobuffersplit=enabled
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiobuffersplit=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-asfmux
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AUDIOFXBAD),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiofxbad=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-audiofxbad
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiofxbad=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-audiofxbad
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AUDIOLATENCY),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiolatency=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AUDIOMIXER),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-audiomixer
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiolatency=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-audiomixer
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AUDIOMIXMATRIX),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiomixmatrix=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_COMPOSITOR),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-compositor
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiomixmatrix=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-compositor
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AUDIOVISUALIZERS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiovisualizers=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-audiovisualizers
+GST1_PLUGINS_BAD_HAS_GPL_LICENSE = y
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daudiovisualizers=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-audiovisualizers
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AUTOCONVERT),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dautoconvert=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-autoconvert
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dautoconvert=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-autoconvert
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_BAYER),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dbayer=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-bayer
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dbayer=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-bayer
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_CAMERABIN2),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcamerabin2=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-camerabin2
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcamerabin2=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-camerabin2
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_CODECALPHA),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcodecalpha=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_CDXAPARSE),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-cdxaparse
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcodecalpha=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-cdxaparse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_COLOREFFECTS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcoloreffects=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-coloreffects
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcoloreffects=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-coloreffects
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DATAURISRC),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dataurisrc
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dataurisrc
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DCCP),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dccp
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dccp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DEBUGUTILS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddebugutils=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-debugutils
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddebugutils=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-debugutils
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DVBSUBENC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvbsubenc=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DTLS),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dtls
+GST1_PLUGINS_BAD_DEPENDENCIES += openssl
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvbsubenc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dtls
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DVBSUBOVERLAY),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvbsuboverlay=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dvbsuboverlay
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvbsuboverlay=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dvbsuboverlay
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DVDSPU),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvdspu=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dvdspu
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvdspu=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dvdspu
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FACEOVERLAY),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfaceoverlay=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-faceoverlay
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfaceoverlay=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-faceoverlay
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FESTIVAL),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfestival=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-festival
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfestival=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-festival
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FIELDANALYSIS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfieldanalysis=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-fieldanalysis
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfieldanalysis=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-fieldanalysis
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FREEVERB),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfreeverb=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-freeverb
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfreeverb=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-freeverb
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FREI0R),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfrei0r=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-frei0r
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfrei0r=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-frei0r
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_GAUDIEFFECTS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgaudieffects=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-gaudieffects
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgaudieffects=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-gaudieffects
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_GEOMETRICTRANSFORM),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgeometrictransform=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-geometrictransform
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgeometrictransform=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-geometrictransform
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_GDP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgdp=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-gdp
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgdp=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-gdp
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_HDVPARSE),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-hdvparse
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-hdvparse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ID3TAG),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Did3tag=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-id3tag
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Did3tag=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-id3tag
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_INTER),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dinter=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-inter
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dinter=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-inter
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_INTERLACE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dinterlace=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-interlace
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dinterlace=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-interlace
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_IVFPARSE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Divfparse=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-ivfparse
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Divfparse=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-ivfparse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_IVTC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Divtc=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-ivtc
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Divtc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-ivtc
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_JP2KDECIMATOR),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Djp2kdecimator=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-jp2kdecimator
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Djp2kdecimator=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-jp2kdecimator
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_JPEGFORMAT),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Djpegformat=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-jpegformat
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Djpegformat=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-jpegformat
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_LIBRFB),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dlibrfb=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-librfb
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dlibrfb=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-librfb
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MIDI),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmidi=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-midi
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmidi=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-midi
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MPEGDEMUX),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegdemux=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-mpegdemux
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegdemux=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MPEGPSMUX),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegpsmux=enabled
-GST1_PLUGINS_BAD_HAS_UNKNOWN_LICENSE = y
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegpsmux=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MPEGTSMUX),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegtsmux=enabled
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegtsmux=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-mpegdemux
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MPEGTSDEMUX),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegtsdemux=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-mpegtsdemux
 GST1_PLUGINS_BAD_HAS_UNKNOWN_LICENSE = y
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpegtsdemux=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-mpegtsdemux
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MPEGTSMUX),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-mpegtsmux
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-mpegtsmux
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MPEGPSMUX),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-mpegpsmux
+GST1_PLUGINS_BAD_HAS_UNKNOWN_LICENSE = y
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-mpegpsmux
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MVE),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-mve
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-mve
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MXF),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmxf=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-mxf
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmxf=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-mxf
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_NETSIM),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dnetsim=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_NETSIM),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-netsim
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dnetsim=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-netsim
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_NUVDEMUX),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-nuvdemux
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-nuvdemux
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ONVIF),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Donvif=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-onvif
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Donvif=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-onvif
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_PATCHDETECT),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-patchdetect
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-patchdetect
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_PCAPPARSE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dpcapparse=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-pcapparse
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dpcapparse=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-pcapparse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_PNM),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dpnm=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-pnm
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dpnm=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_PROXY),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dproxy=enabled
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dproxy=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-pnm
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_RAWPARSE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Drawparse=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-rawparse
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Drawparse=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-rawparse
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_REMOVESILENCE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dremovesilence=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-removesilence
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dremovesilence=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_RIST),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Drist=enabled
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Drist=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_RTMP2),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Drtmp2=enabled
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Drtmp2=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_RTP2),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Drtp=enabled
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Drtp=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-removesilence
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_RTMP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Drtmp=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-rtmp
 GST1_PLUGINS_BAD_DEPENDENCIES += rtmpdump
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Drtmp=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-rtmp
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SDI),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-sdi
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-sdi
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SDP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsdp=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-sdp
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsdp=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-sdp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SEGMENTCLIP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsegmentclip=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-segmentclip
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsegmentclip=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-segmentclip
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SIREN),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsiren=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-siren
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsiren=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-siren
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SMOOTH),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsmooth=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-smooth
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsmooth=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-smooth
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SPEED),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dspeed=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-speed
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dspeed=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-speed
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SUBENC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsubenc=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-subenc
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsubenc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-subenc
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SWITCHBIN),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dswitchbin=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_STEREO),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-stereo
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dswitchbin=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-stereo
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_TIMECODE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dtimecode=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-timecode
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dtimecode=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-timecode
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_TTA),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-tta
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-tta
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VIDEOFILTERS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideofilters=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-videofilters
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideofilters=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-videofilters
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VIDEOFRAME_AUDIOLEVEL),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideoframe_audiolevel=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-videoframe_audiolevel
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideoframe_audiolevel=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-videoframe_audiolevel
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VIDEOMEASURE),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-videomeasure
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-videomeasure
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VIDEOPARSERS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideoparsers=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-videoparsers
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideoparsers=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-videoparsers
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VIDEOSIGNAL),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideosignal=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-videosignal
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvideosignal=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-videosignal
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VMNC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvmnc=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-vmnc
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvmnc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-vmnc
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_Y4M),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dy4m=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-y4m
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dy4m=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-y4m
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_YADIF),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-yadif
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-yadif
 endif
 
 # Plugins with dependencies
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_AES),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Daes=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_APEXSINK),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-apexsink
 GST1_PLUGINS_BAD_DEPENDENCIES += openssl
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Daes=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-apexsink
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_ASSRENDER),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dassrender=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-assrender
 GST1_PLUGINS_BAD_DEPENDENCIES += libass
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dassrender=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-assrender
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_BZ2),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dbz2=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-bz2
 GST1_PLUGINS_BAD_DEPENDENCIES += bzip2
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dbz2=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-bz2
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_CURL),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcurl=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-curl
 GST1_PLUGINS_BAD_DEPENDENCIES += libcurl
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dcurl=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-curl
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DASH),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddash=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dash
 GST1_PLUGINS_BAD_DEPENDENCIES += libxml2
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddash=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dash
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DECKLINK),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddecklink=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-decklink
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddecklink=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-decklink
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DIRECTFB),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddirectfb=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-directfb
 GST1_PLUGINS_BAD_DEPENDENCIES += directfb
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddirectfb=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-directfb
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DVB),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvb=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-dvb
 GST1_PLUGINS_BAD_DEPENDENCIES += dtv-scan-tables
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddvb=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-dvb
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FAAD),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfaad=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-faad
 GST1_PLUGINS_BAD_DEPENDENCIES += faad2
 GST1_PLUGINS_BAD_HAS_GPL_LICENSE = y
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfaad=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-faad
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FBDEV),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfbdev=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-fbdev
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfbdev=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-fbdev
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FDK_AAC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfdkaac=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-fdk_aac
 GST1_PLUGINS_BAD_DEPENDENCIES += fdk-aac
+GST1_PLUGINS_BAD_HAS_UNKNOWN_LICENSE = y
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfdkaac=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_FLUIDSYNTH),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfluidsynth=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += fluidsynth
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dfluidsynth=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-fdk_aac
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_GL),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgl=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-gl
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgl=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-gl
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_HLS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dhls=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-hls
 
 ifeq ($(BR2_PACKAGE_NETTLE),y)
 GST1_PLUGINS_BAD_DEPENDENCIES += nettle
-GST1_PLUGINS_BAD_CONF_OPTS += -Dhls-crypto='nettle'
+GST1_PLUGINS_BAD_CONF_OPTS += --with-hls-crypto=nettle
 else ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
 GST1_PLUGINS_BAD_DEPENDENCIES += libgcrypt
-GST1_PLUGINS_BAD_CONF_OPTS += -Dhls-crypto='libgcrypt'
+GST1_PLUGINS_BAD_CONF_OPTS += --with-hls-crypto=libgcrypt \
+	--with-libgcrypt-prefix=$(STAGING_DIR)/usr
 else
 GST1_PLUGINS_BAD_DEPENDENCIES += openssl
-GST1_PLUGINS_BAD_CONF_OPTS += -Dhls-crypto='openssl'
+GST1_PLUGINS_BAD_CONF_OPTS += --with-hls-crypto=openssl
 endif
 
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dhls=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-hls
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_KMS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dkms=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-kms
 GST1_PLUGINS_BAD_DEPENDENCIES += libdrm
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dkms=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-kms
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_DTLS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddtls=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += openssl
-GST1_PLUGINS_BAD_HAS_BSD2C_LICENSE = y
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_LIBMMS),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-libmms
+GST1_PLUGINS_BAD_DEPENDENCIES += libmms
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Ddtls=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_TTML),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dttml=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += cairo libxml2 pango
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dttml=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-libmms
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MPEG2ENC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpeg2enc=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += libmpeg2 mjpegtools
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-mpeg2enc
+GST1_PLUGINS_BAD_DEPENDENCIES += libmpeg2
 GST1_PLUGINS_BAD_HAS_GPL_LICENSE = y
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmpeg2enc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-mpeg2enc
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_MUSEPACK),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmusepack=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-musepack
 GST1_PLUGINS_BAD_DEPENDENCIES += musepack
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dmusepack=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-musepack
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_NEON),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dneon=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-neon
 GST1_PLUGINS_BAD_DEPENDENCIES += neon
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dneon=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-neon
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENAL),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopenal=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-openal
 GST1_PLUGINS_BAD_DEPENDENCIES += openal
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopenal=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-openal
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENCV),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-opencv
+GST1_PLUGINS_BAD_DEPENDENCIES += opencv
+else
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-opencv
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENH264),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopenh264=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-openh264
 GST1_PLUGINS_BAD_DEPENDENCIES += libopenh264
-GST1_PLUGINS_BAD_HAS_BSD2C_LICENSE = y
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopenh264=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-openh264
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENJPEG),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopenjpeg=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-openjpeg
 GST1_PLUGINS_BAD_DEPENDENCIES += openjpeg
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopenjpeg=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-openjpeg
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPUS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopus=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-opus
 GST1_PLUGINS_BAD_DEPENDENCIES += opus
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dopus=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_QROVERLAY),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dqroverlay=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += json-glib libqrencode
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dqroverlay=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-opus
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_RSVG),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Drsvg=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-rsvg
 GST1_PLUGINS_BAD_DEPENDENCIES += librsvg
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Drsvg=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-rsvg
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SBC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsbc=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-sbc
 GST1_PLUGINS_BAD_DEPENDENCIES += sbc
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsbc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-sbc
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SCTP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += \
-	-Dsctp=enabled \
-	-Dsctp-internal-usrsctp=enabled
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SDL),y)
+GST1_PLUGINS_BAD_CONF_ENV += ac_cv_path_SDL_CONFIG=$(STAGING_DIR)/usr/bin/sdl-config
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-sdl
+GST1_PLUGINS_BAD_DEPENDENCIES += sdl
 else
-GST1_PLUGINS_BAD_CONF_OPTS += \
-	-Dsctp=disabled \
-	-Dsctp-internal-usrsctp=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-sdl
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SHM),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dshm=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-shm
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dshm=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-shm
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SNDFILE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsndfile=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-sndfile
 GST1_PLUGINS_BAD_DEPENDENCIES += libsndfile
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsndfile=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-sndfile
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_SRTP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsrtp=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-srtp
 GST1_PLUGINS_BAD_DEPENDENCIES += libsrtp
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dsrtp=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-srtp
 endif
 
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_UVCH264),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Duvch264=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += libgudev libusb
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VCD),y)
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-vcd
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Duvch264=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VA),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dva=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += libva
-ifeq ($(BR2_PACKAGE_LIBDRM),y)
-GST1_PLUGINS_BAD_DEPENDENCIES += libdrm
-endif
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dva=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-vcd
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_VOAACENC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvoaacenc=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-voaacenc
 GST1_PLUGINS_BAD_DEPENDENCIES += vo-aacenc
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dvoaacenc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-voaacenc
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WEBP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwebp=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-webp
 GST1_PLUGINS_BAD_DEPENDENCIES += webp
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwebp=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WEBRTC),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwebrtc=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += gst1-plugins-base libnice
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwebrtc=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-webp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WEBRTCDSP),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwebrtcdsp=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-webrtcdsp
 GST1_PLUGINS_BAD_DEPENDENCIES += webrtc-audio-processing
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwebrtcdsp=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_WPE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwpe=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += libwpe wpewebkit wpebackend-fdo
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dwpe=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_V4L2CODECS),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dv4l2codecs=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += libgudev
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dv4l2codecs=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-webrtcdsp
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_X265),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dx265=enabled
+GST1_PLUGINS_BAD_CONF_OPTS += --enable-x265
 GST1_PLUGINS_BAD_DEPENDENCIES += x265
 GST1_PLUGINS_BAD_HAS_GPL_LICENSE = y
 else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dx265=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_ZBAR),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dzbar=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += zbar
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dzbar=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_ZXING),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dzxing=enabled
-GST1_PLUGINS_BAD_DEPENDENCIES += zxing-cpp
-else
-GST1_PLUGINS_BAD_CONF_OPTS += -Dzxing=disabled
+GST1_PLUGINS_BAD_CONF_OPTS += --disable-x265
 endif
 
 # Add GPL license if GPL licensed plugins enabled.
 ifeq ($(GST1_PLUGINS_BAD_HAS_GPL_LICENSE),y)
-GST1_PLUGINS_BAD_CONF_OPTS += -Dgpl=enabled
-GST1_PLUGINS_BAD_LICENSE += , GPL-2.0+
-GST1_PLUGINS_BAD_LICENSE_FILES += COPYING
-endif
-
-# Add BSD license if BSD licensed plugins enabled.
-ifeq ($(GST1_PLUGINS_BAD_HAS_BSD2C_LICENSE),y)
-GST1_PLUGINS_BAD_LICENSE += , BSD-2-Clause
+GST1_PLUGINS_BAD_LICENSE += GPL
 endif
 
 # Add Unknown license if Unknown licensed plugins enabled.
 ifeq ($(GST1_PLUGINS_BAD_HAS_UNKNOWN_LICENSE),y)
-GST1_PLUGINS_BAD_LICENSE += , UNKNOWN
+GST1_PLUGINS_BAD_LICENSE += UNKNOWN
 endif
 
 # Use the following command to extract license info for plugins.
 # # find . -name 'plugin-*.xml' | xargs grep license
 
-$(eval $(meson-package))
+$(eval $(autotools-package))

@@ -25,4 +25,4 @@ $(error No prefix selected for external toolchain package $(BR2_PACKAGE_PROVIDES
 endif
 endif
 
-include $(sort $(wildcard toolchain/toolchain-external/*/*.mk))
+include toolchain/toolchain-external/*/*.mk

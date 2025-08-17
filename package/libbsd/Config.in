@@ -1,18 +1,13 @@
 config BR2_PACKAGE_LIBBSD_ARCH_SUPPORTS
 	bool
-	default y
-	# libbsd does not support those architectures (see src/local-elf.h)
-	depends on !BR2_microblaze
-	depends on !BR2_arc
-	depends on !BR2_xtensa
+	# libbsd does not support the MicroBlaze ELF machine type (see local-elf.h)
+	default y if !BR2_microblaze
 
 config BR2_PACKAGE_LIBBSD
 	bool "libbsd"
 	depends on BR2_PACKAGE_LIBBSD_ARCH_SUPPORTS
-	depends on !BR2_STATIC_LIBS
 	depends on BR2_TOOLCHAIN_HAS_THREADS
-	depends on BR2_USE_WCHAR
-	select BR2_PACKAGE_LIBMD
+	depends on BR2_TOOLCHAIN_USES_GLIBC
 	help
 	  This library provides useful functions commonly found on BSD
 	  systems, and lacking on others like GNU systems, thus making
@@ -22,7 +17,6 @@ config BR2_PACKAGE_LIBBSD
 
 	  http://libbsd.freedesktop.org/
 
-comment "libbsd needs a toolchain w/ dynamic library, threads, wchar"
+comment "libbsd needs a glibc toolchain w/ threads"
 	depends on BR2_PACKAGE_LIBBSD_ARCH_SUPPORTS
-	depends on BR2_STATIC_LIBS || !BR2_TOOLCHAIN_HAS_THREADS || \
-		!BR2_USE_WCHAR
+	depends on !BR2_TOOLCHAIN_HAS_THREADS || !BR2_TOOLCHAIN_USES_GLIBC

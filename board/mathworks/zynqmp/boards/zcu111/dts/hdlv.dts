@@ -1,0 +1,12 @@
+#include "base.dtsi"
+
+&usb0 {
+    status = "okay";
+};
+  
+&dwc3_0 {
+    status = "okay";
+    dr_mode = "peripheral";
+    snps,usb3_lpm_capable;
+    maximum-speed ="super-speed";
+};

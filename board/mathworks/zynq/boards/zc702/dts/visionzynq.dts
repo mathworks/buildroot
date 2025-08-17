@@ -1,0 +1,7 @@
+#include "base.dtsi"
+#include "zynq-mw-visionzynq-common.dtsi"
+#include "mw-aximm-common.dtsi"
+/* Disable CAN0 device as it is causing network issues */
+&can0 {
+    status = "disabled";
+};

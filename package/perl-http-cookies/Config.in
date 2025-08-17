@@ -1,12 +1,8 @@
 config BR2_PACKAGE_PERL_HTTP_COOKIES
 	bool "perl-http-cookies"
-	depends on !BR2_STATIC_LIBS # perl-http-message -> perl-clone
-	select BR2_PACKAGE_PERL_HTTP_DATE # runtime
-	select BR2_PACKAGE_PERL_HTTP_MESSAGE # runtime
+	select BR2_PACKAGE_PERL_HTTP_DATE
+	select BR2_PACKAGE_PERL_HTTP_MESSAGE
 	help
-	  HTTP cookie jars.
+	  Objects that represent a "cookie jar"
 
-	  https://github.com/libwww-perl/HTTP-Cookies
-
-comment "perl-http-cookies needs a toolchain w/ dynamic library"
-	depends on BR2_STATIC_LIBS
+	  http://github.com/gisle/http-cookies

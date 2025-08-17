@@ -1,0 +1,12 @@
+#include "zynqmp-mw-axistream-iio-common.dtsi"
+
+&axi4stream_mm2s {
+	reg = <0x0 0x80020000 0x10000>;
+	clocks = <&adc0_ad9361 0 &adc0_ad9361 0 &adc0_ad9361 0>;
+};
+
+&axi4stream_s2mm {
+	reg = <0x0 0x80030000 0x10000>;
+	clocks = <&adc0_ad9361 0 &adc0_ad9361 0 &adc0_ad9361 0>;
+};
+

@@ -4,46 +4,41 @@
 #
 ################################################################################
 
-GVFS_VERSION_MAJOR = 1.48
-GVFS_VERSION = $(GVFS_VERSION_MAJOR).1
+GVFS_VERSION_MAJOR = 1.30
+GVFS_VERSION = $(GVFS_VERSION_MAJOR).3
 GVFS_SOURCE = gvfs-$(GVFS_VERSION).tar.xz
-GVFS_SITE = https://download.gnome.org/sources/gvfs/$(GVFS_VERSION_MAJOR)
+GVFS_SITE = http://ftp.gnome.org/pub/GNOME/sources/gvfs/$(GVFS_VERSION_MAJOR)
 GVFS_INSTALL_STAGING = YES
-GVFS_DEPENDENCIES = \
-	host-pkgconf \
-	host-libglib2 \
-	dbus \
-	gsettings-desktop-schemas \
-	libglib2 \
-	shared-mime-info \
-	$(TARGET_NLS_DEPENDENCIES)
+GVFS_DEPENDENCIES = host-pkgconf host-libglib2 libglib2 dbus shared-mime-info
 GVFS_LICENSE = LGPL-2.0+
 GVFS_LICENSE_FILES = COPYING
-GVFS_CPE_ID_VENDOR = gnome
 
-GVFS_LDFLAGS = $(TARGET_LDFLAGS) $(TARGET_NLS_LIBS)
+# Export ac_cv_path_LIBGCRYPT_CONFIG unconditionally to prevent
+# build system from searching the host paths.
+GVFS_CONF_ENV = ac_cv_path_LIBGCRYPT_CONFIG=$(STAGING_DIR)/usr/bin/libgcrypt-config
 
 # Most of these are missing library support
 GVFS_CONF_OPTS = \
-	-Dafc=false \
-	-Dgoa=false \
-	-Dgoogle=false \
-	-Dmtp=false \
-	-Dsftp=false \
-	-Dudisks2=false
+	--disable-afc \
+	--disable-admin \
+	--disable-bash-completion \
+	--disable-cdda \
+	--disable-gconf \
+	--disable-gcr \
+	--disable-gdu \
+	--disable-goa \
+	--disable-google \
+	--disable-gphoto2 \
+	--disable-hal \
+	--disable-keyring \
+	--disable-libmtp \
+	--disable-udisks2
 
 ifeq ($(BR2_PACKAGE_AVAHI),y)
 GVFS_DEPENDENCIES += avahi
-GVFS_CONF_OPTS += -Ddnssd=true
+GVFS_CONF_OPTS += --enable-avahi
 else
-GVFS_CONF_OPTS += -Ddnssd=false
-endif
-
-ifeq ($(BR2_PACKAGE_GCR),y)
-GVFS_DEPENDENCIES += gcr
-GVFS_CONF_OPTS += -Dgcr=true
-else
-GVFS_CONF_OPTS += -Dgcr=false
+GVFS_CONF_OPTS += --disable-avahi
 endif
 
 ifeq ($(BR2_PACKAGE_HAS_UDEV),y)
@@ -52,120 +47,93 @@ endif
 
 ifeq ($(BR2_PACKAGE_LIBGUDEV),y)
 GVFS_DEPENDENCIES += libgudev
-GVFS_CONF_OPTS += -Dgudev=true
-else
-GVFS_CONF_OPTS += -Dgudev=false
 endif
 
 ifeq ($(BR2_PACKAGE_LIBARCHIVE),y)
 GVFS_DEPENDENCIES += libarchive
-GVFS_CONF_OPTS += -Darchive=true
+GVFS_CONF_OPTS += \
+	--enable-archive \
+	--with-archive-includes=$(STAGING_DIR)/usr \
+	--with-archive-libs=$(STAGING_DIR)/usr
 else
-GVFS_CONF_OPTS += -Darchive=false
+GVFS_CONF_OPTS += --disable-archive
 endif
 
 ifeq ($(BR2_PACKAGE_LIBBLURAY),y)
 GVFS_DEPENDENCIES += libbluray
-GVFS_CONF_OPTS += -Dbluray=true
+GVFS_CONF_OPTS += --enable-bluray
 else
-GVFS_CONF_OPTS += -Dbluray=false
+GVFS_CONF_OPTS += --disable-bluray
 endif
 
-ifeq ($(BR2_PACKAGE_LIBCAP)$(BR2_PACKAGE_POLKIT),yy)
-GVFS_DEPENDENCIES += libcap polkit
-GVFS_CONF_OPTS += -Dadmin=true
+ifeq ($(BR2_PACKAGE_LIBFUSE),y)
+GVFS_DEPENDENCIES += libfuse
+GVFS_CONF_OPTS += --enable-fuse
 else
-GVFS_CONF_OPTS += -Dadmin=false
-endif
-
-ifeq ($(BR2_PACKAGE_LIBCDIO_PARANOIA)$(BR2_PACKAGE_LIBGUDEV),yy)
-GVFS_DEPENDENCIES += libcdio-paranoia libgudev
-GVFS_CONF_OPTS += -Dcdda=true
-else
-GVFS_CONF_OPTS += -Dcdda=false
-endif
-
-ifeq ($(BR2_PACKAGE_LIBFUSE3),y)
-GVFS_DEPENDENCIES += libfuse3
-GVFS_CONF_OPTS += -Dfuse=true
-else
-GVFS_CONF_OPTS += -Dfuse=false
+GVFS_CONF_OPTS += --disable-fuse
 endif
 
 # AFP support is anon-only without libgcrypt which isn't very useful
 ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
-GVFS_CONF_OPTS += \
-	-Dafp=true \
-	-Dgcrypt=true
+GVFS_CONF_OPTS += --enable-afp
 GVFS_DEPENDENCIES += libgcrypt
 else
-GVFS_CONF_OPTS += \
-	-Dafp=false \
-	-Dgcrypt=false
+GVFS_CONF_OPTS += --disable-afp
 endif
 
-ifeq ($(BR2_PACKAGE_LIBGPHOTO2)$(BR2_PACKAGE_LIBGUDEV),yy)
-GVFS_DEPENDENCIES += libgphoto2 libgudev
-GVFS_CONF_OPTS += -Dgphoto2=true
+ifeq ($(BR2_PACKAGE_LIBGTK3),y)
+GVFS_CONF_OPTS += --enable-gtk
+GVFS_DEPENDENCIES += libgtk3
 else
-GVFS_CONF_OPTS += -Dgphoto2=false
+GVFS_CONF_OPTS += --disable-gtk
 endif
 
 ifeq ($(BR2_PACKAGE_LIBNFS),y)
-GVFS_CONF_OPTS += -Dnfs=true
+GVFS_CONF_OPTS += --enable-nfs
 GVFS_DEPENDENCIES += libnfs
 else
-GVFS_CONF_OPTS += -Dnfs=false
+GVFS_CONF_OPTS += --disable-nfs
 endif
 
-ifeq ($(BR2_PACKAGE_LIBSECRET),y)
-GVFS_DEPENDENCIES += libsecret
-GVFS_CONF_OPTS += -Dkeyring=true
+ifeq ($(BR2_PACKAGE_LIBSOUP),y)
+GVFS_DEPENDENCIES += libsoup
+GVFS_CONF_OPTS += --enable-http
 else
-GVFS_CONF_OPTS += -Dkeyring=false
-endif
-
-ifeq ($(BR2_PACKAGE_LIBSOUP)$(BR2_PACKAGE_LIBXML2),yy)
-GVFS_DEPENDENCIES += libsoup libxml2
-GVFS_CONF_OPTS += -Dhttp=true
-else
-GVFS_CONF_OPTS += -Dhttp=false
-endif
-
-ifeq ($(BR2_PACKAGE_LIBUSB),y)
-GVFS_DEPENDENCIES += libusb
-GVFS_CONF_OPTS += -Dlibusb=true
-else
-GVFS_CONF_OPTS += -Dlibusb=false
+GVFS_CONF_OPTS += --disable-http
 endif
 
 ifeq ($(BR2_PACKAGE_SAMBA4),y)
 GVFS_DEPENDENCIES += samba4
-GVFS_CONF_OPTS += -Dsmb=true
+GVFS_CONF_OPTS += \
+	--enable-samba \
+	--with-samba-includes=$(STAGING_DIR)/usr/include/samba-4.0 \
+	--with-samba-libs=$(STAGING_DIR)/usr/lib \
+	ac_cv_lib_smbclient_smbc_option_get=yes
 else
-GVFS_CONF_OPTS += -Dsmb=false
+GVFS_CONF_OPTS += --disable-samba
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD),y)
 GVFS_DEPENDENCIES += systemd
-GVFS_CONF_OPTS += -Dlogind=true
 else
-GVFS_CONF_OPTS += \
-	-Dlogind=false \
-	-Dsystemduserunitdir=no \
-	-Dtmpfilesdir=no
+GVFS_CONF_OPTS += --disable-libsystemd-login
 endif
+
+define GVFS_REMOVE_USELESS_BINARY
+	rm $(TARGET_DIR)/usr/bin/gvfs-less
+endef
 
 define GVFS_REMOVE_TARGET_SCHEMAS
 	rm $(TARGET_DIR)/usr/share/glib-2.0/schemas/*.xml
 endef
 
 define GVFS_COMPILE_SCHEMAS
-	$(HOST_DIR)/bin/glib-compile-schemas --targetdir=$(TARGET_DIR)/usr/share/glib-2.0/schemas $(STAGING_DIR)/usr/share/glib-2.0/schemas
+	$(HOST_DIR)/usr/bin/glib-compile-schemas --targetdir=$(TARGET_DIR)/usr/share/glib-2.0/schemas $(STAGING_DIR)/usr/share/glib-2.0/schemas
 endef
 
 GVFS_POST_INSTALL_TARGET_HOOKS += \
+	GVFS_REMOVE_USELESS_BINARY \
 	GVFS_REMOVE_TARGET_SCHEMAS \
 	GVFS_COMPILE_SCHEMAS
 
-$(eval $(meson-package))
+$(eval $(autotools-package))

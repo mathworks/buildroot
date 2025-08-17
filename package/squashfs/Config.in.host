@@ -3,4 +3,4 @@ config BR2_PACKAGE_HOST_SQUASHFS
 	help
 	  Tools to generate SquashFS filesystems.
 
-	  https://github.com/plougher/squashfs-tools
+	  http://squashfs.sourceforge.net/

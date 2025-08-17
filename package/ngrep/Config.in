@@ -5,4 +5,4 @@ config BR2_PACKAGE_NGREP
 	help
 	  Network grep.
 
-	  https://github.com/jpr5/ngrep/
+	  http://ngrep.sourceforge.net/

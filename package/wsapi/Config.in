@@ -1,9 +1,10 @@
 config BR2_PACKAGE_WSAPI
 	bool "wsapi"
-	select BR2_PACKAGE_COXPCALL if BR2_PACKAGE_LUA_5_1 # runtime
-	select BR2_PACKAGE_LUAFILESYSTEM # runtime
-	select BR2_PACKAGE_RINGS # runtime
+	# Runtime dependency only
+	select BR2_PACKAGE_COXPCALL
+	select BR2_PACKAGE_LUAFILESYSTEM
+	select BR2_PACKAGE_RINGS
 	help
 	  API that abstracts the web server from Lua web applications.
 
-	  https://keplerproject.github.io/wsapi/
+	  http://keplerproject.github.com/wsapi/

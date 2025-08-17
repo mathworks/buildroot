@@ -1,0 +1,24 @@
+/* Setup the default boot args for ramdisk and earlycon */
+/ {
+	chosen {
+		bootargs = "earlycon root=/dev/ram rw";
+	};
+};
+
+&fpga_axi {
+		mwipcore0: mwipcore@0 {
+			compatible = "mathworks,mwipcore-v3.00";
+			reg = <0x0 0x80000000 0x10000>;
+		};
+};
+
+#include "mw-aximm-common.dtsi"
+#include "zynqmp-mw-cma.dtsi"
+#include "zynq-mw-ad9361-bypass-user-logic.dtsi"
+
+&mwbypassrx0 { 
+	reg = <0x0 0x80060000 0x10000>;
+};
+&mwbypasstx0 { 
+	reg = <0x0 0x80040000 0x10000>;
+};
